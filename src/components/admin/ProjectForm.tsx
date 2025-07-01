@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Project } from "@/types/content";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import MarkdownIt from 'markdown-it';
 import Editor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
@@ -14,18 +14,18 @@ type ProjectFormData = Omit<Project, 'id' | 'contentHtml'>;
 
 interface ProjectFormProps {
   project?: Project;
-  slug?: string;
 }
 
 const mdParser = new MarkdownIt();
 
-export default function ProjectForm({ project, slug }: ProjectFormProps) {
+export default function ProjectForm({ project }: ProjectFormProps) {
   const router = useRouter();
   const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = useForm<ProjectFormData>({
-    criteriaMode: "all" // ErrorMessage'in çalışması için gerekli
+    criteriaMode: "all"
   });
   const isEditMode = !!project;
-  const [markdownContent, setMarkdownContent] = useState(project?.content || "");
+  
+  const contentRef = useRef(project?.content || "");
 
   const title = watch("title");
 
@@ -38,7 +38,7 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
           setValue(key as any, value);
         }
       });
-      setMarkdownContent(project.content || "");
+      contentRef.current = project.content || "";
     }
   }, [isEditMode, project, setValue]);
 
@@ -48,20 +48,18 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
     }
   }, [title, setValue, isEditMode]);
 
-  const handleEditorChange = ({ text }: { text: string }) => {
-    setMarkdownContent(text);
-  };
-
   const onImageUpload = async (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
+    const loadingToast = toast.loading("Görsel yükleniyor...");
     try {
       const response = await fetch('/api/admin/upload', { method: 'POST', body: formData });
-      if (!response.ok) throw new Error('Resim yüklenemedi.');
+      if (!response.ok) throw new Error('Yükleme başarısız oldu.');
       const data = await response.json();
+      toast.success("Görsel yüklendi!", { id: loadingToast });
       return data.filePath;
     } catch (error) {
-      toast.error('Resim yüklenirken hata oluştu.');
+      toast.error("Görsel yüklenemedi.", { id: loadingToast });
       return '';
     }
   };
@@ -82,7 +80,7 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
           slug: data.slug,
           originalSlug: isEditMode ? project?.slug : undefined,
           data: { ...data, technologies },
-          content: markdownContent,
+          content: contentRef.current,
         }),
       });
 
@@ -106,7 +104,7 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
         <input {...register("title", { required: "Başlık zorunludur." })} id="title" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
         <ErrorMessage errors={errors} name="title" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
-
+      
       <div>
         <label htmlFor="slug" className="block text-sm font-medium mb-1">Slug</label>
         <input {...register("slug", { required: "Slug zorunludur." })} id="slug" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
@@ -123,17 +121,12 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
               const file = e.target.files[0];
               const formData = new FormData();
               formData.append('file', file);
-              
               const loadingToast = toast.loading("Görsel yükleniyor...");
               try {
-                const response = await fetch('/api/admin/upload', {
-                  method: 'POST',
-                  body: formData,
-                });
+                const response = await fetch('/api/admin/upload', { method: 'POST', body: formData });
                 if (!response.ok) throw new Error("Yükleme başarısız.");
-                
                 const data = await response.json();
-                setValue("mainImage", data.filePath); // URL'yi formdaki 'mainImage' alanına ata
+                setValue("mainImage", data.filePath);
                 toast.success("Görsel yüklendi!", { id: loadingToast });
               } catch (error) {
                 toast.error("Görsel yüklenemedi.", { id: loadingToast });
@@ -148,9 +141,8 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
             <img src={watch("mainImage")} alt="Görsel Önizleme" className="mt-2 h-32 rounded-lg" />
           </div>
         )}
-        <ErrorMessage errors={errors} name="mainImage" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
-      
+
       <div>
         <label htmlFor="description" className="block text-sm font-medium mb-1">Kısa Açıklama</label>
         <textarea {...register("description", { required: "Açıklama zorunludur." })} id="description" rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
@@ -192,14 +184,14 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
       <div>
         <label>Proje İçeriği</label>
         <Editor
-          value={markdownContent}
+          key={project?.slug || 'new-project'}
+          defaultValue={contentRef.current}
           renderHTML={text => mdParser.render(text)}
-          onChange={handleEditorChange}
+          onChange={({ text }) => { contentRef.current = text; }}
           onImageUpload={onImageUpload}
           className="h-96"
         />
       </div>
-
       <div className="text-right">
         <button type="submit" disabled={isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Güncelle" : "Oluştur")}

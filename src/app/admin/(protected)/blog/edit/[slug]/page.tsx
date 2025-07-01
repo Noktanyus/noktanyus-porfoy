@@ -19,7 +19,7 @@ export default function EditBlogPage({ params }: { params: { slug: string } }) {
         const response = await fetch(`/api/admin/content?type=blog&slug=${slug}.md`);
         if (!response.ok) throw new Error("Yazı verileri yüklenemedi.");
         const { data, content } = await response.json();
-        setPost({ ...data, id: slug, contentHtml: content, content: content });
+        setPost({ ...data, id: slug, content: content });
       } catch (error) {
         toast.error((error as Error).message);
       } finally {
@@ -41,7 +41,7 @@ export default function EditBlogPage({ params }: { params: { slug: string } }) {
   return (
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Yazıyı Düzenle: {post.title}</h1>
-      <BlogForm post={post} slug={slug} />
+      <BlogForm post={post} />
     </div>
   );
 }

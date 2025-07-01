@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getAboutData, getSeoSettings } from "@/lib/content-parser";
 import { Suspense } from 'react';
@@ -65,23 +66,25 @@ export default async function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <body className={`${inter.className} bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative flex flex-col min-h-screen">
-            <Header headerTitle={headerTitle} />
-            <main className="flex-grow container mx-auto px-4 pt-24">
-              {children}
-            </main>
-            <Footer />
-          </div>
-          <Suspense fallback={<Spinner />}>
-            <PopupViewer />
-          </Suspense>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="relative flex flex-col min-h-screen">
+              <Header headerTitle={headerTitle} />
+              <main className="flex-grow container mx-auto px-4 pt-24">
+                {children}
+              </main>
+              <Footer />
+            </div>
+            <Suspense fallback={<Spinner />}>
+              <PopupViewer />
+            </Suspense>
+          </ThemeProvider>
+        </AuthProvider>
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
         <Suspense fallback={<Spinner size="small" />}>
           <YandexMetrica />

@@ -74,39 +74,49 @@ export default function AdminHakkimdaPage() {
     }
   };
 
+  const handleExperienceChange = (index: number, field: keyof Experience, value: string) => {
+    const updatedExperiences = [...experiences];
+    updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
+    setExperiences(updatedExperiences);
+  };
+
+  const addExperience = () => {
+    setExperiences([...experiences, { title: '', company: '', date: '', description: '' }]);
+  };
+
+  const removeExperience = (index: number) => {
+    setExperiences(experiences.filter((_, i) => i !== index));
+  };
+
   const handleSave = async () => {
     const toastId = toast.loading('Değişiklikler kaydediliyor...');
     try {
-      // Hakkımda verilerini ve içeriği kaydet
       const aboutPromise = fetch('/api/admin/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: 'about', 
-          slug: 'about.md', 
-          data: aboutData, 
-          content 
-        }),
+        body: JSON.stringify({ type: 'about', slug: 'about.md', data: aboutData, content }),
       });
-
-      // Yetenekleri kaydet
+      
       const skillsPromise = fetch('/api/admin/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'skills',
-          slug: 'skills.json',
-          data: skills.map(s => s.name), // Skill[] -> string[] dönüşümü
-        }),
+        body: JSON.stringify({ type: 'skills', slug: 'skills.json', data: skills.map(s => s.name) }),
       });
 
-      const [aboutResponse, skillsResponse] = await Promise.all([aboutPromise, skillsPromise]);
+      const experiencesPromise = fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', data: experiences }),
+      });
 
-      if (!aboutResponse.ok || !skillsResponse.ok) {
-        throw new Error('Değişiklikler kaydedilemedi.');
+      const [aboutResponse, skillsResponse, expResponse] = await Promise.all([aboutPromise, skillsPromise, experiencesPromise]);
+
+      if (!aboutResponse.ok || !skillsResponse.ok || !expResponse.ok) {
+        throw new Error('Değişiklikler kaydedilemedi. En az bir işlem başarısız oldu.');
       }
 
       toast.success('Tüm değişiklikler başarıyla kaydedildi!', { id: toastId });
+      fetchData(); // Verileri yeniden çekerek arayüzü güncelle
     } catch (error) {
       toast.error((error as Error).message, { id: toastId });
     }
@@ -127,7 +137,21 @@ export default function AdminHakkimdaPage() {
             <input type="text" placeholder="İsim Soyisim" value={aboutData.name || ''} onChange={(e) => setAboutData({ ...aboutData, name: e.target.value })} className="w-full p-2 border rounded" />
             <input type="text" placeholder="Unvan" value={aboutData.title || ''} onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })} className="w-full p-2 border rounded" />
             <input type="text" placeholder="Alt Başlık" value={aboutData.subTitle || ''} onChange={(e) => setAboutData({ ...aboutData, subTitle: e.target.value })} className="w-full p-2 border rounded" />
+            <textarea placeholder="Kısa Açıklama" value={aboutData.shortDescription || ''} onChange={(e) => setAboutData({ ...aboutData, shortDescription: e.target.value })} className="w-full p-2 border rounded md:col-span-2" rows={3} />
           </div>
+        </div>
+
+        {/* Üzerinde Çalışılanlar */}
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">Şu An Üzerinde Çalıştıklarım</h2>
+          <p className="text-sm text-gray-500 mb-4">Her bir konuyu virgülle ayırarak girin.</p>
+          <input 
+            type="text" 
+            placeholder="Next.js, Tailwind CSS, GraphQL..." 
+            value={Array.isArray(aboutData.workingOn) ? aboutData.workingOn.join(', ') : ''} 
+            onChange={(e) => setAboutData({ ...aboutData, workingOn: e.target.value.split(',').map(s => s.trim()) })} 
+            className="w-full p-2 border rounded" 
+          />
         </div>
 
         {/* Sosyal Medya */}
@@ -201,6 +225,23 @@ export default function AdminHakkimdaPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Tecrübeler */}
+        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">İş Tecrübeleri</h2>
+          <div className="space-y-4">
+            {experiences.map((exp, index) => (
+              <div key={index} className="p-4 border rounded-md space-y-2">
+                <input type="text" placeholder="Unvan" value={exp.title} onChange={(e) => handleExperienceChange(index, 'title', e.target.value)} className="w-full p-2 border rounded" />
+                <input type="text" placeholder="Şirket" value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} className="w-full p-2 border rounded" />
+                <input type="text" placeholder="Tarih (Örn: 2022 - Günümüz)" value={exp.date} onChange={(e) => handleExperienceChange(index, 'date', e.target.value)} className="w-full p-2 border rounded" />
+                <textarea placeholder="Açıklama" value={exp.description} onChange={(e) => handleExperienceChange(index, 'description', e.target.value)} className="w-full p-2 border rounded" rows={3} />
+                <button onClick={() => removeExperience(index)} className="text-red-500 hover:text-red-700">Bu Tecrübeyi Sil</button>
+              </div>
+            ))}
+          </div>
+          <button onClick={addExperience} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Yeni Tecrübe Ekle</button>
         </div>
       </div>
 

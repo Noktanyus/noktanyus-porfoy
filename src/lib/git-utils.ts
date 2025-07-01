@@ -13,13 +13,25 @@ type CommitDetails = {
 
 export async function getCommitHistory() {
   try {
-    const log = await git.log({
-      '--max-count': 50, // Son 50 commit'i getir
-    });
+    const log = await git.log({ '--max-count': 50 });
     return log.all;
   } catch (error) {
     console.error('Git geçmişi alınırken hata oluştu:', error);
     return [];
+  }
+}
+
+export async function getGitRepoUrl(): Promise<string | null> {
+  try {
+    const remotes = await git.getRemotes(true);
+    const origin = remotes.find(remote => remote.name === 'origin');
+    if (origin && origin.refs.fetch) {
+      return origin.refs.fetch.replace(/^git@github.com:/, 'https://github.com/').replace(/\.git$/, '');
+    }
+    return null;
+  } catch (error) {
+    console.error('Git repo URL alınırken hata oluştu:', error);
+    return null;
   }
 }
 
@@ -30,15 +42,10 @@ export async function commitContentChange({ action, fileType, slug, user }: Comm
       console.log("Commit atılacak bir değişiklik bulunamadı.");
       return;
     }
-
-    const actionVerb = {
-      create: 'Oluştur',
-      update: 'Güncelle',
-      delete: 'Sil',
-    }[action];
-
-    const commitMessage = `feat(content): ${fileType} '${slug}' ${actionVerb} (${user}) [ci skip]`;
-
+    const actionMap = { create: 'oluşturuldu', update: 'güncellendi', delete: 'silindi' };
+    const actionVerb = actionMap[action];
+    const typeTR = fileType.replace('projects', 'proje').replace('blog', 'yazı');
+    const commitMessage = `içerik: '${slug}' adlı ${typeTR} ${user} tarafından ${actionVerb}. [ci skip]`;
     await git.add('.');
     await git.commit(commitMessage);
     console.log(`Commit başarıyla atıldı: ${commitMessage}`);
@@ -52,11 +59,26 @@ export async function revertCommit(hash: string, user: string) {
   try {
     await git.revert(hash, ['--no-edit']);
     console.log(`Commit ${hash} başarıyla geri alındı.`);
-    // Revert işlemini de commit'lemek iyi bir pratik olabilir, ancak simple-git bunu zaten yapıyor.
-    // Değişiklikleri yansıtmak için revalidate gerekebilir.
   } catch (error) {
     console.error(`Commit ${hash} geri alınırken hata oluştu:`, error);
     await git.raw('revert', '--abort');
     throw new Error('Commit geri alınamadı. Muhtemelen bir çakışma (conflict) oluştu.');
+  }
+}
+
+export async function commitAllChanges(message: string, user: string) {
+  try {
+    const status = await git.status();
+    if (status.files.length === 0) {
+      throw new Error("Commit atılacak bir değişiklik bulunamadı.");
+    }
+    const commitMessage = `kaynak: ${message} (${user}) [ci skip]`;
+    await git.add('.');
+    await git.commit(commitMessage);
+    console.log(`Tüm değişiklikler başarıyla commit'lendi: ${commitMessage}`);
+    return { success: true, message: "Tüm değişiklikler başarıyla commit'lendi." };
+  } catch (error) {
+    console.error('Tüm değişiklikler commitlenirken bir hata oluştu:', error);
+    throw new Error((error as Error).message || 'Commit işlemi başarısız oldu.');
   }
 }

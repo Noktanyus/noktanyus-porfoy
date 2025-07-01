@@ -41,7 +41,7 @@ export default function EditProjectPage({ params }: { params: { slug: string } }
   return (
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Projeyi Düzenle: {project.title}</h1>
-      <ProjectForm project={project} slug={slug} />
+      <ProjectForm project={project} />
     </div>
   );
 }

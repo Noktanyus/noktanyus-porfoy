@@ -125,8 +125,16 @@ export default function DashboardPage() {
       </div>
 
 
+      {/* Kaynak Kodu Commit'leme */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-semibold mb-4">Kaynak Kodu Yönetimi</h2>
+        <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md">
+          <SourceCodeCommitter />
+        </div>
+      </div>
+
       {/* Hızlı Erişim */}
-      <div>
+      <div className="mt-12">
         <h2 className="text-2xl font-semibold mb-4">Hızlı Erişim</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {adminLinks.map((link) => (
@@ -159,3 +167,65 @@ const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, va
     </div>
   </div>
 );
+
+function SourceCodeCommitter() {
+  const [message, setMessage] = useState('');
+  const [isCommitting, setIsCommitting] = useState(false);
+
+  const handleCommit = async () => {
+    if (!message) {
+      toast.error("Lütfen bir commit mesajı girin.");
+      return;
+    }
+    if (!confirm("Bu işlem, projedeki tüm değişiklikleri (içerik hariç) commit'leyecektir. Bu işlem geri alınamaz. Emin misiniz?")) {
+      return;
+    }
+
+    setIsCommitting(true);
+    const toastId = toast.loading("Değişiklikler commit'leniyor...");
+
+    try {
+      const response = await fetch('/api/admin/git/commit-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Bilinmeyen bir hata oluştu.");
+      }
+      
+      toast.success(result.message, { id: toastId });
+      setMessage('');
+    } catch (error) {
+      toast.error((error as Error).message, { id: toastId });
+    } finally {
+      setIsCommitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <p className="mb-2 text-sm text-gray-600 dark:text-gray-400">
+        Buradan kaynak kodunda (içerik dosyaları hariç) yaptığınız değişiklikleri commit'leyebilirsiniz.
+      </p>
+      <div className="flex items-center space-x-2">
+        <input 
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Örn: Admin panelini güncelledim"
+          className="flex-grow p-2 rounded bg-gray-200 dark:bg-gray-700"
+        />
+        <button 
+          onClick={handleCommit}
+          disabled={isCommitting || !message}
+          className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400"
+        >
+          {isCommitting ? "Commit'leniyor..." : "Commit'le ve Gönder"}
+        </button>
+      </div>
+    </div>
+  );
+}
