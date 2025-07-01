@@ -1,14 +1,19 @@
-// src/components/admin/HistoryClientPage.tsx
 "use client";
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { LogResult } from "simple-git";
 
-type Commit = LogResult['all'][0];
+// Basit, serialize edilebilir commit tipi
+type SimpleCommit = {
+  hash: string;
+  date: string;
+  message: string;
+  author_name: string;
+  author_email: string;
+};
 
 interface HistoryClientPageProps {
-  commits: readonly Commit[];
+  commits: readonly SimpleCommit[];
   repoUrl: string;
 }
 
@@ -36,8 +41,6 @@ export function HistoryClientPage({ commits, repoUrl }: HistoryClientPageProps) 
       }
 
       toast.success("Commit başarıyla geri alındı! Değişikliklerin yansıması biraz zaman alabilir.", { id: loadingToast });
-      // Sayfayı yenilemek yerine, ideal olarak sadece listeyi güncelleriz.
-      // Şimdilik basit tutmak için tam sayfa yenilemesi yapabiliriz.
       window.location.reload();
 
     } catch (error) {

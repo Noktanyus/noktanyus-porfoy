@@ -114,9 +114,41 @@ export default function ProjectForm({ project, slug }: ProjectFormProps) {
       </div>
 
       <div>
-        <label htmlFor="mainImage" className="block text-sm font-medium mb-1">Başlık Görseli URL</label>
-        <input {...register("mainImage")} id="mainImage" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-        {watch("mainImage") && <img src={watch("mainImage")} alt="Preview" className="mt-2 h-32" />}
+        <label htmlFor="mainImage" className="block text-sm font-medium mb-1">Başlık Görseli</label>
+        <input 
+          type="file" 
+          id="mainImageFile" 
+          onChange={async (e) => {
+            if (e.target.files && e.target.files[0]) {
+              const file = e.target.files[0];
+              const formData = new FormData();
+              formData.append('file', file);
+              
+              const loadingToast = toast.loading("Görsel yükleniyor...");
+              try {
+                const response = await fetch('/api/admin/upload', {
+                  method: 'POST',
+                  body: formData,
+                });
+                if (!response.ok) throw new Error("Yükleme başarısız.");
+                
+                const data = await response.json();
+                setValue("mainImage", data.filePath); // URL'yi formdaki 'mainImage' alanına ata
+                toast.success("Görsel yüklendi!", { id: loadingToast });
+              } catch (error) {
+                toast.error("Görsel yüklenemedi.", { id: loadingToast });
+              }
+            }
+          }} 
+          className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" 
+        />
+        {watch("mainImage") && (
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Mevcut Görsel URL: {watch("mainImage")}</p>
+            <img src={watch("mainImage")} alt="Görsel Önizleme" className="mt-2 h-32 rounded-lg" />
+          </div>
+        )}
+        <ErrorMessage errors={errors} name="mainImage" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
       
       <div>

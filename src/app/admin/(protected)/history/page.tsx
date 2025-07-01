@@ -5,9 +5,17 @@ import { HistoryClientPage } from "@/components/admin/HistoryClientPage";
 export const dynamic = 'force-dynamic';
 
 export default async function HistoryPage() {
-  const commits = await getCommitHistory();
+  const rawCommits = await getCommitHistory();
   
-  // Bu URL'yi .git/config dosyasından veya bir ortam değişkeninden okumak daha iyi bir yaklaşımdır.
+  // Sunucu -> İstemci veri aktarımı için commit nesnelerini serialize et
+  const commits = rawCommits.map(commit => ({
+    hash: commit.hash,
+    date: commit.date, // Tarih string olarak zaten uyumlu
+    message: commit.message,
+    author_name: commit.author_name,
+    author_email: commit.author_email,
+  }));
+
   const repoUrl = "https://github.com/kullanici/repo-adi"; // TODO: Kendi repo URL'nizle değiştirin.
 
   return (
