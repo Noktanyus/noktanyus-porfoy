@@ -202,83 +202,89 @@ export async function DELETE(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const body = await request.json();
-  const { type, slug, originalSlug, data, content } = body;
-
-  if (typeof type !== 'string' || !slug || !data) {
-    return NextResponse.json({ error: "Missing required fields: type, slug, data" }, { status: 400 });
-  }
-
-  const fileExtension = getFileExtension(type);
-  const newFileName = slug.endsWith(fileExtension) ? slug : slug + fileExtension;
-  const newFilePath = getSafePath(type, newFileName);
-
-  if (!newFilePath) {
-      return NextResponse.json({ error: "Invalid path specified" }, { status: 400 });
+  if (!token) {
+    return NextResponse.json({ error: "Yetkisiz erişim." }, { status: 401 });
   }
 
   try {
+    const body = await request.json();
+    const { type, slug, originalSlug, data, content } = body;
+
+    if (typeof type !== 'string' || !slug || !data) {
+      return NextResponse.json({ error: "Eksik alanlar: 'type', 'slug' ve 'data' gereklidir." }, { status: 400 });
+    }
+
+    const fileExtension = getFileExtension(type);
+    const newFileName = slug.endsWith(fileExtension) ? slug : slug + fileExtension;
+    const newFilePath = getSafePath(type, newFileName);
+
+    if (!newFilePath) {
+      return NextResponse.json({ error: "Geçersiz dosya yolu belirtildi." }, { status: 400 });
+    }
+
     const dirPath = path.dirname(newFilePath);
     await fs.mkdir(dirPath, { recursive: true });
 
-    const isSingleton = SINGLETON_TYPES.includes(type);
-    const isCreating = !originalSlug && !isSingleton;
+    const isUpdating = originalSlug && slug === originalSlug;
     const isRenaming = originalSlug && slug !== originalSlug;
 
-    if (isCreating || isRenaming) {
+    // Eğer yeni bir içerik oluşturuluyorsa veya slug değiştiriliyorsa,
+    // yeni slug'ın zaten var olup olmadığını kontrol et.
+    if (!isUpdating) {
       try {
         await fs.access(newFilePath);
+        // Dosya varsa, çakışma hatası döndür.
         return NextResponse.json(
-          { error: `Slug "${slug}" already exists. Please choose a unique slug.` },
+          { error: `Bu kimliğe ('${slug}') sahip bir içerik zaten mevcut. Lütfen benzersiz bir kimlik seçin.` },
           { status: 409 }
         );
       } catch (error) {
-        // File does not exist, which is what we want.
+        // Dosya yok, bu beklenen durum. Devam et.
       }
     }
 
+    // Eğer slug değiştiriliyorsa, eski dosyayı sil.
     if (isRenaming) {
       const oldFileName = originalSlug + fileExtension;
       const oldFilePath = getSafePath(type, oldFileName);
       if (oldFilePath) {
-          try {
-              await fs.rename(oldFilePath, newFilePath);
-          } catch (renameError) {
-              if (renameError instanceof Error && 'code' in renameError && renameError.code !== 'ENOENT') {
-                  throw renameError;
-              }
+        try {
+          await fs.unlink(oldFilePath);
+        } catch (error) {
+          // Eski dosya bulunamazsa görmezden gel, ama diğer hataları logla.
+          if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') {
+            console.error(`Eski dosya silinirken hata oluştu: ${oldFilePath}`, error);
           }
+        }
       }
     }
 
-    let fileContent;
-    if (fileExtension === '.json') {
-      fileContent = JSON.stringify(data, null, 2);
-    } else {
-      fileContent = matter.stringify(content || "", data);
-    }
+    // Yeni dosyayı yaz.
+    const fileContent = fileExtension === '.json'
+      ? JSON.stringify(data, null, 2)
+      : matter.stringify(content || "", data);
     
     await fs.writeFile(newFilePath, fileContent, "utf-8");
     
+    // Önbelleği temizle.
     const cleanSlug = slug.replace(/\.mdx?$/, '').replace(/\.json$/, '');
     revalidateContentPaths(type, cleanSlug);
     if (isRenaming && originalSlug) {
-        revalidateContentPaths(type, originalSlug);
+      revalidateContentPaths(type, originalSlug);
     }
 
+    // Değişikliği commit'le.
     await commitContentChange({
-      action: isCreating ? 'create' : 'update',
+      action: isUpdating || isRenaming ? 'update' : 'create',
       fileType: type,
       slug: cleanSlug,
-      user: token.email || "Unknown User"
+      user: token.email || "Bilinmeyen Kullanıcı"
     });
 
-    return NextResponse.json({ message: "Content saved successfully!" });
+    return NextResponse.json({ message: "İçerik başarıyla kaydedildi!" });
 
   } catch (error) {
-    console.error("Error saving content:", error);
-    return NextResponse.json({ error: "Failed to save content" }, { status: 500 });
+    console.error("İçerik kaydedilirken hata oluştu:", error);
+    return NextResponse.json({ error: "İçerik kaydedilemedi. Sunucu hatası." }, { status: 500 });
   }
 }
