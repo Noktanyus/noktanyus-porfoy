@@ -13,6 +13,6 @@ isLive: false
 mainImage: /images/0de50467-544f-46e3-a4f2-64fc8e97394a.jpg
 id: pi-kke-kodlama-reniyor
 contentHtml: |
-  aaa
+  kastamonu ama
 ---
-kastamonu ama
+ahmet 
