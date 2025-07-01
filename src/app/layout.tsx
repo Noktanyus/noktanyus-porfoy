@@ -7,8 +7,12 @@ import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { getAboutData, getSeoSettings } from "@/lib/content-parser";
 import { Suspense } from 'react';
-import PopupViewer from '@/components/PopupViewer';
 import Script from "next/script";
+import Spinner from "@/components/ui/Spinner";
+import YandexMetrica from "@/components/YandexMetrica";
+import dynamic from "next/dynamic";
+
+const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -74,11 +78,14 @@ export default async function RootLayout({
             </main>
             <Footer />
           </div>
-          <Suspense fallback={null}>
+          <Suspense fallback={<Spinner />}>
             <PopupViewer />
           </Suspense>
         </ThemeProvider>
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
+        <Suspense fallback={<Spinner size="small" />}>
+          <YandexMetrica />
+        </Suspense>
       </body>
     </html>
   );

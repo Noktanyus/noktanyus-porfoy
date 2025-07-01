@@ -1,6 +1,9 @@
 import { getSortedPostsData } from '@/lib/content-parser';
-import ProjectList from '@/components/ProjectList';
 import { Project } from '@/types/content';
+import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
+
+const ProjectList = dynamic(() => import('@/components/ProjectList'), { ssr: false });
 
 export default function ProjelerimPage() {
   const allProjects = getSortedPostsData<Project>('projects');
@@ -11,7 +14,9 @@ export default function ProjelerimPage() {
         <h1 className="text-4xl font-bold text-light-text dark:text-dark-text">Projelerim</h1>
         <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Yaptığım çalışmaları keşfedin.</p>
       </div>
-      <ProjectList allProjects={allProjects} />
+      <Suspense fallback={<div>Yükleniyor...</div>}>
+        <ProjectList allProjects={allProjects} />
+      </Suspense>
     </div>
   );
 }

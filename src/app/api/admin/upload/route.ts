@@ -1,12 +1,10 @@
 // src/app/api/admin/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import formidable from 'formidable';
 import fs from 'fs/promises';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-
-
+import sharp from 'sharp';
 
 const uploadDir = path.join(process.cwd(), 'public', 'images');
 
@@ -33,11 +31,19 @@ export async function POST(request: NextRequest) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
-  const fileExtension = path.extname(file.name);
-  const newFilename = `${uuidv4()}${fileExtension}`;
+  // Optimize image with sharp
+  const newFilename = `${uuidv4()}.webp`;
   const filePath = path.join(uploadDir, newFilename);
 
-  await fs.writeFile(filePath, buffer);
+  try {
+    await sharp(buffer)
+      .resize({ width: 1920, withoutEnlargement: true }) // Resize if wider than 1920px
+      .webp({ quality: 80 }) // Convert to WebP with 80% quality
+      .toFile(filePath);
 
-  return NextResponse.json({ filePath: `/images/${newFilename}` });
+    return NextResponse.json({ filePath: `/images/${newFilename}` });
+  } catch (error) {
+    console.error('Error optimizing image:', error);
+    return NextResponse.json({ error: 'Failed to optimize image' }, { status: 500 });
+  }
 }

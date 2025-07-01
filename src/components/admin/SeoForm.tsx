@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { SeoSettings } from "@/types/content";
 import { useEffect } from "react";
+import Link from "next/link";
 
-// A new type for the form data, where keywords are a string
 type SeoFormData = Omit<SeoSettings, 'siteKeywords'> & {
   siteKeywords: string;
+  robotsTxt: string;
 };
 
-export default function SeoForm({ settings }: { settings: SeoSettings }) {
+export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings, robotsTxt: string }) {
   const router = useRouter();
   const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = useForm<SeoFormData>();
 
@@ -26,8 +27,9 @@ export default function SeoForm({ settings }: { settings: SeoSettings }) {
       setValue('favicon', settings.favicon);
       setValue('og', settings.og);
       setValue('twitter', settings.twitter);
+      setValue('robotsTxt', robotsTxt);
     }
-  }, [settings, setValue]);
+  }, [settings, robotsTxt, setValue]);
 
   const onSubmit = async (data: SeoFormData) => {
     const loadingToast = toast.loading("Ayarlar güncelleniyor...");
@@ -44,6 +46,7 @@ export default function SeoForm({ settings }: { settings: SeoSettings }) {
         body: JSON.stringify({
           file: 'seo-settings.json',
           data: processedData,
+          robotsTxt: data.robotsTxt, // Send robots.txt content to the API
         }),
       });
 
@@ -59,7 +62,7 @@ export default function SeoForm({ settings }: { settings: SeoSettings }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       {/* General SEO Settings */}
-      <div className="p-6 border rounded-lg">
+      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
         <h2 className="text-xl font-semibold mb-4">Genel SEO Ayarları</h2>
         <div className="space-y-4">
           <div>
@@ -89,8 +92,28 @@ export default function SeoForm({ settings }: { settings: SeoSettings }) {
         </div>
       </div>
 
+      {/* robots.txt and sitemap.xml */}
+      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
+        <h2 className="text-xl font-semibold mb-4">Arama Motoru Dosyaları</h2>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="robotsTxt" className="block text-sm font-medium mb-1">robots.txt İçeriği</label>
+            <textarea {...register("robotsTxt")} rows={8} className="w-full p-2 rounded bg-gray-800 text-gray-200 font-mono" />
+          </div>
+          <div>
+            <h3 className="text-lg font-medium">Sitemap</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              `sitemap.xml` dosyası, blog yazılarınız ve projeleriniz eklendikçe otomatik olarak güncellenir. Manuel bir işlem yapmanıza gerek yoktur.
+              <Link href="/sitemap.xml" target="_blank" className="text-brand-primary hover:underline ml-2">
+                Sitemap'i Görüntüle
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Open Graph (Facebook, etc.) */}
-      <div className="p-6 border rounded-lg">
+      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
         <h2 className="text-xl font-semibold mb-4">Open Graph Ayarları (Sosyal Medya)</h2>
         <div className="space-y-4">
           <input type="hidden" {...register("og.type")} value="website" />
@@ -112,7 +135,7 @@ export default function SeoForm({ settings }: { settings: SeoSettings }) {
       </div>
 
       {/* Twitter Card */}
-      <div className="p-6 border rounded-lg">
+      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
         <h2 className="text-xl font-semibold mb-4">Twitter Kart Ayarları</h2>
         <div className="space-y-4">
           <input type="hidden" {...register("twitter.card")} value="summary_large_image" />

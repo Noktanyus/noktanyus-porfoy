@@ -3,8 +3,7 @@
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower, FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt, FaEye, FaHome } from "react-icons/fa";
-// ... (diğer importlar)
+import { FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower, FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt, FaEye, FaHome, FaHistory } from "react-icons/fa";
 
 const navLinks = [
   { href: "/admin/dashboard", text: "Dashboard", icon: <FaTachometerAlt /> },
@@ -15,6 +14,7 @@ const navLinks = [
   { href: "/admin/blog", text: "Blog", icon: <FaBlog /> },
   { href: "/admin/messages", text: "Mesajlar", icon: <FaEnvelopeOpenText /> },
   { href: "/admin/seo", text: "SEO", icon: <FaCog /> },
+  { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
 ];
 
 const AdminSidebar = () => {

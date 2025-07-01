@@ -1,15 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import dynamic from "next/dynamic";
 
-type BlogPost = {
-  slug: string;
-  title: string;
-};
-
-export default function BlogAdminPage() {
+const BlogList = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -97,5 +93,18 @@ export default function BlogAdminPage() {
         </table>
       </div>
     </div>
+  );
+};
+
+type BlogPost = {
+  slug: string;
+  title: string;
+};
+
+export default function BlogAdminPage() {
+  return (
+    <Suspense fallback={<div>Yükleniyor...</div>}>
+      <BlogList />
+    </Suspense>
   );
 }

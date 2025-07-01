@@ -13,18 +13,27 @@ const contentDirectory = path.join(process.cwd(), 'content');
 function getJsonData<T>(fileName: string): T {
   const fullPath = path.join(contentDirectory, fileName);
   if (!fs.existsSync(fullPath)) {
-    // For optional files like testimonials, return an empty array.
-    if (fileName === 'testimonials.json' || fileName === 'experiences.json') {
+    // İsteğe bağlı dosyalar için boş bir dizi döndür.
+    if (['testimonials.json', 'experiences.json', 'skills.json'].includes(fileName)) {
         return [] as T;
     }
-    // For skills, return an empty array as well.
-    if (fileName === 'skills.json') {
-        return [] as T;
-    }
-    throw new Error(`File not found: ${fullPath}`);
+    const errorMessage = `Dosya bulunamadı: ${fullPath}`;
+    console.error(errorMessage);
+    throw new Error(errorMessage);
   }
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-  return JSON.parse(fileContents);
+  try {
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    return JSON.parse(fileContents);
+  } catch (error) {
+    const errorMessage = `${fileName} dosyası okunurken veya parse edilirken bir hata oluştu.`;
+    console.error(errorMessage, error);
+    // Hata durumunda boş bir nesne veya dizi döndürmek, uygulamanın çökmesini engeller.
+    // Bu, dosyanın içeriğine bağlı olarak ayarlanmalıdır.
+    if (fileName.endsWith('s.json')) { // Çoğul isimlendirme kuralına göre dizi döndür
+        return [] as T;
+    }
+    return {} as T;
+  }
 }
 
 // Generic function to get all items of a certain type (e.g., 'blog', 'projects')
@@ -143,7 +152,7 @@ export function getSeoSettings(): SeoSettings {
   try {
     return getJsonData<SeoSettings>('seo-settings.json');
   } catch (error) {
-    console.error("seo-settings.json not found, using default SEO settings.");
+    console.error("seo-settings.json bulunamadı, varsayılan SEO ayarları kullanılıyor.", error);
     return {
       siteTitle: "Portföy Sitesi",
       siteDescription: "Kişisel portföy web sitesi.",
@@ -175,7 +184,7 @@ export function getHomeSettings(): HomeSettings {
     try {
         return getJsonData<HomeSettings>('home-settings.json');
     } catch (error) {
-        console.error("home-settings.json not found, using default home settings.");
+        console.error("home-settings.json bulunamadı, varsayılan ana sayfa ayarları kullanılıyor.", error);
         return {
             featuredContent: {
                 type: 'text',

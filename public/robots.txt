@@ -1,0 +1,10 @@
+# Arama motoru botlarının uyması gereken kurallar.
+
+User-agent: *
+Allow: /
+
+# Yönetim panelinin taranmasını engelle.
+Disallow: /admin/
+
+# Sitemap dosyasının konumunu belirt.
+Sitemap: https://noktanyus.com/sitemap.xml

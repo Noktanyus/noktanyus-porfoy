@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
 import { revalidatePath } from "next/cache";
+import { commitContentChange } from "@/lib/git-utils";
 
 const contentDir = path.join(process.cwd(), "content");
 const ALLOWED_TYPES = ['popups', 'messages', 'skills', 'experiences', 'testimonials', 'home-settings', 'seo-settings', 'blog', 'projects', 'about'];
@@ -140,7 +141,7 @@ async function getContent(type: string, slug: string) {
 
 
 // Bir dosyayı silmek için
-async function deleteContent(type: string, slug: string) {
+async function deleteContent(type: string, slug: string, user: string) {
     const fileExtension = getFileExtension(type);
     // Slug'dan mevcut uzantıları temizle, sonra doğru olanı ekle.
     const cleanSlug = slug.replace(/\.mdx?$/, '').replace(/\.json$/, '');
@@ -154,6 +155,7 @@ async function deleteContent(type: string, slug: string) {
     try {
         await fs.unlink(filePath);
         revalidateContentPaths(type, cleanSlug);
+        await commitContentChange({ action: 'delete', fileType: type, slug: cleanSlug, user });
         return NextResponse.json({ message: "File deleted successfully" });
     } catch (error) {
         console.error("Error deleting file:", error);
@@ -195,7 +197,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Type and slug parameters are required" }, { status: 400 });
   }
 
-  return deleteContent(type, slug);
+  return deleteContent(type, slug, token.email || "Unknown User");
 }
 
 export async function POST(request: NextRequest) {
@@ -265,6 +267,13 @@ export async function POST(request: NextRequest) {
     if (isRenaming && originalSlug) {
         revalidateContentPaths(type, originalSlug);
     }
+
+    await commitContentChange({
+      action: isCreating ? 'create' : 'update',
+      fileType: type,
+      slug: cleanSlug,
+      user: token.email || "Unknown User"
+    });
 
     return NextResponse.json({ message: "Content saved successfully!" });
 

@@ -6,7 +6,8 @@ import BlogCard from "@/components/BlogCard";
 import Image from "next/image";
 
 // YouTube video ID'sini URL'den çıkaran yardımcı fonksiyon
-const getYouTubeId = (url: string) => {
+const getYouTubeId = (url: string): string | null => {
+  if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
@@ -20,6 +21,8 @@ export default async function Home() {
   );
   const latestPosts = getLatestContent("blog", 3);
   const featuredContent = homeSettings.featuredContent;
+  
+  const videoId = featuredContent?.type === 'video' && featuredContent.youtubeUrl ? getYouTubeId(featuredContent.youtubeUrl) : null;
 
   return (
     <div className="space-y-20 md:space-y-32">
@@ -33,7 +36,7 @@ export default async function Home() {
                 <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
                   <Image
                     src={aboutData.profileImage || "/images/profile.webp"}
-                    alt="Profil Fotoğrafı"
+                    alt={`${aboutData.name} - Profil Fotoğrafı`}
                     layout="fill"
                     objectFit="cover"
                     className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg"
@@ -58,16 +61,16 @@ export default async function Home() {
 
             {/* Sağ Taraf: Uçan Kutu (Dinamik İçerik) */}
             <div className="relative flex items-center justify-center">
-              {featuredContent?.type === 'video' && featuredContent.youtubeUrl && (
+              {videoId && (
                 <div className="w-full max-w-lg animate-float">
                   <div className="aspect-w-16 aspect-h-9 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-300 dark:border-gray-700">
                     <iframe
                       className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${getYouTubeId(featuredContent.youtubeUrl)}`}
+                      src={`https://www.youtube.com/embed/${videoId}`}
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
-                      title="Featured YouTube Video"
+                      title="Öne Çıkan YouTube Videosu"
                     ></iframe>
                   </div>
                 </div>
