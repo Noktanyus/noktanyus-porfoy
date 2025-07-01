@@ -1,0 +1,149 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { SeoSettings } from "@/types/content";
+import { useEffect } from "react";
+
+// A new type for the form data, where keywords are a string
+type SeoFormData = Omit<SeoSettings, 'siteKeywords'> & {
+  siteKeywords: string;
+};
+
+export default function SeoForm({ settings }: { settings: SeoSettings }) {
+  const router = useRouter();
+  const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = useForm<SeoFormData>();
+
+  useEffect(() => {
+    if (settings) {
+      const keywordsString = (settings.siteKeywords || []).join(', ');
+      setValue('siteTitle', settings.siteTitle);
+      setValue('siteDescription', settings.siteDescription);
+      setValue('siteKeywords', keywordsString);
+      setValue('canonicalUrl', settings.canonicalUrl);
+      setValue('robots', settings.robots);
+      setValue('favicon', settings.favicon);
+      setValue('og', settings.og);
+      setValue('twitter', settings.twitter);
+    }
+  }, [settings, setValue]);
+
+  const onSubmit = async (data: SeoFormData) => {
+    const loadingToast = toast.loading("Ayarlar güncelleniyor...");
+    
+    const processedData: SeoSettings = {
+      ...data,
+      siteKeywords: data.siteKeywords.split(',').map(k => k.trim()).filter(Boolean),
+    };
+
+    try {
+      const response = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file: 'seo-settings.json',
+          data: processedData,
+        }),
+      });
+
+      if (!response.ok) throw new Error("İşlem başarısız oldu.");
+
+      toast.success("Ayarlar güncellendi!", { id: loadingToast });
+      router.refresh();
+    } catch (error) {
+      toast.error((error as Error).message, { id: loadingToast });
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      {/* General SEO Settings */}
+      <div className="p-6 border rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Genel SEO Ayarları</h2>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="siteTitle" className="block text-sm font-medium mb-1">Site Başlığı</label>
+            <input {...register("siteTitle", { required: "Zorunlu alan" })} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="siteDescription" className="block text-sm font-medium mb-1">Site Açıklaması</label>
+            <textarea {...register("siteDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="siteKeywords" className="block text-sm font-medium mb-1">Anahtar Kelimeler (virgülle ayırın)</label>
+            <input {...register("siteKeywords")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="canonicalUrl" className="block text-sm font-medium mb-1">Canonical URL</label>
+            <input {...register("canonicalUrl")} placeholder="https://ornek.com" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="robots" className="block text-sm font-medium mb-1">Robots Meta</label>
+            <input {...register("robots")} placeholder="index, follow" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="favicon" className="block text-sm font-medium mb-1">Favicon URL</label>
+            <input {...register("favicon")} placeholder="/favicon.ico" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
+      </div>
+
+      {/* Open Graph (Facebook, etc.) */}
+      <div className="p-6 border rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Open Graph Ayarları (Sosyal Medya)</h2>
+        <div className="space-y-4">
+          <input type="hidden" {...register("og.type")} value="website" />
+          <input type="hidden" {...register("og.url")} value={watch("canonicalUrl")} />
+          <input type="hidden" {...register("og.site_name")} value={watch("siteTitle")} />
+          <div>
+            <label htmlFor="og.title" className="block text-sm font-medium mb-1">OG Başlık</label>
+            <input {...register("og.title")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="og.description" className="block text-sm font-medium mb-1">OG Açıklama</label>
+            <textarea {...register("og.description")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="og.image" className="block text-sm font-medium mb-1">OG Görsel URL</label>
+            <input {...register("og.image")} placeholder="https://ornek.com/og-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
+      </div>
+
+      {/* Twitter Card */}
+      <div className="p-6 border rounded-lg">
+        <h2 className="text-xl font-semibold mb-4">Twitter Kart Ayarları</h2>
+        <div className="space-y-4">
+          <input type="hidden" {...register("twitter.card")} value="summary_large_image" />
+          <div>
+            <label htmlFor="twitter.site" className="block text-sm font-medium mb-1">Twitter Site (@kullanici)</label>
+            <input {...register("twitter.site")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="twitter.creator" className="block text-sm font-medium mb-1">Twitter Yaratıcı (@kullanici)</label>
+            <input {...register("twitter.creator")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+           <div>
+            <label htmlFor="twitter.title" className="block text-sm font-medium mb-1">Twitter Başlık</label>
+            <input {...register("twitter.title")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="twitter.description" className="block text-sm font-medium mb-1">Twitter Açıklama</label>
+            <textarea {...register("twitter.description")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+          <div>
+            <label htmlFor="twitter.image" className="block text-sm font-medium mb-1">Twitter Görsel URL</label>
+            <input {...register("twitter.image")} placeholder="https://ornek.com/twitter-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          </div>
+        </div>
+      </div>
+
+      <div className="text-right">
+        <button type="submit" disabled={isSubmitting} className="bg-brand-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400">
+          {isSubmitting ? "Güncelleniyor..." : "Güncelle"}
+        </button>
+      </div>
+    </form>
+  );
+}

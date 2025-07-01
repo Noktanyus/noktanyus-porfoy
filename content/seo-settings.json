@@ -1,0 +1,24 @@
+{
+  "siteTitle": "Noktanyus - Portföy",
+  "siteDescription": "Noktanyus'un kişisel portföy web sitesi.",
+  "siteKeywords": ["web developer", "full-stack", "react", "next.js"],
+  "canonicalUrl": "https://noktanyus.com",
+  "robots": "index, follow",
+  "favicon": "/favicon.ico",
+  "og": {
+    "title": "Noktanyus - Portföy",
+    "description": "Noktanyus'un kişisel portföy web sitesi.",
+    "image": "https://noktanyus.com/og-image.png",
+    "type": "website",
+    "url": "https://noktanyus.com",
+    "site_name": "Noktanyus"
+  },
+  "twitter": {
+    "card": "summary_large_image",
+    "site": "@noktanyus",
+    "creator": "@noktanyus",
+    "title": "Noktanyus - Portföy",
+    "description": "Noktanyus'un kişisel portföy web sitesi.",
+    "image": "https://noktanyus.com/twitter-image.png"
+  }
+}

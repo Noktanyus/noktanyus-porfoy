@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
+  }
+
+  /* Blog ve Proje detay sayfalarındaki görseller için stil */
+  .prose img {
+    @apply rounded-lg max-h-[60vh] object-contain mx-auto;
+  }
+}
+
+.project-card:nth-child(even) .project-image {
+  @apply md:order-last;
+}
+
+/* Uçan animasyon */
+@keyframes float {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-20px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
