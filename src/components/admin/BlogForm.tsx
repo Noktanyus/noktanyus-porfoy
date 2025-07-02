@@ -6,14 +6,20 @@ import toast from "react-hot-toast";
 import { Blog } from "@/types/content";
 import { useEffect, useRef } from "react";
 import MarkdownIt from 'markdown-it';
-import Editor from 'react-markdown-editor-lite';
+import dynamic from 'next/dynamic';
 import 'react-markdown-editor-lite/lib/index.css';
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
-import ImageUpload from "./ImageUpload"; // Standart ImageUpload bileşenini import et
+import ImageUpload from "./ImageUpload";
+
+// Markdown editörünü sadece client tarafında ve ihtiyaç anında yükle
+const Editor = dynamic(() => import('react-markdown-editor-lite'), { 
+  ssr: false,
+  loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">Editör Yükleniyor...</div>
+});
 
 type BlogFormData = Omit<Blog, 'id' | 'contentHtml' | 'tags'> & {
-  tags: string; // Formda etiketleri string olarak alacağız
+  tags: string;
 };
 
 interface BlogFormProps {
@@ -33,7 +39,7 @@ export default function BlogForm({ post }: BlogFormProps) {
     setValue, 
     watch, 
     control,
-    formState: { isSubmitting, errors } 
+    formState: { isSubmitting, errors, isDirty } 
   } = useForm<BlogFormData>({
     criteriaMode: "all",
     defaultValues: {
@@ -45,10 +51,10 @@ export default function BlogForm({ post }: BlogFormProps) {
       category: post?.category || '',
       tags: (post?.tags || []).join(', '),
       date: post?.date || new Date().toISOString(),
+      content: post?.content || '', // İçeriği de form state'ine ekle
     }
   });
   
-  const contentRef = useRef(post?.content || "");
   const title = watch("title");
 
   // Slug'ı başlıktan otomatik oluşturma
@@ -94,7 +100,7 @@ export default function BlogForm({ post }: BlogFormProps) {
           slug: data.slug,
           originalSlug: isEditMode ? post?.slug : undefined,
           data: { ...data, tags, date: isEditMode ? data.date : new Date().toISOString() },
-          content: contentRef.current,
+          content: data.content, // content'i form verisinden al
         }),
       });
 
@@ -166,18 +172,24 @@ export default function BlogForm({ post }: BlogFormProps) {
 
       <div>
         <label className="block text-sm font-medium mb-2">Yazı İçeriği</label>
-        <Editor
-          key={post?.slug || 'new-post'}
-          defaultValue={contentRef.current}
-          renderHTML={text => mdParser.render(text)}
-          onChange={({ text }) => { contentRef.current = text; }}
-          onImageUpload={onEditorImageUpload}
-          className="h-96"
+        <Controller
+          name="content"
+          control={control}
+          render={({ field }) => (
+            <Editor
+              key={post?.slug || 'new-post'}
+              defaultValue={field.value}
+              renderHTML={text => mdParser.render(text)}
+              onChange={({ text }) => field.onChange(text)}
+              onImageUpload={onEditorImageUpload}
+              className="h-96"
+            />
+          )}
         />
       </div>
 
       <div className="text-right">
-        <button type="submit" disabled={isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
+        <button type="submit" disabled={!isDirty || isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Değişiklikleri Kaydet" : "Yazı Oluştur")}
         </button>
       </div>

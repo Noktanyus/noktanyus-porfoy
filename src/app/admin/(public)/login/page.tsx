@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import Turnstile from "@/components/Turnstile";
+import Spinner from "@/components/ui/Spinner"; // Yükleme göstergesi için
 
 const schema = z.object({
   email: z.string().email("Geçersiz e-posta adresi."),
@@ -16,14 +18,24 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { data: session, status } = useSession(); // Oturum durumunu al: 'loading', 'authenticated', 'unauthenticated'
+
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Oturum açılmışsa, kullanıcıyı dashboard'a yönlendir
+    if (status === 'authenticated') {
+      router.replace('/admin/dashboard');
+    }
+  }, [status, router]);
+
   const onSubmit = async (data: FormData) => {
     if (!turnstileToken) {
-      toast.error("Lütfen doğrulamayı tamamlayın.");
+      toast.error("Lütfen insan olduğunuzu doğrulayın.");
       return;
     }
 
@@ -37,13 +49,25 @@ export default function LoginPage() {
     if (result?.error) {
       toast.error("Giriş bilgileri hatalı veya doğrulama başarısız.");
     } else if (result?.ok) {
-      toast.success("Başarıyla giriş yapıldı!");
-      window.location.href = "/admin/dashboard";
+      toast.success("Başarıyla giriş yapıldı! Yönlendiriliyorsunuz...");
+      // window.location.href kullanmak yerine router.push daha modern bir yaklaşımdır
+      router.push("/admin/dashboard");
     }
   };
 
+  // Oturum durumu kontrol edilirken veya kullanıcı zaten yönlendirilirken yükleme ekranı göster
+  if (status === 'loading' || status === 'authenticated') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Spinner />
+        <p className="mt-4 text-lg">Oturum durumu kontrol ediliyor...</p>
+      </div>
+    );
+  }
+
+  // Oturum yoksa giriş formunu göster
   return (
-    <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg">
+    <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg animate-fade-in">
       <h1 className="text-2xl font-bold text-center text-light-text dark:text-dark-text">
         Yönetim Paneli Girişi
       </h1>
@@ -64,7 +88,7 @@ export default function LoginPage() {
         </div>
         <div className="flex justify-center">
           <Turnstile
-            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
             onVerify={setTurnstileToken}
           />
         </div>

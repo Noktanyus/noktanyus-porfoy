@@ -6,13 +6,19 @@ import toast from "react-hot-toast";
 import { Project } from "@/types/content";
 import { useEffect, useRef } from "react";
 import MarkdownIt from 'markdown-it';
-import Editor from 'react-markdown-editor-lite';
+import dynamic from 'next/dynamic';
 import 'react-markdown-editor-lite/lib/index.css';
 import { ErrorMessage } from "@hookform/error-message";
-import ImageUpload from "./ImageUpload"; // Standart ImageUpload bileşenini import et
+import ImageUpload from "./ImageUpload";
+
+// Markdown editörünü sadece client tarafında ve ihtiyaç anında yükle
+const Editor = dynamic(() => import('react-markdown-editor-lite'), { 
+  ssr: false,
+  loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">Editör Yükleniyor...</div>
+});
 
 type ProjectFormData = Omit<Project, 'id' | 'contentHtml' | 'technologies'> & {
-  technologies: string; // Formda teknolojileri string olarak alacağız
+  technologies: string;
 };
 
 interface ProjectFormProps {
@@ -31,7 +37,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
     setValue, 
     watch, 
     control,
-    formState: { isSubmitting, errors } 
+    formState: { isSubmitting, errors, isDirty } 
   } = useForm<ProjectFormData>({
     criteriaMode: "all",
     defaultValues: {
@@ -45,10 +51,10 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       order: project?.order || 0,
       featured: project?.featured || false,
       isLive: project?.isLive || false,
+      content: project?.content || '', // İçeriği de form state'ine ekle
     }
   });
   
-  const contentRef = useRef(project?.content || "");
   const title = watch("title");
 
   // Slug'ı başlıktan otomatik oluşturma
@@ -94,7 +100,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
           slug: data.slug,
           originalSlug: isEditMode ? project?.slug : undefined,
           data: { ...data, technologies },
-          content: contentRef.current,
+          content: data.content, // content'i form verisinden al
         }),
       });
 
@@ -181,17 +187,23 @@ export default function ProjectForm({ project }: ProjectFormProps) {
 
       <div>
         <label className="block text-sm font-medium mb-2">Proje Detayları (İçerik)</label>
-        <Editor
-          key={project?.slug || 'new-project'}
-          defaultValue={contentRef.current}
-          renderHTML={text => mdParser.render(text)}
-          onChange={({ text }) => { contentRef.current = text; }}
-          onImageUpload={onEditorImageUpload}
-          className="h-96"
+        <Controller
+          name="content"
+          control={control}
+          render={({ field }) => (
+            <Editor
+              key={project?.slug || 'new-project'}
+              defaultValue={field.value}
+              renderHTML={text => mdParser.render(text)}
+              onChange={({ text }) => field.onChange(text)}
+              onImageUpload={onEditorImageUpload}
+              className="h-96"
+            />
+          )}
         />
       </div>
       <div className="text-right">
-        <button type="submit" disabled={isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
+        <button type="submit" disabled={!isDirty || isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Değişiklikleri Kaydet" : "Proje Oluştur")}
         </button>
       </div>

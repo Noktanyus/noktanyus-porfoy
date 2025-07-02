@@ -5,6 +5,8 @@ import path from "path";
 import matter from "gray-matter";
 import { revalidatePath } from "next/cache";
 import { commitContentChange } from "@/lib/git-utils";
+import { z } from "zod";
+import { env } from "@/lib/env";
 
 // Hata yanıtlarını standartlaştırmak için yardımcı fonksiyon
 function apiError(message: string, status: number = 500) {
@@ -14,6 +16,15 @@ function apiError(message: string, status: number = 500) {
 
 const contentDir = path.join(process.cwd(), "content");
 const ALLOWED_TYPES = ['popups', 'messages', 'skills', 'experiences', 'testimonials', 'home-settings', 'seo-settings', 'blog', 'projects', 'about'];
+
+// Gelen POST isteğinin gövdesini doğrulamak için Zod şeması
+const contentPostSchema = z.object({
+  type: z.enum(ALLOWED_TYPES as [string, ...string[]]),
+  slug: z.string().min(1, "Slug boş olamaz."),
+  originalSlug: z.string().optional(),
+  data: z.record(z.any()), // 'data' nesnesinin herhangi bir anahtar/değer içerebileceğini belirtir
+  content: z.string().optional(),
+});
 
 function getSafePath(type: string, slug?: string): string | null {
   if (!ALLOWED_TYPES.includes(type)) return null;
@@ -94,7 +105,7 @@ async function deleteContent(type: string, slug: string, user: string) {
         if (fileExtension === '.md') {
             const mdImageUrls = (fileContent.match(/!\[.*?\]\(\/images\/.*?\)/g) || [])
                 .map(mdLink => mdLink.match(/\(\/images\/.*?\)/)?.[0].slice(1, -1))
-                .filter((url): url is string => !!url); // undefined değerleri diziden kaldır
+                .filter((url): url is string => !!url);
             imageUrlsToDelete.push(...mdImageUrls);
         } else if (fileExtension === '.json') {
             const jsonData = JSON.parse(fileContent);
@@ -135,7 +146,7 @@ async function deleteContent(type: string, slug: string, user: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
   if (!token) return apiError("Yetkisiz erişim.", 401);
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
@@ -146,7 +157,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
   if (!token) return apiError("Yetkisiz erişim.", 401);
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
@@ -156,14 +167,19 @@ export async function DELETE(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
   if (!token) return apiError("Yetkisiz erişim.", 401);
 
-  try {
-    const body = await request.json();
-    const { type, slug, originalSlug, data, content } = body;
-    if (!type || !slug || !data) return apiError("Eksik alanlar: 'type', 'slug' ve 'data' gereklidir.", 400);
+  const body = await request.json();
+  const validation = contentPostSchema.safeParse(body);
 
+  if (!validation.success) {
+    return apiError(`Geçersiz istek verisi: ${validation.error.flatten().formErrors.join(', ')}`, 400);
+  }
+
+  const { type, slug, originalSlug, data, content } = validation.data;
+
+  try {
     const fileExtension = getFileExtension(type);
     const newFileName = slug.endsWith(fileExtension) ? slug : slug + fileExtension;
     const newFilePath = getSafePath(type, newFileName);
@@ -183,7 +199,7 @@ export async function POST(request: NextRequest) {
     if (originalSlug && slug !== originalSlug) {
       const oldFilePath = getSafePath(type, originalSlug + fileExtension);
       if (oldFilePath) {
-        try { await fs.unlink(oldFilePath); }
+        try { await fs.unlink(oldFilePath); } 
         catch (error) { if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') console.error(`Eski dosya silinirken hata: ${oldFilePath}`, error); }
       }
     }

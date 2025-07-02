@@ -8,9 +8,8 @@ import {
   FaCog, FaPaperPlane, FaFileAlt, FaComments, 
   FaWindowRestore, FaGithub, FaSyncAlt 
 } from 'react-icons/fa';
-import { Message, Project, Blog as BlogType } from '@/types/content';
+import { Message } from '@/types/content';
 
-// Admin paneli hızlı erişim linkleri
 const adminLinks = [
   { href: "/admin/hakkimda", text: "Hakkımda Sayfasını Düzenle", icon: <FaUserEdit /> },
   { href: "/admin/projects", text: "Projeleri Yönet", icon: <FaProjectDiagram /> },
@@ -20,25 +19,17 @@ const adminLinks = [
   { href: "/admin/seo", text: "Genel SEO Ayarları", icon: <FaCog /> },
 ];
 
-// İstatistik verileri için arayüz tanımı
 interface Stats {
   projects: number;
   blogs: number;
   messages: number;
 }
 
-/**
- * Yönetim panelinin ana sayfası.
- * Genel istatistikleri, son mesajlar�� ve hızlı erişim menülerini gösterir.
- */
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>({ projects: 0, blogs: 0, messages: 0 });
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  /**
-   * Sayfa için gerekli olan tüm verileri API'den çeker.
-   */
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -50,9 +41,7 @@ export default function DashboardPage() {
       const responses = await Promise.all(apiUrls.map(url => fetch(url)));
       
       for (const response of responses) {
-        if (!response.ok) {
-          throw new Error(`API isteği başarısız: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`API isteği başarısız: ${response.status}`);
       }
 
       const [projects, blogs, messages] = await Promise.all(responses.map(res => res.json()));
@@ -71,8 +60,8 @@ export default function DashboardPage() {
       }
 
     } catch (error) {
-      console.error("Dashboard verileri yüklenirken bir hata oluştu:", error);
-      toast.error("Veriler yüklenirken bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
+      console.error("Dashboard verileri yüklenirken hata:", error);
+      toast.error("Veriler yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
@@ -82,9 +71,6 @@ export default function DashboardPage() {
     fetchData();
   }, [fetchData]);
 
-  /**
-   * E-posta sunucu bağlantısını test etmek için API isteği gönderir.
-   */
   const handleTestEmail = async () => {
     const toastId = toast.loading('E-posta sunucusuyla bağlantı test ediliyor...');
     try {
@@ -100,9 +86,6 @@ export default function DashboardPage() {
     }
   };
 
-  /**
-   * GitHub bağlantısını test etmek için API isteği gönderir.
-   */
   const handleTestGitHub = async () => {
     const toastId = toast.loading('GitHub API ile bağlantı test ediliyor...');
     try {
@@ -127,28 +110,36 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Genel Bakış */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Genel Bakış</h2>
-        {isLoading ? (
-          <div className="text-center py-8">İstatistikler yükleniyor, lütfen bekleyin...</div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <StatCard icon={<FaProjectDiagram />} title="Toplam Proje" value={stats.projects} />
-            <StatCard icon={<FaFileAlt />} title="Toplam Blog Yazısı" value={stats.blogs} />
-            <StatCard icon={<FaComments />} title="Toplam Mesaj" value={stats.messages} />
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {isLoading ? (
+            <>
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+              <StatCardSkeleton />
+            </>
+          ) : (
+            <>
+              <StatCard icon={<FaProjectDiagram />} title="Toplam Proje" value={stats.projects} />
+              <StatCard icon={<FaFileAlt />} title="Toplam Blog Yazısı" value={stats.blogs} />
+              <StatCard icon={<FaComments />} title="Toplam Mesaj" value={stats.messages} />
+            </>
+          )}
+        </div>
       </div>
       
-      {/* Son Mesajlar */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Son Gelen Mesajlar</h2>
-        {isLoading ? (
-          <div className="text-center py-8">Mesajlar yükleniyor...</div>
-        ) : (
-          <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md">
-            {recentMessages.length > 0 ? (
+        <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md min-h-[200px]">
+          {isLoading ? (
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+            </div>
+          ) : (
+            recentMessages.length > 0 ? (
               <ul className="space-y-4">
                 {recentMessages.map(msg => (
                   <li key={msg.id} className="border-b border-gray-200 dark:border-gray-700 pb-3">
@@ -162,12 +153,11 @@ export default function DashboardPage() {
               </ul>
             ) : (
               <p className="text-center text-gray-500 py-4">Gösterilecek yeni mesaj bulunmuyor.</p>
-            )}
-          </div>
-        )}
+            )
+          )}
+        </div>
       </div>
 
-      {/* Kaynak Kodu Yönetimi */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Kaynak Kodu Yönetimi</h2>
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md">
@@ -175,7 +165,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Hızlı Erişim ve Araçlar */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Hızlı Erişim ve Araçlar</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -199,9 +188,6 @@ export default function DashboardPage() {
   );
 }
 
-/**
- * İstatistik kartlarını gösteren bir bileşen.
- */
 const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, value: number }) => (
   <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4">
     <div className="text-4xl text-brand-primary">{icon}</div>
@@ -212,9 +198,16 @@ const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, va
   </div>
 );
 
-/**
- * Kaynak kodundaki değişiklikleri commit'lemek için kullanılan bileşen.
- */
+const StatCardSkeleton = () => (
+  <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4 animate-pulse">
+    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
+    <div className="flex-1 space-y-2">
+      <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+      <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2"></div>
+    </div>
+  </div>
+);
+
 function SourceCodeCommitter() {
   const [message, setMessage] = useState('');
   const [isCommitting, setIsCommitting] = useState(false);
@@ -232,11 +225,7 @@ function SourceCodeCommitter() {
     const toastId = toast.loading("Değişiklikler commit'leniyor ve GitHub'a gönderiliyor...");
 
     try {
-      const response = await fetch('/api/admin/git/commit-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message }),
-      });
+      const response = await fetch('/api/admin/git/commit-all', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }) });
 
       const result = await response.json();
       if (!response.ok) {
