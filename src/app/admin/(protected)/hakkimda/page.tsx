@@ -130,14 +130,26 @@ export default function AdminHakkimdaPage() {
     const toastId = toast.loading('Değişiklikler kaydediliyor...');
     try {
       const { about, content, skills, experiences } = formData;
-      // Tüm kaydetme isteklerini paralel olarak gönder
-      const promises = [
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'about', slug: 'about.md', originalSlug: 'about.md', data: about, content }) }),
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'skills', slug: 'skills.json', originalSlug: 'skills.json', data: skills.map(s => s.name) }) }),
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', originalSlug: 'experiences.json', data: experiences }) }),
+
+      // Güncellenecek tüm verileri tek bir "toplu işlem" dizisinde birleştir.
+      const batchPayload = [
+        { type: 'about', slug: 'about.md', originalSlug: 'about.md', data: about, content },
+        { type: 'skills', slug: 'skills.json', originalSlug: 'skills.json', data: skills.map(s => s.name) },
+        { type: 'experiences', slug: 'experiences.json', originalSlug: 'experiences.json', data: experiences }
       ];
-      const responses = await Promise.all(promises);
-      if (responses.some(res => !res.ok)) throw new Error('Değişiklikler kaydedilirken bir veya daha fazla hata oluştu.');
+
+      // API'ye tek bir istek gönder.
+      const response = await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(batchPayload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Değişiklikler kaydedilirken bir hata oluştu.');
+      }
+
       toast.success('Tüm değişiklikler başarıyla kaydedildi!', { id: toastId });
       fetchData(); // Verileri yeniden çekerek arayüzü güncelle
     } catch (error) {

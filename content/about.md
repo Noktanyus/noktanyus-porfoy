@@ -6,7 +6,7 @@ headerTitle: NOKTANYUS
 profileImage: /api/images/ff27fa44-d4ad-412c-bcb2-ac48ee6f2347.webp
 aboutImage: /api/images/3ef74b85-fd83-4e71-87a1-c91c91e72601.webp
 social:
-  github: 'https://github.com/ornek-kullanici'
+  github: 'https://github.com/noktanyus'
   linkedin: 'https://linkedin.com/in/ornek-kullanici'
   twitter: 'https://twitter.com/ornek-kullanici'
 ---
