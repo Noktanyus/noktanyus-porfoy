@@ -3,5 +3,11 @@
   "React",
   "TypeScript",
   "Tailwind CSS",
-  "Node.js"
+  "Node.js",
+  "Docker",
+  "Linux (Debian/Ubuntu)",
+  "PHP",
+  "MySQL",
+  "MongoDB",
+  "PostgreSQL"
 ]
