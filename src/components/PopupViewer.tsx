@@ -8,7 +8,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Popup } from '@/types/content';
 
 /**
@@ -22,18 +22,23 @@ const DynamicHTMLRenderer = ({ htmlContent }: { htmlContent: string }) => {
     const container = containerRef.current;
     if (!container) return;
 
+    // HTML'i geçici bir elemente yükleyerek script'leri ayıkla
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     const scripts = Array.from(tempDiv.querySelectorAll('script'));
     
+    // Script'leri çıkardıktan sonra kalan HTML'i ana konteynere bas
     scripts.forEach(s => s.remove());
     container.innerHTML = tempDiv.innerHTML;
 
+    // Ayıklanan script'leri yeniden oluşturup DOM'a ekleyerek çalıştır
     scripts.forEach(script => {
       const newScript = document.createElement('script');
+      // Orijinal script'in tüm attribute'larını kopyala (src, async, defer vb.)
       for (const attr of script.attributes) {
         newScript.setAttribute(attr.name, attr.value);
       }
+      // Inline script içeriğini kopyala
       if (script.textContent) {
         try {
           newScript.appendChild(document.createTextNode(script.textContent));
@@ -50,7 +55,6 @@ const DynamicHTMLRenderer = ({ htmlContent }: { htmlContent: string }) => {
 
 /**
  * Popup'ın görsel arayüzünü oluşturan bileşen.
- * Bu bileşen artık dışa aktarılıyor ve doğrudan veri ile kullanılabilir.
  * @param {{ popup: Popup; onClose: () => void }} props - Popup verisi ve kapatma fonksiyonu.
  */
 export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => void }) => {
@@ -66,6 +70,8 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
         break;
       case 'run-code':
         try {
+          // Güvenlik notu: Bu fonksiyon, keyfi kod çalıştırabilir.
+          // Sadece güvenilir kaynaklardan gelen kodlar için kullanılmalıdır.
           new Function(actionValue)();
         } catch (error) {
           console.error("PopupDisplay -> Hata: Popup üzerinden kod çalıştırılırken bir hata oluştu.", error);
@@ -137,9 +143,11 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
  * Popup verisini URL'den getirme ve gösterme mantığını yöneten ana bileşen.
  * URL'deki 'rp' (rich-popup) parametresini dinler.
  */
-export default function PopupController() {
+export default function PopupViewer() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const popupSlug = searchParams.get('rp');
+  
   const [popup, setPopup] = useState<Popup | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -154,10 +162,15 @@ export default function PopupController() {
           return res.json();
         })
         .then((data: Popup) => {
-          setPopup(data);
+          // Sadece aktif olan popup'ları göster
+          if (data.isActive) {
+            setPopup(data);
+          } else {
+            setPopup(null);
+          }
         })
         .catch(err => {
-          console.error(`PopupController -> Hata: '${popupSlug}' popup verisi getirilemedi.`, err);
+          console.error(`PopupViewer -> Hata: '${popupSlug}' popup verisi getirilemedi.`, err);
           setPopup(null);
         })
         .finally(() => setIsLoading(false));
@@ -166,11 +179,15 @@ export default function PopupController() {
     }
   }, [popupSlug]);
 
+  /**
+   * Popup'ı kapatır ve URL'den 'rp' parametresini temizler.
+   */
   const handleClose = () => {
     setPopup(null);
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.delete('rp');
-    window.history.pushState({ path: newUrl.href }, '', newUrl.href);
+    // Tarayıcı geçmişine yeni bir kayıt eklemeden URL'i güncelle
+    router.replace(newUrl.href, { scroll: false });
   };
 
   if (isLoading || !popup) {

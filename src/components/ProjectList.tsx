@@ -49,6 +49,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
 
   return (
     <div className="space-y-8">
+      {/* Arama ve Filtreleme Çubuğu */}
       <div className="flex flex-col md:flex-row gap-4 justify-center mb-8">
         <input
           type="text"
@@ -73,6 +74,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
         </div>
       </div>
 
+      {/* Filtrelenmiş Proje Listesi */}
       {filteredProjects.length > 0 ? (
         <div className="grid md:grid-cols-1 gap-8">
           {filteredProjects.map(project => (

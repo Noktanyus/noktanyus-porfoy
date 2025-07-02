@@ -1,3 +1,10 @@
+/**
+ * @file Ana sayfa ayarlarını yönetme sayfası.
+ * @description Bu sayfa, ana sayfada gösterilen "öne çıkan içerik" kutusunun
+ *              (YouTube videosu, metin kutusu vb.) ayarlarını yönetmek için
+ *              bir form sunar.
+ */
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,14 +15,23 @@ import { HomeSettings } from "@/types/content";
 type HomePageSettingsFormData = HomeSettings;
 
 export default function HomePageSettingsPage() {
-  const { register, handleSubmit, setValue, control, formState: { isDirty, isSubmitting } } = useForm<HomePageSettingsFormData>();
+  const { 
+    register, 
+    handleSubmit, 
+    setValue, 
+    control, 
+    formState: { isDirty, isSubmitting } 
+  } = useForm<HomePageSettingsFormData>();
+  
   const [isLoading, setIsLoading] = useState(true);
 
+  // "featuredContent.type" alanındaki değişiklikleri izle
   const featuredContentType = useWatch({
     control,
     name: "featuredContent.type",
   });
 
+  // Sayfa yüklendiğinde mevcut ayarları API'den çek
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -23,6 +39,7 @@ export default function HomePageSettingsPage() {
         const response = await fetch("/api/admin/settings?file=home-settings.json");
         if (!response.ok) throw new Error("Veri alınamadı.");
         const data = await response.json();
+        // Formdaki alanları API'den gelen verilerle doldur
         setValue('featuredContent', data.featuredContent || { type: 'none' });
       } catch (error) {
         toast.error("Ana sayfa ayarları yüklenirken bir hata oluştu.");
@@ -33,6 +50,10 @@ export default function HomePageSettingsPage() {
     fetchData();
   }, [setValue]);
 
+  /**
+   * Form gönderildiğinde verileri API'ye göndererek kaydeder.
+   * @param formData - Formdan gelen veriler.
+   */
   const onSubmit = async (formData: HomePageSettingsFormData) => {
     const loadingToast = toast.loading("Ayarlar kaydediliyor...");
     
@@ -46,22 +67,25 @@ export default function HomePageSettingsPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Kaydetme başarısız oldu.");
+      if (!response.ok) throw new Error("Ayarları kaydetme işlemi başarısız oldu.");
       toast.success("Ayarlar başarıyla kaydedildi!", { id: loadingToast });
     } catch (error) {
       toast.error(`Bir hata oluştu: ${(error as Error).message}`, { id: loadingToast });
     }
   };
 
-  if (isLoading) return <div className="text-center">Yükleniyor...</div>;
+  if (isLoading) return <div className="text-center p-8">Ayarlar yükleniyor...</div>;
 
   return (
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Ana Sayfa Ayarları</h1>
-      <p className="mb-6 text-gray-600 dark:text-gray-400">Bu bölümden ana sayfanızdaki isminizin sağında görünen "uçan" kutucuğun içeriğini yönetebilirsiniz.</p>
+      <h1 className="text-2xl font-bold mb-6">Ana Sayfa Öne Çıkan İçerik Ayarları</h1>
+      <p className="mb-6 text-gray-600 dark:text-gray-400">
+        Bu bölümden, ana sayfanızdaki isminizin sağında görünen "uçan" kutucuğun içeriğini yönetebilirsiniz.
+        İçeriğin görünmemesi için "Gösterme" seçeneğini seçebilirsiniz.
+      </p>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-            <label htmlFor="featuredContent.type" className="block text-sm font-medium mb-1">İçerik Türü</label>
+            <label htmlFor="featuredContent.type" className="block text-sm font-medium mb-1">Öne Çıkan İçerik Türü</label>
             <select {...register("featuredContent.type")} id="featuredContent.type" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700">
                 <option value="none">Gösterme</option>
                 <option value="video">YouTube Videosu</option>
@@ -69,6 +93,7 @@ export default function HomePageSettingsPage() {
             </select>
         </div>
 
+        {/* Seçilen içerik türüne göre ilgili form alanlarını göster */}
         {featuredContentType === 'video' && (
             <div>
                 <label htmlFor="featuredContent.youtubeUrl" className="block text-sm font-medium mb-1">YouTube Video URL</label>
@@ -89,6 +114,7 @@ export default function HomePageSettingsPage() {
                 <div>
                     <label htmlFor="featuredContent.customHtml" className="block text-sm font-medium mb-1">Özel Kod (İsteğe Bağlı)</label>
                     <textarea {...register("featuredContent.customHtml")} id="featuredContent.customHtml" rows={10} className="w-full p-2 rounded bg-gray-800 text-gray-200 font-mono" placeholder="HTML, CSS ve JS kodunuzu buraya yapıştırın..."></textarea>
+                    <p className="text-xs text-gray-500 mt-1">Bu alana eklenen kodlar, metin kutusunun altında doğrudan render edilir. Güvenlik riski oluşturabilecek kodlar eklememeye dikkat edin.</p>
                 </div>
             </div>
         )}

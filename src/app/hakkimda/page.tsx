@@ -1,12 +1,22 @@
+/**
+ * @file Hakkımda sayfasını oluşturan sunucu bileşeni.
+ * @description Bu sayfa, `content-parser` kullanarak hakkımda, yetenekler ve
+ *              tecrübelerle ilgili verileri çeker ve bunları kullanıcıya
+ *              anlamlı bir düzende sunar.
+ */
+
 import { getAboutData, getAboutContentHtml, getSkills, getExperiences } from '@/lib/content-parser';
 import Image from 'next/image';
-import { FaCode } from 'react-icons/fa';
+import { FaCode, FaBriefcase } from 'react-icons/fa';
 
 export default async function HakkimdaPage() {
-  const aboutData = await getAboutData();
-  const contentHtml = await getAboutContentHtml();
-  const skills = getSkills();
-  const experiences = getExperiences();
+  // Gerekli tüm verileri sunucu tarafında paralel olarak çek
+  const [aboutData, contentHtml, skills, experiences] = await Promise.all([
+    getAboutData(),
+    getAboutContentHtml(),
+    getSkills(),
+    getExperiences()
+  ]);
 
   return (
     <div className="space-y-16">
@@ -18,7 +28,7 @@ export default async function HakkimdaPage() {
             alt={`${aboutData.name} - Profil Fotoğrafı`}
             width={160}
             height={160}
-            priority
+            priority // LCP (Largest Contentful Paint) için önemli
             className="w-full h-full object-cover"
           />
         </div>
@@ -26,19 +36,23 @@ export default async function HakkimdaPage() {
         <p className="text-xl text-gray-600 dark:text-gray-300 mt-2">{aboutData.title}</p>
       </section>
 
-      {/* Ana İçerik */}
+      {/* Ana İçerik (Markdown'dan gelen) */}
       <section 
         className="prose dark:prose-invert max-w-none bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg p-6 md:p-8 shadow-md"
         dangerouslySetInnerHTML={{ __html: contentHtml }}
       />
 
-      {/* Tecrübelerim */}
+      {/* İş Tecrübelerim */}
       <section>
         <h2 className="text-3xl font-bold text-center mb-8 text-light-text dark:text-dark-text">İş Tecrübelerim</h2>
+        {/* Zaman çizgisi (timeline) yapısı */}
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-gray-200 dark:before:bg-gray-700">
           {experiences.map((exp, index) => (
             <div key={index} className="relative pl-10">
-              <div className="absolute left-5 top-1 w-4 h-4 bg-brand-primary rounded-full border-4 border-white dark:border-dark-bg"></div>
+              {/* Zaman çizgisi noktası */}
+              <div className="absolute left-5 top-1 w-4 h-4 bg-brand-primary rounded-full border-4 border-white dark:border-dark-bg flex items-center justify-center">
+                <FaBriefcase className="text-white text-xs" />
+              </div>
               <h3 className="text-xl font-bold text-light-text dark:text-dark-text">{exp.title}</h3>
               <p className="text-md font-semibold text-gray-700 dark:text-gray-300">{exp.company}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{exp.date}</p>

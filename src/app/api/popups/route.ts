@@ -1,11 +1,27 @@
+/**
+ * @file Popup'lar için temel CRUD işlemlerini yöneten API rotası.
+ * @description Bu dosya, tüm popup'ları listelemek (GET), yeni bir popup
+ *              oluşturmak veya güncellemek (POST) ve bir popup'ı silmek (DELETE)
+ *              için kullanılır. Bu rota, doğrudan dosya sistemi üzerinde çalışır
+ *              ve yönetim panelindeki `content` API'sine bir alternatiftir.
+ *              NOT: Bu rota, projenin başka bir bölümünde `api/admin/content` rotası
+ *              ile benzer işlevleri yerine getirdiği için kod tekrarı oluşturmaktadır.
+ *              Proje genelinde tutarlılık için bu rotaların birleştirilmesi önerilir.
+ */
+
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { Popup } from '@/types/content';
 
+// Popup JSON dosyalarının bulunduğu dizin
 const contentDirectory = path.join(process.cwd(), 'content', 'popups');
 
-// Helper to ensure directory exists
+/**
+ * Belirtilen dosya yolunun ait olduğu dizinin var olduğundan emin olur.
+ * Dizin yoksa, rekürsif olarak oluşturur.
+ * @param filePath - Kontrol edilecek dosyanın yolu.
+ */
 const ensureDirectoryExistence = (filePath: string) => {
   const dirname = path.dirname(filePath);
   if (fs.existsSync(dirname)) {
@@ -15,7 +31,9 @@ const ensureDirectoryExistence = (filePath: string) => {
   fs.mkdirSync(dirname);
 };
 
-// GET all popups
+/**
+ * GET: Tüm popup'ları listeler.
+ */
 export async function GET() {
   try {
     const fileNames = fs.readdirSync(contentDirectory);
@@ -26,64 +44,67 @@ export async function GET() {
         const fileContents = fs.readFileSync(fullPath, 'utf8');
         const data = JSON.parse(fileContents);
         return {
-          slug: fileName.replace(/\.json$/, ''),
+          slug: fileName.replace(/\.json$/, ''), // Dosya adından .json uzantısını kaldırarak slug oluştur
           ...data,
         };
       });
     return NextResponse.json(popups);
   } catch (error) {
-    console.error("Error fetching popups:", error);
-    return NextResponse.json({ message: "Popup'lar getirilirken bir hata oluştu." }, { status: 500 });
+    console.error("Popup listeleme hatası:", error);
+    return NextResponse.json({ message: "Popup'lar getirilirken sunucuda bir hata oluştu." }, { status: 500 });
   }
 }
 
-// POST a new popup
+/**
+ * POST: Yeni bir popup oluşturur veya mevcut birini günceller.
+ */
 export async function POST(request: Request) {
   try {
     const popupData: Popup = await request.json();
     
+    // Gelen veride 'slug' alanı olup olmadığını kontrol et
     if (!popupData || !popupData.slug) {
-      return NextResponse.json({ message: 'Eksik bilgi: slug alanı gereklidir.' }, { status: 400 });
+      return NextResponse.json({ message: 'Eksik veya geçersiz veri: `slug` alanı zorunludur.' }, { status: 400 });
     }
 
     const filePath = path.join(contentDirectory, `${popupData.slug}.json`);
+    const fileContent = JSON.stringify(popupData, null, 2); // JSON'u okunaklı formatta string'e çevir
 
-    // For simplicity, we overwrite if exists. Could add checks for creation vs. update.
-    const fileContent = JSON.stringify(popupData, null, 2);
-
-    ensureDirectoryExistence(filePath);
-    fs.writeFileSync(filePath, fileContent);
+    ensureDirectoryExistence(filePath); // Dizin'in var olduğundan emin ol
+    fs.writeFileSync(filePath, fileContent); // Dosyayı yaz (varsa üzerine yazar)
 
     return NextResponse.json({ message: 'Popup başarıyla kaydedildi.' }, { status: 201 });
 
   } catch (error) {
-    console.error("Error creating/updating popup:", error);
-    return NextResponse.json({ message: 'Popup kaydedilirken bir hata oluştu.' }, { status: 500 });
+    console.error("Popup oluşturma/güncelleme hatası:", error);
+    return NextResponse.json({ message: 'Popup kaydedilirken sunucuda bir hata oluştu.' }, { status: 500 });
   }
 }
 
-// DELETE a popup
+/**
+ * DELETE: Belirtilen bir popup'ı siler.
+ */
 export async function DELETE(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const slug = searchParams.get('slug');
 
         if (!slug) {
-            return NextResponse.json({ message: 'Silinecek popup slug bilgisi eksik.' }, { status: 400 });
+            return NextResponse.json({ message: 'Silinecek popup için `slug` parametresi eksik.' }, { status: 400 });
         }
 
         const filePath = path.join(contentDirectory, `${slug}.json`);
 
         if (!fs.existsSync(filePath)) {
-            return NextResponse.json({ message: 'Popup bulunamadı.' }, { status: 404 });
+            return NextResponse.json({ message: 'Belirtilen popup bulunamadı.' }, { status: 404 });
         }
 
-        fs.unlinkSync(filePath);
+        fs.unlinkSync(filePath); // Dosyayı sil
 
         return NextResponse.json({ message: 'Popup başarıyla silindi.' });
 
     } catch (error) {
-        console.error("Error deleting popup:", error);
-        return NextResponse.json({ message: 'Popup silinirken bir hata oluştu.' }, { status: 500 });
+        console.error("Popup silme hatası:", error);
+        return NextResponse.json({ message: 'Popup silinirken sunucuda bir hata oluştu.' }, { status: 500 });
     }
 }

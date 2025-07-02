@@ -1,3 +1,9 @@
+/**
+ * @file Yönetim panelindeki tüm sayfalara navigasyon sağlayan kenar çubuğu (sidebar) bileşeni.
+ * @description Bu bileşen, yönetim panelindeki ana bölümlere linkler sunar,
+ *              aktif sayfayı vurgular ve güvenli çıkış işlemi için bir buton içerir.
+ */
+
 "use client";
 
 import { signOut } from "next-auth/react";
@@ -10,13 +16,10 @@ import {
   FaEye, FaHome, FaHistory 
 } from "react-icons/fa";
 
-/**
- * Yönetim panelindeki tüm sayfalara navigasyon sağlayan kenar çubuğu (sidebar) bileşeni.
- */
 const AdminSidebar = () => {
   const pathname = usePathname();
 
-  // Kenar çubuğunda gösterilecek navigasyon linkleri
+  // Kenar çubuğunda gösterilecek navigasyon linkleri ve ikonları
   const navLinks = [
     { href: "/admin/dashboard", text: "Gösterge Paneli", icon: <FaTachometerAlt /> },
     { href: "/admin/home-settings", text: "Ana Sayfa Ayarları", icon: <FaHome /> },
@@ -30,12 +33,12 @@ const AdminSidebar = () => {
   ];
 
   /**
-   * Kullanıcıya onay sorduktan sonra çıkış işlemini gerçekleştirir.
+   * Kullanıcıya onay sorduktan sonra oturumu sonlandırır ve ana sayfaya yönlendirir.
    */
   const handleSignOut = () => {
     if (window.confirm("Yönetim panelinden çıkmak istediğinize emin misiniz?")) {
-      toast.success("Başarıyla çıkış yapıldı.");
-      signOut({ callbackUrl: "/" });
+      toast.success("Başarıyla çıkış yapıldı. Yönlendiriliyorsunuz...");
+      signOut({ callbackUrl: "/" }); // Çıkış sonrası ana sayfaya yönlendir
     }
   };
 
@@ -46,7 +49,8 @@ const AdminSidebar = () => {
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navLinks.map((link) => {
-          // Aktif linki belirlemek için mevcut yolu (pathname) kontrol et
+          // Aktif linki belirlemek için mevcut yolu (pathname) kontrol et.
+          // Gösterge paneli için tam eşleşme, diğerleri için başlangıç eşleşmesi kullanılır.
           const isActive = link.href === "/admin/dashboard" 
             ? pathname === link.href 
             : pathname.startsWith(link.href);
@@ -56,8 +60,8 @@ const AdminSidebar = () => {
               <div
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                   isActive
-                    ? "bg-brand-primary text-white font-semibold"
-                    : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                    ? "bg-brand-primary text-white font-semibold shadow-md" // Aktif link stili
+                    : "hover:bg-gray-200 dark:hover:bg-gray-700" // Hover stili
                 }`}
               >
                 <span className="text-xl">{link.icon}</span>
@@ -67,13 +71,12 @@ const AdminSidebar = () => {
           );
         })}
       </nav>
+      {/* Alt Kısım: Siteyi Görüntüle ve Çıkış Butonları */}
       <div className="px-4 py-6 border-t border-gray-200 dark:border-dark-border space-y-2">
-        <Link href="/" target="_blank" rel="noopener noreferrer">
-            <div className="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700">
-                <span className="text-xl"><FaEye /></span>
-                <span>Siteyi Görüntüle</span>
-            </div>
-        </Link>
+        <a href="/" target="_blank" rel="noopener noreferrer" className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+            <span className="text-xl"><FaEye /></span>
+            <span>Siteyi Görüntüle</span>
+        </a>
         <button
           onClick={handleSignOut}
           className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left text-red-600 dark:text-red-500 hover:bg-red-500 hover:text-white dark:hover:bg-red-600 transition-colors"

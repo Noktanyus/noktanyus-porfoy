@@ -1,3 +1,10 @@
+/**
+ * @file Popup yönetimi sayfası.
+ * @description Bu sayfa, mevcut tüm popup'ları bir liste halinde gösterir.
+ *              Kullanıcıların yeni popup eklemesine, mevcutları düzenlemesine,
+ *              silmesine ve aktif/pasif durumunu değiştirmesine olanak tanır.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -10,12 +17,16 @@ export default function PopupsAdminPage() {
   const [popups, setPopups] = useState<Popup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  /**
+   * API'den tüm popup verilerini çeker ve duruma göre sıralar.
+   */
   const fetchPopups = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/admin/content?type=popups');
-      if (!response.ok) throw new Error("Popup'lar yüklenemedi.");
+      if (!response.ok) throw new Error("Popup'lar sunucudan yüklenemedi.");
       const data = await response.json();
+      // Aktif olanları üste alacak şekilde sırala
       setPopups(data.sort((a: Popup, b: Popup) => (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1));
     } catch (error) {
       toast.error((error as Error).message);
@@ -28,47 +39,63 @@ export default function PopupsAdminPage() {
     fetchPopups();
   }, [fetchPopups]);
 
+  /**
+   * Belirtilen popup'ı siler.
+   * @param slug - Silinecek popup'ın kimliği.
+   */
   const handleDelete = async (slug: string) => {
-    if (!confirm(`'${slug}' kodlu popup'ı silmek istediğinizden emin misiniz?`)) return;
+    if (!confirm(`'${slug}' kodlu popup'ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
 
     const loadingToast = toast.loading("Popup siliniyor...");
     try {
-      const response = await fetch(`/api/admin/content?type=popups&slug=${slug}`, { method: 'DELETE' });
+      // API'ye slug'ı dosya adı olarak gönder
+      const response = await fetch(`/api/admin/content?type=popups&slug=${slug}.json`, { method: 'DELETE' });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Silme işlemi başarısız oldu.");
+        throw new Error(errorData.error || "Silme işlemi başarısız oldu.");
       }
       toast.success("Popup başarıyla silindi!", { id: loadingToast });
-      fetchPopups();
+      fetchPopups(); // Listeyi yenile
     } catch (error) {
       toast.error((error as Error).message, { id: loadingToast });
     }
   };
   
+  /**
+   * Bir popup'ın aktif/pasif durumunu değiştirir.
+   * @param popup - Durumu değiştirilecek popup nesnesi.
+   */
   const handleToggleActive = async (popup: Popup) => {
-    const toastId = toast.loading('Durum güncelleniyor...');
+    const toastId = toast.loading('Popup durumu güncelleniyor...');
     try {
+      // Popup'ın isActive durumunu tersine çevir
       const updatedPopup = { ...popup, isActive: !popup.isActive };
-      const response = await fetch('/api/admin/content?type=popups', {
+      
+      const response = await fetch('/api/admin/content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedPopup),
+        body: JSON.stringify({
+          type: 'popups',
+          slug: popup.slug, // Slug'ı dosya adı olarak kullan
+          originalSlug: popup.slug, // Güncelleme olduğunu belirtmek için
+          data: updatedPopup
+        }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Durum güncellenemedi.');
+        throw new Error(errorData.error || 'Durum güncellenemedi.');
       }
       
       toast.success('Durum başarıyla güncellendi!', { id: toastId });
-      fetchPopups();
+      fetchPopups(); // Listeyi yenile
     } catch (error) {
       toast.error((error as Error).message, { id: toastId });
     }
   };
 
   if (isLoading) {
-    return <div className="text-center p-8">Yükleniyor...</div>;
+    return <div className="text-center p-8">Popup'lar yükleniyor...</div>;
   }
 
   return (
@@ -97,21 +124,23 @@ export default function PopupsAdminPage() {
                 popups.map((popup) => (
                   <tr key={popup.slug} className={`hover:bg-gray-50 dark:hover:bg-dark-hover transition-colors ${!popup.isActive ? 'opacity-50' : ''}`}>
                     <td className="py-4 px-6">
-                      <input
-                        type="checkbox"
-                        checked={popup.isActive}
-                        onChange={() => handleToggleActive(popup)}
-                        aria-label="Aktif/Pasif"
-                        className="h-5 w-5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary"
-                      />
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={popup.isActive}
+                          onChange={() => handleToggleActive(popup)}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-brand-primary"></div>
+                      </label>
                     </td>
                     <td className="py-4 px-6 whitespace-nowrap font-mono text-sm">{popup.slug}</td>
                     <td className="py-4 px-6 whitespace-nowrap font-medium">{popup.title}</td>
                     <td className="py-4 px-6 text-right whitespace-nowrap">
-                      <Link href={`/admin/popups/edit/${popup.slug}`} className="text-brand-primary hover:text-brand-primary-dark mr-4 transition-colors inline-block align-middle">
+                      <Link href={`/admin/popups/edit/${popup.slug}`} className="text-brand-primary hover:text-brand-primary-dark mr-4 transition-colors inline-block align-middle" aria-label={`${popup.title} popup'ını düzenle`}>
                         <FaEdit size={18} />
                       </Link>
-                      <button onClick={() => handleDelete(popup.slug)} className="text-red-500 hover:text-red-700 transition-colors inline-block align-middle">
+                      <button onClick={() => handleDelete(popup.slug)} className="text-red-500 hover:text-red-700 transition-colors inline-block align-middle" aria-label={`${popup.title} popup'ını sil`}>
                         <FaTrash size={18} />
                       </button>
                     </td>
@@ -120,7 +149,7 @@ export default function PopupsAdminPage() {
               ) : (
                 <tr>
                   <td colSpan={4} className="text-center py-10 text-gray-500">
-                    Henüz hiç popup oluşturulmamış.
+                    Henüz hiç popup oluşturulmamış. "Yeni Popup Ekle" butonu ile başlayabilirsiniz.
                   </td>
                 </tr>
               )}

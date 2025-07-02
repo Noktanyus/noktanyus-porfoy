@@ -1,3 +1,10 @@
+/**
+ * @file Belirli bir popup'ı düzenleme sayfası.
+ * @description URL'den alınan 'slug' parametresine göre ilgili popup'ın verilerini
+ *              API'den çeker ve `PopupForm` bileşenini bu veriyle doldurarak
+ *              düzenleme arayüzünü oluşturur.
+ */
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -18,22 +25,26 @@ export default function EditPopupPage({ params }: EditPopupPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    /**
+     * API'den düzenlenecek olan popup'ın verilerini getiren asenkron fonksiyon.
+     */
     const fetchPopup = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // API'ye dosya uzantısını ekleyerek istek atıyoruz.
+        // API'ye dosya uzantısını (.json) ekleyerek istek atıyoruz.
         const response = await fetch(`/api/admin/content?type=popups&slug=${params.slug}.json`);
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Popup verisi alınamadı.');
+          throw new Error(errorData.error || 'Popup verisi sunucudan alınamadı.');
         }
         const data = await response.json();
         // Gelen JSON verisini doğrudan state'e ata
         setPopup(data);
       } catch (err) {
-        setError((err as Error).message);
-        toast.error((err as Error).message);
+        const errorMessage = (err as Error).message;
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -45,13 +56,14 @@ export default function EditPopupPage({ params }: EditPopupPageProps) {
   }, [params.slug]);
 
   if (isLoading) {
-    return <div className="text-center p-10">Yükleniyor...</div>;
+    return <div className="text-center p-10">Popup verileri yükleniyor...</div>;
   }
 
   if (error) {
     return <div className="text-center p-10 text-red-500">Hata: {error}</div>;
   }
 
+  // Popup bulunamazsa 404 sayfasına yönlendir.
   if (!popup) {
     return notFound();
   }
@@ -59,7 +71,8 @@ export default function EditPopupPage({ params }: EditPopupPageProps) {
   return (
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Popup Düzenle: <span className="font-normal">{popup.title}</span></h1>
-      <PopupForm initialData={popup} slug={params.slug} />
+      {/* Mevcut popup verileriyle doldurulmuş PopupForm bileşeni */}
+      <PopupForm initialData={popup} />
     </div>
   );
 }

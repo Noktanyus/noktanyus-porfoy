@@ -1,3 +1,9 @@
+/**
+ * @file Gelen iletişim formu mesajlarını yönetme sayfası.
+ * @description Bu sayfa, kullanıcıların gönderdiği tüm mesajları listeler.
+ *              Mesajları okuma, silme ve yanıtlama işlevselliği sunar.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -12,13 +18,17 @@ export default function MessagesAdminPage() {
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
+  /**
+   * API'den tüm mesajları çeker ve tarihe göre sıralar.
+   */
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch('/api/admin/content?action=list&type=messages');
-      if (!response.ok) throw new Error("Mesajlar yüklenemedi.");
+      if (!response.ok) throw new Error("Mesajlar sunucudan yüklenemedi.");
       const data = await response.json();
       if (Array.isArray(data)) {
+        // Mesajları en yeniden en eskiye doğru sırala
         setMessages(data.sort((a: Message, b: Message) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
       } else {
         setMessages([]);
@@ -34,24 +44,32 @@ export default function MessagesAdminPage() {
     fetchMessages();
   }, [fetchMessages]);
 
+  /**
+   * Seçilen mesajı API aracılığıyla siler.
+   * @param id - Silinecek mesajın kimliği.
+   */
   const handleDelete = async (id: string) => {
-    if (!confirm(`Mesajı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
+    if (!confirm(`Mesajı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) return;
     const loadingToast = toast.loading("Mesaj siliniyor...");
     try {
+      // API'ye slug olarak dosya adını (.json uzantısıyla) gönder
       const response = await fetch(`/api/admin/content?type=messages&slug=${id}.json`, { method: 'DELETE' });
       if (!response.ok) throw new Error("Silme işlemi başarısız oldu.");
-      toast.success("Mesaj silindi!", { id: loadingToast });
-      fetchMessages();
-      setSelectedMessage(null);
+      toast.success("Mesaj başarıyla silindi!", { id: loadingToast });
+      fetchMessages(); // Listeyi yenile
+      setSelectedMessage(null); // Seçili mesajı temizle
     } catch (error) {
       toast.error((error as Error).message, { id: loadingToast });
     }
   };
 
+  /**
+   * Seçilen mesaja yanıt gönderir.
+   */
   const handleReply = async () => {
     if (!selectedMessage) return;
     setIsReplying(true);
-    const loadingToast = toast.loading("Yanıt gönderiliyor...");
+    const loadingToast = toast.loading("Yanıtınız gönderiliyor...");
     try {
       const response = await fetch('/api/admin/reply', {
         method: 'POST',
@@ -59,11 +77,14 @@ export default function MessagesAdminPage() {
         body: JSON.stringify({
           to: selectedMessage.email,
           subject: `Re: ${selectedMessage.subject}`,
-          html: replyContent.replace(/\n/g, '<br>'),
+          html: replyContent.replace(/\n/g, '<br>'), // Satır sonlarını HTML <br> etiketine çevir
         }),
       });
-      if (!response.ok) throw new Error("Yanıt gönderilemedi.");
-      toast.success("Yanıt gönderildi!", { id: loadingToast });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Yanıt gönderilemedi.");
+      }
+      toast.success("Yanıt başarıyla gönderildi!", { id: loadingToast });
       setIsReplyModalOpen(false);
       setReplyContent("");
     } catch (error) {
@@ -80,21 +101,23 @@ export default function MessagesAdminPage() {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-[calc(100vh-8rem)]">
-        {/* Mesaj Listesi */}
+        {/* Mesaj Listesi Bölümü */}
         <div className="md:col-span-1 bg-white dark:bg-dark-card rounded-lg shadow-md overflow-y-auto">
-          <h1 className="text-xl font-bold p-4 border-b dark:border-gray-700">Gelen Kutusu ({messages.length})</h1>
+          <h1 className="text-xl font-bold p-4 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-dark-card z-10">
+            Gelen Kutusu ({messages.length})
+          </h1>
           <ul>
             {messages.length > 0 ? messages.map(msg => (
-              <li key={msg.id} onClick={() => setSelectedMessage(msg)} className={`p-4 border-b dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${selectedMessage?.id === msg.id ? 'bg-blue-100 dark:bg-blue-900' : ''}`}>
+              <li key={msg.id} onClick={() => setSelectedMessage(msg)} className={`p-4 border-b dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${selectedMessage?.id === msg.id ? 'bg-blue-100 dark:bg-blue-900' : ''}`}>
                 <p className="font-bold">{msg.name}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{msg.subject}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{new Date(msg.timestamp).toLocaleString()}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{new Date(msg.timestamp).toLocaleString('tr-TR')}</p>
               </li>
-            )) : <p className="p-4 text-center text-gray-500">Gelen mesaj yok.</p>}
+            )) : <p className="p-4 text-center text-gray-500">Gelen kutunuzda hiç mesaj yok.</p>}
           </ul>
         </div>
 
-        {/* Mesaj Detayı */}
+        {/* Mesaj Detayı Bölümü */}
         <div className="md:col-span-2 bg-white dark:bg-dark-card rounded-lg shadow-md flex flex-col">
           {selectedMessage ? (
             <>
@@ -104,23 +127,23 @@ export default function MessagesAdminPage() {
                   <span className="font-semibold">{selectedMessage.name}</span>
                   <span className="text-gray-500"> ({selectedMessage.email})</span>
                 </p>
-                <p className="text-xs text-gray-400 mt-1">{new Date(selectedMessage.timestamp).toLocaleString()}</p>
+                <p className="text-xs text-gray-400 mt-1">{new Date(selectedMessage.timestamp).toLocaleString('tr-TR')}</p>
               </div>
               <div className="p-4 flex-grow overflow-y-auto whitespace-pre-wrap">
                 {selectedMessage.message}
               </div>
               <div className="p-4 border-t dark:border-gray-700 flex justify-end gap-4">
-                <button onClick={() => setIsReplyModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+                <button onClick={() => setIsReplyModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
                   Cevapla
                 </button>
-                <button onClick={() => handleDelete(selectedMessage.id)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700">
+                <button onClick={() => handleDelete(selectedMessage.id)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
                   Sil
                 </button>
               </div>
             </>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Okumak için bir mesaj seçin.</p>
+              <p className="text-gray-500">Okumak için soldaki listeden bir mesaj seçin.</p>
             </div>
           )}
         </div>
@@ -128,7 +151,7 @@ export default function MessagesAdminPage() {
 
       {/* Yanıt Modalı */}
       {isReplyModalOpen && selectedMessage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-dark-card rounded-lg shadow-xl p-6 w-full max-w-2xl">
             <h2 className="text-xl font-bold mb-4">Yanıtla: {selectedMessage.subject}</h2>
             <textarea
@@ -139,8 +162,8 @@ export default function MessagesAdminPage() {
               placeholder="Yanıtınızı buraya yazın..."
             />
             <div className="mt-4 flex justify-end gap-4">
-              <button onClick={() => setIsReplyModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded-md">İptal</button>
-              <button onClick={handleReply} disabled={isReplying} className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:bg-gray-400">
+              <button onClick={() => setIsReplyModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">İptal</button>
+              <button onClick={handleReply} disabled={isReplying} className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:bg-gray-400 transition-colors">
                 {isReplying ? "Gönderiliyor..." : "Gönder"}
               </button>
             </div>

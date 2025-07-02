@@ -1,3 +1,10 @@
+/**
+ * @file Yönetim panelinin ana gösterge sayfası (dashboard).
+ * @description Bu sayfa, projenin genel durumu hakkında özet bilgiler sunar.
+ *              İstatistikler (toplam proje, blog, mesaj sayısı), son gelen mesajlar,
+ *              hızlı erişim linkleri ve kaynak kodu yönetimi gibi bileşenleri içerir.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -6,10 +13,11 @@ import toast from 'react-hot-toast';
 import { 
   FaUserEdit, FaBlog, FaProjectDiagram, FaEnvelopeOpenText, 
   FaCog, FaPaperPlane, FaFileAlt, FaComments, 
-  FaWindowRestore, FaGithub, FaSyncAlt 
+  FaWindowRestore, FaGithub, FaSyncAlt, FaHistory
 } from 'react-icons/fa';
 import { Message } from '@/types/content';
 
+// Yönetim panelindeki hızlı erişim linklerinin listesi
 const adminLinks = [
   { href: "/admin/hakkimda", text: "Hakkımda Sayfasını Düzenle", icon: <FaUserEdit /> },
   { href: "/admin/projects", text: "Projeleri Yönet", icon: <FaProjectDiagram /> },
@@ -17,60 +25,75 @@ const adminLinks = [
   { href: "/admin/popups", text: "Popup'ları Yönet", icon: <FaWindowRestore /> },
   { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
   { href: "/admin/seo", text: "Genel SEO Ayarları", icon: <FaCog /> },
+  { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
 ];
 
+/** İstatistik kartları için veri tipi. */
 interface Stats {
   projects: number;
   blogs: number;
   messages: number;
 }
 
+/**
+ * Gösterge panelinin ana bileşeni.
+ */
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>({ projects: 0, blogs: 0, messages: 0 });
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  /**
+   * Sayfa için gerekli tüm verileri (istatistikler, son mesajlar) API'den çeker.
+   */
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const apiUrls = [
-        '/api/admin/content?action=list&type=projects',
-        '/api/admin/content?action=list&type=blog',
-        '/api/admin/content?action=list&type=messages',
-      ];
-      const responses = await Promise.all(apiUrls.map(url => fetch(url)));
+      // Tüm API isteklerini paralel olarak başlat
+      const responses = await Promise.all([
+        fetch('/api/admin/content?action=list&type=projects'),
+        fetch('/api/admin/content?action=list&type=blog'),
+        fetch('/api/admin/content?action=list&type=messages'),
+      ]);
       
+      // Herhangi bir istek başarısız olduysa hata fırlat
       for (const response of responses) {
-        if (!response.ok) throw new Error(`API isteği başarısız: ${response.status}`);
+        if (!response.ok) throw new Error(`API isteği başarısız oldu: ${response.statusText}`);
       }
 
       const [projects, blogs, messages] = await Promise.all(responses.map(res => res.json()));
 
+      // İstatistikleri güncelle
       setStats({
         projects: Array.isArray(projects) ? projects.length : 0,
         blogs: Array.isArray(blogs) ? blogs.length : 0,
         messages: Array.isArray(messages) ? messages.length : 0,
       });
       
+      // Son mesajları tarihe göre sırala ve state'e ata
       if (Array.isArray(messages)) {
         const sortedMessages = messages.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        setRecentMessages(sortedMessages.slice(0, 4));
+        setRecentMessages(sortedMessages.slice(0, 4)); // En son 4 mesajı al
       } else {
         setRecentMessages([]);
       }
 
     } catch (error) {
       console.error("Dashboard verileri yüklenirken hata:", error);
-      toast.error("Veriler yüklenirken bir hata oluştu.");
+      toast.error("Gösterge paneli verileri yüklenirken bir hata oluştu.");
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Bileşen ilk yüklendiğinde verileri çek
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  /**
+   * E-posta sunucu bağlantısını test etmek için API'ye istek gönderir.
+   */
   const handleTestEmail = async () => {
     const toastId = toast.loading('E-posta sunucusuyla bağlantı test ediliyor...');
     try {
@@ -86,6 +109,9 @@ export default function DashboardPage() {
     }
   };
 
+  /**
+   * GitHub API bağlantısını test etmek için API'ye istek gönderir.
+   */
   const handleTestGitHub = async () => {
     const toastId = toast.loading('GitHub API ile bağlantı test ediliyor...');
     try {
@@ -105,11 +131,12 @@ export default function DashboardPage() {
     <div className="space-y-12">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Yönetim Paneli</h1>
-        <button onClick={fetchData} disabled={isLoading} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
+        <button onClick={fetchData} disabled={isLoading} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50" aria-label="Verileri Yenile">
           <FaSyncAlt className={`text-2xl ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
+      {/* Genel Bakış ve İstatistikler */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Genel Bakış</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -129,20 +156,21 @@ export default function DashboardPage() {
         </div>
       </div>
       
+      {/* Son Gelen Mesajlar */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Son Gelen Mesajlar</h2>
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md min-h-[200px]">
           {isLoading ? (
-            <div className="space-y-4">
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-5/6"></div>
-              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+            <div className="space-y-4 animate-pulse">
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+              <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
             </div>
           ) : (
             recentMessages.length > 0 ? (
               <ul className="space-y-4">
                 {recentMessages.map(msg => (
-                  <li key={msg.id} className="border-b border-gray-200 dark:border-gray-700 pb-3">
+                  <li key={msg.id} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
                     <div className="flex justify-between items-center">
                       <p className="font-semibold">{msg.name} - <span className="text-gray-500 dark:text-gray-400">{msg.subject}</span></p>
                       <span className="text-sm text-gray-400 dark:text-gray-500">{new Date(msg.timestamp).toLocaleDateString('tr-TR')}</span>
@@ -158,6 +186,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Kaynak Kodu Yönetimi */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Kaynak Kodu Yönetimi</h2>
         <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md">
@@ -165,6 +194,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Hızlı Erişim ve Araçlar */}
       <div>
         <h2 className="text-2xl font-semibold mb-4">Hızlı Erişim ve Araçlar</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -188,6 +218,7 @@ export default function DashboardPage() {
   );
 }
 
+/** İstatistik kartı bileşeni. */
 const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, value: number }) => (
   <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4">
     <div className="text-4xl text-brand-primary">{icon}</div>
@@ -198,6 +229,7 @@ const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, va
   </div>
 );
 
+/** İstatistik kartı için iskelet (skeleton) yükleme göstergesi. */
 const StatCardSkeleton = () => (
   <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4 animate-pulse">
     <div className="w-12 h-12 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
@@ -208,6 +240,7 @@ const StatCardSkeleton = () => (
   </div>
 );
 
+/** Kaynak kodundaki değişiklikleri commit'leyip GitHub'a gönderme bileşeni. */
 function SourceCodeCommitter() {
   const [message, setMessage] = useState('');
   const [isCommitting, setIsCommitting] = useState(false);
