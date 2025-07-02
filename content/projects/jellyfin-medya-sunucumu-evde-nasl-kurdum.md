@@ -1,5 +1,5 @@
 ---
-title: 'Jellyfin: Medya Sunucumu Evde Nasıl Kurdum?'
+title: 'Jellyfin: Medya Sunucusu'
 slug: jellyfin-medya-sunucumu-evde-nasl-kurdum
 description: >-
   Evde Medya Sunucusu Kurulumu: Jellyfin Deneyimim
