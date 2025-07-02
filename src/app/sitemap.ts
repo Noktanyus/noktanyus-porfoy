@@ -10,6 +10,10 @@ import { MetadataRoute } from 'next';
 import { getSortedContentData } from '@/lib/content-parser';
 import { Project, Blog } from '@/types/content';
 
+// Bu satır, Next.js'e bu rotanın önbelleğe alınmamasını ve her istekte yeniden oluşturulmasını söyler.
+// Bu, site haritasının her zaman en güncel içeriği yansıtmasını sağlar.
+export const revalidate = 0;
+
 // .env dosyasından sitenin ana URL'sini al, yoksa localhost kullan
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
