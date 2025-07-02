@@ -132,9 +132,9 @@ export default function AdminHakkimdaPage() {
       const { about, content, skills, experiences } = formData;
       // Tüm kaydetme isteklerini paralel olarak gönder
       const promises = [
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'about', slug: 'about.md', data: about, content }) }),
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'skills', slug: 'skills.json', data: skills.map(s => s.name) }) }),
-        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', data: experiences }) }),
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'about', slug: 'about.md', originalSlug: 'about.md', data: about, content }) }),
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'skills', slug: 'skills.json', originalSlug: 'skills.json', data: skills.map(s => s.name) }) }),
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', originalSlug: 'experiences.json', data: experiences }) }),
       ];
       const responses = await Promise.all(promises);
       if (responses.some(res => !res.ok)) throw new Error('Değişiklikler kaydedilirken bir veya daha fazla hata oluştu.');

@@ -61,8 +61,8 @@ export async function POST(request: NextRequest) {
       .toFile(filePath);
 
     // İstemcinin beklediği formatta başarılı yanıt döndür
-    // Dönen URL, 'public' klasörünün kökünden başlar.
-    return NextResponse.json({ success: true, url: `/images/${newFilename}` });
+    // Dönen URL, yeni API rotamızı işaret eder.
+    return NextResponse.json({ success: true, url: `/api/images/${newFilename}` });
   } catch (error) {
     console.error('Görsel işlenirken veya kaydedilirken hata:', error);
     return NextResponse.json({ success: false, error: 'Görsel işlenirken bir sunucu hatası oluştu.' }, { status: 500 });

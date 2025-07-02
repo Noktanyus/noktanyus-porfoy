@@ -50,7 +50,7 @@ export default function ProjectsAdminPage() {
     if (confirm(`Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
       const toastId = toast.loading('Proje siliniyor, lütfen bekleyin...');
       try {
-        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}`, {
+        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}.md`, {
           method: 'DELETE',
         });
         if (!response.ok) {
