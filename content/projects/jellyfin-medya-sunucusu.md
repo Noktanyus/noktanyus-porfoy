@@ -1,6 +1,6 @@
 ---
 title: 'Jellyfin: Medya Sunucusu'
-slug: jellyfin-medya-sunucumu-evde-nasl-kurdum
+slug: jellyfin-medya-sunucusu
 description: >-
   Evde Medya Sunucusu Kurulumu: Jellyfin Deneyimim
 
