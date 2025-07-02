@@ -107,22 +107,30 @@ export async function getGitRepoUrl(): Promise<string | null> {
 }
 
 /**
- * İçerik dosyalarındaki (markdown, json vb.) değişiklikleri commit'ler ve uzak depoya gönderir.
- * @param {CommitDetails} details - Commit detaylarını içeren nesne.
+ * İ��erik dosyalarındaki (markdown, json vb.) belirli değişiklikleri commit'ler ve uzak depoya gönderir.
+ * @param {CommitDetails & { paths: string | string[] }} details - Commit detayları ve commit'lenecek dosya yolu/yolları.
  * @throws {Error} Commit veya push işlemi sırasında bir hata oluşursa hata fırlatır.
  */
-export async function commitContentChange({ action, fileType, slug, user }: CommitDetails): Promise<void> {
+export async function commitContentChange({ action, fileType, slug, user, paths }: CommitDetails & { paths: string | string[] }): Promise<void> {
   try {
     const status = await git.status();
-    if (status.files.length === 0) {
-      console.log("commitContentChange -> Bilgi: Commit atılacak bir değişiklik bulunamadı.");
-      return;
-    }
+    // Eğer hiç değişiklik yoksa veya belirtilen dosyalar zaten takip edilmiyorsa bile devam et,
+    // çünkü `git add` komutu sadece var olan ve değişmiş dosyaları işleyecektir.
     
     const actionMap = { create: 'oluşturuldu', update: 'güncellendi', delete: 'silindi' };
     const commitMessage = `içerik: '${slug}' adlı ${fileType} ${user} tarafından ${actionMap[action]}. [ci skip]`;
     
-    await git.add('.');
+    // Sadece belirtilen dosya(ları) 'add' komutuna ekle.
+    await git.add(paths);
+
+    // `git status` ile eklenen dosyaların gerçekten bir değişiklik içerip içermediğini kontrol et.
+    // Eğer `add` sonrası "staged" alanında dosya yoksa (örneğin dosya içeriği aynı kalmışsa), commit atma.
+    const stagedStatus = await git.status();
+    if (stagedStatus.staged.length === 0) {
+      console.log("commitContentChange -> Bilgi: Belirtilen dosyalarda commit atılacak bir değişiklik bulunamadı.");
+      return;
+    }
+    
     await git.commit(commitMessage);
     await pushChanges();
   } catch (error: any) {

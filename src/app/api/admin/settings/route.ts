@@ -81,11 +81,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Değişikliği Git'e commit'le
+    const changedPaths = [filePath];
+    if (typeof robotsTxt === 'string') {
+      changedPaths.push(path.join(publicDir, "robots.txt"));
+    }
+
     await commitContentChange({
       action: 'update',
       fileType: 'settings',
       slug: file,
       user: token.email || "Bilinmeyen Kullanıcı",
+      paths: changedPaths
     });
 
     return NextResponse.json({ message: "Ayarlar başarıyla kaydedildi!" });
