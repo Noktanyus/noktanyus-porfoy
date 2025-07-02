@@ -47,7 +47,7 @@ Kariyerime Node.js, Python, JavaScript ve web teknolojileriyle başladım. Ayrı
 ## 🎓 Eğitim
 
 **Isparta Uygulamalı Bilimler Üniversitesi**  
-_Bilgisayar Programcılığı (2022 - 2026)_
+_Bilgisayar Programcılığı (2024 - 2026)_
 
 ## 🔗 Online Portföy
 
