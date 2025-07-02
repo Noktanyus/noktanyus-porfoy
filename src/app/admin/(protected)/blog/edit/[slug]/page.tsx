@@ -16,12 +16,14 @@ export default function EditBlogPage({ params }: { params: { slug: string } }) {
     const fetchPostData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/admin/content?type=blog&slug=${slug}.md`);
+        const response = await fetch(`/api/admin/content?type=blog&slug=${slug}`);
         if (!response.ok) throw new Error("Yazı verileri yüklenemedi.");
         const { data, content } = await response.json();
-        setPost({ ...data, id: slug, content: content });
+        // Gelen veriye URL'den gelen slug'ı ekleyerek tutarlılığı sağla
+        setPost({ ...data, slug: slug, content: content });
       } catch (error) {
         toast.error((error as Error).message);
+        setPost(null); // Hata durumunda post'u temizle
       } finally {
         setIsLoading(false);
       }

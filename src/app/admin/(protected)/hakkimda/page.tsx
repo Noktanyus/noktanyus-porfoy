@@ -7,39 +7,45 @@ import dynamic from 'next/dynamic';
 import 'react-markdown-editor-lite/lib/index.css';
 import MarkdownIt from 'markdown-it';
 
-const MdEditor = dynamic(() => import('react-markdown-editor-lite'), {
-  ssr: false,
-});
-
+const MdEditor = dynamic(() => import('react-markdown-editor-lite'), { ssr: false });
 const mdParser = new MarkdownIt();
 
+type HakkimdaFormData = {
+  about: Partial<AboutData>;
+  content: string;
+  skills: Skill[];
+  experiences: Experience[];
+};
+
 export default function AdminHakkimdaPage() {
-  const [aboutData, setAboutData] = useState<Partial<AboutData>>({});
-  const [content, setContent] = useState('');
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [formData, setFormData] = useState<HakkimdaFormData>({
+    about: {},
+    content: '',
+    skills: [],
+    experiences: [],
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [aboutRes, skillsRes, expRes] = await Promise.all([
-        fetch('/api/admin/content?action=get&type=about&slug=about.md'),
-        fetch('/api/admin/content?action=list&type=skills'),
-        fetch('/api/admin/content?action=list&type=experiences'),
+        fetch('/api/admin/content?type=about&slug=about.md'),
+        fetch('/api/admin/content?type=skills'),
+        fetch('/api/admin/content?type=experiences'),
       ]);
-      if (!aboutRes.ok) throw new Error('Hakkımda verileri yüklenemedi.');
-      if (!skillsRes.ok) throw new Error('Yetenekler yüklenemedi.');
-      if (!expRes.ok) throw new Error('Tecrübeler yüklenemedi.');
+      if (!aboutRes.ok || !skillsRes.ok || !expRes.ok) throw new Error('Veriler yüklenemedi.');
       
       const aboutJson = await aboutRes.json();
       const skillsData = await skillsRes.json();
       const expData = await expRes.json();
 
-      setAboutData(aboutJson.data);
-      setContent(aboutJson.content);
-      setSkills(skillsData.map((name: string) => ({ name }))); // string[] -> Skill[] dönüşümü
-      setExperiences(expData);
+      setFormData({
+        about: aboutJson.data,
+        content: aboutJson.content,
+        skills: skillsData.map((name: string) => ({ name })),
+        experiences: expData,
+      });
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -47,27 +53,27 @@ export default function AdminHakkimdaPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  const handleAboutChange = (field: keyof AboutData, value: any) => {
+    setFormData(prev => ({ ...prev, about: { ...prev.about, [field]: value } }));
+  };
+  
+  const handleSocialChange = (field: 'github' | 'linkedin' | 'twitter', value: string) => {
+    setFormData(prev => ({ ...prev, about: { ...prev.about, social: { ...prev.about.social!, [field]: value } } }));
+  };
 
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>, field: keyof AboutData) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const formData = new FormData();
     formData.append('file', file);
-
     const toastId = toast.loading('Görsel yükleniyor...');
     try {
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      });
+      const response = await fetch('/api/admin/upload', { method: 'POST', body: formData });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Yükleme başarısız.');
-      
-      setAboutData(prev => ({ ...prev, [field]: result.filePath }));
+      handleAboutChange(field, result.filePath);
       toast.success('Görsel başarıyla yüklendi!', { id: toastId });
     } catch (error) {
       toast.error((error as Error).message, { id: toastId });
@@ -75,48 +81,39 @@ export default function AdminHakkimdaPage() {
   };
 
   const handleExperienceChange = (index: number, field: keyof Experience, value: string) => {
-    const updatedExperiences = [...experiences];
-    updatedExperiences[index] = { ...updatedExperiences[index], [field]: value };
-    setExperiences(updatedExperiences);
+    const updated = [...formData.experiences];
+    updated[index] = { ...updated[index], [field]: value };
+    setFormData(prev => ({ ...prev, experiences: updated }));
   };
 
-  const addExperience = () => {
-    setExperiences([...experiences, { title: '', company: '', date: '', description: '' }]);
+  const addExperience = () => setFormData(prev => ({ ...prev, experiences: [...prev.experiences, { title: '', company: '', date: '', description: '' }] }));
+  const removeExperience = (index: number) => setFormData(prev => ({ ...prev, experiences: prev.experiences.filter((_, i) => i !== index) }));
+  
+  const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const newSkillName = (e.target as HTMLInputElement).value.trim();
+      if (newSkillName && !formData.skills.find(s => s.name === newSkillName)) {
+        setFormData(prev => ({ ...prev, skills: [...prev.skills, { name: newSkillName }] }));
+        (e.target as HTMLInputElement).value = '';
+      }
+    }
   };
-
-  const removeExperience = (index: number) => {
-    setExperiences(experiences.filter((_, i) => i !== index));
-  };
+  const removeSkill = (index: number) => setFormData(prev => ({ ...prev, skills: prev.skills.filter((_, i) => i !== index) }));
 
   const handleSave = async () => {
     const toastId = toast.loading('Değişiklikler kaydediliyor...');
     try {
-      const aboutPromise = fetch('/api/admin/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'about', slug: 'about.md', data: aboutData, content }),
-      });
-      
-      const skillsPromise = fetch('/api/admin/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'skills', slug: 'skills.json', data: skills.map(s => s.name) }),
-      });
-
-      const experiencesPromise = fetch('/api/admin/content', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', data: experiences }),
-      });
-
-      const [aboutResponse, skillsResponse, expResponse] = await Promise.all([aboutPromise, skillsPromise, experiencesPromise]);
-
-      if (!aboutResponse.ok || !skillsResponse.ok || !expResponse.ok) {
-        throw new Error('Değişiklikler kaydedilemedi. En az bir işlem başarısız oldu.');
-      }
-
+      const { about, content, skills, experiences } = formData;
+      const promises = [
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'about', slug: 'about.md', data: about, content }) }),
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'skills', slug: 'skills.json', data: skills.map(s => s.name) }) }),
+        fetch('/api/admin/content', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'experiences', slug: 'experiences.json', data: experiences }) }),
+      ];
+      const responses = await Promise.all(promises);
+      if (responses.some(res => !res.ok)) throw new Error('Değişiklikler kaydedilemedi.');
       toast.success('Tüm değişiklikler başarıyla kaydedildi!', { id: toastId });
-      fetchData(); // Verileri yeniden çekerek arayüzü güncelle
+      fetchData();
     } catch (error) {
       toast.error((error as Error).message, { id: toastId });
     }
@@ -127,111 +124,61 @@ export default function AdminHakkimdaPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Hakkımda Sayfasını Düzenle</h1>
-      
       <div className="space-y-12">
-        {/* Genel Bilgiler */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Genel Bilgiler</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input type="text" placeholder="Header Başlığı" value={aboutData.headerTitle || ''} onChange={(e) => setAboutData({ ...aboutData, headerTitle: e.target.value })} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="İsim Soyisim" value={aboutData.name || ''} onChange={(e) => setAboutData({ ...aboutData, name: e.target.value })} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="Unvan" value={aboutData.title || ''} onChange={(e) => setAboutData({ ...aboutData, title: e.target.value })} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="Alt Başlık" value={aboutData.subTitle || ''} onChange={(e) => setAboutData({ ...aboutData, subTitle: e.target.value })} className="w-full p-2 border rounded" />
-            <textarea placeholder="Kısa Açıklama" value={aboutData.shortDescription || ''} onChange={(e) => setAboutData({ ...aboutData, shortDescription: e.target.value })} className="w-full p-2 border rounded md:col-span-2" rows={3} />
+            <input type="text" placeholder="Header Başlığı" value={formData.about.headerTitle || ''} onChange={(e) => handleAboutChange('headerTitle', e.target.value)} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="İsim Soyisim" value={formData.about.name || ''} onChange={(e) => handleAboutChange('name', e.target.value)} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="Unvan" value={formData.about.title || ''} onChange={(e) => handleAboutChange('title', e.target.value)} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="Alt Başlık" value={formData.about.subTitle || ''} onChange={(e) => handleAboutChange('subTitle', e.target.value)} className="w-full p-2 border rounded" />
           </div>
         </div>
-
-        {/* Üzerinde Çalışılanlar */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Şu An Üzerinde Çalıştıklarım</h2>
-          <p className="text-sm text-gray-500 mb-4">Her bir konuyu virgülle ayırarak girin.</p>
-          <input 
-            type="text" 
-            placeholder="Next.js, Tailwind CSS, GraphQL..." 
-            value={Array.isArray(aboutData.workingOn) ? aboutData.workingOn.join(', ') : ''} 
-            onChange={(e) => setAboutData({ ...aboutData, workingOn: e.target.value.split(',').map(s => s.trim()) })} 
-            className="w-full p-2 border rounded" 
-          />
-        </div>
-
-        {/* Sosyal Medya */}
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-          <h2 className="text-2xl font-semibold mb-4">Sosyal Medya Linkleri</h2>
+          <h2 className="text-2xl font-semibold mb-4">Sosyal Medya</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <input type="text" placeholder="GitHub URL" value={aboutData.social?.github || ''} onChange={(e) => setAboutData({ ...aboutData, social: { ...aboutData.social!, github: e.target.value } })} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="LinkedIn URL" value={aboutData.social?.linkedin || ''} onChange={(e) => setAboutData({ ...aboutData, social: { ...aboutData.social!, linkedin: e.target.value } })} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="Twitter URL" value={aboutData.social?.twitter || ''} onChange={(e) => setAboutData({ ...aboutData, social: { ...aboutData.social!, twitter: e.target.value } })} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="GitHub URL" value={formData.about.social?.github || ''} onChange={(e) => handleSocialChange('github', e.target.value)} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="LinkedIn URL" value={formData.about.social?.linkedin || ''} onChange={(e) => handleSocialChange('linkedin', e.target.value)} className="w-full p-2 border rounded" />
+            <input type="text" placeholder="Twitter URL" value={formData.about.social?.twitter || ''} onChange={(e) => handleSocialChange('twitter', e.target.value)} className="w-full p-2 border rounded" />
           </div>
         </div>
-
-        {/* Görseller */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Görseller</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <label className="block text-sm font-medium mb-2">Profil Fotoğrafı</label>
               <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'profileImage')} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-              {aboutData.profileImage && <img src={aboutData.profileImage} alt="Profil Önizleme" className="mt-4 rounded-lg w-32 h-32 object-cover"/>}
+              {formData.about.profileImage && <img src={formData.about.profileImage} alt="Profil Önizleme" className="mt-4 rounded-lg w-32 h-32 object-cover"/>}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Hakkımda Sayfası Görseli</label>
               <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'aboutImage')} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
-              {aboutData.aboutImage && <img src={aboutData.aboutImage} alt="Hakkımda Görsel Önizleme" className="mt-4 rounded-lg w-full h-auto object-cover"/>}
+              {formData.about.aboutImage && <img src={formData.about.aboutImage} alt="Hakkımda Görsel Önizleme" className="mt-4 rounded-lg w-full h-auto object-cover"/>}
             </div>
           </div>
         </div>
-
-        {/* Hakkımda İçeriği */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Hakkımda İçeriği (Markdown)</h2>
-          <MdEditor
-            value={content}
-            style={{ height: '500px' }}
-            renderHTML={text => mdParser.render(text)}
-            onChange={({ text }) => setContent(text)}
-          />
+          <MdEditor value={formData.content} style={{ height: '500px' }} renderHTML={text => mdParser.render(text)} onChange={({ text }) => setFormData(prev => ({ ...prev, content: text }))} />
         </div>
-
-        {/* Yetenekler */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">Yetenekler</h2>
           <div className="flex items-center gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Yeni yetenek ekle"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  const newSkill = (e.target as HTMLInputElement).value.trim();
-                  if (newSkill && !skills.find(s => s.name === newSkill)) {
-                    setSkills([...skills, { name: newSkill }]);
-                    (e.target as HTMLInputElement).value = '';
-                  }
-                }
-              }}
-              className="w-full p-2 border rounded"
-            />
+            <input type="text" placeholder="Yeni yetenek ekle" onKeyDown={handleSkillKeyDown} className="w-full p-2 border rounded" />
           </div>
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
+            {formData.skills.map((skill, index) => (
               <div key={index} className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
                 <span>{skill.name}</span>
-                <button
-                  onClick={() => setSkills(skills.filter((_, i) => i !== index))}
-                  className="ml-2 text-red-500 hover:text-red-700"
-                >
-                  &times;
-                </button>
+                <button onClick={() => removeSkill(index)} className="ml-2 text-red-500 hover:text-red-700">&times;</button>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Tecrübeler */}
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-4">İş Tecrübeleri</h2>
           <div className="space-y-4">
-            {experiences.map((exp, index) => (
+            {formData.experiences.map((exp, index) => (
               <div key={index} className="p-4 border rounded-md space-y-2">
                 <input type="text" placeholder="Unvan" value={exp.title} onChange={(e) => handleExperienceChange(index, 'title', e.target.value)} className="w-full p-2 border rounded" />
                 <input type="text" placeholder="Şirket" value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} className="w-full p-2 border rounded" />
@@ -244,11 +191,8 @@ export default function AdminHakkimdaPage() {
           <button onClick={addExperience} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Yeni Tecrübe Ekle</button>
         </div>
       </div>
-
       <div className="mt-12 text-right">
-        <button onClick={handleSave} className="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors text-lg">
-          Tüm Değişiklikleri Kaydet
-        </button>
+        <button onClick={handleSave} className="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors text-lg">Tüm Değişiklikleri Kaydet</button>
       </div>
     </div>
   );

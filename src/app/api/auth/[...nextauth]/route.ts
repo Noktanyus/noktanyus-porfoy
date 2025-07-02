@@ -59,17 +59,22 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     // `jwt` callback'i, token oluşturulduğunda veya güncellendiğinde çalışır.
     async jwt({ token, user }) {
-      // Kullanıcı nesnesi varsa (giriş anında), token'a kullanıcı ID'sini ekle.
+      // Giriş anında (user nesnesi mevcutsa)
       if (user) {
         token.id = user.id;
+        // Kullanıcı admin mi diye kontrol et ve rolü token'a ekle
+        if (user.email === process.env.ADMIN_EMAIL) {
+          token.role = "admin";
+        }
       }
       return token;
     },
     // `session` callback'i, bir client session'ı kontrol ettiğinde çalışır.
     async session({ session, token }) {
-      // Session nesnesine token'daki kullanıcı ID'sini ekle.
+      // Session nesnesine token'daki bilgileri ekle
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string; // Rolü session'a ekle
       }
       return session;
     },

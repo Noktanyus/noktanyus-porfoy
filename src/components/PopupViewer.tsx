@@ -1,8 +1,38 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Popup } from '@/types/content';
+
+const DynamicHTMLRenderer = ({ htmlContent }: { htmlContent: string }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+
+    const scripts = Array.from(tempDiv.querySelectorAll('script'));
+    
+    scripts.forEach(s => s.remove());
+    container.innerHTML = tempDiv.innerHTML;
+
+    scripts.forEach(script => {
+      const newScript = document.createElement('script');
+      for (const attr of script.attributes) {
+        newScript.setAttribute(attr.name, attr.value);
+      }
+      if (script.textContent) {
+        newScript.appendChild(document.createTextNode(script.textContent));
+      }
+      container.appendChild(newScript);
+    });
+  }, [htmlContent]);
+
+  return <div ref={containerRef} className="prose dark:prose-invert max-w-none mb-6" />;
+};
 
 // This is the actual UI component for the popup
 const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => void }) => {
@@ -60,7 +90,7 @@ const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => void })
             <img src={popup.imageUrl} alt={popup.title} className="w-full h-auto object-cover rounded-md mb-4" />
           )}
 
-          <div className="prose dark:prose-invert max-w-none mb-6" dangerouslySetInnerHTML={{ __html: popup.content }} />
+          <DynamicHTMLRenderer htmlContent={popup.content} />
 
           {revealedText && (
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md my-4">

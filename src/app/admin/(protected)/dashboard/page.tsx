@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { FaUserEdit, FaBlog, FaProjectDiagram, FaEnvelopeOpenText, FaCog, FaPaperPlane, FaChartBar, FaFileAlt, FaComments, FaWindowRestore } from 'react-icons/fa';
+import { FaUserEdit, FaBlog, FaProjectDiagram, FaEnvelopeOpenText, FaCog, FaPaperPlane, FaChartBar, FaFileAlt, FaComments, FaWindowRestore, FaGithub } from 'react-icons/fa';
 import { Message, Project, Blog as BlogType } from '@/types/content';
 
 const adminLinks = [
@@ -74,6 +74,21 @@ export default function DashboardPage() {
         toast.success('Bağlantı başarılı!', { id: toastId });
       } else {
         throw new Error(result.details || 'Bağlantı başarısız.');
+      }
+    } catch (error) {
+      toast.error(`Test başarısız: ${(error as Error).message}`, { id: toastId });
+    }
+  };
+
+  const handleTestGitHub = async () => {
+    const toastId = toast.loading('GitHub bağlantısı test ediliyor...');
+    try {
+      const response = await fetch('/api/admin/git/test-connection', { method: 'POST' });
+      const result = await response.json();
+      if (response.ok) {
+        toast.success(result.message, { id: toastId });
+      } else {
+        throw new Error(result.message || 'Bilinmeyen bir hata oluştu.');
       }
     } catch (error) {
       toast.error(`Test başarısız: ${(error as Error).message}`, { id: toastId });
@@ -151,6 +166,13 @@ export default function DashboardPage() {
           >
             <div className="text-green-500 text-3xl"><FaPaperPlane /></div>
             <h2 className="text-xl font-semibold">E-posta Bağlantısını Test Et</h2>
+          </div>
+          <div 
+            onClick={handleTestGitHub}
+            className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transform transition-all duration-300 flex items-center space-x-4 cursor-pointer"
+          >
+            <div className="text-gray-800 dark:text-white text-3xl"><FaGithub /></div>
+            <h2 className="text-xl font-semibold">GitHub Bağlantısını Test Et</h2>
           </div>
         </div>
       </div>

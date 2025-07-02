@@ -16,12 +16,14 @@ export default function EditProjectPage({ params }: { params: { slug: string } }
     const fetchProjectData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}.md`);
+        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}`);
         if (!response.ok) throw new Error("Proje verileri yüklenemedi.");
         const { data, content } = await response.json();
-        setProject({ ...data, id: slug, contentHtml: content }); // 'id' ve 'content' ekle
+        // Gelen veriye URL'den gelen slug'ı ekleyerek tutarlılığı sağla
+        setProject({ ...data, slug: slug, content: content });
       } catch (error) {
         toast.error((error as Error).message);
+        setProject(null); // Hata durumunda projeyi temizle
       } finally {
         setIsLoading(false);
       }
