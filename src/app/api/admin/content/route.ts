@@ -93,15 +93,48 @@ async function getContent(type: string, slug: string) {
 
 async function deleteContent(type: string, slug: string, user: string) {
     const cleanSlug = slug.replace(/\.mdx?|\.json$/, '');
-    const fileName = cleanSlug + getFileExtension(type);
+    const fileExtension = getFileExtension(type);
+    const fileName = cleanSlug + fileExtension;
     const filePath = getSafePath(type, fileName);
+
     if (!filePath) return apiError("Geçersiz dosya yolu.", 400);
+
+    // Markdown dosyaları için ilişkili görselleri sil
+    if (fileExtension === '.md') {
+        try {
+            const fileContent = await fs.readFile(filePath, 'utf-8');
+            // Regex to find all local image paths like ![](/images/...)
+            const imageUrls = (fileContent.match(/!\[.*?\]\(\/images\/.*?\)/g) || [])
+                .map(mdLink => mdLink.match(/\(\/images\/.*?\)/)?.[0].slice(1, -1));
+
+            if (imageUrls.length > 0) {
+                console.log(`'${slug}' içeriği için silinecek ${imageUrls.length} adet görsel bulundu.`);
+                for (const imageUrl of imageUrls) {
+                    const imagePath = path.join(process.cwd(), 'public', imageUrl);
+                    try {
+                        await fs.unlink(imagePath);
+                        console.log(`Görsel başarıyla silindi: ${imagePath}`);
+                    } catch (imgError: any) {
+                        // İstenildiği gibi, görsel silinemezse hatayı logla ve devam et
+                        if (imgError.code !== 'ENOENT') { // Dosya zaten yoksa hata basma
+                            console.error(`Görsel silinirken bir hata oluştu, ancak işleme devam ediliyor. Dosya: ${imagePath}, Hata: ${imgError.message}`);
+                        }
+                    }
+                }
+            }
+        } catch (readError: any) {
+            // Dosya okunamasa bile silme işlemine devam etmeyi dene, belki sadece dosya vardır içerik yoktur.
+            if (readError.code !== 'ENOENT') {
+                console.error(`İçerik dosyası okunurken bir hata oluştu, ancak silme işlemine devam edilecek. Dosya: ${filePath}, Hata: ${readError.message}`);
+            }
+        }
+    }
 
     try {
         await fs.unlink(filePath);
         revalidateContentPaths(type, cleanSlug);
         await commitContentChange({ action: 'delete', fileType: type, slug: cleanSlug, user });
-        return NextResponse.json({ message: "Dosya başarıyla silindi." });
+        return NextResponse.json({ message: "Dosya ve ilişkili görseller başarıyla silindi." });
     } catch (error) {
         if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return apiError("Silinecek dosya bulunamadı.", 404);
         return apiError("Dosya silinemedi.", 500);

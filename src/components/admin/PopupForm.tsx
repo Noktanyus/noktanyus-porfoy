@@ -154,7 +154,6 @@ export default function PopupForm({ initialData }: PopupFormProps) {
         <div className={cardStyle}>
           <h2 className="text-xl font-semibold mb-4">Medya</h2>
            <div>
-            <label className={labelStyle}>Görsel</label>
             <Controller
               name="imageUrl"
               control={control}

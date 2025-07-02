@@ -40,14 +40,15 @@ export default function ImageUpload({ value, onChange, onRemove, uploadPath }: I
       onChange(data.url);
       toast.success('Görsel yüklendi!', { id: loadingToast });
     } catch (error) {
-      toast.error((error as Error).message, { id: loadingToast });
+      console.error("Görsel yükleme hatası:", error);
+      toast.error(`Hata: ${(error as Error).message}`, { id: loadingToast });
     } finally {
       setUploading(false);
     }
   };
 
   const handleRemove = () => {
-    onChange("");
+    onRemove();
     toast.success("Görsel kaldırıldı.");
   };
 
