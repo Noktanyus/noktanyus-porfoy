@@ -1,4 +1,4 @@
-import { getPostData, getSortedPostsData } from '@/lib/content-parser';
+import { getContentData, getSortedContentData } from '@/lib/content-parser';
 import { Blog } from '@/types/content';
 import Image from 'next/image';
 
@@ -9,7 +9,7 @@ type Params = {
 };
 
 export default async function BlogPostPage({ params }: Params) {
-  const post = await getPostData<Blog>('blog', params.slug);
+  const post = await getContentData<Blog>('blog', params.slug);
 
   return (
     <div className="bg-light-bg dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg p-8">
@@ -37,7 +37,7 @@ export default async function BlogPostPage({ params }: Params) {
 }
 
 export async function generateStaticParams() {
-  const posts = getSortedPostsData<Blog>('blog');
+  const posts = getSortedContentData<Blog>('blog');
   return posts.map(post => ({
     slug: post.id,
   }));

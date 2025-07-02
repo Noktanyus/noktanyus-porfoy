@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getSortedPostsData } from '@/lib/content-parser';
+import { getSortedContentData } from '@/lib/content-parser';
 import { Project, Blog } from '@/types/content';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Dinamik proje sayfaları
-  const projects = getSortedPostsData<Project>('projects');
+  const projects = getSortedContentData<Project>('projects');
   const projectRoutes = projects.map((project) => ({
     url: `${BASE_URL}/projelerim/${project.id}`,
     lastModified: new Date().toISOString(), // Gerçek bir tarih alanı eklenmeli
@@ -29,7 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // Dinamik blog sayfaları
-  const blogs = getSortedPostsData<Blog>('blog');
+  const blogs = getSortedContentData<Blog>('blog');
   const blogRoutes = blogs.map((blog) => ({
     url: `${BASE_URL}/blog/${blog.id}`,
     lastModified: blog.date,

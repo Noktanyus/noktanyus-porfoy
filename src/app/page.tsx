@@ -1,6 +1,6 @@
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { getAboutData, getHomeSettings, getLatestContent, getSortedPostsData } from "@/lib/content-parser";
-import { Project } from "@/types/content";
+import { getAboutData, getHomeSettings, getSortedContentData } from "@/lib/content-parser";
+import { Project, Blog } from "@/types/content";
 import ProjectCard from "@/components/ProjectCard";
 import BlogCard from "@/components/BlogCard";
 import Image from "next/image";
@@ -16,10 +16,10 @@ const getYouTubeId = (url: string): string | null => {
 export default async function Home() {
   const aboutData = await getAboutData();
   const homeSettings = getHomeSettings();
-  const featuredProjects = getSortedPostsData<Project>("projects").filter(
+  const featuredProjects = getSortedContentData<Project>("projects").filter(
     (p) => p.featured
   );
-  const latestPosts = getLatestContent("blog", 3);
+  const latestPosts = getSortedContentData<Blog>("blog").slice(0, 3);
   const featuredContent = homeSettings.featuredContent;
   
   const videoId = featuredContent?.type === 'video' && featuredContent.youtubeUrl ? getYouTubeId(featuredContent.youtubeUrl) : null;
@@ -37,8 +37,9 @@ export default async function Home() {
                   <Image
                     src={aboutData.profileImage || "/images/profile.webp"}
                     alt={`${aboutData.name} - Profil Fotoğrafı`}
-                    layout="fill"
-                    objectFit="cover"
+                    fill
+                    sizes="(max-width: 768px) 128px, 160px"
+                    style={{objectFit: 'cover'}}
                     className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg"
                     priority
                   />

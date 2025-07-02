@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { Popup } from '@/types/content';
 import { FaSave, FaTrash, FaPlus, FaEye } from 'react-icons/fa';
 import ImageUpload from '@/components/admin/ImageUpload';
-import PopupViewer from '@/components/PopupViewer';
+import { PopupDisplay } from '@/components/PopupViewer';
 import { useState, useEffect } from 'react';
 
 type PopupFormProps = {
@@ -244,7 +244,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
       </form>
 
       {isPreviewOpen && (
-        <PopupViewer popup={watchedPopupData} onClose={() => setIsPreviewOpen(false)} />
+        <PopupDisplay popup={watchedPopupData} onClose={() => setIsPreviewOpen(false)} />
       )}
     </>
   );

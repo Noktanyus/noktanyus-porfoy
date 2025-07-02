@@ -73,7 +73,7 @@ export default function IletisimPage() {
         </div>
         <div className="flex justify-center">
           <Turnstile
-            sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY!}
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
             onVerify={setTurnstileToken}
           />
         </div>

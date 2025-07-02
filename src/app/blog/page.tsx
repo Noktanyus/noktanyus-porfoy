@@ -1,9 +1,9 @@
-import { getSortedPostsData } from '@/lib/content-parser';
+import { getSortedContentData } from '@/lib/content-parser';
 import BlogCard from '@/components/BlogCard';
 import { Blog } from '@/types/content';
 
 export default function BlogPage() {
-  const posts = getSortedPostsData<Blog>('blog');
+  const posts = getSortedContentData<Blog>('blog');
 
   return (
     <div className="space-y-8">

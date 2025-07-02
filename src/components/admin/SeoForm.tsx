@@ -14,22 +14,35 @@ type SeoFormData = Omit<SeoSettings, 'siteKeywords'> & {
 
 export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings, robotsTxt: string }) {
   const router = useRouter();
-  const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = useForm<SeoFormData>();
-
-  useEffect(() => {
-    if (settings) {
-      const keywordsString = (settings.siteKeywords || []).join(', ');
-      setValue('siteTitle', settings.siteTitle);
-      setValue('siteDescription', settings.siteDescription);
-      setValue('siteKeywords', keywordsString);
-      setValue('canonicalUrl', settings.canonicalUrl);
-      setValue('robots', settings.robots);
-      setValue('favicon', settings.favicon);
-      setValue('og', settings.og);
-      setValue('twitter', settings.twitter);
-      setValue('robotsTxt', robotsTxt);
+  const { register, handleSubmit, setValue, watch, formState: { isSubmitting, errors } } = useForm<SeoFormData>({
+    defaultValues: {
+      siteTitle: settings?.siteTitle || '',
+      siteDescription: settings?.siteDescription || '',
+      siteKeywords: (settings?.siteKeywords || []).join(', '),
+      canonicalUrl: settings?.canonicalUrl || '',
+      robots: settings?.robots || 'index, follow',
+      favicon: settings?.favicon || '/favicon.ico',
+      og: {
+        title: settings?.og?.title || '',
+        description: settings?.og?.description || '',
+        image: settings?.og?.image || '',
+        type: 'website',
+        url: settings?.og?.url || '',
+        site_name: settings?.og?.site_name || ''
+      },
+      twitter: {
+        card: 'summary_large_image',
+        site: settings?.twitter?.site || '',
+        creator: settings?.twitter?.creator || '',
+        title: settings?.twitter?.title || '',
+        description: settings?.twitter?.description || '',
+        image: settings?.twitter?.image || ''
+      },
+      robotsTxt: robotsTxt || ''
     }
-  }, [settings, robotsTxt, setValue]);
+  });
+
+  
 
   const onSubmit = async (data: SeoFormData) => {
     const loadingToast = toast.loading("Ayarlar güncelleniyor...");

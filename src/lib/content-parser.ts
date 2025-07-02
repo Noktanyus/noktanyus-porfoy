@@ -1,3 +1,10 @@
+/**
+ * @file İçerik yönetimi ve ayrıştırma işlemleri.
+ * @description Bu modül, dosya sisteminden (content/ dizini) markdown ve JSON dosyalarını
+ *              okumak, ayrıştırmak ve uygulamada kullanılabilir formatlara dönüştürmek için
+ *              gerekli tüm fonksiyonları içerir.
+ */
+
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
@@ -5,232 +12,283 @@ import { remark } from 'remark';
 import remarkRehype from 'remark-rehype';
 import rehypeSanitize from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
-import { AboutData, Post, Project, Skill, Testimonial, SeoSettings, Popup, Message, HomeSettings, Blog, Experience } from '@/types/content';
+import { 
+  AboutData, Post, Project, Skill, Testimonial, SeoSettings, 
+  Popup, Message, HomeSettings, Blog, Experience 
+} from '@/types/content';
 
+/** Projenin kök dizinindeki 'content' klasörünün yolu. */
 const contentDirectory = path.join(process.cwd(), 'content');
 
-// Generic function to read and parse a single JSON file
-function getJsonData<T>(fileName: string): T {
+/**
+ * Belirtilen türdeki tüm içerik dosyalarını (JSON) okur ve bir dizi olarak döndürür.
+ * @template T Döndürülecek veri türü.
+ * @param {string} type İçerik türünün adı (örneğin, 'popups', 'messages').
+ * @returns {T[]} Okunan ve parse edilen verilerin dizisi. Hata durumunda boş dizi döner.
+ */
+function getAllData<T>(type: string): T[] {
+  const directory = path.join(contentDirectory, type);
+  if (!fs.existsSync(directory)) {
+    console.warn(`getAllData -> Uyarı: '${type}' için içerik dizini bulunamadı: ${directory}`);
+    return [];
+  }
+
+  try {
+    const fileNames = fs.readdirSync(directory);
+    return fileNames
+      .filter(fileName => fileName.endsWith('.json'))
+      .map(fileName => {
+        const fullPath = path.join(directory, fileName);
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        return JSON.parse(fileContents) as T;
+      });
+  } catch (error: any) {
+    console.error(`getAllData -> Hata: '${type}' içerikleri okunurken bir hata oluştu. Hata: ${error.message}`);
+    return [];
+  }
+}
+
+/**
+ * Belirtilen bir JSON dosyasını okur ve parse eder.
+ * @template T Döndürülecek veri türü.
+ * @param {string} fileName 'content' dizini içindeki dosyanın adı.
+ * @param {T} defaultValue Hata durumunda döndürülecek varsayılan değer.
+ * @returns {T} Okunan ve parse edilen veri veya hata durumunda varsayılan değer.
+ */
+function getJsonData<T>(fileName: string, defaultValue: T): T {
   const fullPath = path.join(contentDirectory, fileName);
   if (!fs.existsSync(fullPath)) {
-    // İsteğe bağlı dosyalar için boş bir dizi döndür.
-    if (['testimonials.json', 'experiences.json', 'skills.json'].includes(fileName)) {
-        return [] as T;
-    }
-    const errorMessage = `Dosya bulunamadı: ${fullPath}`;
-    console.error(errorMessage);
-    throw new Error(errorMessage);
+    console.warn(`getJsonData -> Uyarı: İsteğe bağlı dosya bulunamadı: ${fullPath}. Varsayılan değer kullanılacak.`);
+    return defaultValue;
   }
   try {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     return JSON.parse(fileContents);
-  } catch (error) {
-    const errorMessage = `${fileName} dosyası okunurken veya parse edilirken bir hata oluştu.`;
-    console.error(errorMessage, error);
-    // Hata durumunda boş bir nesne veya dizi döndürmek, uygulamanın çökmesini engeller.
-    // Bu, dosyanın içeriğine bağlı olarak ayarlanmalıdır.
-    if (fileName.endsWith('s.json')) { // Çoğul isimlendirme kuralına göre dizi döndür
-        return [] as T;
-    }
-    return {} as T;
+  } catch (error: any) {
+    console.error(`getJsonData -> Hata: '${fileName}' dosyası okunurken veya parse edilirken bir hata oluştu. Varsayılan değer kullanılacak. Hata: ${error.message}`);
+    return defaultValue;
   }
 }
 
-// Generic function to get all items of a certain type (e.g., 'blog', 'projects')
-export function getSortedPostsData<T extends Post | Project>(type: 'blog' | 'projects' | 'canli-projeler'): T[] {
+/**
+ * Belirtilen türdeki tüm markdown içeriklerini (blog, projeler) sıralı bir şekilde getirir.
+ * @template T 'Post' veya 'Project' türünden türetilmiş bir tip.
+ * @param {'blog' | 'projects'} type İçerik türü.
+ * @returns {T[]} Sıralanmış içeriklerin dizisi.
+ */
+export function getSortedContentData<T extends Post | Project>(type: 'blog' | 'projects'): T[] {
   const postsDirectory = path.join(contentDirectory, type);
-  if (!fs.existsSync(postsDirectory)) return [];
+  if (!fs.existsSync(postsDirectory)) {
+    console.warn(`getSortedContentData -> Uyarı: '${type}' için içerik dizini bulunamadı: ${postsDirectory}`);
+    return [];
+  }
   
-  const fileNames = fs.readdirSync(postsDirectory);
-  const allPostsData = fileNames
-    .filter(fileName => fileName.endsWith('.md') || fileName.endsWith('.mdx'))
-    .map(fileName => {
-      const id = fileName.replace(/\.mdx?$/, '');
-      const fullPath = path.join(postsDirectory, fileName);
-      const fileContents = fs.readFileSync(fullPath, 'utf8');
-      const matterResult = matter(fileContents);
+  try {
+    const fileNames = fs.readdirSync(postsDirectory);
+    const allPostsData = fileNames
+      .filter(fileName => fileName.endsWith('.md') || fileName.endsWith('.mdx'))
+      .map(fileName => {
+        const id = fileName.replace(/\.mdx?$/, '');
+        const fullPath = path.join(postsDirectory, fileName);
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        const { data } = matter(fileContents); // Sadece metadata'yı alıyoruz
 
-      return {
-        id,
-        ...matterResult.data,
-      } as T;
+        return { id, ...data } as T;
+      });
+
+    // Tarihe veya sıralama önceliğine göre sırala
+    return allPostsData.sort((a, b) => {
+      if ('order' in a && 'order' in b && typeof a.order === 'number' && typeof b.order === 'number') {
+        return a.order - b.order;
+      }
+      if (a.date && b.date) {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+      return 0;
     });
-
-  // Sort posts by date or order
-  return allPostsData.sort((a, b) => {
-    if ('order' in a && 'order' in b && a.order && b.order) {
-        return a.order > b.order ? 1 : -1;
-    }
-    if (a.date && b.date) {
-        return a.date < b.date ? 1 : -1;
-    }
-    return 0;
-  });
+  } catch (error: any) {
+    console.error(`getSortedContentData -> Hata: '${type}' içerikleri okunurken bir hata oluştu. Hata: ${error.message}`);
+    return [];
+  }
 }
 
-export function getLatestContent(type: 'blog', count: number): Blog[] {
-  const allContent = getSortedPostsData(type);
-  return allContent.slice(0, count) as Blog[];
-}
-
-// Generic function to get a single item's data and content with sanitized HTML
-export async function getPostData<T extends Post | Project>(type: 'blog' | 'projects' | 'canli-projeler', id: string): Promise<T & { contentHtml: string }> {
+/**
+ * Belirtilen türdeki tek bir markdown içeriğini ve işlenmiş HTML'ini getirir.
+ * @template T 'Post' veya 'Project' türünden türetilmiş bir tip.
+ * @param {'blog' | 'projects'} type İçerik türü.
+ * @param {string} id İçerik ID'si (dosya adı).
+ * @returns {Promise<T & { contentHtml: string }>} İçerik verisi ve HTML içeriği.
+ * @throws {Error} Dosya bulunamazsa veya işlenemezse hata fırlatır.
+ */
+export async function getContentData<T extends Post | Project>(type: 'blog' | 'projects', id: string): Promise<T & { contentHtml: string }> {
   const fullPath = path.join(contentDirectory, type, `${id}.md`);
+  if (!fs.existsSync(fullPath)) {
+    console.error(`getContentData -> Hata: İçerik dosyası bulunamadı: ${fullPath}`);
+    throw new Error(`'${id}' adlı içerik bulunamadı.`);
+  }
+  
   const fileContents = fs.readFileSync(fullPath, 'utf8');
-  const matterResult = matter(fileContents);
+  const { data, content } = matter(fileContents);
 
   const processedContent = await remark()
     .use(remarkRehype)
-    .use(rehypeSanitize)
+    .use(rehypeSanitize) // Güvenlik için HTML'i temizle
     .use(rehypeStringify)
-    .process(matterResult.content);
+    .process(content);
   const contentHtml = processedContent.toString();
 
-  return {
+  const result = {
+    ...(data as object),
+    id,
     contentHtml,
-    ...(matterResult.data as T),
   };
+  return result as unknown as T & { contentHtml: string };
 }
 
-// Specific functions for each content type
+// --- Spesifik İçerik Fonksiyonları ---
+
+/**
+ * 'Hakkımda' sayfasının verilerini ve işlenmemiş markdown içeriğini getirir.
+ * @returns {Promise<AboutData>} Hakkımda sayfası verileri.
+ */
 export async function getAboutData(): Promise<AboutData> {
-    const fullPath = path.join(contentDirectory, 'about.md');
-    try {
-        const fileContents = await fs.promises.readFile(fullPath, 'utf8');
-        const { data, content } = matter(fileContents);
-
-        return {
-            ...(data as Omit<AboutData, 'content'>),
-            content,
-        };
-    } catch (error) {
-        console.error("about.md dosyası okunamadı. Varsayılan veriler kullanılıyor.", error);
-        return {
-            headerTitle: "Portföy",
-            name: "İsim Soyisim",
-            title: "Unvan",
-            subTitle: "Alt Başlık",
-            shortDescription: "Kısa açıklama.",
-            profileImage: "/images/profile.webp",
-            workingOn: [],
-            experiences: [],
-            content: "Hakkımda yazısı buraya gelecek.",
-            social: {
-                github: "",
-                linkedin: "",
-                twitter: ""
-            }
-        };
-    }
-}
-
-export async function getAboutContentHtml(): Promise<string> {
-    const aboutData = await getAboutData();
-    const processedContent = await remark()
-        .use(remarkRehype)
-        .use(rehypeSanitize)
-        .use(rehypeStringify)
-        .process(aboutData.content);
-    return processedContent.toString();
-}
-
-
-export function getExperiences(): Experience[] {
-  return getJsonData<Experience[]>('experiences.json');
-}
-
-export function getSkills(): Skill[] {
-  const skillsArray = getJsonData<string[]>('skills.json');
-  return skillsArray.map(name => ({ name }));
-}
-
-export function getTestimonials(): Testimonial[] {
-  return getJsonData<Testimonial[]>('testimonials.json');
-}
-
-export function getSeoSettings(): SeoSettings {
+  const fullPath = path.join(contentDirectory, 'about.md');
   try {
-    return getJsonData<SeoSettings>('seo-settings.json');
-  } catch (error) {
-    console.error("seo-settings.json bulunamadı, varsayılan SEO ayarları kullanılıyor.", error);
+    const fileContents = await fs.promises.readFile(fullPath, 'utf8');
+    const { data, content } = matter(fileContents);
     return {
-      siteTitle: "Portföy Sitesi",
-      siteDescription: "Kişisel portföy web sitesi.",
-      siteKeywords: ["web developer", "portfolio", "react"],
-      canonicalUrl: "http://localhost:3000",
-      robots: "index, follow",
-      favicon: "/favicon.ico",
-      og: {
-        title: "Portföy Sitesi",
-        description: "Kişisel portföy web sitesi.",
-        image: "/og-image.png",
-        type: "website",
-        url: "http://localhost:3000",
-        site_name: "Portföy"
-      },
-      twitter: {
-        card: "summary_large_image",
-        site: "@username",
-        creator: "@username",
-        title: "Portföy Sitesi",
-        description: "Kişisel portföy web sitesi.",
-        image: "/twitter-image.png"
-      }
+      ...(data as Omit<AboutData, 'content'>),
+      content,
+    };
+  } catch (error) {
+    console.error("getAboutData -> Hata: 'about.md' dosyası okunamadı. Varsayılan veriler kullanılıyor.", error);
+    return {
+      headerTitle: "Portföy", name: "İsim Soyisim", title: "Unvan",
+      subTitle: "Alt Başlık", shortDescription: "Kısa açıklama.",
+      profileImage: "/images/placeholder.webp", workingOn: [],
+      content: "Hakkımda yazısı buraya gelecek.",
+      experiences: [],
+      social: { github: "", linkedin: "", twitter: "" }
     };
   }
 }
 
-export function getHomeSettings(): HomeSettings {
-    try {
-        return getJsonData<HomeSettings>('home-settings.json');
-    } catch (error) {
-        console.error("home-settings.json bulunamadı, varsayılan ana sayfa ayarları kullanılıyor.", error);
-        return {
-            featuredContent: {
-                type: 'text',
-                textTitle: 'Hoş Geldiniz!',
-                textContent: 'Bu benim portföy sitem. Projelerimi ve hakkımdaki bilgileri burada bulabilirsiniz.'
-            }
-        };
+/**
+ * 'Hakkımda' sayfasının markdown içeriğini güvenli HTML'e dönüştürür.
+ * @returns {Promise<string>} İşlenmiş HTML içeriği.
+ */
+export async function getAboutContentHtml(): Promise<string> {
+  try {
+    const aboutData = await getAboutData();
+    const processedContent = await remark()
+      .use(remarkRehype)
+      .use(rehypeSanitize)
+      .use(rehypeStringify)
+      .process(aboutData.content);
+    return processedContent.toString();
+  } catch (error: any) {
+    console.error(`getAboutContentHtml -> Hata: Hakkımda içeriği HTML'e dönüştürülemedi. Hata: ${error.message}`);
+    return "<p>İçerik yüklenirken bir hata oluştu.</p>";
+  }
+}
+
+/**
+ * Tüm deneyim (experiences) verilerini getirir.
+ * @returns {Experience[]} Deneyimler dizisi.
+ */
+export function getExperiences(): Experience[] {
+  return getJsonData<Experience[]>('experiences.json', []);
+}
+
+/**
+ * Tüm yetenek (skills) verilerini getirir.
+ * @returns {Skill[]} Yetenekler dizisi.
+ */
+export function getSkills(): Skill[] {
+  const skillsArray = getJsonData<string[]>('skills.json', []);
+  return skillsArray.map(name => ({ name }));
+}
+
+/**
+ * Tüm referans (testimonials) verilerini getirir.
+ * @returns {Testimonial[]} Referanslar dizisi.
+ */
+export function getTestimonials(): Testimonial[] {
+  return getJsonData<Testimonial[]>('testimonials.json', []);
+}
+
+/**
+ * SEO ayarlarını getirir. Hata durumunda varsayılan ayarları döndürür.
+ * @returns {SeoSettings} SEO ayarları nesnesi.
+ */
+export function getSeoSettings(): SeoSettings {
+  const defaultSettings: SeoSettings = {
+    siteTitle: "Portföy Sitesi",
+    siteDescription: "Kişisel portföy web sitesi.",
+    siteKeywords: ["web developer", "portfolio", "react"],
+    canonicalUrl: "http://localhost:3000",
+    robots: "index, follow",
+    favicon: "/favicon.ico",
+    og: {
+      title: "Portföy Sitesi", description: "Kişisel portföy web sitesi.",
+      image: "/og-image.png", type: "website", url: "http://localhost:3000",
+      site_name: "Portföy"
+    },
+    twitter: {
+      card: "summary_large_image", site: "@username", creator: "@username",
+      title: "Portföy Sitesi", description: "Kişisel portföy web sitesi.",
+      image: "/twitter-image.png"
     }
+  };
+  return getJsonData<SeoSettings>('seo-settings.json', defaultSettings);
 }
 
-// Functions for Popups
+/**
+ * Ana sayfa ayarlarını getirir. Hata durumunda varsayılan ayarları döndürür.
+ * @returns {HomeSettings} Ana sayfa ayarları nesnesi.
+ */
+export function getHomeSettings(): HomeSettings {
+    const defaultSettings: HomeSettings = {
+        featuredContent: {
+            type: 'text',
+            textTitle: 'Hoş Geldiniz!',
+            textContent: 'Bu benim portföy sitem. Projelerimi ve hakkımdaki bilgileri burada bulabilirsiniz.'
+        }
+    };
+    return getJsonData<HomeSettings>('home-settings.json', defaultSettings);
+}
+
+/**
+ * Tüm popup verilerini getirir.
+ * @returns {Popup[]} Pop-up'lar dizisi.
+ */
 export function getAllPopups(): Popup[] {
-    const popupsDirectory = path.join(contentDirectory, 'popups');
-    if (!fs.existsSync(popupsDirectory)) return [];
-
-    const fileNames = fs.readdirSync(popupsDirectory);
-    return fileNames
-        .filter(fileName => fileName.endsWith('.json'))
-        .map(fileName => {
-            const fullPath = path.join(popupsDirectory, fileName);
-            const fileContents = fs.readFileSync(fullPath, 'utf8');
-            return JSON.parse(fileContents) as Popup;
-        });
+    return getAllData<Popup>('popups');
 }
 
+/**
+ * Belirli bir popup'ın verisini slug (ID) ile getirir.
+ * @param {string} slug Popup'ın slug'ı.
+ * @returns {Popup | null} Popup verisi veya bulunamazsa null.
+ */
 export function getPopupData(slug: string): Popup | null {
-    const popupsDirectory = path.join(contentDirectory, 'popups');
-    const fullPath = path.join(popupsDirectory, `${slug}.json`);
+    const fullPath = path.join(contentDirectory, 'popups', `${slug}.json`);
     if (!fs.existsSync(fullPath)) {
         return null;
     }
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    return JSON.parse(fileContents) as Popup;
+    try {
+        const fileContents = fs.readFileSync(fullPath, 'utf8');
+        return JSON.parse(fileContents) as Popup;
+    } catch (error: any) {
+        console.error(`getPopupData -> Hata: '${slug}.json' popup verisi okunamadı. Hata: ${error.message}`);
+        return null;
+    }
 }
 
-// Functions for Messages
+/**
+ * Tüm mesajları getirir.
+ * @returns {Message[]} Mesajlar dizisi.
+ */
 export function getAllMessages(): Message[] {
-    const messagesDirectory = path.join(contentDirectory, 'messages');
-    if (!fs.existsSync(messagesDirectory)) return [];
-
-    const fileNames = fs.readdirSync(messagesDirectory);
-    return fileNames
-        .filter(fileName => fileName.endsWith('.json'))
-        .map(fileName => {
-            const fullPath = path.join(messagesDirectory, fileName);
-            const fileContents = fs.readFileSync(fullPath, 'utf8');
-            return JSON.parse(fileContents) as Message;
-        });
+    return getAllData<Message>('messages');
 }

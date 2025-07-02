@@ -1,11 +1,2 @@
-'use client';
-
-import { SessionProvider } from 'next-auth/react';
-
-type Props = {
-  children?: React.ReactNode;
-};
-
-export const NextAuthProvider = ({ children }: Props) => {
-  return <SessionProvider>{children}</SessionProvider>;
-};
+// Bu dosya, AuthProvider.tsx ile aynı işi yaptığı için içeriği temizlenmiştir.
+// Proje genelinde AuthProvider.tsx kullanılacaktır.

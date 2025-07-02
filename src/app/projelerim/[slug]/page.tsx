@@ -1,4 +1,4 @@
-import { getPostData, getSortedPostsData } from '@/lib/content-parser';
+import { getContentData, getSortedContentData } from '@/lib/content-parser';
 import { Project } from '@/types/content';
 import Image from 'next/image';
 
@@ -9,7 +9,7 @@ type Params = {
 };
 
 export default async function ProjectPage({ params }: Params) {
-  const project = await getPostData<Project>('projects', params.slug);
+  const project = await getContentData<Project>('projects', params.slug);
 
   return (
     <div className="bg-light-bg dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-lg p-8">
@@ -32,7 +32,7 @@ export default async function ProjectPage({ params }: Params) {
 }
 
 export async function generateStaticParams() {
-  const projects = getSortedPostsData<Project>('projects');
+  const projects = getSortedContentData<Project>('projects');
   return projects.map(project => ({
     slug: project.id,
   }));

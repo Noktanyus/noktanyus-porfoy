@@ -1,9 +1,24 @@
-import simpleGit, { SimpleGit } from 'simple-git';
+/**
+ * @file Git işlemleri için yardımcı fonksiyonlar.
+ * @description Bu modül, simple-git kütüphanesini kullanarak Git deposuyla ilgili tüm işlemleri yönetir.
+ *              Commit atma, değişiklikleri gönderme, geçmişi alma gibi temel Git operasyonlarını içerir.
+ */
+
+import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
 import path from 'path';
 
+// Proje kök dizinini temel alarak simple-git'i başlat
 const portfolioDir = path.resolve(process.cwd());
-const git: SimpleGit = simpleGit(portfolioDir);
+const options: Partial<SimpleGitOptions> = {
+  baseDir: portfolioDir,
+  binary: 'git',
+  maxConcurrentProcesses: 6,
+};
+const git: SimpleGit = simpleGit(options);
 
+/**
+ * Commit işlemi için gerekli olan detayları tanımlar.
+ */
 type CommitDetails = {
   action: 'create' | 'update' | 'delete';
   fileType: string;
@@ -12,20 +27,24 @@ type CommitDetails = {
 };
 
 /**
- * GitHub kimlik bilgileriyle donatılmış, kimliği doğrulanmış bir uzak depo URL'si oluşturur.
- * @returns Kimliği doğrulanmış URL veya hata durumunda null.
+ * GitHub kimlik bilgileriyle donatılmış, doğrulanmış bir uzak depo URL'si oluşturur.
+ * Bu fonksiyon, .env.local dosyasındaki GITHUB_USERNAME ve GITHUB_TOKEN değişkenlerini kullanır.
+ * @returns {Promise<string>} Kimliği doğrulanmış depo URL'si.
+ * @throws {Error} Gerekli ortam değişkenleri veya 'origin' remote'u bulunamazsa hata fırlatır.
  */
 async function getAuthenticatedRepoUrl(): Promise<string> {
   const username = process.env.GITHUB_USERNAME;
   const token = process.env.GITHUB_TOKEN;
 
   if (!username || !token) {
+    console.error("getAuthenticatedRepoUrl -> Hata: Gerekli GitHub kimlik bilgileri .env.local dosyasında eksik.");
     throw new Error('GitHub kullanıcı adı veya token .env.local dosyasında tanımlanmamış. Lütfen GITHUB_USERNAME ve GITHUB_TOKEN değişkenlerini ekleyin.');
   }
 
   const remotes = await git.getRemotes(true);
   const origin = remotes.find(remote => remote.name === 'origin');
   if (!origin) {
+    console.error("getAuthenticatedRepoUrl -> Hata: 'origin' adında bir uzak depo bulunamadı.");
     throw new Error('"origin" adında bir uzak depo bulunamadı.');
   }
 
@@ -36,51 +55,69 @@ async function getAuthenticatedRepoUrl(): Promise<string> {
 }
 
 /**
- * Değişiklikleri kimliği doğrulanmış uzak depoya gönderir.
+ * Değişiklikleri mevcut aktif branch üzerinden kimliği doğrulanmış uzak depoya gönderir.
+ * @throws {Error} Push işlemi sırasında bir hata oluşursa veya kimlik doğrulama başarısız olursa hata fırlatır.
  */
-async function pushChanges() {
+async function pushChanges(): Promise<void> {
   try {
     const authenticatedUrl = await getAuthenticatedRepoUrl();
     const currentBranch = await git.branch();
     await git.push(authenticatedUrl, currentBranch.current); 
-    console.log(`Değişiklikler başarıyla GitHub'daki '${currentBranch.current}' branch'ine gönderildi.`);
+    console.log(`pushChanges -> Başarılı: Değişiklikler GitHub'daki '${currentBranch.current}' branch'ine gönderildi.`);
   } catch (error: any) {
-    console.error('GitHub\'a push işlemi sırasında kritik bir hata oluştu:', error.message);
+    console.error(`pushChanges -> Kritik Hata: GitHub'a push işlemi sırasında bir hata oluştu. Hata: ${error.message}`);
     if (error.message.includes('authentication failed')) {
-      throw new Error('GitHub kimlik doğrulaması başarısız oldu. GITHUB_USERNAME veya GITHUB_TOKEN .env.local dosyasında yanlış olabilir.');
+      throw new Error('GitHub kimlik doğrulaması başarısız oldu. Lütfen .env.local dosyasındaki GITHUB_USERNAME ve GITHUB_TOKEN değerlerini kontrol edin.');
     }
-    throw new Error(`Değişiklikler commit'lendi ancak GitHub'a gönderilemedi: ${error.message}`);
+    throw new Error(`Değişiklikler başarıyla commit'lendi ancak GitHub'a gönderilemedi: ${error.message}`);
   }
 }
 
-export async function getCommitHistory() {
+/**
+ * Git deposundaki son 50 commit'in geçmişini getirir.
+ * @returns {Promise<any[]>} Commit log'larının bir dizisi. Hata durumunda boş bir dizi döner.
+ */
+export async function getCommitHistory(): Promise<any[]> {
   try {
     const log = await git.log({ '--max-count': 50 });
-    return log.all;
-  } catch (error) {
-    console.error('Git geçmişi alınırken hata oluştu:', error);
+    return [...log.all];
+  } catch (error: any) {
+    console.error(`getCommitHistory -> Hata: Git geçmişi alınırken bir sorun oluştu. Hata: ${error.message}`);
     return [];
   }
 }
 
+/**
+ * Git deposunun genel (public) URL'sini alır.
+ * @returns {Promise<string | null>} Depo URL'si veya hata durumunda null.
+ */
 export async function getGitRepoUrl(): Promise<string | null> {
   try {
     const remotes = await git.getRemotes(true);
     const origin = remotes.find(remote => remote.name === 'origin');
     if (origin?.refs.fetch) {
+      // SSH ve HTTPS formatlarını standart bir URL'ye dönüştür
       return origin.refs.fetch.replace(/^git@github.com:/, 'https://github.com/').replace(/\.git$/, '');
     }
     return null;
-  } catch (error) {
-    console.error('Git repo URL alınırken hata oluştu:', error);
+  } catch (error: any) {
+    console.error(`getGitRepoUrl -> Hata: Git depo URL'si alınırken bir sorun oluştu. Hata: ${error.message}`);
     return null;
   }
 }
 
-export async function commitContentChange({ action, fileType, slug, user }: CommitDetails) {
+/**
+ * İçerik dosyalarındaki (markdown, json vb.) değişiklikleri commit'ler ve uzak depoya gönderir.
+ * @param {CommitDetails} details - Commit detaylarını içeren nesne.
+ * @throws {Error} Commit veya push işlemi sırasında bir hata oluşursa hata fırlatır.
+ */
+export async function commitContentChange({ action, fileType, slug, user }: CommitDetails): Promise<void> {
   try {
     const status = await git.status();
-    if (status.files.length === 0) return;
+    if (status.files.length === 0) {
+      console.log("commitContentChange -> Bilgi: Commit atılacak bir değişiklik bulunamadı.");
+      return;
+    }
     
     const actionMap = { create: 'oluşturuldu', update: 'güncellendi', delete: 'silindi' };
     const commitMessage = `içerik: '${slug}' adlı ${fileType} ${user} tarafından ${actionMap[action]}. [ci skip]`;
@@ -88,25 +125,43 @@ export async function commitContentChange({ action, fileType, slug, user }: Comm
     await git.add('.');
     await git.commit(commitMessage);
     await pushChanges();
-  } catch (error) {
-    throw new Error(`İçerik değişikliği işlenemedi: ${(error as Error).message}`);
+  } catch (error: any) {
+    console.error(`commitContentChange -> Hata: İçerik değişikliği işlenemedi. Hata: ${error.message}`);
+    throw new Error(`İçerik değişikliği işlenemedi: ${error.message}`);
   }
 }
 
-export async function revertCommit(hash: string, user: string) {
+/**
+ * Belirtilen hash'e sahip bir commit'i geri alır ve değişikliği uzak depoya gönderir.
+ * @param {string} hash - Geri alınacak commit'in hash'i.
+ * @param {string} user - İşlemi yapan kullanıcı.
+ * @throws {Error} Geri alma işlemi başarısız olursa hata fırlatır.
+ */
+export async function revertCommit(hash: string, user: string): Promise<void> {
   try {
     await git.revert(hash, ['--no-edit']);
     await pushChanges();
-  } catch (error) {
-    await git.raw('revert', '--abort').catch(abortError => console.error("Revert abort hatası:", abortError));
-    throw new Error(`Commit geri alınamadı: ${(error as Error).message}`);
+  } catch (error: any) {
+    console.error(`revertCommit -> Hata: Commit geri alınamadı. Hash: ${hash}. Hata: ${error.message}`);
+    // Geri alma işlemi başarısız olursa, depoyu temiz bir duruma getirmek için işlemi iptal et
+    await git.raw('revert', '--abort').catch(abortError => console.error("revertCommit -> Kritik Hata: Revert işlemini iptal etme (abort) sırasında ek bir hata oluştu:", abortError));
+    throw new Error(`'${hash}' hash'li commit geri alınamadı: ${error.message}`);
   }
 }
 
-export async function commitAllChanges(message: string, user: string) {
+/**
+ * Projedeki tüm değişiklikleri (içerik hariç) belirli bir mesajla commit'ler ve uzak depoya gönderir.
+ * @param {string} message - Commit mesajı.
+ * @param {string} user - İşlemi yapan kullanıcı.
+ * @returns {Promise<{success: boolean; message: string}>} İşlemin başarı durumunu ve mesajını içeren nesne.
+ * @throws {Error} Değişiklik bulunamazsa veya işlem başarısız olursa hata fırlatır.
+ */
+export async function commitAllChanges(message: string, user: string): Promise<{success: boolean; message: string}> {
   try {
     const status = await git.status();
-    if (status.files.length === 0) throw new Error("Commit atılacak bir değişiklik bulunamadı.");
+    if (status.files.length === 0) {
+      throw new Error("Commit atılacak bir değişiklik bulunamadı.");
+    }
     
     const commitMessage = `kaynak: ${message} (${user}) [ci skip]`;
     
@@ -115,20 +170,25 @@ export async function commitAllChanges(message: string, user: string) {
     await pushChanges();
     
     return { success: true, message: "Tüm değişiklikler başarıyla commit'lendi ve GitHub'a gönderildi." };
-  } catch (error) {
-    throw new Error(`Kaynak kodları işlenemedi: ${(error as Error).message}`);
+  } catch (error: any) {
+    console.error(`commitAllChanges -> Hata: Kaynak kodları işlenemedi. Hata: ${error.message}`);
+    throw new Error(`Kaynak kodları işlenemedi: ${error.message}`);
   }
 }
 
+/**
+ * GitHub bağlantısını ve kimlik bilgilerinin doğruluğunu test eder.
+ * @returns {Promise<{ok: boolean; message: string}>} Test sonucunu içeren nesne.
+ */
 export async function testGitConnection(): Promise<{ok: boolean; message: string}> {
     try {
-        // Sadece kimlik bilgilerinin varlığını ve uzak depo URL'sinin alınabildiğini kontrol et
+        // Kimlik bilgilerinin varlığını ve uzak depo URL'sinin alınabildiğini kontrol et
         await getAuthenticatedRepoUrl();
-        // Basit bir git komutu çalıştırarak bağlantıyı doğrula
+        // Uzak depodaki branch'leri listeleyerek basit bir bağlantı testi yap
         await git.listRemote(['--heads']);
-        return { ok: true, message: 'GitHub bağlantısı ve kimlik bilgileri doğru.' };
+        return { ok: true, message: 'GitHub bağlantısı ve kimlik bilgileri başarıyla doğrulandı.' };
     } catch (error: any) {
-        console.error("GitHub bağlantı testi başarısız:", error.message);
+        console.error(`testGitConnection -> Hata: GitHub bağlantı testi başarısız oldu. Hata: ${error.message}`);
         // Hata mesajını olduğu gibi döndürerek kullanıcıya daha fazla bilgi ver
         return { ok: false, message: error.message };
     }

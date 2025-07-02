@@ -1,4 +1,4 @@
-import { getSortedPostsData } from '@/lib/content-parser';
+import { getSortedContentData } from '@/lib/content-parser';
 import { Project } from '@/types/content';
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 const ProjectList = dynamic(() => import('@/components/ProjectList'), { ssr: false });
 
 export default function ProjelerimPage() {
-  const allProjects = getSortedPostsData<Project>('projects');
+  const allProjects = getSortedContentData<Project>('projects');
 
   return (
     <div className="space-y-8">

@@ -3,7 +3,11 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import dynamic from "next/dynamic";
+
+type BlogPost = {
+  slug: string;
+  title: string;
+};
 
 const BlogList = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -65,15 +69,17 @@ const BlogList = () => {
         <table className="min-w-full">
           <thead className="bg-gray-100 dark:bg-gray-800">
             <tr>
-              <th className="text-left py-3 px-4">Başlık</th>
-              <th className="text-right py-3 px-4">İşlemler</th>
+              <th className="text-left py-3 px-4 font-semibold">Başlık</th>
+              <th className="text-left py-3 px-4 font-semibold">Dosya Adı (Slug)</th>
+              <th className="text-right py-3 px-4 font-semibold">İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {posts.length > 0 ? (
               posts.map((post) => (
                 <tr key={post.slug} className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-3 px-4">{post.slug}</td>
+                  <td className="py-3 px-4 font-medium">{post.title}</td>
+                  <td className="py-3 px-4 text-gray-500">{post.slug}</td>
                   <td className="py-3 px-4 text-right">
                     <Link href={`/admin/blog/edit/${post.slug}`}>
                       <span className="text-blue-500 hover:underline mr-4">Düzenle</span>
@@ -86,7 +92,7 @@ const BlogList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="text-center py-6">Henüz blog yazısı eklenmemiş.</td>
+                <td colSpan={3} className="text-center py-6">Henüz blog yazısı eklenmemiş.</td>
               </tr>
             )}
           </tbody>
@@ -94,11 +100,6 @@ const BlogList = () => {
       </div>
     </div>
   );
-};
-
-type BlogPost = {
-  slug: string;
-  title: string;
 };
 
 export default function BlogAdminPage() {
