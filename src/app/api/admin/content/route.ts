@@ -42,17 +42,6 @@ function revalidateContentPaths(type: string, slug?: string) {
 }
 
 async function listContent(type: string) {
-  if (['skills', 'experiences'].includes(type)) {
-    try {
-      const filePath = path.join(contentDir, `${type}.json`);
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      return NextResponse.json(JSON.parse(fileContent));
-    } catch (error) {
-      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return NextResponse.json([]);
-      throw error;
-    }
-  }
-  
   const dirPath = getSafePath(type);
   if (!dirPath) return apiError("Geçersiz içerik tipi.", 400);
 
@@ -99,33 +88,37 @@ async function deleteContent(type: string, slug: string, user: string) {
 
     if (!filePath) return apiError("Geçersiz dosya yolu.", 400);
 
-    // Markdown dosyaları için ilişkili görselleri sil
-    if (fileExtension === '.md') {
-        try {
-            const fileContent = await fs.readFile(filePath, 'utf-8');
-            // Regex to find all local image paths like ![](/images/...)
-            const imageUrls = (fileContent.match(/!\[.*?\]\(\/images\/.*?\)/g) || [])
-                .map(mdLink => mdLink.match(/\(\/images\/.*?\)/)?.[0].slice(1, -1));
-
-            if (imageUrls.length > 0) {
-                console.log(`'${slug}' içeriği için silinecek ${imageUrls.length} adet görsel bulundu.`);
-                for (const imageUrl of imageUrls) {
-                    const imagePath = path.join(process.cwd(), 'public', imageUrl);
-                    try {
-                        await fs.unlink(imagePath);
-                        console.log(`Görsel başarıyla silindi: ${imagePath}`);
-                    } catch (imgError: any) {
-                        // İstenildiği gibi, görsel silinemezse hatayı logla ve devam et
-                        if (imgError.code !== 'ENOENT') { // Dosya zaten yoksa hata basma
-                            console.error(`Görsel silinirken bir hata oluştu, ancak işleme devam ediliyor. Dosya: ${imagePath}, Hata: ${imgError.message}`);
-                        }
-                    }
+    let imageUrlsToDelete: string[] = [];
+    try {
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        if (fileExtension === '.md') {
+            const mdImageUrls = (fileContent.match(/!\[.*?\]\(\/images\/.*?\)/g) || [])
+                .map(mdLink => mdLink.match(/\(\/images\/.*?\)/)?.[0].slice(1, -1))
+                .filter((url): url is string => !!url); // undefined değerleri diziden kaldır
+            imageUrlsToDelete.push(...mdImageUrls);
+        } else if (fileExtension === '.json') {
+            const jsonData = JSON.parse(fileContent);
+            const possibleImageKeys = ['imageUrl', 'thumbnail', 'mainImage'];
+            for (const key of possibleImageKeys) {
+                if (typeof jsonData[key] === 'string' && jsonData[key].startsWith('/images/')) {
+                    imageUrlsToDelete.push(jsonData[key]);
                 }
             }
-        } catch (readError: any) {
-            // Dosya okunamasa bile silme işlemine devam etmeyi dene, belki sadece dosya vardır içerik yoktur.
-            if (readError.code !== 'ENOENT') {
-                console.error(`İçerik dosyası okunurken bir hata oluştu, ancak silme işlemine devam edilecek. Dosya: ${filePath}, Hata: ${readError.message}`);
+        }
+    } catch (readError: any) {
+        if (readError.code !== 'ENOENT') {
+            console.error(`İçerik dosyası okunurken bir hata oluştu: ${filePath}`, readError);
+        }
+    }
+
+    for (const imageUrl of imageUrlsToDelete) {
+        const imagePath = path.join(process.cwd(), 'public', imageUrl);
+        try {
+            await fs.unlink(imagePath);
+            console.log(`İlişkili görsel silindi: ${imagePath}`);
+        } catch (imgError: any) {
+            if (imgError.code !== 'ENOENT') {
+                console.error(`Görsel silinirken hata (işleme devam ediliyor): ${imagePath}`, imgError);
             }
         }
     }
@@ -134,7 +127,7 @@ async function deleteContent(type: string, slug: string, user: string) {
         await fs.unlink(filePath);
         revalidateContentPaths(type, cleanSlug);
         await commitContentChange({ action: 'delete', fileType: type, slug: cleanSlug, user });
-        return NextResponse.json({ message: "Dosya ve ilişkili görseller başarıyla silindi." });
+        return NextResponse.json({ message: "İçerik ve ilişkili görseller başarıyla silindi." });
     } catch (error) {
         if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return apiError("Silinecek dosya bulunamadı.", 404);
         return apiError("Dosya silinemedi.", 500);
@@ -144,11 +137,9 @@ async function deleteContent(type: string, slug: string, user: string) {
 export async function GET(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) return apiError("Yetkisiz erişim.", 401);
-
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
   const slug = searchParams.get("slug");
-
   if (!type) return apiError("'type' parametresi gerekli.", 400);
   if (slug) return getContent(type, slug);
   return listContent(type);
@@ -157,11 +148,9 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) return apiError("Yetkisiz erişim.", 401);
-
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type");
   const slug = searchParams.get("slug");
-
   if (!type || !slug) return apiError("'type' ve 'slug' parametreleri gerekli.", 400);
   return deleteContent(type, slug, token.email || "Bilinmeyen Kullanıcı");
 }
@@ -173,13 +162,11 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { type, slug, originalSlug, data, content } = body;
-
     if (!type || !slug || !data) return apiError("Eksik alanlar: 'type', 'slug' ve 'data' gereklidir.", 400);
 
     const fileExtension = getFileExtension(type);
     const newFileName = slug.endsWith(fileExtension) ? slug : slug + fileExtension;
     const newFilePath = getSafePath(type, newFileName);
-
     if (!newFilePath) return apiError("Geçersiz dosya yolu belirtildi.", 400);
 
     const dirPath = path.dirname(newFilePath);
@@ -196,7 +183,7 @@ export async function POST(request: NextRequest) {
     if (originalSlug && slug !== originalSlug) {
       const oldFilePath = getSafePath(type, originalSlug + fileExtension);
       if (oldFilePath) {
-        try { await fs.unlink(oldFilePath); } 
+        try { await fs.unlink(oldFilePath); }
         catch (error) { if (error instanceof Error && 'code' in error && error.code !== 'ENOENT') console.error(`Eski dosya silinirken hata: ${oldFilePath}`, error); }
       }
     }

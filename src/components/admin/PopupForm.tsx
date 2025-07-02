@@ -162,7 +162,6 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                   value={field.value || ''}
                   onChange={field.onChange}
                   onRemove={() => field.onChange('')}
-                  uploadPath="popups"
                 />
               )}
             />
