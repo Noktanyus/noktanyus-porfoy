@@ -160,7 +160,8 @@ export async function commitAllChanges(message: string, user: string): Promise<{
   try {
     const status = await git.status();
     if (status.files.length === 0) {
-      throw new Error("Commit atılacak bir değişiklik bulunamadı.");
+      console.log("commitAllChanges -> Bilgi: Commit atılacak bir değişiklik bulunamadı, işlem atlanıyor.");
+      return { success: true, message: "Commit atılacak yeni bir değişiklik bulunmadığı için işlem atlandı." };
     }
     
     const commitMessage = `kaynak: ${message} (${user}) [ci skip]`;

@@ -43,7 +43,9 @@ const contentPostSchema = z.object({
   }),
   slug: z.string().min(1, "İçerik kimliği (slug) boş olamaz."),
   originalSlug: z.string().optional(), // Güncelleme işlemlerinde eski slug'ı takip etmek için
-  data: z.record(z.any()), // .md'deki front-matter veya .json içeriği
+  data: z.union([z.record(z.any()), z.array(z.any())], {
+    errorMap: () => ({ message: "Veri formatı geçersiz. Nesne veya dizi olmalı." }),
+  }), // .md'deki front-matter veya .json içeriği (dizi veya nesne olabilir)
   content: z.string().optional(), // .md dosyasının ana metin içeriği
 });
 
