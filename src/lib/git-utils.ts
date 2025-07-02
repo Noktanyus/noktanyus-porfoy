@@ -41,9 +41,9 @@ async function getAuthenticatedRepoUrl(): Promise<string> {
 async function pushChanges() {
   try {
     const authenticatedUrl = await getAuthenticatedRepoUrl();
-    // 'main' veya projenizin ana branch'inin adını kullanın
-    await git.push(authenticatedUrl, 'main'); 
-    console.log('Değişiklikler başarıyla GitHub\'a gönderildi.');
+    const currentBranch = await git.branch();
+    await git.push(authenticatedUrl, currentBranch.current); 
+    console.log(`Değişiklikler başarıyla GitHub'daki '${currentBranch.current}' branch'ine gönderildi.`);
   } catch (error: any) {
     console.error('GitHub\'a push işlemi sırasında kritik bir hata oluştu:', error.message);
     if (error.message.includes('authentication failed')) {
