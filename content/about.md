@@ -3,8 +3,8 @@ name: Yunus TUĞHAN
 title: Web Operatörü & Geliştiricisi
 subTitle: Modern web teknolojileriyle kullanıcı dostu deneyimler oluşturuyorum.
 headerTitle: NOKTANYUS
-profileImage: /images/33ae1acf-57e4-4138-9dec-376b7cc98d43.jpg
-aboutImage: /images/7e61dfe9-ae40-4d73-9d02-9cf2c6d2dad5.jpg
+profileImage: /api/images/ff27fa44-d4ad-412c-bcb2-ac48ee6f2347.webp
+aboutImage: /api/images/3ef74b85-fd83-4e71-87a1-c91c91e72601.webp
 social:
   github: 'https://github.com/ornek-kullanici'
   linkedin: 'https://linkedin.com/in/ornek-kullanici'
