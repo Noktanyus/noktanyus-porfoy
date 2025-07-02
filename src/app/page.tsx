@@ -4,6 +4,7 @@ import { Project, Blog } from "@/types/content";
 import ProjectCard from "@/components/ProjectCard";
 import BlogCard from "@/components/BlogCard";
 import Image from "next/image";
+import ClientOnlyHtml from "@/components/ClientOnlyHtml";
 
 // YouTube video ID'sini URL'den çıkaran yardımcı fonksiyon
 const getYouTubeId = (url: string): string | null => {
@@ -61,7 +62,7 @@ export default async function Home() {
             </div>
 
             {/* Sağ Taraf: Uçan Kutu (Dinamik İçerik) */}
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center min-h-[250px]">
               {videoId && (
                 <div className="w-full max-w-lg animate-float">
                   <div className="aspect-w-16 aspect-h-9 rounded-xl overflow-hidden shadow-2xl border-4 border-gray-300 dark:border-gray-700">
@@ -81,7 +82,7 @@ export default async function Home() {
                   <h3 className="text-2xl font-bold mb-3 text-center">{featuredContent.textTitle}</h3>
                   <p className="text-gray-600 dark:text-gray-300">{featuredContent.textContent}</p>
                   {featuredContent.customHtml && (
-                    <div className="mt-4" dangerouslySetInnerHTML={{ __html: featuredContent.customHtml }} />
+                    <ClientOnlyHtml html={featuredContent.customHtml} className="mt-4" />
                   )}
                 </div>
               )}

@@ -12,7 +12,7 @@ import { NextAuthOptions } from "next-auth";
 import { env } from "@/lib/env"; // Tip-güvenli ortam değişkenlerini import et
 
 // NextAuth için yapılandırma seçenekleri
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   // --- Sağlayıcılar (Providers) ---
   // Projede kullanılacak kimlik doğrulama yöntemleri burada tanımlanır.
   providers: [
