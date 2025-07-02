@@ -104,6 +104,10 @@ function revalidateContentPaths(type: string, slug?: string) {
   // Her durumda ana sayfa ve genel layout'u da yenilemek, genel tutarlılık için iyidir.
   revalidatePath('/');
   revalidatePath('/layout');
+
+  // Her içerik değişikliğinde sitemap'in de yeniden oluşturulmasını tetikle.
+  revalidatePath('/sitemap.xml');
+  console.log("Sitemap.xml önbelleği temizlendi. Bir sonraki ziyarette otomatik olarak güncellenecektir.");
 }
 
 // --- HTTP METOTLARI ---
