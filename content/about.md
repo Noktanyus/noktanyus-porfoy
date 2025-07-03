@@ -15,14 +15,6 @@ Merhaba! Ben **Yunus Tuğhan**. Isparta Uygulamalı Bilimler Üniversitesi'nde B
 
 Kariyerime Node.js, Python, JavaScript ve web teknolojileriyle başladım. Ayrıca Linux sistemleri üzerinde kişisel projeler geliştiriyor, veritabanı yönetimi, şifreleme, sistem otomasyonu ve merkeziyetsiz yapıların gerçek dünya uygulamalarını araştırıyorum.
 
-## 🚀 Teknik Yeteneklerim
-
-- **Programlama Dilleri**: JavaScript (ES6+), Node.js, Python  
-- **Web Teknolojileri**: HTML5, CSS3, Next.js  
-- **Veritabanları**: PostgreSQL, MySQL, MongoDB  
-- **Araçlar ve Teknolojiler**: Git, GitHub, Docker  
-- **İşletim Sistemleri**: Linux (Ubuntu, Debian), Windows  
-- **Diğer Konular**: Merkeziyetsiz sistem prensipleri, temel şifreleme, sistem otomasyonu, ağ protokolleri, veri güvenliği  
 
 ## 🛠️ Üzerinde Çalıştığım Projeler
 
