@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: noktanyus-portfoy
+    ports:
+      - "65495:3000"
+    volumes:
+      - .:/app:delegated
+      - /app/node_modules
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    working_dir: /app
+    restart: unless-stopped
