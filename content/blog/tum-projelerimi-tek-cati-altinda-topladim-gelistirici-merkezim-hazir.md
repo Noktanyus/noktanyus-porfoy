@@ -6,7 +6,7 @@ description: >+
   ödüllendirme mantığı ve kişisel portföyümle bir araya getirdiğim merkezi
   platformumu tanıtıyorum.
 
-thumbnail: ''
+thumbnail: /api/images/f7485ded-bbef-41f2-a4c7-ad0618602fa4.webp
 author: Admin
 category: 'Kişisel Gelişim, Yazılım Altyapısı'
 tags: []
