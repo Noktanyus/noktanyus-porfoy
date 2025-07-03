@@ -11,14 +11,6 @@ social:
   twitter: 'https://twitter.com/'
 ---
 
-| Teknoloji | Açıklama |
-|----------|----------|
-| **Jellyfin** | Açık kaynak medya sunucusu (Plex alternatifi) |
-| **Linux (Debian tabanlı)** | Sunucu işletim sistemi |
-| **Let's Encrypt + Reverse Proxy** | HTTPS ile güvenli dış erişim |
-| **DDNS** | Dinamik IP yerine alan adıyla erişim |
-| **Fail2ban + Güvenlik Katmanları** | SSH ve web güvenliği için önlemler |
-| **1TB HDD + SSD** | Medya ve sistem dosyaları için ayrı disk yapısı |
 Merhaba! Ben **Yunus Tuğhan**. Isparta Uygulamalı Bilimler Üniversitesi'nde Bilgisayar Programcılığı 1. sınıf öğrencisiyim. Yazılım geliştirme, sistem entegrasyonu ve açık kaynak dünyasına olan ilgimle sürekli öğrenmeye ve üretmeye çalışıyorum.
 
 Kariyerime Node.js, Python, JavaScript ve web teknolojileriyle başladım. Ayrıca Linux sistemleri üzerinde kişisel projeler geliştiriyor, veritabanı yönetimi, şifreleme, sistem otomasyonu ve merkeziyetsiz yapıların gerçek dünya uygulamalarını araştırıyorum.
