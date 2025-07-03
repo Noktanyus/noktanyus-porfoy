@@ -118,7 +118,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
             <p className="text-sm text-gray-500 dark:text-gray-400">
               `sitemap.xml` dosyası, blog yazılarınız ve projeleriniz eklendikçe otomatik olarak güncellenir. Manuel bir işlem yapmanıza gerek yoktur.
               <Link href="/sitemap.xml" target="_blank" className="text-brand-primary hover:underline ml-2">
-                Sitemap'i Görüntüle
+                Sitemap&apos;i Görüntüle
               </Link>
             </p>
           </div>

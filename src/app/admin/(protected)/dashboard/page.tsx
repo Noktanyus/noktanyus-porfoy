@@ -250,7 +250,9 @@ function SourceCodeCommitter() {
       toast.error("Lütfen geçerli bir commit mesajı girin.");
       return;
     }
-    if (!confirm("Bu işlem, projedeki tüm değişiklikleri (içerik dosyaları hariç) commit'leyip GitHub'a gönderecektir.\n\nBu işlem geri alınamaz. Emin misiniz?")) {
+    if (!confirm(`Bu işlem, projedeki tüm değişiklikleri (içerik dosyaları hariç) commit&apos;leyip GitHub&apos;a gönderecektir.
+
+Bu işlem geri alınamaz. Emin misiniz?`)) {
       return;
     }
 

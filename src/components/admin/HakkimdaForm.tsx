@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import MarkdownIt from 'markdown-it';
 import Editor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
+import Image from "next/image";
 
 const mdParser = new MarkdownIt();
 
@@ -116,7 +117,7 @@ export default function HakkimdaForm({ about }: { about: AboutData }) {
             }
           }
         }} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-        {watch("profileImage") && <img src={watch("profileImage")} alt="Preview" className="mt-2 h-32" />}
+        {watch("profileImage") && <Image src={watch("profileImage")} alt="Preview" className="mt-2 h-32" width={128} height={128} />}
         {errors.profileImage && <p className="text-red-500 text-sm mt-1">{errors.profileImage.message as string}</p>}
       </div>
 

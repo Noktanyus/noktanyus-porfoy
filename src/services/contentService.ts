@@ -96,7 +96,7 @@ export async function listContent(type: string): Promise<any[]> {
     return filteredList;
 }
 
-export async function saveContent(type: string, slug: string, data: any, content?: string): Promise<void> {
+export async function saveContent(type: string, slug: string, data: any, content?: string): Promise<string> {
   const fullPath = getFullPath(type, slug);
   const directory = path.dirname(fullPath);
 
@@ -112,13 +112,15 @@ export async function saveContent(type: string, slug: string, data: any, content
   }
 
   await fs.writeFile(fullPath, fileContent, 'utf8');
+  return fullPath;
 }
 
-export async function deleteContent(type: string, slug: string): Promise<void> {
+export async function deleteContent(type: string, slug: string): Promise<string> {
     const fullPath = getFullPath(type, slug);
     try {
         await fs.unlink(fullPath);
     } catch (error: any) {
         if (error.code !== 'ENOENT') throw error;
     }
+    return fullPath;
 }

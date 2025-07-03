@@ -80,8 +80,8 @@ export default function HomePageSettingsPage() {
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-6">Ana Sayfa Öne Çıkan İçerik Ayarları</h1>
       <p className="mb-6 text-gray-600 dark:text-gray-400">
-        Bu bölümden, ana sayfanızdaki isminizin sağında görünen "uçan" kutucuğun içeriğini yönetebilirsiniz.
-        İçeriğin görünmemesi için "Gösterme" seçeneğini seçebilirsiniz.
+        Bu bölümden, ana sayfanızdaki isminizin sağında görünen &quot;uçan&quot; kutucuğun içeriğini yönetebilirsiniz.
+        İçeriğin görünmemesi için &quot;Gösterme&quot; seçeneğini seçebilirsiniz.
       </p>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>

@@ -10,6 +10,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Popup } from '@/types/content';
+import Image from "next/image";
 
 /**
  * Dinamik olarak gelen HTML içeriğini ve içindeki script'leri güvenli bir şekilde çalıştıran bileşen.
@@ -109,9 +110,8 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
               ></iframe>
             </div>
           )}
-
           {popup.imageUrl && !popup.youtubeEmbedUrl && (
-            <img src={popup.imageUrl} alt={popup.title} className="w-full h-auto object-cover rounded-md mb-4" />
+            <Image src={popup.imageUrl} alt={popup.title} className="w-full h-auto object-cover rounded-md mb-4" width={800} height={450} />
           )}
 
           <DynamicHTMLRenderer htmlContent={popup.content} />
@@ -190,7 +190,26 @@ export default function PopupViewer() {
     router.replace(newUrl.href, { scroll: false });
   };
 
-  if (isLoading || !popup) {
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+        <div className="bg-white dark:bg-dark-card rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative p-8 animate-pulse">
+          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+          <div className="aspect-w-16 aspect-h-9 mb-4 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
+          </div>
+          <div className="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!popup) {
     return null;
   }
 

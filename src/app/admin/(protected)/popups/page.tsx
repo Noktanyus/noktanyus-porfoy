@@ -44,7 +44,7 @@ export default function PopupsAdminPage() {
    * @param slug - Silinecek popup'ın kimliği.
    */
   const handleDelete = async (slug: string) => {
-    if (!confirm(`'${slug}' kodlu popup'ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
+    if (!confirm(`&apos;${slug}&apos; kodlu popup&apos;ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
 
     const loadingToast = toast.loading("Popup siliniyor...");
     try {
@@ -95,7 +95,49 @@ export default function PopupsAdminPage() {
   };
 
   if (isLoading) {
-    return <div className="text-center p-8">Popup'lar yükleniyor...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Popup Yönetimi</h1>
+          <div className="bg-brand-primary h-10 w-40 rounded-lg animate-pulse"></div>
+        </div>
+        <div className="bg-white dark:bg-dark-card shadow-lg rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead className="bg-gray-100 dark:bg-dark-header">
+                <tr>
+                  <th className="text-left py-3 px-6 font-semibold text-gray-600 dark:text-gray-300">Durum</th>
+                  <th className="text-left py-3 px-6 font-semibold text-gray-600 dark:text-gray-300">Popup Kodu (Slug)</th>
+                  <th className="text-left py-3 px-6 font-semibold text-gray-600 dark:text-gray-300">Başlık</th>
+                  <th className="text-right py-3 px-6 font-semibold text-gray-600 dark:text-gray-300">İşlemler</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {[...Array(5)].map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="py-4 px-6">
+                      <div className="h-6 w-11 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex justify-end space-x-4">
+                        <div className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        <div className="h-5 w-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -149,7 +191,7 @@ export default function PopupsAdminPage() {
               ) : (
                 <tr>
                   <td colSpan={4} className="text-center py-10 text-gray-500">
-                    Henüz hiç popup oluşturulmamış. "Yeni Popup Ekle" butonu ile başlayabilirsiniz.
+                    Henüz hiç popup oluşturulmamış. &quot;Yeni Popup Ekle&quot; butonu ile başlayabilirsiniz.
                   </td>
                 </tr>
               )}

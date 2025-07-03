@@ -13,6 +13,20 @@
   .prose img {
     @apply rounded-lg max-h-[60vh] object-contain mx-auto;
   }
+
+  .prose table {
+    @apply w-full my-4 border-collapse border border-gray-300 dark:border-gray-700;
+  }
+  .prose th,
+  .prose td {
+    @apply border border-gray-300 dark:border-gray-600 px-4 py-2 text-left;
+  }
+  .prose thead {
+    @apply bg-gray-100 dark:bg-dark-card;
+  }
+  .prose tbody tr:nth-child(odd) {
+    @apply bg-white dark:bg-dark-bg;
+  }
 }
 
 .project-card:nth-child(even) .project-image {

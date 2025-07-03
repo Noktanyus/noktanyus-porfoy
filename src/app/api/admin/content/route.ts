@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
 
     const itemsToProcess = Array.isArray(body) ? body : [body];
     const processedSlugs = new Set<string>();
+    const changedPaths = new Set<string>();
 
     try {
         for (const item of itemsToProcess) {
@@ -97,10 +98,12 @@ export async function POST(request: NextRequest) {
             const { type, slug, originalSlug, data, content } = validation.data;
 
             if (originalSlug && slug !== originalSlug) {
-                await contentService.deleteContent(type, originalSlug);
+                const deletedPath = await contentService.deleteContent(type, originalSlug);
+                changedPaths.add(deletedPath);
             }
 
-            await contentService.saveContent(type, slug, data, content);
+            const savedPath = await contentService.saveContent(type, slug, data, content);
+            changedPaths.add(savedPath);
 
             revalidateContentPaths(type, slug);
             if (originalSlug && slug !== originalSlug) {
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
             fileType: itemsToProcess.length > 1 ? 'toplu' : itemsToProcess[0].type,
             slug: Array.from(processedSlugs).join(', '),
             user: token.email || "Bilinmeyen Kullanıcı",
-            paths: []
+            paths: Array.from(changedPaths)
         });
 
         return NextResponse.json({ message: "İçerik başarıyla kaydedildi!" });
@@ -139,7 +142,7 @@ export async function DELETE(request: NextRequest) {
         // Olası çift uzantı sorununu temizle (.md.md -> .md)
         slug = slug.replace(/\.(md|json)\.(md|json)$/, `.$1`);
 
-        await contentService.deleteContent(type, slug);
+        const deletedPath = await contentService.deleteContent(type, slug);
         
         const cleanSlug = slug.replace(/\.(md|json)$/, '');
         revalidateContentPaths(type, cleanSlug);
@@ -149,7 +152,7 @@ export async function DELETE(request: NextRequest) {
             fileType: type,
             slug: cleanSlug,
             user: token.email || "Bilinmeyen",
-            paths: [] // path'ler artık servis katmanında yönetiliyor
+            paths: [deletedPath]
         });
 
         return NextResponse.json({ message: "İçerik başarıyla silindi." });

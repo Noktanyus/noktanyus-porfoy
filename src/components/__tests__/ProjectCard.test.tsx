@@ -13,7 +13,7 @@ jest.mock('next/image', () => ({
     // fill prop'unu string'e çevirerek uyarıyı engelle
     const { fill, ...rest } = props;
     // eslint-disable-next-line @next/next/no-img-element
-    return <img {...rest} fill={fill ? fill.toString() : undefined} />;
+    return <img {...rest} alt={props.alt || ''} fill={fill ? fill.toString() : undefined} />;
   },
 }));
 

@@ -76,7 +76,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
 
       {/* Filtrelenmiş Proje Listesi */}
       {filteredProjects.length > 0 ? (
-        <div className="grid md:grid-cols-1 gap-8">
+        <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-12">
           {filteredProjects.map(project => (
             <ProjectCard key={project.id} project={project} />
           ))}

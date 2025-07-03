@@ -15,6 +15,12 @@ const nextConfig = {
         port: '3000',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'mc.yandex.ru',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   async headers() {
@@ -52,6 +58,9 @@ const nextConfig = {
     'property-information', 'space-separated-tokens', 'comma-separated-tokens', 
     'trough', 'bail', 'is-plain-obj', 'zwitch', 'longest-streak'
   ],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

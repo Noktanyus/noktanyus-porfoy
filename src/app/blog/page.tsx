@@ -6,8 +6,23 @@
  */
 
 import { getSortedContentData } from '@/lib/content-parser';
-import BlogCard from '@/components/BlogCard';
 import { Blog } from '@/types/content';
+import dynamic from 'next/dynamic';
+
+const BlogCard = dynamic(() => import('@/components/BlogCard'), {
+  loading: () => (
+    <div className="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden animate-pulse">
+      <div className="h-52 bg-gray-200 dark:bg-gray-700"></div>
+      <div className="p-6">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
+        <div className="flex justify-between items-center">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3"></div>
+        </div>
+      </div>
+    </div>
+  ),
+});
 
 export default function BlogPage() {
   // Tüm blog gönderilerini tarihe göre sıralanmış olarak al

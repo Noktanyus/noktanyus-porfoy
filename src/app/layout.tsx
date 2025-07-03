@@ -6,6 +6,7 @@
  *              global context'leri ve script'leri (Yandex Metrica, Turnstile) tanımlar.
  */
 
+import Image from "next/image";
 import type { Metadata } from "next";
 import "./globals.css"; // Font importu artık bu dosyanın içinde
 import Header from "@/components/layout/Header";
@@ -119,7 +120,7 @@ export default async function RootLayout({
             </Script>
             <noscript>
               <div>
-                <img src={`https://mc.yandex.ru/watch/${yandexMetricaId}`} style={{position:'absolute', left:'-9999px'}} alt="" />
+                <Image src={`https://mc.yandex.ru/watch/${yandexMetricaId}`} style={{position:'absolute', left:'-9999px'}} alt="" width={1} height={1} />
               </div>
             </noscript>
           </Suspense>

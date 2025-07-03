@@ -3,6 +3,7 @@
 
 import { AboutData } from "@/types/content";
 import { ChangeEvent } from "react";
+import Image from "next/image";
 
 interface AboutFormProps {
   aboutData: Partial<AboutData>;
@@ -40,12 +41,8 @@ export default function AboutForm({ aboutData, onAboutChange, onSocialChange, on
           <div>
             <label className="block text-sm font-medium mb-2">Profil Fotoğrafı</label>
             <input type="file" accept="image/*" onChange={(e) => onFileChange(e, 'profileImage')} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-            {aboutData.profileImage && <img src={aboutData.profileImage} alt="Profil Önizleme" className="mt-4 rounded-lg w-32 h-32 object-cover"/>}
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2">Hakkımda Sayfası Görseli</label>
-            <input type="file" accept="image/*" onChange={(e) => onFileChange(e, 'aboutImage')} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
-            {aboutData.aboutImage && <img src={aboutData.aboutImage} alt="Hakkımda Görsel Önizleme" className="mt-4 rounded-lg w-full h-auto object-cover"/>}
+            {aboutData.profileImage && <Image src={aboutData.profileImage} alt="Profil Önizleme" className="mt-4 rounded-lg w-32 h-32 object-cover" width={128} height={128}/>}
+            {aboutData.aboutImage && <Image src={aboutData.aboutImage} alt="Hakkımda Görsel Önizleme" className="mt-4 rounded-lg w-full h-auto object-cover" width={500} height={300}/>}
           </div>
         </div>
       </div>

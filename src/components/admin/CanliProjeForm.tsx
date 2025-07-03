@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import MarkdownIt from 'markdown-it';
 import Editor from 'react-markdown-editor-lite';
 import 'react-markdown-editor-lite/lib/index.css';
+import Image from "next/image";
 
 const mdParser = new MarkdownIt();
 
@@ -107,7 +108,7 @@ export default function LiveProjectForm({ post, slug }: LiveProjectFormProps) {
             setValue("thumbnail", url);
           }
         }} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-        {watch("thumbnail") && <img src={watch("thumbnail")} alt="Preview" className="mt-2 h-32" />}
+        {watch("thumbnail") && <Image src={watch("thumbnail")} alt="Preview" className="mt-2 h-32" width={128} height={128} />}
         {errors.thumbnail && <p className="text-red-500 text-sm mt-1">{errors.thumbnail.message as string}</p>}
       </div>
 

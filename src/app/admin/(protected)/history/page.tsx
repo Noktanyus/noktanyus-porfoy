@@ -36,7 +36,7 @@ export default async function HistoryPage() {
       <h1 className="text-3xl font-bold mb-6">İçerik Değişiklik Geçmişi</h1>
       <p className="text-gray-600 dark:text-gray-400 mb-8">
         İçerik üzerinde yapılan son 50 değişiklik burada listelenir. 
-        "Geçmişe Al" işlemi, seçilen değişikliği geri alır ve bu işlem geri alınamaz.
+        &quot;Geçmişe Al&quot; işlemi, seçilen değişikliği geri alır ve bu işlem geri alınamaz.
       </p>
       {/* Alınan verileri istemci bileşenine prop olarak geçir. */}
       <HistoryClientPage commits={commits} repoUrl={repoUrl || '#'} />
