@@ -45,11 +45,9 @@ export default async function HakkimdaPage() {
       {/* İş Tecrübelerim */}
       <section>
         <h2 className="text-3xl font-bold text-center mb-8 text-light-text dark:text-dark-text">İş Tecrübelerim</h2>
-        {/* Zaman çizgisi (timeline) yapısı */}
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-gray-200 dark:before:bg-gray-700">
           {experiences.map((exp, index) => (
             <div key={index} className="relative pl-10">
-              {/* Zaman çizgisi noktası */}
               <div className="absolute left-5 top-1 w-4 h-4 bg-brand-primary rounded-full border-4 border-white dark:border-dark-bg flex items-center justify-center">
                 <FaBriefcase className="text-white text-xs" />
               </div>

@@ -1,4 +1,3 @@
-
 /**
  * @file Kök layout bileşeni.
  * @description Bu dosya, tüm sayfaları saran ana HTML yapısını oluşturur.
@@ -8,8 +7,7 @@
  */
 
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+import "./globals.css"; // Font importu artık bu dosyanın içinde
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
@@ -23,26 +21,20 @@ import dynamic from "next/dynamic";
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
 const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
 
-// Google Fonts'tan Inter fontunu yükle
-const inter = Inter({ subsets: ["latin"] });
-
 /**
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
- * Bu fonksiyon, build sırasında çalışır ve `content/seo-settings.json` dosyasından
- * alınan verilere göre her sayfa için uygun meta etiketlerini üretir.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const seo = getSeoSettings();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
 
-  // Resim URL'lerinin mutlak olduğundan emin ol
   const ogImageUrl = seo.og.image.startsWith('http') ? seo.og.image : `${baseUrl}${seo.og.image}`;
   const twitterImageUrl = seo.twitter.image.startsWith('http') ? seo.twitter.image : `${baseUrl}${seo.twitter.image}`;
 
   return {
     title: {
       default: seo.siteTitle,
-      template: `%s | ${seo.siteTitle}`, // Diğer sayfalarda "Sayfa Başlığı | Site Başlığı" formatını kullan
+      template: `%s | ${seo.siteTitle}`,
     },
     description: seo.siteDescription,
     keywords: seo.siteKeywords,
@@ -55,13 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: seo.og.description || seo.siteDescription,
       url: seo.og.url || seo.canonicalUrl,
       siteName: seo.og.site_name || seo.siteTitle,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-        },
-      ],
+      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
       locale: 'tr_TR',
       type: 'website',
     },
@@ -83,17 +69,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Header'da gösterilecek başlığı al
   const aboutData = await getAboutData();
   const headerTitle = aboutData.headerTitle || "Portföyüm";
   const yandexMetricaId = process.env.NEXT_PUBLIC_YANDEX_METRICA_ID;
 
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className={`${inter.className} bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}>
-        {/* NextAuth için oturum sağlayıcısı */}
+      {/* Font sınıfı artık doğrudan body'ye uygulanmıyor, CSS'den geliyor */}
+      <body className={`bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}>
         <AuthProvider>
-          {/* Tema (açık/koyu mod) sağlayıcısı */}
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -107,17 +91,14 @@ export default async function RootLayout({
               </main>
               <Footer />
             </div>
-            {/* Popup'ları göstermek için istemci tarafı bileşeni */}
             <Suspense fallback={<Spinner />}>
               <PopupViewer />
             </Suspense>
           </ThemeProvider>
         </AuthProvider>
         
-        {/* Harici script'ler */}
         <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" async defer />
         
-        {/* Yandex Metrica script'i (sadece ID tanımlıysa eklenir) */}
         {yandexMetricaId && (
           <Suspense fallback={null}>
             <Script id="yandex-metrica-init" strategy="afterInteractive">
@@ -147,4 +128,3 @@ export default async function RootLayout({
     </html>
   );
 }
-

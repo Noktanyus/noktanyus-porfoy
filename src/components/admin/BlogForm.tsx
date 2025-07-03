@@ -14,18 +14,13 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Blog } from "@/types/content";
 import { useEffect } from "react";
-import MarkdownIt from 'markdown-it';
-import dynamic from 'next/dynamic';
-import 'react-markdown-editor-lite/lib/index.css';
+import CustomEditor from './Editor';
 import { ErrorMessage } from "@hookform/error-message";
 import { useSession } from "next-auth/react";
 import ImageUpload from "./ImageUpload";
 
 // Markdown editörünü sadece istemci tarafında ve ihtiyaç anında yükle
-const Editor = dynamic(() => import('react-markdown-editor-lite'), { 
-  ssr: false,
-  loading: () => <div className="h-96 w-full bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg flex items-center justify-center">Editör Yükleniyor...</div>
-});
+
 
 // Form verileri için tip tanımı. `tags` alanı string olarak alınır.
 type BlogFormData = Omit<Blog, 'id' | 'contentHtml' | 'tags'> & {
@@ -37,7 +32,7 @@ interface BlogFormProps {
   post?: Blog;
 }
 
-const mdParser = new MarkdownIt();
+
 
 export default function BlogForm({ post }: BlogFormProps) {
   const router = useRouter();
@@ -197,13 +192,9 @@ export default function BlogForm({ post }: BlogFormProps) {
           name="content"
           control={control}
           render={({ field }) => (
-            <Editor
-              key={post?.slug || 'new-post'}
-              defaultValue={field.value}
-              renderHTML={text => mdParser.render(text)}
-              onChange={({ text }) => field.onChange(text)}
-              onImageUpload={onEditorImageUpload}
-              className="h-96"
+            <CustomEditor
+              value={field.value}
+              onChange={field.onChange}
             />
           )}
         />

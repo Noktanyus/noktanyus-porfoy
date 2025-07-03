@@ -8,10 +8,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { remark } from 'remark';
-import remarkRehype from 'remark-rehype';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeStringify from 'rehype-stringify';
+import { processMarkdown } from './markdown-processor'; // Merkezi remark işlemcisini içe aktar
 import { 
   AboutData, Post, Project, Skill, Testimonial, SeoSettings, 
   Popup, Message, HomeSettings, Blog, Experience 
@@ -19,34 +16,6 @@ import {
 
 /** Projenin kök dizinindeki 'content' klasörünün yolu. */
 const contentDirectory = path.join(process.cwd(), 'content');
-
-/**
- * Belirtilen türdeki tüm içerik dosyalarını (JSON) okur ve bir dizi olarak döndürür.
- * @template T Döndürülecek veri türü.
- * @param {string} type İçerik türünün adı (örneğin, 'popups', 'messages').
- * @returns {T[]} Okunan ve parse edilen verilerin dizisi. Hata durumunda boş dizi döner.
- */
-function getAllData<T>(type: string): T[] {
-  const directory = path.join(contentDirectory, type);
-  if (!fs.existsSync(directory)) {
-    console.warn(`getAllData -> Uyarı: '${type}' için içerik dizini bulunamadı: ${directory}`);
-    return [];
-  }
-
-  try {
-    const fileNames = fs.readdirSync(directory);
-    return fileNames
-      .filter(fileName => fileName.endsWith('.json'))
-      .map(fileName => {
-        const fullPath = path.join(directory, fileName);
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        return JSON.parse(fileContents) as T;
-      });
-  } catch (error: any) {
-    console.error(`getAllData -> Hata: '${type}' içerikleri okunurken bir hata oluştu. Hata: ${error.message}`);
-    return [];
-  }
-}
 
 /**
  * Belirtilen bir JSON dosyasını okur ve parse eder.
@@ -130,12 +99,8 @@ export async function getContentData<T extends Post | Project>(type: 'blog' | 'p
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const { data, content } = matter(fileContents);
 
-  const processedContent = await remark()
-    .use(remarkRehype)
-    .use(rehypeSanitize) // Güvenlik için HTML'i temizle
-    .use(rehypeStringify)
-    .process(content);
-  const contentHtml = processedContent.toString();
+  // Merkezi remark işlemcisini kullan
+  const contentHtml = await processMarkdown(content);
 
   const result = {
     ...(data as object),
@@ -180,12 +145,9 @@ export async function getAboutData(): Promise<AboutData> {
 export async function getAboutContentHtml(): Promise<string> {
   try {
     const aboutData = await getAboutData();
-    const processedContent = await remark()
-      .use(remarkRehype)
-      .use(rehypeSanitize)
-      .use(rehypeStringify)
-      .process(aboutData.content);
-    return processedContent.toString();
+    // Merkezi remark işlemcisini kullan
+    const contentHtml = await processMarkdown(aboutData.content);
+    return contentHtml;
   } catch (error: any) {
     console.error(`getAboutContentHtml -> Hata: Hakkımda içeriği HTML'e dönüştürülemedi. Hata: ${error.message}`);
     return "<p>İçerik yüklenirken bir hata oluştu.</p>";
@@ -263,25 +225,20 @@ export function getHomeSettings(): HomeSettings {
  * @returns {Popup[]} Pop-up'lar dizisi.
  */
 export function getAllPopups(): Popup[] {
-    return getAllData<Popup>('popups');
-}
-
-/**
- * Belirli bir popup'ın verisini slug (ID) ile getirir.
- * @param {string} slug Popup'ın slug'ı.
- * @returns {Popup | null} Popup verisi veya bulunamazsa null.
- */
-export function getPopupData(slug: string): Popup | null {
-    const fullPath = path.join(contentDirectory, 'popups', `${slug}.json`);
-    if (!fs.existsSync(fullPath)) {
-        return null;
-    }
+    const directory = path.join(contentDirectory, 'popups');
+    if (!fs.existsSync(directory)) return [];
     try {
-        const fileContents = fs.readFileSync(fullPath, 'utf8');
-        return JSON.parse(fileContents) as Popup;
-    } catch (error: any) {
-        console.error(`getPopupData -> Hata: '${slug}.json' popup verisi okunamadı. Hata: ${error.message}`);
-        return null;
+        const fileNames = fs.readdirSync(directory);
+        return fileNames
+            .filter(fileName => fileName.endsWith('.json'))
+            .map(fileName => {
+                const fullPath = path.join(directory, fileName);
+                const fileContents = fs.readFileSync(fullPath, 'utf8');
+                return JSON.parse(fileContents) as Popup;
+            });
+    } catch (error) {
+        console.error(`getAllPopups -> Hata: Pop-up'lar okunurken bir hata oluştu.`, error);
+        return [];
     }
 }
 
@@ -290,5 +247,19 @@ export function getPopupData(slug: string): Popup | null {
  * @returns {Message[]} Mesajlar dizisi.
  */
 export function getAllMessages(): Message[] {
-    return getAllData<Message>('messages');
+    const directory = path.join(contentDirectory, 'messages');
+    if (!fs.existsSync(directory)) return [];
+    try {
+        const fileNames = fs.readdirSync(directory);
+        return fileNames
+            .filter(fileName => fileName.endsWith('.json'))
+            .map(fileName => {
+                const fullPath = path.join(directory, fileName);
+                const fileContents = fs.readFileSync(fullPath, 'utf8');
+                return JSON.parse(fileContents) as Message;
+            });
+    } catch (error) {
+        console.error(`getAllMessages -> Hata: Mesajlar okunurken bir hata oluştu.`, error);
+        return [];
+    }
 }
