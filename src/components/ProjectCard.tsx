@@ -42,16 +42,40 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
             Daha Fazlasını Gör <FaArrowRight className="ml-2" />
           </Link>
           <div className="flex-grow"></div>
-          {project.liveDemo && (
-            <a href={project.liveDemo} target="_blank" rel="noopener noreferrer" title="Canlı Demo" className="text-gray-500 hover:text-green-500 dark:text-gray-400 dark:hover:text-green-400 transition-colors">
-              <FaExternalLinkAlt size={20} />
-            </a>
-          )}
-          {project.githubRepo && (
-            <a href={project.githubRepo} target="_blank" rel="noopener noreferrer" title="Kaynak Kodu" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
-              <FaGithub size={20} />
-            </a>
-          )}
+          <div className="flex items-center gap-3">
+            {project.liveDemo && (
+              <a 
+                href={project.liveDemo} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Canlı Demo" 
+                className="group/demo inline-flex items-center justify-center p-2.5 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 overflow-hidden"
+              >
+                <div className="transition-transform duration-500 ease-in-out group-hover/demo:rotate-[360deg]">
+                  <FaExternalLinkAlt size={16} />
+                </div>
+                <span className="whitespace-nowrap text-sm font-semibold w-0 opacity-0 group-hover/demo:w-24 group-hover/demo:opacity-100 group-hover/demo:ml-2 transition-all duration-300">
+                  Canlı Demo
+                </span>
+              </a>
+            )}
+            {project.githubRepo && (
+              <a 
+                href={project.githubRepo} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                title="Kaynak Kodu" 
+                className="group/code inline-flex items-center justify-center p-2.5 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 overflow-hidden"
+              >
+                <div className="transition-transform duration-500 ease-in-out group-hover/code:rotate-[360deg]">
+                  <FaGithub size={16} />
+                </div>
+                <span className="whitespace-nowrap text-sm font-semibold w-0 opacity-0 group-hover/code:w-28 group-hover/code:opacity-100 group-hover/code:ml-2 transition-all duration-300">
+                  Kaynak Kodu
+                </span>
+              </a>
+            )}
+          </div>
         </div>
       </div>
     </div>
