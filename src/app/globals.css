@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
+  }
+
+  /* Blog ve Proje detay sayfalarındaki görseller için stil */
+  .prose img {
+    @apply rounded-lg max-h-[60vh] object-contain mx-auto;
+  }
+
+  .prose table {
+    @apply w-full my-4 border-collapse border border-gray-300 dark:border-gray-700;
+  }
+  .prose th,
+  .prose td {
+    @apply border border-gray-300 dark:border-gray-600 px-4 py-2 text-left;
+  }
+  .prose thead {
+    @apply bg-gray-100 dark:bg-dark-card;
+  }
+  .prose tbody tr:nth-child(odd) {
+    @apply bg-white dark:bg-dark-bg;
+  }
+}
+
+.project-card:nth-child(even) .project-image {
+  @apply md:order-last;
+}
+
+/* Uçan animasyon */
+@keyframes float {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(-20px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}

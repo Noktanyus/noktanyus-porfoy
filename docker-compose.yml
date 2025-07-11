@@ -1,0 +1,17 @@
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: noktanyus-portfoy
+    restart: unless-stopped
+    ports:
+      - "65495:3000"
+    env_file:
+      - .env.local
+    volumes:
+      # Sunucudaki (host) .git klasörünü container içindeki /app/.git'e bağla
+      # Bu, 'analyze-changes' gibi git komutlarının çalışmasını sağlar.
+      - ./.git:/app/.git
+    environment:
+      - NODE_ENV=production
