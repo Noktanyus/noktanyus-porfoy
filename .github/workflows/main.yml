@@ -31,8 +31,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Swap Prisma Provider for SQLite
-      run: sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
+    - name: Adapt Prisma Schema for SQLite
+      run: |
+        sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
+        sed -i 's/String\[\]/String/g' prisma/schema.prisma
+        sed -i 's/@db.Text//g' prisma/schema.prisma
+        sed -i 's/Json/String/g' prisma/schema.prisma
 
     - name: Sync Database Schema
       run: npx prisma db push
