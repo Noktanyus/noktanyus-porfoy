@@ -34,8 +34,8 @@ jobs:
     - name: Swap Prisma Provider for SQLite
       run: sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
 
-    - name: Run Database Migrations
-      run: npx prisma migrate deploy
+    - name: Sync Database Schema
+      run: npx prisma db push
 
     - name: Run linter
       run: npm run lint
