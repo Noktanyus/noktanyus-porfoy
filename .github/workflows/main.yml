@@ -25,7 +25,7 @@ jobs:
         cache: 'npm'
         cache-dependency-path: package-lock.json
 
-    - name: Create .env file
+    - name: Create .env file from example
       run: cp .env.example .env
 
     - name: Install dependencies
@@ -35,10 +35,11 @@ jobs:
       run: |
         sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
         sed -i 's/String\[\]/String/g' prisma/schema.prisma
+        sed -i 's/@default(\[\])/@default("")/g' prisma/schema.prisma
         sed -i 's/@db.Text//g' prisma/schema.prisma
         sed -i 's/Json/String/g' prisma/schema.prisma
 
-    - name: Sync Database Schema
+    - name: Sync Database Schema (Prisma SQLite)
       run: npx prisma db push
 
     - name: Run linter
