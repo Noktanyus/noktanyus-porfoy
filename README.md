@@ -57,8 +57,8 @@ Projeyi yerel makinenizde çalıştırmak için aşağıdaki adımları izleyin.
 
 1.  **Projeyi klonlayın:**
     ```bash
-    git clone https://github.com/kullanici-adiniz/proje-adiniz.git
-    cd proje-adiniz
+    git clone --branch database-md --single-branch https://github.com/noktanyus/noktanyus-porfoy.git
+    cd noktanyus-porfoy
     ```
 
 2.  **Gerekli paketleri yükleyin:**
