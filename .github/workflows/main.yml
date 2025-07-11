@@ -31,15 +31,15 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Adapt Prisma Schema for SQLite
+    - name: Adapt Prisma Schema & Seed for SQLite
       run: |
         sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
         sed -i 's/String\[\]/String/g' prisma/schema.prisma
-        sed -i 's/@default(\[\])/@default("")/g' prisma/schema.prisma
         sed -i 's/@db.Text//g' prisma/schema.prisma
         sed -i 's/Json/String/g' prisma/schema.prisma
+        sed -i 's/technologies: \['\''Next.js'\'', \''TypeScript'\'', \''Prisma'\'\]/technologies: "Next.js,TypeScript,Prisma"/' prisma/seed.ts
 
-    - name: Sync Database Schema (Prisma SQLite)
+    - name: Sync Database Schema
       run: npx prisma db push
 
     - name: Run linter
