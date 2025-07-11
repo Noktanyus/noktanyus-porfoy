@@ -10,10 +10,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import {
+import { RecentMessages } from "@/components/admin/RecentMessages";
+import { 
   FaUserEdit, FaBlog, FaProjectDiagram, FaEnvelopeOpenText,
   FaCog, FaPaperPlane, FaFileAlt, FaComments,
-  FaWindowRestore, FaGithub, FaSyncAlt, FaHistory
+  FaWindowRestore, FaSyncAlt
 } from 'react-icons/fa';
 import { Message } from '@/types/content';
 
@@ -25,7 +26,6 @@ const adminLinks = [
   { href: "/admin/popups", text: "Popup'ları Yönet", icon: <FaWindowRestore /> },
   { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
   { href: "/admin/seo", text: "Genel SEO Ayarları", icon: <FaCog /> },
-  { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
 ];
 
 /** İstatistik kartları için veri tipi. */
