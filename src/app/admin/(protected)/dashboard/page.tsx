@@ -14,7 +14,7 @@ import { RecentMessages } from "@/components/admin/RecentMessages";
 import { 
   FaUserEdit, FaBlog, FaProjectDiagram, FaEnvelopeOpenText,
   FaCog, FaPaperPlane, FaFileAlt, FaComments,
-  FaWindowRestore, FaSyncAlt
+  FaWindowRestore, FaSyncAlt, FaGithub
 } from 'react-icons/fa';
 import { Message } from '@/types/content';
 
@@ -272,8 +272,8 @@ function SourceCodeCommitter() {
     }
     message += `: ${commitSubject.trim()}`;
 
-    const confirmationMessage = `Bu işlem, projedeki tüm değişiklikleri GitHub'a gönderecektir.\n\nCommit Mesajı: "${message}"\n\nBu işlem geri alınamaz. Emin misiniz?`;
-    if (!confirm(confirmationMessage)) return;
+    const confirmationMessage = `Bu işlem, projedeki tüm değişiklikleri GitHub reposuna gönderecektir.\n\nCommit Mesajı: "${message}"\n\nBu işlem geri alınamaz. Emin misiniz?`;
+    if (!window.confirm(confirmationMessage)) return;
 
     setIsCommitting(true);
     const toastId = toast.loading("Değişiklikler commit'leniyor ve gönderiliyor...");
@@ -302,7 +302,7 @@ function SourceCodeCommitter() {
     <div>
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Kaynak kodundaki değişiklikleri Conventional Commits standardına uygun olarak GitHub'a gönderin.
+          Kaynak kodundaki değişiklikleri Conventional Commits standardına uygun olarak GitHub reposuna gönderin.
         </p>
         <button
           onClick={handleAnalyze}
