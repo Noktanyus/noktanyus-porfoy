@@ -7,7 +7,7 @@
  */
 
 import SeoForm from "@/components/admin/SeoForm";
-import { getSeoSettings } from "@/lib/content-parser";
+import { getSeoSettings } from "@/services/contentService";
 import fs from "fs/promises";
 import path from "path";
 
@@ -33,8 +33,12 @@ async function getRobotsTxtContent(): Promise<string> {
  */
 export default async function AdminSeoPage() {
   // Sunucu tarafında mevcut SEO ayarlarını ve robots.txt içeriğini al.
-  const seoSettings = getSeoSettings();
+  const seoSettings = await getSeoSettings();
   const robotsTxt = await getRobotsTxtContent();
+
+  if (!seoSettings) {
+    return <div>SEO ayarları yüklenemedi.</div>;
+  }
 
   return (
     <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">

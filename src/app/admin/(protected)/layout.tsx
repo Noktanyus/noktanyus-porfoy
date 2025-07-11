@@ -5,6 +5,8 @@
  *              `AdminSidebar` ve bildirimler için `Toaster` bileşenlerini ekler.
  */
 
+export const dynamic = 'force-dynamic';
+
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Toaster } from "react-hot-toast";
 

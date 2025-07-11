@@ -1,33 +1,32 @@
-/**
- * @file Belirli bir popup verisini getirmek için dinamik API rotası (Yeniden Düzenlenmiş)
- * @description Bu rota, URL'den gelen `slug` parametresini kullanarak
- *              `contentService` aracılığıyla ilgili popup'ın JSON verisini okur ve döndürür.
- */
 
-import { NextResponse } from 'next/server';
-import * as contentService from '@/services/contentService';
+import { NextRequest, NextResponse } from 'next/server';
+import { getPopup } from '@/services/contentService';
 
-type RouteParams = {
-  params: {
-    slug: string;
-  };
-};
-
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
   try {
-    const { slug } = params;
-    
-    // content-parser yerine contentService'i kullan
-    const { data } = await contentService.getContent('popups', `${slug}.json`);
-
-    return NextResponse.json(data);
-  } catch (error: any) {
-    console.error(`Popup getirme hatası (slug: ${params.slug}):`, error);
-    
-    if (error.message.includes('bulunamadı')) {
-      return NextResponse.json({ message: 'İstenen popup bulunamadı.' }, { status: 404 });
+    const slug = params.slug;
+    if (!slug) {
+      return NextResponse.json({ error: 'Slug parametresi eksik.' }, { status: 400 });
     }
-    
-    return NextResponse.json({ message: 'Popup verisi alınırken sunucuda bir hata oluştu.' }, { status: 500 });
+
+    const popup = await getPopup(slug);
+
+    if (!popup) {
+      return NextResponse.json({ error: 'Popup bulunamadı.' }, { status: 404 });
+    }
+
+    // Sadece aktif olan popup'ların dönmesini sağla
+    if (!popup.isActive) {
+        return NextResponse.json({ error: 'Popup aktif değil.' }, { status: 403 });
+    }
+
+
+    return NextResponse.json(popup);
+  } catch (error) {
+    console.error(`[API /api/popups/{slug}] Hata:`, error);
+    return NextResponse.json({ error: 'Sunucu hatası.' }, { status: 500 });
   }
 }

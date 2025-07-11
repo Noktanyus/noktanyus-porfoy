@@ -35,10 +35,8 @@ export default function EditBlogPage({ params }: { params: { slug: string } }) {
         if (!response.ok) {
           throw new Error("Yazı verileri sunucudan yüklenemedi.");
         }
-        const { data, content } = await response.json();
-        // Gelen veriye URL'den gelen slug'ı ve içeriği ekleyerek state'i güncelle.
-        // Bu, formun doğru ve eksiksiz veriyle dolmasını sağlar.
-        setPost({ ...data, slug: slug, content: content });
+        const postData = await response.json();
+        setPost(postData);
       } catch (error) {
         toast.error((error as Error).message);
         setPost(null); // Hata durumunda mevcut post verisini temizle.

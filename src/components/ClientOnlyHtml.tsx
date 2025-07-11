@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface ClientOnlyHtmlProps {
   html: string;
@@ -8,19 +9,21 @@ interface ClientOnlyHtmlProps {
 }
 
 /**
- * Sunucu-istemci uyuşmazlığını (hydration error) önlemek için,
- * kendisine verilen HTML'i sadece istemci tarafında render eden bir bileşen.
- * Sunucuda ve ilk istemci render'ında `null` döner, mount edildikten sonra içeriği basar.
+ * Sunucu-istemci uyuşmazlığını önlerken, dışarıdan gelen HTML'i
+ * XSS saldırılarına karşı güvenli hale getirerek render eden bir bileşen.
  * @param {ClientOnlyHtmlProps} props - `html` içeriğini ve opsiyonel `className`'i alır.
  */
 export default function ClientOnlyHtml({ html, className }: ClientOnlyHtmlProps) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Bileşen mount edildiğinde, istemci tarafında olduğumuzu anlarız.
     setIsClient(true);
   }, []);
 
-  // Sadece istemci tarafında render et.
-  return isClient ? <div className={className} dangerouslySetInnerHTML={{ __html: html }} /> : null;
+  // HTML'i DOM'a yazdırmadan önce DOMPurify ile temizle.
+  // Bu, <script> etiketleri gibi zararlı içerikleri kaldırarak XSS'i önler.
+  const cleanHtml = DOMPurify.sanitize(html);
+
+  // Sadece istemci tarafında ve temizlenmiş HTML'i render et.
+  return isClient ? <div className={className} dangerouslySetInnerHTML={{ __html: cleanHtml }} /> : null;
 }

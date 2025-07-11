@@ -48,8 +48,8 @@ export default function PopupsAdminPage() {
 
     const loadingToast = toast.loading("Popup siliniyor...");
     try {
-      // API'ye slug'ı dosya adı olarak gönder
-      const response = await fetch(`/api/admin/content?type=popups&slug=${slug}.json`, { method: 'DELETE' });
+      // API'ye slug'ı temiz olarak gönder
+      const response = await fetch(`/api/admin/content?type=popups&slug=${slug}`, { method: 'DELETE' });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Silme işlemi başarısız oldu.");

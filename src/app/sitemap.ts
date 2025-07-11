@@ -1,14 +1,13 @@
 /**
  * @file Site haritası (sitemap.xml) oluşturan dosya.
  * @description Bu dosya, Next.js'in dosya tabanlı sitemap oluşturma özelliğini
- *              kullanır. Statik sayfaları ve `content` dizininden okunan dinamik
+ *              kullanır. Statik sayfaları ve veritabanından okunan dinamik
  *              içerik (projeler, blog yazıları) yollarını birleştirerek
  *              arama motorları için bir site haritası oluşturur.
  */
 
 import { MetadataRoute } from 'next';
-import { getSortedContentData } from '@/lib/content-parser';
-import { Project, Blog } from '@/types/content';
+import { listProjects, listBlogs } from '@/services/contentService';
 
 // Bu satır, Next.js'e bu rotanın önbelleğe alınmamasını ve her istekte yeniden oluşturulmasını söyler.
 // Bu, site haritasının her zaman en güncel içeriği yansıtmasını sağlar.
@@ -17,7 +16,7 @@ export const revalidate = 0;
 // .env dosyasından sitenin ana URL'sini al, yoksa localhost kullan
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 1. Statik sayfalar için yolları oluştur
   const staticRoutes = [
     '', // Ana sayfa
@@ -33,9 +32,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // 2. Dinamik proje sayfaları için yolları oluştur
-  const projects = getSortedContentData<Project>('projects');
+  const projects = await listProjects();
   const projectRoutes = projects.map((project) => ({
-    url: `${BASE_URL}/projelerim/${project.id}`,
+    url: `${BASE_URL}/projelerim/${project.slug}`,
     // Projenin kendi tarih alanı varsa onu kullan, yoksa bugünün tarihini kullan
     lastModified: project.date ? new Date(project.date).toISOString() : new Date().toISOString(),
     changeFrequency: 'weekly' as const,
@@ -43,9 +42,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   // 3. Dinamik blog sayfaları için yolları oluştur
-  const blogs = getSortedContentData<Blog>('blog');
+  const blogs = await listBlogs();
   const blogRoutes = blogs.map((blog) => ({
-    url: `${BASE_URL}/blog/${blog.id}`,
+    url: `${BASE_URL}/blog/${blog.slug}`,
     lastModified: new Date(blog.date).toISOString(),
     changeFrequency: 'weekly' as const,
     priority: 0.6,

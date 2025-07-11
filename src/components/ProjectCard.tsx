@@ -38,7 +38,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         <p className="text-gray-600 dark:text-gray-400 mb-5 text-sm flex-grow">{project.description}</p>
         
         <div className="flex flex-wrap items-center gap-4 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-          <Link href={`/projelerim/${project.id}`} className="inline-flex items-center font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
+          <Link href={`/projelerim/${project.slug}`} className="inline-flex items-center font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
             Daha Fazlasını Gör <FaArrowRight className="ml-2" />
           </Link>
           <div className="flex-grow"></div>

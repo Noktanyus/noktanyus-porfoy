@@ -43,8 +43,8 @@ describe('ProjectCard', () => {
   it('should render a link to the project page', () => {
     render(<ProjectCard project={mockProject} />);
 
-    // Proje detayları linkini spesifik olarak test et
-    const link = screen.getByRole('link', { name: /proje detayları/i });
-    expect(link).toHaveAttribute('href', '/projelerim/test-project');
+    // Proje detayları linkini, doğru metinle test et
+    const link = screen.getByRole('link', { name: /Daha Fazlasını Gör/i });
+    expect(link).toHaveAttribute('href', `/projelerim/${mockProject.slug}`);
   });
 });

@@ -1,48 +1,70 @@
 /**
- * @file İçerik Yönetimi API Rotası (Son Hal)
+ * @file İçerik Yönetimi API Rotası
  * @description Bu API rotası, `contentService`'i kullanarak içerik yönetimi
- *              için CRUD işlemlerini yönetir. Sorumluluğu, HTTP isteklerini
- *              almak, doğrulamak ve servis katmanına yönlendirmektir.
- *              Ayrıca Git commit ve önbellek yenileme işlemlerini tetikler.
+ *              için CRUD işlemlerini yönetir. İstekleri alır, doğrular,
+ *              yetkilendirmeyi kontrol eder ve servis katmanına yönlendirir.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import { env } from "@/lib/env";
 import * as contentService from "@/services/contentService";
-import { commitContentChange } from "@/lib/git-utils";
 
+/**
+ * API için standart bir hata yanıtı oluşturur ve loglar.
+ * @param message Kullanıcıya gösterilecek hata mesajı.
+ * @param status HTTP durum kodu.
+ * @param error Opsiyonel olarak loglanacak orijinal hata nesnesi.
+ * @returns NextResponse nesnesi.
+ */
 function apiError(message: string, status: number = 500, error?: any): NextResponse {
-  console.error(`API Hatası (Status: ${status}): ${message}`, error ? { error } : '');
+  console.error(`API Hatası (Durum: ${status}): ${message}`, error ? { HataDetayı: error } : '');
   return NextResponse.json({ error: message }, { status });
 }
 
-const ALLOWED_TYPES = ['popups', 'messages', 'skills', 'experiences', 'testimonials', 'home-settings', 'seo-settings', 'blog', 'projects', 'about'];
+// İzin verilen içerik tiplerini tanımla
+const ALLOWED_TYPES = ['popups', 'messages', 'skills', 'experiences', 'testimonials', 'home-settings', 'seo-settings', 'blog', 'projects', 'about'] as const;
 
+// POST isteği için veri doğrulama şeması
 const contentPostSchema = z.object({
-  type: z.enum(ALLOWED_TYPES as [string, ...string[]]),
-  slug: z.string().min(1, "Slug boş olamaz."),
+  type: z.enum(ALLOWED_TYPES),
+  slug: z.string().min(1, "Slug alanı boş olamaz."),
   originalSlug: z.string().optional(),
   data: z.any(),
   content: z.string().optional(),
 });
 
-function revalidateContentPaths(type: string, slug?: string) {
-    console.log(`Önbellek temizleniyor: type=${type}, slug=${slug}`);
-    if (type === 'about' || type === 'skills' || type === 'experiences') {
-        revalidatePath('/hakkimda');
-    } else if (type === 'projects') {
-        revalidatePath('/projelerim');
-        if (slug) revalidatePath(`/projelerim/${slug}`);
-    } else if (type === 'blog') {
-        revalidatePath('/blog');
-        if (slug) revalidatePath(`/blog/${slug}`);
+/**
+ * İlgili yolların önbelleğini temizler.
+ * @param type İçerik tipi.
+ * @param slug Değiştirilen içeriğin slug'ı.
+ */
+function revalidateContentPaths(type: (typeof ALLOWED_TYPES)[number], slug?: string) {
+    console.log(`Önbellek temizleniyor: tip=${type}, slug=${slug}`);
+    const pathsToRevalidate = ['/', '/layout'];
+    
+    switch (type) {
+        case 'about':
+        case 'skills':
+        case 'experiences':
+            pathsToRevalidate.push('/hakkimda');
+            break;
+        case 'projects':
+            pathsToRevalidate.push('/projelerim');
+            if (slug) pathsToRevalidate.push(`/projelerim/${slug}`);
+            break;
+        case 'blog':
+            pathsToRevalidate.push('/blog');
+            if (slug) pathsToRevalidate.push(`/blog/${slug}`);
+            break;
     }
-    revalidatePath('/');
-    revalidatePath('/layout');
+    
+    pathsToRevalidate.forEach(path => revalidatePath(path));
 }
+
+// --- HTTP Metotları ---
 
 export async function GET(request: NextRequest) {
     const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
@@ -52,77 +74,55 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
     const slug = searchParams.get("slug");
 
-    if (!type || !ALLOWED_TYPES.includes(type)) {
+    if (!type || !ALLOWED_TYPES.includes(type as any)) {
         return apiError("Geçersiz 'type' parametresi.", 400);
     }
 
     try {
-        if (slug) {
-            const { data, content } = await contentService.getContent(type, slug);
-            return NextResponse.json({ data, content });
-        } else {
-            const contentList = await contentService.listContent(type);
-            return NextResponse.json(contentList);
-        }
+        const result = slug 
+            ? await contentService.getContent(type, slug)
+            : await contentService.listContent(type);
+        return NextResponse.json(result);
     } catch (error: any) {
         if (error.message.includes('bulunamadı')) {
-            return apiError(error.message, 404);
+            return apiError(error.message, 404, error);
         }
-        return apiError("Sunucu hatası: İçerik okunamadı.", 500, error);
+        return apiError("Sunucu hatası: İçerik okunurken bir sorun oluştu.", 500, error);
     }
 }
 
 export async function POST(request: NextRequest) {
     const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-    if (!token) return apiError("Yetkisiz erişim. Lütfen giriş yapın.", 401);
+    if (!token) return apiError("Yetkisiz erişim. Lütfen tekrar giriş yapın.", 401);
 
     let body;
     try {
         body = await request.json();
     } catch (e) {
-        return apiError("İstek gövdesi (body) JSON formatında değil veya boş.", 400, e);
+        return apiError("İstek gövdesi (body) hatalı veya boş.", 400, e);
     }
 
-    const itemsToProcess = Array.isArray(body) ? body : [body];
-    const processedSlugs = new Set<string>();
-    const changedPaths = new Set<string>();
-
     try {
-        for (const item of itemsToProcess) {
-            const validation = contentPostSchema.safeParse(item);
-            if (!validation.success) {
-                const errorMessage = validation.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
-                throw new Error(`Geçersiz veri: ${errorMessage}`);
-            }
-            
-            const { type, slug, originalSlug, data, content } = validation.data;
+        const validation = contentPostSchema.safeParse(body);
+        if (!validation.success) {
+            const zodError = validation.error as ZodError;
+            const errorMessage = zodError.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
+            return apiError(`Veri doğrulama hatası: ${errorMessage}`, 400);
+        }
+        
+        const { type, slug, originalSlug, data, content } = validation.data;
 
-            if (originalSlug && slug !== originalSlug) {
-                const deletedPath = await contentService.deleteContent(type, originalSlug);
-                changedPaths.add(deletedPath);
-            }
-
-            const savedPath = await contentService.saveContent(type, slug, data, content);
-            changedPaths.add(savedPath);
-
-            revalidateContentPaths(type, slug);
-            if (originalSlug && slug !== originalSlug) {
-                revalidateContentPaths(type, originalSlug);
-            }
-            processedSlugs.add(slug);
+        if (originalSlug && slug !== originalSlug) {
+            await contentService.deleteContent(type, originalSlug);
+            revalidateContentPaths(type, originalSlug);
         }
 
-        await commitContentChange({
-            action: 'update',
-            fileType: itemsToProcess.length > 1 ? 'toplu' : itemsToProcess[0].type,
-            slug: Array.from(processedSlugs).join(', '),
-            user: token.email || "Bilinmeyen Kullanıcı",
-            paths: Array.from(changedPaths)
-        });
+        await contentService.saveContent(type, slug, data, content);
+        revalidateContentPaths(type, slug);
 
-        return NextResponse.json({ message: "İçerik başarıyla kaydedildi!" });
+        return NextResponse.json({ message: "İçerik başarıyla kaydedildi." });
     } catch (error: any) {
-        return apiError(error.message || "İçerik kaydedilemedi.", 500, error);
+        return apiError(error.message || "İçerik kaydedilirken beklenmedik bir hata oluştu.", 500, error);
     }
 }
 
@@ -132,31 +132,17 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
-    let slug = searchParams.get("slug");
+    const slug = searchParams.get("slug");
 
-    if (!type || !slug || !ALLOWED_TYPES.includes(type)) {
-        return apiError("Geçersiz veya eksik parametreler.", 400);
+    if (!type || !slug || !ALLOWED_TYPES.includes(type as any)) {
+        return apiError("Geçersiz veya eksik parametreler: 'type' ve 'slug' gereklidir.", 400);
     }
 
     try {
-        // Olası çift uzantı sorununu temizle (.md.md -> .md)
-        slug = slug.replace(/\.(md|json)\.(md|json)$/, `.$1`);
-
-        const deletedPath = await contentService.deleteContent(type, slug);
-        
-        const cleanSlug = slug.replace(/\.(md|json)$/, '');
-        revalidateContentPaths(type, cleanSlug);
-
-        await commitContentChange({
-            action: 'delete',
-            fileType: type,
-            slug: cleanSlug,
-            user: token.email || "Bilinmeyen",
-            paths: [deletedPath]
-        });
-
+        await contentService.deleteContent(type, slug);
+        revalidateContentPaths(type as any, slug);
         return NextResponse.json({ message: "İçerik başarıyla silindi." });
     } catch (error: any) {
-        return apiError("Dosya silinemedi.", 500, error);
+        return apiError("İçerik silinirken bir hata oluştu.", 500, error);
     }
 }

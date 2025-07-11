@@ -1,24 +1,33 @@
-/**
- * @file Sitenin altbilgi (footer) bölümünü oluşturan bileşen.
- * @description Bu bileşen, sosyal medya bağlantılarını ve telif hakkı bilgisini içerir.
- *              Sosyal medya linkleri, merkezi içerik yönetiminden dinamik olarak alınır.
- */
+"use client";
 
 import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
-import { getAboutData } from '@/lib/content-parser';
+import { usePathname } from 'next/navigation';
+import { About } from '@prisma/client';
 
-const Footer = async () => {
-  // Sosyal medya bilgilerini merkezi yapılandırma dosyasından al
-  const aboutData = await getAboutData();
-  const { social } = aboutData;
+interface FooterProps {
+  aboutData: About | null;
+}
+
+const Footer = ({ aboutData }: FooterProps) => {
+  const pathname = usePathname();
+
+  if (!aboutData) {
+    return (
+      <footer className="bg-light-bg dark:bg-dark-card border-t border-gray-200 dark:border-dark-border mt-12">
+        <div className="container mx-auto px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+          <p>&copy; {new Date().getFullYear()} Portföyüm. Tüm Hakları Saklıdır.</p>
+        </div>
+      </footer>
+    );
+  }
 
   return (
     <footer className="bg-light-bg dark:bg-dark-card border-t border-gray-200 dark:border-dark-border mt-12">
       <div className="container mx-auto px-4 py-6 text-center text-gray-500 dark:text-gray-400">
         <div className="flex justify-center space-x-6 mb-4">
-          {social.github && (
+          {aboutData.socialGithub && (
             <a 
-              href={social.github} 
+              href={aboutData.socialGithub} 
               aria-label="GitHub profilim" 
               target="_blank" 
               rel="noopener noreferrer"
@@ -27,9 +36,9 @@ const Footer = async () => {
               <FaGithub size={24} />
             </a>
           )}
-          {social.linkedin && (
+          {aboutData.socialLinkedin && (
             <a 
-              href={social.linkedin} 
+              href={aboutData.socialLinkedin} 
               aria-label="LinkedIn profilim" 
               target="_blank" 
               rel="noopener noreferrer"
@@ -38,9 +47,9 @@ const Footer = async () => {
               <FaLinkedin size={24} />
             </a>
           )}
-          {social.twitter && (
+          {aboutData.socialTwitter && (
             <a 
-              href={social.twitter} 
+              href={aboutData.socialTwitter} 
               aria-label="Twitter profilim" 
               target="_blank" 
               rel="noopener noreferrer"
@@ -50,7 +59,32 @@ const Footer = async () => {
             </a>
           )}
         </div>
-        <p>&copy; {new Date().getFullYear()} {aboutData.name || "Portföyüm"}. Tüm Hakları Saklıdır.</p>
+        <p className="mb-4">&copy; {new Date().getFullYear()} {aboutData.name || "Portföyüm"}. Tüm Hakları Saklıdır.</p>
+        
+        {pathname === '/' && (
+          <div>
+            <span className="text-sm">
+              {'Made by: '}
+              <a 
+                href="https://noktanyus.com" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="underline hover:text-light-text dark:hover:text-white transition-colors"
+              >
+                noktanyus
+              </a>
+              {' | '}
+              <a 
+                href="https://github.com/noktanyus/noktanyus-porfoy" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="underline hover:text-light-text dark:hover:text-white transition-colors"
+              >
+                Open Source
+              </a>
+            </span>
+          </div>
+        )}
       </div>
     </footer>
   );

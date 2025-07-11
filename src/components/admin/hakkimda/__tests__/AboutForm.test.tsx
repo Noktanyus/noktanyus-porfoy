@@ -10,45 +10,41 @@ describe('AboutForm', () => {
   const mockAboutData: Partial<AboutData> = {
     name: 'Test User',
     title: 'Test Title',
-    social: {
-      github: 'github.com/test',
-      linkedin: 'linkedin.com/test',
-      twitter: 'twitter.com/test',
-    }
+    socialGithub: 'https://github.com/test',
+    socialLinkedin: 'https://linkedin.com/in/test',
+    socialTwitter: 'https://twitter.com/test',
   };
 
   const mockOnAboutChange = jest.fn();
-  const mockOnSocialChange = jest.fn();
-  const mockOnFileChange = jest.fn();
 
   beforeEach(() => {
+    // Her testten önce mock fonksiyonlarını sıfırla
+    jest.clearAllMocks();
     render(
       <AboutForm 
         aboutData={mockAboutData}
         onAboutChange={mockOnAboutChange}
-        onSocialChange={mockOnSocialChange}
-        onFileChange={mockOnFileChange}
       />
     );
   });
 
   it('should render form fields with initial data', () => {
-    expect(screen.getByDisplayValue('Test User')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('Test Title')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('github.com/test')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('İsim Soyisim')).toHaveValue(mockAboutData.name);
+    expect(screen.getByPlaceholderText('Unvan')).toHaveValue(mockAboutData.title);
+    expect(screen.getByPlaceholderText('GitHub URL')).toHaveValue(mockAboutData.socialGithub);
   });
 
   it('should call onAboutChange when a general field is changed', () => {
-    const nameInput = screen.getByDisplayValue('Test User');
+    const nameInput = screen.getByPlaceholderText('İsim Soyisim');
     fireEvent.change(nameInput, { target: { value: 'New Name' } });
 
     expect(mockOnAboutChange).toHaveBeenCalledWith('name', 'New Name');
   });
 
-  it('should call onSocialChange when a social media field is changed', () => {
-    const githubInput = screen.getByDisplayValue('github.com/test');
-    fireEvent.change(githubInput, { target: { value: 'github.com/new' } });
+  it('should call onAboutChange when a social media field is changed', () => {
+    const githubInput = screen.getByPlaceholderText('GitHub URL');
+    fireEvent.change(githubInput, { target: { value: 'https://github.com/new' } });
 
-    expect(mockOnSocialChange).toHaveBeenCalledWith('github', 'github.com/new');
+    expect(mockOnAboutChange).toHaveBeenCalledWith('socialGithub', 'https://github.com/new');
   });
 });

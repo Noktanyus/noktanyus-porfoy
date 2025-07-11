@@ -27,7 +27,7 @@ export default function ProjectsAdminPage() {
   const fetchProjects = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/content?action=list&type=projects');
+      const response = await fetch('/api/admin/content?type=projects');
       if (!response.ok) throw new Error("Projeler sunucudan yüklenemedi.");
       const data = await response.json();
       setProjects(Array.isArray(data) ? data : []);
@@ -50,7 +50,7 @@ export default function ProjectsAdminPage() {
     if (confirm(`Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
       const toastId = toast.loading('Proje siliniyor, lütfen bekleyin...');
       try {
-        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}.md`, {
+        const response = await fetch(`/api/admin/content?type=projects&slug=${slug}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

@@ -56,7 +56,7 @@ export default function BlogForm({ post }: BlogFormProps) {
       author: post?.author || session?.user?.name || '',
       category: post?.category || '',
       tags: (post?.tags || []).join(', '), // Dizi'yi string'e çevir
-      date: post?.date || new Date().toISOString(),
+      date: post?.date ? new Date(post.date) : new Date(),
       content: post?.content || '',
     }
   });

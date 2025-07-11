@@ -2,75 +2,76 @@
  * @file İletişim formundan gelen verileri işlemek için API rotası.
  * @description Bu rota, iletişim formundan gönderilen mesajları alır.
  *              Önce Cloudflare Turnstile ile bot doğrulaması yapar, ardından
- *              gelen mesajı benzersiz bir ID ile bir JSON dosyası olarak
- *              `content/messages` dizinine kaydeder.
+ *              gelen veriyi doğrular ve Prisma aracılığıyla veritabanına kaydeder.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs/promises';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { env } from '@/lib/env';
+import { prisma } from '@/lib/prisma';
+import { z, ZodError } from 'zod';
+
+// Gelen isteğin gövdesini doğrulamak için Zod şeması
+const contactSchema = z.object({
+  name: z.string().min(2, "İsim en az 2 karakter olmalıdır.").max(100, "İsim çok uzun."),
+  email: z.string().email({ message: "Lütfen geçerli bir e-posta adresi girin." }),
+  subject: z.string().min(3, "Konu en az 3 karakter olmalıdır.").max(200, "Konu çok uzun."),
+  message: z.string().min(10, "Mesajınız en az 10 karakter olmalıdır.").max(5000, "Mesajınız çok uzun."),
+  turnstileToken: z.string().min(1, "Doğrulama tokenı eksik."),
+});
 
 /**
  * Cloudflare Turnstile token'ını doğrular.
- * @param token - İstemciden gelen Turnstile token'ı.
- * @returns {Promise<boolean>} Token geçerliyse `true`, değilse `false`.
  */
 async function verifyTurnstile(token: string): Promise<boolean> {
-  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `secret=${encodeURIComponent(env.TURNSTILE_SECRET_KEY)}&response=${encodeURIComponent(token)}`,
-  });
-  const data = await response.json();
-  return data.success;
+  try {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `secret=${encodeURIComponent(env.TURNSTILE_SECRET_KEY)}&response=${encodeURIComponent(token)}`,
+    });
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data.success;
+  } catch (error) {
+    console.error("Turnstile doğrulama hatası:", error);
+    return false;
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, subject, message, turnstileToken } = body;
 
-    // Turnstile token'ının varlığını kontrol et
-    if (!turnstileToken) {
-      return NextResponse.json({ error: 'Doğrulama tokenı eksik. Lütfen sayfayı yenileyip tekrar deneyin.' }, { status: 400 });
+    // 1. Veri Doğrulama
+    const validation = contactSchema.safeParse(body);
+    if (!validation.success) {
+      const zodError = validation.error as ZodError;
+      const errorMessage = zodError.errors.map(err => err.message).join(' ');
+      return NextResponse.json({ error: `Geçersiz form verisi: ${errorMessage}` }, { status: 400 });
     }
+    
+    const { name, email, subject, message, turnstileToken } = validation.data;
 
-    // Turnstile token'ını doğrula
+    // 2. Bot Koruması
     const isTokenValid = await verifyTurnstile(turnstileToken);
     if (!isTokenValid) {
-      return NextResponse.json({ error: 'Bot doğrulaması başarısız oldu. Bir insan olduğunuzdan emin misiniz?' }, { status: 401 });
+      return NextResponse.json({ error: 'Bot doğrulaması başarısız oldu. Lütfen tekrar deneyin.' }, { status: 401 });
     }
 
-    // Gerekli tüm form alanlarının dolu olduğunu kontrol et
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json({ error: 'Tüm alanların doldurulması zorunludur.' }, { status: 400 });
-    }
+    // 3. Veritabanına Kaydetme
+    await prisma.message.create({
+      data: {
+        name,
+        email,
+        subject,
+        message,
+        // isRead ve timestamp varsayılan değerlerini şemadan alacak
+      }
+    });
 
-    // Kaydedilecek yeni mesaj nesnesini oluştur
-    const newMessage = {
-      id: uuidv4(), // Benzersiz bir ID ata
-      name,
-      email,
-      subject,
-      message,
-      timestamp: new Date().toISOString(), // Mesajın zaman damgası
-      isRead: false, // Okunma durumu (varsayılan: okunmadı)
-      replies: [],   // Yanıtlar için boş bir dizi
-    };
-
-    // Mesajı `content/messages` dizinine kaydet
-    const messagesDir = path.join(process.cwd(), 'content', 'messages');
-    await fs.mkdir(messagesDir, { recursive: true }); // Dizin yoksa oluştur
-    const filePath = path.join(messagesDir, `${newMessage.id}.json`);
-    await fs.writeFile(filePath, JSON.stringify(newMessage, null, 2));
-
-    // Başarılı yanıtı döndür
-    return NextResponse.json({ success: true, message: 'Mesajınız başarıyla tarafımıza iletilmiştir.' });
+    return NextResponse.json({ success: true, message: 'Mesajınız başarıyla tarafımıza iletilmiştir. En kısa sürede dönüş yapılacaktır.' });
   } catch (error) {
-    // Hata durumunda sunucu konsoluna hatayı yazdır ve genel bir hata mesajı döndür
     console.error('İletişim Formu API Hatası:', error);
-    return NextResponse.json({ error: 'Mesajınız gönderilirken beklenmedik bir hata oluştu.' }, { status: 500 });
+    return NextResponse.json({ error: 'Mesajınız gönderilirken sunucu tarafında bir hata oluştu.' }, { status: 500 });
   }
 }

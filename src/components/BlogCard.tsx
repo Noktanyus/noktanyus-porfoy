@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Blog } from '@/types/content';
+import { Blog } from '@prisma/client';
 import { FaArrowRight } from 'react-icons/fa';
 
 interface BlogCardProps {
@@ -13,7 +13,7 @@ const BlogCard = ({ post }: BlogCardProps) => {
     : post.thumbnail;
 
   return (
-    <Link href={`/blog/${post.id}`} className="group block bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
+    <Link href={`/blog/${post.slug}`} className="group block bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
       <div className="relative h-52">
         <Image
           src={imageUrl || "/images/placeholder.webp"}

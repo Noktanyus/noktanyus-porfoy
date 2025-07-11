@@ -40,7 +40,12 @@ describe('ExperienceManager', () => {
 
     expect(mockOnChange).toHaveBeenCalledWith([
       ...mockExperiences,
-      { title: '', company: '', date: '', description: '' }
+      expect.objectContaining({ 
+        title: '', 
+        company: '', 
+        date: '', 
+        description: '' 
+      })
     ]);
   });
 

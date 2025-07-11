@@ -35,10 +35,8 @@ export default function EditProjectPage({ params }: { params: { slug: string } }
         if (!response.ok) {
           throw new Error("Proje verileri sunucudan yüklenemedi.");
         }
-        const { data, content } = await response.json();
-        // Gelen veriye URL'den gelen slug'ı ve içeriği ekleyerek state'i güncelle.
-        // Bu, formun doğru ve eksiksiz veriyle dolmasını sağlar.
-        setProject({ ...data, slug: slug, content: content });
+        const projectData = await response.json();
+        setProject(projectData);
       } catch (error) {
         toast.error((error as Error).message);
         setProject(null); // Hata durumunda mevcut proje verisini temizle.

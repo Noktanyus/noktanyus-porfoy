@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { SeoSettings } from "@/types/content";
+import { SeoSettings } from "@prisma/client";
 import { useEffect } from "react";
 import Link from "next/link";
 
@@ -22,22 +22,18 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
       canonicalUrl: settings?.canonicalUrl || '',
       robots: settings?.robots || 'index, follow',
       favicon: settings?.favicon || '/favicon.ico',
-      og: {
-        title: settings?.og?.title || '',
-        description: settings?.og?.description || '',
-        image: settings?.og?.image || '',
-        type: 'website',
-        url: settings?.og?.url || '',
-        site_name: settings?.og?.site_name || ''
-      },
-      twitter: {
-        card: 'summary_large_image',
-        site: settings?.twitter?.site || '',
-        creator: settings?.twitter?.creator || '',
-        title: settings?.twitter?.title || '',
-        description: settings?.twitter?.description || '',
-        image: settings?.twitter?.image || ''
-      },
+      ogTitle: settings?.ogTitle || '',
+      ogDescription: settings?.ogDescription || '',
+      ogImage: settings?.ogImage || '',
+      ogType: 'website',
+      ogUrl: settings?.ogUrl || '',
+      ogSiteName: settings?.ogSiteName || '',
+      twitterCard: 'summary_large_image',
+      twitterSite: settings?.twitterSite || '',
+      twitterCreator: settings?.twitterCreator || '',
+      twitterTitle: settings?.twitterTitle || '',
+      twitterDescription: settings?.twitterDescription || '',
+      twitterImage: settings?.twitterImage || '',
       robotsTxt: robotsTxt || ''
     }
   });
@@ -47,7 +43,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
   const onSubmit = async (data: SeoFormData) => {
     const loadingToast = toast.loading("Ayarlar güncelleniyor...");
     
-    const processedData: SeoSettings = {
+    const processedData: Omit<SeoSettings, 'id'> = {
       ...data,
       siteKeywords: data.siteKeywords.split(',').map(k => k.trim()).filter(Boolean),
     };
@@ -57,9 +53,8 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          file: 'seo-settings.json',
+          type: 'seo',
           data: processedData,
-          robotsTxt: data.robotsTxt, // Send robots.txt content to the API
         }),
       });
 
@@ -129,20 +124,20 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
       <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
         <h2 className="text-xl font-semibold mb-4">Open Graph Ayarları (Sosyal Medya)</h2>
         <div className="space-y-4">
-          <input type="hidden" {...register("og.type")} value="website" />
-          <input type="hidden" {...register("og.url")} value={watch("canonicalUrl")} />
-          <input type="hidden" {...register("og.site_name")} value={watch("siteTitle")} />
+          <input type="hidden" {...register("ogType")} value="website" />
+          <input type="hidden" {...register("ogUrl")} value={watch("canonicalUrl")} />
+          <input type="hidden" {...register("ogSiteName")} value={watch("siteTitle")} />
           <div>
-            <label htmlFor="og.title" className="block text-sm font-medium mb-1">OG Başlık</label>
-            <input {...register("og.title")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogTitle" className="block text-sm font-medium mb-1">OG Başlık</label>
+            <input {...register("ogTitle")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div>
-            <label htmlFor="og.description" className="block text-sm font-medium mb-1">OG Açıklama</label>
-            <textarea {...register("og.description")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogDescription" className="block text-sm font-medium mb-1">OG Açıklama</label>
+            <textarea {...register("ogDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div>
-            <label htmlFor="og.image" className="block text-sm font-medium mb-1">OG Görsel URL</label>
-            <input {...register("og.image")} placeholder="https://ornek.com/og-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogImage" className="block text-sm font-medium mb-1">OG Görsel URL</label>
+            <input {...register("ogImage")} placeholder="https://ornek.com/og-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
         </div>
       </div>
@@ -151,26 +146,26 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
       <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
         <h2 className="text-xl font-semibold mb-4">Twitter Kart Ayarları</h2>
         <div className="space-y-4">
-          <input type="hidden" {...register("twitter.card")} value="summary_large_image" />
+          <input type="hidden" {...register("twitterCard")} value="summary_large_image" />
           <div>
-            <label htmlFor="twitter.site" className="block text-sm font-medium mb-1">Twitter Site (@kullanici)</label>
-            <input {...register("twitter.site")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterSite" className="block text-sm font-medium mb-1">Twitter Site (@kullanici)</label>
+            <input {...register("twitterSite")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div>
-            <label htmlFor="twitter.creator" className="block text-sm font-medium mb-1">Twitter Yaratıcı (@kullanici)</label>
-            <input {...register("twitter.creator")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterCreator" className="block text-sm font-medium mb-1">Twitter Yaratıcı (@kullanici)</label>
+            <input {...register("twitterCreator")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
            <div>
-            <label htmlFor="twitter.title" className="block text-sm font-medium mb-1">Twitter Başlık</label>
-            <input {...register("twitter.title")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterTitle" className="block text-sm font-medium mb-1">Twitter Başlık</label>
+            <input {...register("twitterTitle")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div>
-            <label htmlFor="twitter.description" className="block text-sm font-medium mb-1">Twitter Açıklama</label>
-            <textarea {...register("twitter.description")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterDescription" className="block text-sm font-medium mb-1">Twitter Açıklama</label>
+            <textarea {...register("twitterDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
           <div>
-            <label htmlFor="twitter.image" className="block text-sm font-medium mb-1">Twitter Görsel URL</label>
-            <input {...register("twitter.image")} placeholder="https://ornek.com/twitter-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterImage" className="block text-sm font-medium mb-1">Twitter Görsel URL</label>
+            <input {...register("twitterImage")} placeholder="https://ornek.com/twitter-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
         </div>
       </div>

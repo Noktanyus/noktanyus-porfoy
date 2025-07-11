@@ -13,7 +13,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { getAboutData, getSeoSettings } from "@/lib/content-parser";
+import { getAbout, getSeoSettings } from "@/services/contentService";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
@@ -26,13 +26,21 @@ const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: fal
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = getSeoSettings();
+  const seo = await getSeoSettings();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
 
-  const ogImageUrl = seo.og.image.startsWith('http') ? seo.og.image : `${baseUrl}${seo.og.image}`;
-  const twitterImageUrl = seo.twitter.image.startsWith('http') ? seo.twitter.image : `${baseUrl}${seo.twitter.image}`;
+  if (!seo) {
+    return {
+      title: "Portföy",
+      description: "Kişisel portföy web sitesi.",
+    };
+  }
+
+  const ogImageUrl = seo.ogImage && seo.ogImage.startsWith('http') ? seo.ogImage : `${baseUrl}${seo.ogImage}`;
+  const twitterImageUrl = seo.twitterImage && seo.twitterImage.startsWith('http') ? seo.twitterImage : `${baseUrl}${seo.twitterImage}`;
 
   return {
+    metadataBase: new URL(baseUrl),
     title: {
       default: seo.siteTitle,
       template: `%s | ${seo.siteTitle}`,
@@ -44,23 +52,23 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: seo.canonicalUrl,
     },
     openGraph: {
-      title: seo.og.title || seo.siteTitle,
-      description: seo.og.description || seo.siteDescription,
-      url: seo.og.url || seo.canonicalUrl,
-      siteName: seo.og.site_name || seo.siteTitle,
-      images: [{ url: ogImageUrl, width: 1200, height: 630 }],
+      title: seo.ogTitle || seo.siteTitle,
+      description: seo.ogDescription || seo.siteDescription,
+      url: seo.ogUrl || seo.canonicalUrl,
+      siteName: seo.ogSiteName || seo.siteTitle,
+      images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
       locale: 'tr_TR',
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: seo.twitter.title || seo.siteTitle,
-      description: seo.twitter.description || seo.siteDescription,
-      creator: seo.twitter.creator,
-      images: [twitterImageUrl],
+      title: seo.twitterTitle || seo.siteTitle,
+      description: seo.twitterDescription || seo.siteDescription,
+      creator: seo.twitterCreator || undefined,
+      images: twitterImageUrl ? [twitterImageUrl] : [],
     },
     icons: {
-      icon: seo.favicon,
+      icon: seo.favicon || "/favicon.ico",
     },
   };
 }
@@ -70,8 +78,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const aboutData = await getAboutData();
-  const headerTitle = aboutData.headerTitle || "Portföyüm";
+  const aboutData = await getAbout();
+  const headerTitle = aboutData?.headerTitle || "Portföyüm";
   const yandexMetricaId = process.env.NEXT_PUBLIC_YANDEX_METRICA_ID;
 
   return (
@@ -90,7 +98,7 @@ export default async function RootLayout({
               <main className="flex-grow container mx-auto px-4 pt-24">
                 {children}
               </main>
-              <Footer />
+              <Footer aboutData={aboutData} />
             </div>
             <Suspense fallback={<Spinner />}>
               <PopupViewer />

@@ -1,21 +1,47 @@
-# Base image
-FROM node:18-alpine
+# --- 1. Aşama: Builder ---
+# Bu aşama, uygulamanın bağımlılıklarını yükler ve production build'i oluşturur.
+FROM node:18 AS builder
 
-# Create app directory
+# Uygulama çalışma dizini
 WORKDIR /app
 
-# Install app dependencies
-COPY package*.json ./
-RUN npm install --production
+# Sadece bağımlılık ve prisma şema dosyalarını kopyala
+COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
 
-# Copy app source code
+# Production için gerekli olan bağımlılıkları yükle
+# --omit=dev, devDependencies'leri yüklemez, imajı küçültür.
+# postinstall script'i 'prisma generate' çalıştıracağı için schema dosyası gereklidir.
+RUN npm install --omit=dev
+
+# Tüm proje dosyalarını kopyala (.dockerignore'a göre)
 COPY . .
 
-# Build app
+# Uygulamayı build et
+# 'prisma generate' postinstall'da zaten çalıştı, bu yüzden burada tekrar çalıştırmaya gerek yok.
 RUN npm run build
 
-# Expose port
+# --- 2. Aşama: Runner ---
+# Bu aşama, builder'da oluşturulan çıktıları alarak son, hafif imajı oluşturur.
+FROM node:18-alpine
+
+# Çalışma dizini
+WORKDIR /app
+
+# Güvenlik için 'root' olmayan bir kullanıcı oluştur ve kullan
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+USER nextjs
+
+# Gerekli dosyaları 'builder' aşamasından kopyala
+# Sadece production için gerekli olanları alıyoruz.
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+
+# Uygulamanın çalışacağı port'u belirt
 EXPOSE 3000
 
-# Start app
+# Uygulamayı başlat
 CMD ["npm", "start"]

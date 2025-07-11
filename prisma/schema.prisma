@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model About {
+  id             String       @id @default(cuid())
+  name           String
+  title          String
+  subTitle       String?
+  headerTitle    String
+  profileImage   String?
+  aboutImage     String?
+  content        String
+  contactEmail   String?
+  socialGithub   String?
+  socialLinkedin String?
+  socialTwitter  String?
+  workingOn      String[]     @default([]) @db.Text
+  experiences    Experience[]
+  skills         Skill[]
+}
+
+model Experience {
+  id          String  @id @default(cuid())
+  title       String
+  company     String
+  date        String
+  description String
+  aboutId     String?
+  about       About?  @relation(fields: [aboutId], references: [id])
+}
+
+model Skill {
+  id      String  @id @default(cuid())
+  name    String
+  icon    String? // İkon adı için yeni alan (opsiyonel)
+  aboutId String?
+  About   About?  @relation(fields: [aboutId], references: [id])
+}
+
+model Testimonial {
+  id      String  @id @default(cuid())
+  name    String
+  title   String
+  company String
+  avatar  String?
+  comment String
+}
+
+model Blog {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  date        DateTime @default(now())
+  description String
+  thumbnail   String?
+  author      String
+  category    String
+  tags        String[] @default([]) @db.Text
+  content     String
+}
+
+model Project {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  description  String
+  mainImage    String?
+  technologies String[] @default([]) @db.Text
+  liveDemo     String?
+  githubRepo   String?
+  order        Int      @default(0)
+  featured     Boolean  @default(false)
+  isLive       Boolean  @default(false)
+  content      String
+  date         DateTime?
+}
+
+model Popup {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  content       String
+  imageUrl      String?
+  youtubeEmbedUrl String?
+  isActive      Boolean  @default(true)
+  buttons       Json     @default("[]")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  timestamp DateTime @default(now())
+  isRead    Boolean  @default(false)
+  replies   Json     @default("[]")
+}
+
+model HomeSettings {
+  id                String  @id @default(cuid())
+  featuredContentType String
+  youtubeUrl        String?
+  textTitle         String?
+  textContent       String?
+  customHtml        String?
+}
+
+model SeoSettings {
+  id            String   @id @default(cuid())
+  siteTitle     String
+  siteDescription String
+  siteKeywords  String[] @default([]) @db.Text
+  canonicalUrl  String
+  robots        String
+  favicon       String?
+  ogTitle       String?
+  ogDescription String?
+  ogImage       String?
+  ogType        String?
+  ogUrl         String?
+  ogSiteName    String?
+  twitterCard   String?
+  twitterSite   String?
+  twitterCreator String?
+  twitterTitle  String?
+  twitterDescription String?
+  twitterImage  String?
+}

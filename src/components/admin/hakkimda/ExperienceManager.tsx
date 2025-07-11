@@ -16,7 +16,15 @@ export default function ExperienceManager({ experiences, onChange }: ExperienceM
   };
 
   const addExperience = () => {
-    onChange([...experiences, { title: '', company: '', date: '', description: '' }]);
+    const newExperience: Experience = {
+      id: `new-${Date.now()}`, // Geçici, benzersiz bir ID
+      title: '',
+      company: '',
+      date: '',
+      description: '',
+      aboutId: null, // Henüz bir 'About' ile ilişkili değil
+    };
+    onChange([...experiences, newExperience]);
   };
 
   const removeExperience = (index: number) => {

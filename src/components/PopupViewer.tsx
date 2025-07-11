@@ -123,7 +123,7 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
           )}
 
           <div className="flex flex-wrap gap-3 justify-end border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-            {popup.buttons.map((button, index) => (
+            {popup.buttons && (popup.buttons as any[]).map((button, index) => (
               <button
                 key={index}
                 onClick={() => handleButtonClick(button.actionType, button.actionValue)}

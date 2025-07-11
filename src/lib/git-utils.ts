@@ -63,9 +63,9 @@ async function pushChanges(): Promise<void> {
     const authenticatedUrl = await getAuthenticatedRepoUrl();
     const currentBranch = await git.branch();
     await git.push(authenticatedUrl, currentBranch.current); 
-    console.log(`pushChanges -> Başarılı: Değişiklikler GitHub'daki '${currentBranch.current}' branch'ine gönderildi.`);
+    console.log(`pushChanges -> Başarılı: Değişiklikler GitHub'daki '${currentBranch.current}' dalına gönderildi.`);
   } catch (error: any) {
-    console.error(`pushChanges -> Kritik Hata: GitHub'a push işlemi sırasında bir hata oluştu. Hata: ${error.message}`);
+    console.error(`pushChanges -> Kritik Hata: GitHub'a gönderme işlemi sırasında bir hata oluştu. Hata: ${error.message}`);
     if (error.message.includes('authentication failed')) {
       throw new Error('GitHub kimlik doğrulaması başarısız oldu. Lütfen .env.local dosyasındaki GITHUB_USERNAME ve GITHUB_TOKEN değerlerini kontrol edin.');
     }
@@ -107,24 +107,29 @@ export async function getGitRepoUrl(): Promise<string | null> {
 }
 
 /**
- * İ��erik dosyalarındaki (markdown, json vb.) belirli değişiklikleri commit'ler ve uzak depoya gönderir.
+ * İçerik dosyalarındaki (markdown, json vb.) belirli değişiklikleri commit'ler ve uzak depoya gönderir.
  * @param {CommitDetails & { paths: string | string[] }} details - Commit detayları ve commit'lenecek dosya yolu/yolları.
  * @throws {Error} Commit veya push işlemi sırasında bir hata oluşursa hata fırlatır.
  */
-export async function commitContentChange({ action, fileType, slug, user, paths }: CommitDetails & { paths: string | string[] }): Promise<void> {
+export async function commitContentChange({ action, fileType, slug, user, paths }: CommitDetails & { paths: any }): Promise<void> {
   try {
+    // Yolları doğrula: Bir string dizisi olduğundan emin ol ve string olmayan veya boş değerleri filtrele.
+    const validPaths = (Array.isArray(paths) ? paths : [paths])
+      .filter(p => typeof p === 'string' && p.trim() !== '');
+
+    if (validPaths.length === 0) {
+      console.warn("commitContentChange -> Uyarı: Commit atılacak geçerli bir dosya yolu bulunamadı. İşlem atlanıyor.", { action, fileType, slug });
+      // Bu bir hata değil, sadece atlama durumu. Sadece veritabanı işlemlerinde bu beklenen bir durumdur.
+      return;
+    }
+
     const status = await git.status();
-    // Eğer hiç değişiklik yoksa veya belirtilen dosyalar zaten takip edilmiyorsa bile devam et,
-    // çünkü `git add` komutu sadece var olan ve değişmiş dosyaları işleyecektir.
     
     const actionMap = { create: 'oluşturuldu', update: 'güncellendi', delete: 'silindi' };
     const commitMessage = `içerik: '${slug}' adlı ${fileType} ${user} tarafından ${actionMap[action]}. [ci skip]`;
     
-    // Sadece belirtilen dosya(ları) 'add' komutuna ekle.
-    await git.add(paths);
+    await git.add(validPaths);
 
-    // `git status` ile eklenen dosyaların gerçekten bir değişiklik içerip içermediğini kontrol et.
-    // Eğer `add` sonrası "staged" alanında dosya yoksa (örneğin dosya içeriği aynı kalmışsa), commit atma.
     const stagedStatus = await git.status();
     if (stagedStatus.staged.length === 0) {
       console.log("commitContentChange -> Bilgi: Belirtilen dosyalarda commit atılacak bir değişiklik bulunamadı.");
@@ -152,12 +157,13 @@ export async function revertCommit(hash: string, user: string): Promise<void> {
   } catch (error: any) {
     console.error(`revertCommit -> Hata: Commit geri alınamadı. Hash: ${hash}. Hata: ${error.message}`);
     // Geri alma işlemi başarısız olursa, depoyu temiz bir duruma getirmek için işlemi iptal et
-    await git.raw('revert', '--abort').catch(abortError => console.error("revertCommit -> Kritik Hata: Revert işlemini iptal etme (abort) sırasında ek bir hata oluştu:", abortError));
+    await git.raw('revert', '--abort').catch(abortError => console.error("revertCommit -> Kritik Hata: Geri alma işlemi iptal edilirken ek bir hata oluştu:", abortError));
     throw new Error(`'${hash}' hash'li commit geri alınamadı: ${error.message}`);
   }
 }
 
 /**
+ /**
  * Projedeki tüm değişiklikleri (içerik hariç) belirli bir mesajla commit'ler ve uzak depoya gönderir.
  * @param {string} message - Commit mesajı.
  * @param {string} user - İşlemi yapan kullanıcı.
@@ -172,7 +178,9 @@ export async function commitAllChanges(message: string, user: string): Promise<{
       return { success: true, message: "Commit atılacak yeni bir değişiklik bulunmadığı için işlem atlandı." };
     }
     
-    const commitMessage = `kaynak: ${message} (${user}) [ci skip]`;
+    // The message is already formatted by the client according to Conventional Commits.
+    // We just add the user info.
+    const commitMessage = `${message} (by ${user}) `;
     
     await git.add('.');
     await git.commit(commitMessage);
@@ -183,6 +191,84 @@ export async function commitAllChanges(message: string, user: string): Promise<{
     console.error(`commitAllChanges -> Hata: Kaynak kodları işlenemedi. Hata: ${error.message}`);
     throw new Error(`Kaynak kodları işlenemedi: ${error.message}`);
   }
+}
+
+/**
+ * Analyzes staged changes and suggests a conventional commit message with more contextual awareness.
+ * @returns {Promise<{type: string, scope: string, subject: string}>} A suggested commit message structure.
+ */
+export async function analyzeChanges(): Promise<{type: string, scope: string, subject: string}> {
+  const status = await git.status();
+  const { files, created, deleted, modified } = status;
+
+  if (files.length === 0) {
+    return { type: 'chore', scope: 'git', subject: 'no changes detected to commit' };
+  }
+
+  // Prioritized type detection
+  let type = 'chore'; // Default type
+  const scopes = new Set<string>();
+  
+  // Rule-based type and scope detection
+  const typePriority = ['build', 'ci', 'perf', 'fix', 'feat', 'refactor', 'style', 'docs', 'test'];
+  let detectedType = 'chore';
+
+  for (const file of files) {
+    let currentFileType = 'chore';
+    
+    if (file.path.endsWith('package.json') || file.path.endsWith('package-lock.json')) currentFileType = 'build';
+    else if (file.path.startsWith('.github') || file.path.startsWith('.docker')) currentFileType = 'ci';
+    else if (file.path.includes('__tests__')) currentFileType = 'test';
+    else if (file.path.startsWith('src/app/api')) currentFileType = 'feat';
+    else if (file.path.startsWith('src/components')) currentFileType = 'feat';
+    else if (file.path.startsWith('src/app') && file.path.includes('page.tsx')) currentFileType = 'feat';
+    else if (file.path.startsWith('src/lib')) currentFileType = 'refactor';
+    else if (file.path.startsWith('prisma/')) currentFileType = 'fix';
+    else if (file.path.endsWith('.css') || file.path.includes('tailwind.config')) currentFileType = 'style';
+    else if (file.path.endsWith('.md')) currentFileType = 'docs';
+
+    if (typePriority.indexOf(currentFileType) > typePriority.indexOf(detectedType)) {
+      detectedType = currentFileType;
+    }
+
+    // Add scope
+    const parts = file.path.split('/');
+    if (parts.length > 1) {
+      if (parts[0] === 'src' && parts[1] === 'components') scopes.add(parts[2] || 'ui');
+      else if (parts[0] === 'src' && parts[1] === 'app' && parts[2] === 'api') scopes.add('api');
+      else if (parts[0] === 'src') scopes.add(parts[1]);
+      else scopes.add(parts[0]);
+    }
+  }
+  type = detectedType;
+
+  // Create a meaningful subject
+  let subject = '';
+  if (files.length === 1) {
+    const file = files[0];
+    const action = created.includes(file.path) ? 'add' : deleted.includes(file.path) ? 'remove' : 'update';
+    subject = `${action} ${path.basename(file.path)}`;
+  } else if (created.length > 0 && modified.length === 0 && deleted.length === 0) {
+    subject = `add ${created.length} new file(s)`;
+  } else if (deleted.length > 0 && modified.length === 0 && created.length === 0) {
+    subject = `remove ${deleted.length} file(s)`;
+  } else {
+    subject = `update ${files.length} files across ${scopes.size} scope(s)`;
+  }
+
+  // Special case for dependency updates
+  if (files.every(f => ['package.json', 'package-lock.json'].includes(f.path))) {
+    type = 'build';
+    scopes.clear();
+    scopes.add('deps');
+    subject = 'update dependencies';
+  }
+
+  return {
+    type,
+    scope: Array.from(scopes).join(', '),
+    subject: subject.toLowerCase(),
+  };
 }
 
 /**

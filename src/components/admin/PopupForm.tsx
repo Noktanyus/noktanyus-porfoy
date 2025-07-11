@@ -3,11 +3,23 @@
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { Popup } from '@/types/content';
+import { Popup } from '@prisma/client';
 import { FaSave, FaTrash, FaPlus, FaEye } from 'react-icons/fa';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { PopupDisplay } from '@/components/PopupViewer';
 import { useState, useEffect } from 'react';
+
+// Butonlar için daha spesifik bir tip tanımlayalım
+type PopupButton = {
+  text: string;
+  actionType: 'redirect' | 'show-text' | 'run-code';
+  actionValue: string;
+};
+
+// Form verileri için Popup tipini genişletelim
+type PopupFormData = Omit<Popup, 'buttons'> & {
+  buttons: PopupButton[];
+};
 
 type PopupFormProps = {
   initialData?: Popup;
@@ -23,15 +35,16 @@ const cardStyle = "bg-white dark:bg-dark-card p-6 rounded-lg shadow-md";
 export default function PopupForm({ initialData }: PopupFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
-  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<Popup>({
-    defaultValues: initialData || {
-      slug: '',
-      title: '',
-      content: '',
-      imageUrl: '',
-      youtubeEmbedUrl: '',
-      buttons: [],
-      isActive: true,
+  const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<PopupFormData>({
+    defaultValues: {
+      ...initialData,
+      slug: initialData?.slug || '',
+      title: initialData?.title || '',
+      content: initialData?.content || '',
+      imageUrl: initialData?.imageUrl || '',
+      youtubeEmbedUrl: initialData?.youtubeEmbedUrl || '',
+      buttons: (initialData?.buttons as any as PopupButton[]) || [], // JSON'u PopupButton[]'a cast et
+      isActive: initialData?.isActive ?? true,
     },
   });
 

@@ -31,6 +31,7 @@ const envSchema = z.object({
   EMAIL_USER: z.string().min(1),
   EMAIL_PASSWORD: z.string().min(1),
   EMAIL_FROM: z.string().email(),
+  EMAIL_FROM_NAME: z.string().min(1),
 
   // Yandex Metrica (Opsiyonel)
   NEXT_PUBLIC_YANDEX_METRICA_ID: z.string().optional(),

@@ -1,29 +1,75 @@
+
+
 import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
-import { getAboutData, getHomeSettings, getSortedContentData } from "@/lib/content-parser";
-import { Project, Blog } from "@/types/content";
+import {
+  getAbout,
+  getHomeSettings,
+  getSeoSettings, // SEO ayarlarını almak için fonksiyonu import et
+  listProjects,
+  listBlogs,
+} from "@/services/contentService";
+import { Project, Blog } from "@prisma/client";
 import ProjectCard from "@/components/ProjectCard";
 import BlogCard from "@/components/BlogCard";
 import Image from "next/image";
 import ClientOnlyHtml from "@/components/ClientOnlyHtml";
+import { Metadata } from "next";
+
+/**
+ * Ana sayfa için dinamik metadata oluşturur.
+ * Bu fonksiyon, sunucu tarafında çalışır ve SEO ayarlarını veritabanından çeker.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const seoSettings = await getSeoSettings();
+  if (!seoSettings) {
+    return {
+      title: "Ana Sayfa",
+      description: "Kişisel portfolyo sitesi.",
+    };
+  }
+  return {
+    title: seoSettings.siteTitle,
+    description: seoSettings.siteDescription,
+    keywords: seoSettings.siteKeywords,
+    openGraph: {
+      title: seoSettings.ogTitle || seoSettings.siteTitle,
+      description: seoSettings.ogDescription || seoSettings.siteDescription,
+      url: seoSettings.ogUrl || undefined,
+      images: seoSettings.ogImage ? [{ url: seoSettings.ogImage }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoSettings.twitterTitle || seoSettings.siteTitle,
+      description: seoSettings.twitterDescription || seoSettings.siteDescription,
+      images: seoSettings.twitterImage ? [seoSettings.twitterImage] : [],
+    },
+  };
+}
+
 
 // YouTube video ID'sini URL'den çıkaran yardımcı fonksiyon
 const getYouTubeId = (url: string): string | null => {
   if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const regExp =
+    /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
+  return match && match[2].length === 11 ? match[2] : null;
 };
 
 export default async function Home() {
-  const aboutData = await getAboutData();
-  const homeSettings = getHomeSettings();
-  const featuredProjects = getSortedContentData<Project>("projects").filter(
-    (p) => p.featured
-  );
-  const latestPosts = getSortedContentData<Blog>("blog").slice(0, 3);
-  const featuredContent = homeSettings.featuredContent;
-  
-  const videoId = featuredContent?.type === 'video' && featuredContent.youtubeUrl ? getYouTubeId(featuredContent.youtubeUrl) : null;
+  const aboutData = await getAbout();
+  const homeSettings = await getHomeSettings();
+  const featuredProjects = (await listProjects()).filter((p) => p.featured);
+  const latestPosts = (await listBlogs()).slice(0, 3);
+
+  if (!aboutData || !homeSettings) {
+    return <div>İçerik yüklenemedi.</div>;
+  }
+
+  const videoId =
+    homeSettings.featuredContentType === "video" && homeSettings.youtubeUrl
+      ? getYouTubeId(homeSettings.youtubeUrl)
+      : null;
 
   return (
     <div className="space-y-20 md:space-y-32">
@@ -40,7 +86,7 @@ export default async function Home() {
                     alt={`${aboutData.name} - Profil Fotoğrafı`}
                     fill
                     sizes="(max-width: 768px) 128px, 160px"
-                    style={{objectFit: 'cover'}}
+                    style={{ objectFit: "cover" }}
                     className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg"
                     priority
                   />
@@ -53,9 +99,30 @@ export default async function Home() {
                     {aboutData.title}
                   </p>
                   <div className="flex justify-center md:justify-start space-x-6">
-                    <a href={aboutData.social.github} aria-label="GitHub" target="_blank" rel="noopener noreferrer"><FaGithub size={28} /></a>
-                    <a href={aboutData.social.linkedin} aria-label="LinkedIn" target="_blank" rel="noopener noreferrer"><FaLinkedin size={28} /></a>
-                    <a href={aboutData.social.twitter} aria-label="Twitter" target="_blank" rel="noopener noreferrer"><FaTwitter size={28} /></a>
+                    <a
+                      href={aboutData.socialGithub || "#"}
+                      aria-label="GitHub"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FaGithub size={28} />
+                    </a>
+                    <a
+                      href={aboutData.socialLinkedin || "#"}
+                      aria-label="LinkedIn"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FaLinkedin size={28} />
+                    </a>
+                    <a
+                      href={aboutData.socialTwitter || "#"}
+                      aria-label="Twitter"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FaTwitter size={28} />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -77,15 +144,23 @@ export default async function Home() {
                   </div>
                 </div>
               )}
-              {featuredContent?.type === 'text' && featuredContent.textTitle && (
-                <div className="w-full max-w-lg p-8 bg-white dark:bg-dark-card rounded-xl shadow-2xl animate-float border border-gray-200 dark:border-dark-border">
-                  <h3 className="text-2xl font-bold mb-3 text-center">{featuredContent.textTitle}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{featuredContent.textContent}</p>
-                  {featuredContent.customHtml && (
-                    <ClientOnlyHtml html={featuredContent.customHtml} className="mt-4" />
-                  )}
-                </div>
-              )}
+              {homeSettings.featuredContentType === "text" &&
+                homeSettings.textTitle && (
+                  <div className="w-full max-w-lg p-8 bg-white dark:bg-dark-card rounded-xl shadow-2xl animate-float border border-gray-200 dark:border-dark-border">
+                    <h3 className="text-2xl font-bold mb-3 text-center">
+                      {homeSettings.textTitle}
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-300">
+                      {homeSettings.textContent}
+                    </p>
+                    {homeSettings.customHtml && (
+                      <ClientOnlyHtml
+                        html={homeSettings.customHtml}
+                        className="mt-4"
+                      />
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -93,17 +168,21 @@ export default async function Home() {
 
       {/* Diğer Bölümler... */}
       <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Öne Çıkan Projeler</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Öne Çıkan Projeler
+        </h2>
         <div className="grid grid-cols-1 gap-12">
-          {featuredProjects.map((project) => (
+          {featuredProjects.map((project: Project) => (
             <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       </section>
       <section className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Son Blog Yazıları</h2>
+        <h2 className="text-3xl font-bold text-center mb-12">
+          Son Blog Yazıları
+        </h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {latestPosts.map((post) => (
+          {latestPosts.map((post: Blog) => (
             <BlogCard key={post.id} post={post} />
           ))}
         </div>

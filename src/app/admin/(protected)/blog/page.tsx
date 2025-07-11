@@ -31,7 +31,7 @@ const BlogList = () => {
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/admin/content?action=list&type=blog');
+      const response = await fetch('/api/admin/content?type=blog');
       if (!response.ok) {
         throw new Error("Blog yazıları sunucudan yüklenemedi.");
       }
@@ -59,7 +59,7 @@ const BlogList = () => {
     if (confirm(`'${slug}' başlıklı yazıyı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
       const toastId = toast.loading('Yazı siliniyor, lütfen bekleyin...');
       try {
-        const response = await fetch(`/api/admin/content?type=blog&slug=${slug}.md`, {
+        const response = await fetch(`/api/admin/content?type=blog&slug=${slug}`, {
           method: 'DELETE',
         });
         if (!response.ok) {

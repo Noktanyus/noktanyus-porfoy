@@ -1,15 +1,16 @@
 /**
- * @file Hakkımda sayfasının içerik yönetim arayüzü (Yeniden Düzenlenmiş)
- * @description Bu sayfa, "Hakkımda" ile ilgili tüm alt bileşenleri
- *              (AboutForm, SkillManager, ExperienceManager) bir araya getirir,
- *              veri akışını yönetir ve tüm değişiklikleri tek bir işlemle kaydeder.
+ * @file Hakkımda sayfasının içerik yönetim arayüzü (Veritabanı Uyumlu)
+ * @description Bu sayfa, "Hakkımda" ile ilgili tüm verileri veritabanından
+ *              çeker, alt bileşenleri (AboutForm, SkillManager, ExperienceManager)
+ *              yönetir ve tüm değişiklikleri tek bir işlemle kaydeder.
  */
 
 "use client";
 
 import { useState, useEffect, useCallback, ChangeEvent } from 'react';
 import toast from 'react-hot-toast';
-import { AboutData, Experience, Skill } from '@/types/content';
+import { About, Experience, Skill } from '@prisma/client';
+import { AboutWithRelations } from '@/types/content';
 import CustomEditor from '@/components/admin/Editor';
 import AboutForm from '@/components/admin/hakkimda/AboutForm';
 import SkillManager from '@/components/admin/hakkimda/SkillManager';
@@ -17,7 +18,7 @@ import ExperienceManager from '@/components/admin/hakkimda/ExperienceManager';
 
 /** Formun state'ini tutan veri tipi. */
 type HakkimdaFormData = {
-  about: Partial<AboutData>;
+  about: Partial<About>;
   content: string;
   skills: Skill[];
   experiences: Experience[];
@@ -38,26 +39,21 @@ export default function AdminHakkimdaPage() {
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      // API rotası artık GET isteklerini daha basit yönetiyor.
-      const [aboutRes, skillsRes, expRes] = await Promise.all([
-        fetch('/api/admin/content?type=about&slug=about.md'),
-        fetch('/api/admin/content?type=skills'),
-        fetch('/api/admin/content?type=experiences'),
-      ]);
-      if (!aboutRes.ok || !skillsRes.ok || !expRes.ok) {
-        throw new Error('Sayfa verileri yüklenirken bir hata oluştu.');
+      const response = await fetch('/api/admin/content?type=about');
+      if (!response.ok) {
+        throw new Error('Hakkımda verileri yüklenirken bir hata oluştu.');
       }
       
-      const aboutJson = await aboutRes.json();
-      const skillsData = await skillsRes.json();
-      const expData = await expRes.json();
+      const aboutData: AboutWithRelations[] = await response.json();
 
-      setFormData({
-        about: aboutJson.data,
-        content: aboutJson.content,
-        skills: skillsData.map((name: string) => ({ name })),
-        experiences: expData,
-      });
+      if (aboutData && aboutData.length > 0) {
+        setFormData({
+          about: aboutData[0],
+          content: aboutData[0].content,
+          skills: aboutData[0].skills || [],
+          experiences: aboutData[0].experiences || [],
+        });
+      }
     } catch (error) {
       toast.error((error as Error).message);
     } finally {
@@ -69,15 +65,11 @@ export default function AdminHakkimdaPage() {
 
   // --- State Güncelleme Handler'ları ---
 
-  const handleAboutChange = (field: keyof AboutData, value: any) => {
+  const handleAboutChange = (field: keyof About, value: any) => {
     setFormData(prev => ({ ...prev, about: { ...prev.about, [field]: value } }));
   };
-  
-  const handleSocialChange = (field: 'github' | 'linkedin' | 'twitter', value: string) => {
-    setFormData(prev => ({ ...prev, about: { ...prev.about, social: { ...prev.about.social!, [field]: value } } }));
-  };
 
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>, field: keyof AboutData) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>, field: keyof About) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const apiFormData = new FormData();
@@ -114,16 +106,16 @@ export default function AdminHakkimdaPage() {
     try {
       const { about, content, skills, experiences } = formData;
 
-      const batchPayload = [
-        { type: 'about', slug: 'about.md', data: about, content },
-        { type: 'skills', slug: 'skills.json', data: skills.map(s => s.name) },
-        { type: 'experiences', slug: 'experiences.json', data: experiences }
-      ];
+      const payload = {
+        about: { ...about, content },
+        skills,
+        experiences,
+      };
 
-      const response = await fetch('/api/admin/content', {
+      const response = await fetch('/api/admin/hakkimda', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(batchPayload)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
@@ -148,7 +140,6 @@ export default function AdminHakkimdaPage() {
         <AboutForm 
           aboutData={formData.about}
           onAboutChange={handleAboutChange}
-          onSocialChange={handleSocialChange}
           onFileChange={handleFileChange}
         />
 
