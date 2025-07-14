@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,7 +8,6 @@ import toast from "react-hot-toast";
 import Turnstile from "@/components/Turnstile";
 import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaTwitter } from "react-icons/fa";
 
-// Form alanları için doğrulama şeması
 const schema = z.object({
   name: z.string().min(2, "İsim alanı en az 2 karakter olmalıdır."),
   email: z.string().email("Lütfen geçerli bir e-posta adresi girin."),
@@ -36,9 +35,21 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
   });
   
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    toast.error("Doğrulama süresi doldu, lütfen tekrar deneyin.");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+  }, []);
 
   const onSubmit = async (data: FormData) => {
-    if (!turnstileToken) {
+    if (!isTurnstileVerified || !turnstileToken) {
       toast.error("Lütfen insan olduğunuzu doğrulayın.");
       return;
     }
@@ -56,6 +67,10 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
       }
       toast.success("Mesajınız başarıyla gönderildi! En kısa sürede dönüş yapılacaktır.", { id: loadingToast });
       reset();
+      setTurnstileToken(null);
+      setIsTurnstileVerified(false);
+      // Turnstile widget'ı `onExpire` callback'i sayesinde kendini resetleyecektir,
+      // bu yüzden burada ek bir işlem yapmaya gerek yok.
     } catch (error) {
       toast.error((error as Error).message, { id: loadingToast });
     }
@@ -63,7 +78,6 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 bg-white dark:bg-dark-card shadow-2xl rounded-2xl p-8">
-      {/* Sol Sütun: İletişim Bilgileri */}
       <div className="lg:col-span-1 space-y-6">
         <h2 className="text-2xl font-bold text-light-text dark:text-dark-text">İletişim Bilgileri</h2>
         <p className="text-gray-600 dark:text-gray-400">
@@ -87,7 +101,6 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
         </div>
       </div>
 
-      {/* Sağ Sütun: İletişim Formu */}
       <div className="lg:col-span-2">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -115,10 +128,12 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
           <div className="flex justify-center pt-2">
             <Turnstile
               sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
-              onVerify={setTurnstileToken}
+              onVerify={handleTurnstileVerify}
+              onExpire={handleTurnstileExpire}
+              onError={() => toast.error("Doğrulama sırasında bir hata oluştu. Lütfen sayfayı yenileyin.")}
             />
           </div>
-          <button type="submit" disabled={isSubmitting || !turnstileToken} className="w-full flex items-center justify-center bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-primary/90 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-105">
+          <button type="submit" disabled={isSubmitting || !isTurnstileVerified} className="w-full flex items-center justify-center bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-brand-primary/90 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed transform hover:scale-105">
               <FaPaperPlane className="mr-2" />
               {isSubmitting ? "Gönderiliyor..." : "Mesajı Gönder"}
             </button>

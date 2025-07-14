@@ -214,65 +214,57 @@ const StatCardSkeleton = () => (
 );
 
 /**
- * Conventional Commits standardına göre kaynak kodu değişikliklerini yöneten akıllı bileşen.
- * Değişiklikleri analiz eder, öneriler sunar ve kullanıcı dostu bir arayüz sağlar.
+ * Kaynak kodu değişikliklerini yöneten ve dallar arasında geçiş yapmayı sağlayan bileşen.
  */
 function SourceCodeCommitter() {
-  const [commitType, setCommitType] = useState('feat');
-  const [commitScope, setCommitScope] = useState('');
+  const [commitType, setCommitType] = useState('Feat');
   const [commitSubject, setCommitSubject] = useState('');
   const [isCommitting, setIsCommitting] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  const [branches, setBranches] = useState<{ name: string; isCurrent: boolean }[]>([]);
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [isLoadingBranches, setIsLoadingBranches] = useState(true);
 
-  // Commit tipleri için Türkçe açıklamalar ve İngilizce değerler
+  // Sadece "Feat" ve "Fix" commit tipleri
   const commitTypes = [
-    { value: 'feat', label: '✨ Yeni Özellik', description: 'Kullanıcıya yönelik yeni bir özellik ekler.', example: 'feat(auth): add login with Google button' },
-    { value: 'fix', label: '🐛 Hata Düzeltme', description: 'Koddaki bir hatayı düzeltir.', example: 'fix(api): correct user data validation' },
-    { value: 'docs', label: '📚 Dokümantasyon', description: 'Sadece dokümantasyon dosyalarını günceller.', example: 'docs(readme): update setup instructions' },
-    { value: 'style', label: '💎 Stil', description: 'Kodun anlamını etkilemeyen stil değişiklikleri (boşluk, formatlama vb.).', example: 'style(components): format code with Prettier' },
-    { value: 'refactor', label: '📦 Yeniden Yapılandırma', description: 'Hata düzeltmeyen veya özellik eklemeyen kod değişiklikleri.', example: 'refactor(services): simplify data fetching logic' },
-    { value: 'perf', label: '🚀 Performans', description: 'Performansı artıran bir kod değişikliği.', example: 'perf(images): optimize image loading on homepage' },
-    { value: 'test', label: '🚨 Test', description: 'Eksik testleri ekler veya mevcut testleri düzeltir.', example: 'test(utils): add new tests for date formatting' },
-    { value: 'build', label: '🛠️ Build Sistemi', description: 'Build sistemini veya dış bağımlılıkları etkileyen değişiklikler.', example: 'build(deps): upgrade Next.js to the latest version' },
-    { value: 'ci', label: '⚙️ CI/CD', description: 'CI/CD yapılandırma dosyaları ve scriptlerindeki değişiklikler.', example: 'ci(github-actions): fix deployment script' },
-    { value: 'chore', label: '🧹 Diğer İşler', description: 'Kaynak veya test dosyalarını değiştirmeyen diğer tüm işler.', example: 'chore: update .gitignore file' },
+    { value: 'Feat', label: '✨ Yeni Özellik' },
+    { value: 'Fix', label: '🐛 Hata Düzeltme' },
   ];
 
-  const selectedCommitType = commitTypes.find(t => t.value === commitType);
-
-  const handleAnalyze = async () => {
-    setIsAnalyzing(true);
-    const toastId = toast.loading("Değişiklikler analiz ediliyor...");
+  // Dalları çekmek için fonksiyon
+  const fetchBranches = useCallback(async () => {
+    setIsLoadingBranches(true);
     try {
-      const response = await fetch('/api/admin/git/analyze-changes', { method: 'POST' });
-      const suggestion = await response.json();
-      if (!response.ok) throw new Error(suggestion.error || "Analiz başarısız oldu.");
-
-      setCommitType(suggestion.type);
-      setCommitScope(suggestion.scope);
-      setCommitSubject(suggestion.subject);
-      toast.success("Analiz tamamlandı ve öneriler forma dolduruldu!", { id: toastId });
+      const response = await fetch('/api/admin/git/branches');
+      if (!response.ok) throw new Error('Dallar alınamadı.');
+      const data = await response.json();
+      setBranches(data.branches);
+      const current = data.branches.find((b: { isCurrent: boolean; }) => b.isCurrent);
+      if (current) {
+        setSelectedBranch(current.name);
+      }
     } catch (error) {
-      toast.error(`Analiz hatası: ${(error as Error).message}`, { id: toastId });
+      toast.error((error as Error).message);
     } finally {
-      setIsAnalyzing(false);
+      setIsLoadingBranches(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchBranches();
+  }, [fetchBranches]);
 
   const handleCommit = async () => {
     if (!commitSubject.trim()) {
-      toast.error("Lütfen geçerli bir commit konusu girin.");
+      toast.error("Lütfen geçerli bir commit içeriği girin.");
       return;
     }
 
-    // Commit mesajını İngilizce ve standartlara uygun oluştur
-    let message = `${commitType}`;
-    if (commitScope.trim()) {
-      message += `(${commitScope.trim()})`;
-    }
-    message += `: ${commitSubject.trim()}`;
+    // Commit mesajını "Tip: [içerik]" formatında oluştur
+    const message = `${commitType}: ${commitSubject.trim()}`;
 
-    const confirmationMessage = `Bu işlem, projedeki tüm değişiklikleri GitHub reposuna gönderecektir.\n\nCommit Mesajı: "${message}"\n\nBu işlem geri alınamaz. Emin misiniz?`;
+    const confirmationMessage = `Bu işlem, projedeki tüm değişiklikleri GitHub deposuna gönderecektir.\n\nCommit Mesajı: "${message}"\n\nBu işlem geri alınamaz. Emin misiniz?`;
     if (!window.confirm(confirmationMessage)) return;
 
     setIsCommitting(true);
@@ -288,7 +280,6 @@ function SourceCodeCommitter() {
       if (!response.ok) throw new Error(result.error || "Bilinmeyen bir sunucu hatası oluştu.");
       
       toast.success(result.message, { id: toastId });
-      setCommitScope('');
       setCommitSubject('');
     } catch (error) {
       console.error("Commit All API Hatası:", error);
@@ -298,50 +289,96 @@ function SourceCodeCommitter() {
     }
   };
 
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Kaynak kodundaki değişiklikleri Conventional Commits standardına uygun olarak GitHub reposuna gönderin.
-        </p>
-        <button
-          onClick={handleAnalyze}
-          disabled={isAnalyzing || isCommitting}
-          className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-gray-400"
-        >
-          {isAnalyzing ? "Analiz Ediliyor..." : "Değişiklikleri Analiz Et ve Öner"}
-        </button>
-      </div>
-      <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="commit-type" className="block text-sm font-medium mb-1">Tip</label>
-            <select id="commit-type" value={commitType} onChange={(e) => setCommitType(e.target.value)} className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting}>
-              {commitTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
-            </select>
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="commit-scope" className="block text-sm font-medium mb-1">Kapsam <span className="text-xs text-gray-500">(isteğe bağlı)</span></label>
-            <input id="commit-scope" type="text" value={commitScope} onChange={(e) => setCommitScope(e.target.value)} placeholder="örn: auth, api, bileşenler" className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting} />
-          </div>
-        </div>
-        
-        {selectedCommitType && (
-          <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md text-xs text-gray-600 dark:text-gray-400">
-            <p><strong>Açıklama:</strong> {selectedCommitType.description}</p>
-            <p><strong>Örnek:</strong> <code className="font-mono">{selectedCommitType.example}</code></p>
-          </div>
-        )}
+  const handleSwitchBranch = async () => {
+    if (!selectedBranch) {
+      toast.error("Lütfen bir dal seçin.");
+      return;
+    }
+    
+    setIsSwitching(true);
+    const toastId = toast.loading(`'${selectedBranch}' dalına geçiliyor...`);
 
-        <div>
-          <label htmlFor="commit-subject" className="block text-sm font-medium mb-1">Konu (İngilizce ve küçük harfle başlayın)</label>
-          <input id="commit-subject" type="text" value={commitSubject} onChange={(e) => setCommitSubject(e.target.value)} placeholder="Değişikliklerin kısa ve net bir özeti" className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting} />
+    try {
+      const response = await fetch('/api/admin/git/switch-branch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branch: selectedBranch }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Dal değiştirme başarısız.");
+
+      toast.success(result.message, { id: toastId });
+      await fetchBranches(); // Dal listesini ve mevcut dalı yenile
+    } catch (error) {
+      toast.error(`Hata: ${(error as Error).message}`, { id: toastId });
+    } finally {
+      setIsSwitching(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Dal Değiştirme Bölümü */}
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Dal Yönetimi</h3>
+        <div className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
+          <div className="flex-grow">
+            <label htmlFor="branch-select" className="block text-sm font-medium mb-1">Aktif Dal</label>
+            {isLoadingBranches ? (
+              <div className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 animate-pulse h-10"></div>
+            ) : (
+              <select 
+                id="branch-select" 
+                value={selectedBranch} 
+                onChange={(e) => setSelectedBranch(e.target.value)} 
+                className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                disabled={isSwitching || branches.length === 0}
+              >
+                {branches.map(branch => (
+                  <option key={branch.name} value={branch.name}>
+                    {branch.name} {branch.isCurrent ? '(Aktif)' : ''}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="self-end">
+            <button 
+              onClick={handleSwitchBranch} 
+              disabled={isSwitching || isLoadingBranches || branches.find(b => b.isCurrent)?.name === selectedBranch}
+              className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isSwitching ? "Değiştiriliyor..." : "Dal Değiştir"}
+            </button>
+          </div>
         </div>
-        
-        <div className="text-right">
-          <button onClick={handleCommit} disabled={isCommitting || !commitSubject.trim()} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-            {isCommitting ? "Gönderiliyor..." : "Commit'le ve Gönder"}
-          </button>
+      </div>
+
+      {/* Commit Bölümü */}
+      <div>
+        <h3 className="text-lg font-semibold mb-2">Değişiklikleri Gönder</h3>
+        <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Kaynak kodundaki değişiklikleri GitHub deposuna gönderin.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="commit-type" className="block text-sm font-medium mb-1">Tip</label>
+              <select id="commit-type" value={commitType} onChange={(e) => setCommitType(e.target.value)} className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting}>
+                {commitTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
+              </select>
+            </div>
+            <div className="md:col-span-2">
+              <label htmlFor="commit-subject" className="block text-sm font-medium mb-1">İçerik</label>
+              <input id="commit-subject" type="text" value={commitSubject} onChange={(e) => setCommitSubject(e.target.value)} placeholder="Değişikliklerin kısa ve net bir özeti" className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting} />
+            </div>
+          </div>
+          
+          <div className="text-right">
+            <button onClick={handleCommit} disabled={isCommitting || !commitSubject.trim()} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+              {isCommitting ? "Gönderiliyor..." : "Commit'le ve Gönder"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

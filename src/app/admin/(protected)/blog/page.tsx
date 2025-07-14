@@ -39,7 +39,9 @@ const BlogList = () => {
       // Gelen verinin bir dizi olduğundan emin ol, değilse boş dizi ata.
       setPosts(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error((error as Error).message);
+      const errorMessage = error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu.";
+      console.error("Blog yazıları getirilirken hata oluştu:", error);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

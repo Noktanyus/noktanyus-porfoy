@@ -8,7 +8,7 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -28,50 +28,56 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data: session, status } = useSession(); // Oturum durumunu al: 'loading', 'authenticated', 'unauthenticated'
+  const { data: session, status } = useSession();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+  
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
 
-  // Oturum durumu değiştiğinde kontrol et
   useEffect(() => {
-    // Eğer kullanıcı zaten oturum açmışsa, onu yönetim paneline yönlendir.
-    // Bu, giriş yapmış bir kullanıcının tekrar giriş sayfasını görmesini engeller.
     if (status === 'authenticated') {
       router.replace('/admin/dashboard');
     }
   }, [status, router]);
 
-  /**
-   * Form gönderildiğinde çalışacak fonksiyon.
-   * @param data - Formdan gelen doğrulanmış veriler.
-   */
+  const handleTurnstileVerify = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setIsTurnstileVerified(true);
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    toast.error("Doğrulama süresi doldu, lütfen tekrar deneyin.");
+    setTurnstileToken(null);
+    setIsTurnstileVerified(false);
+  }, []);
+
   const onSubmit = async (data: FormData) => {
-    if (!turnstileToken) {
+    if (!isTurnstileVerified || !turnstileToken) {
       toast.error("Lütfen insan olduğunuzu doğrulayın.");
       return;
     }
 
-    // NextAuth'un signIn fonksiyonunu kullanarak giriş yapmayı dene
     const result = await signIn("credentials", {
-      redirect: false, // Sayfanın yeniden yönlendirilmesini NextAuth'a bırakma, kendimiz yöneteceğiz.
+      redirect: false,
       email: data.email,
       password: data.password,
-      turnstileToken, // Doğrulama token'ını da gönder
+      turnstileToken,
     });
 
     if (result?.error) {
       toast.error("Giriş bilgileri hatalı veya doğrulama başarısız oldu.");
+      // Giriş başarısız olduğunda Turnstile'ı sıfırla
+      setIsTurnstileVerified(false);
+      setTurnstileToken(null);
     } else if (result?.ok) {
       toast.success("Başarıyla giriş yapıldı! Yönlendiriliyorsunuz...");
-      // Başarılı giriş sonrası yönetim paneline yönlendir.
       router.push("/admin/dashboard");
     }
   };
 
-  // Oturum durumu kontrol edilirken veya kullanıcı zaten yönlendirilirken yükleme ekranı göster.
   if (status === 'loading' || status === 'authenticated') {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -81,7 +87,6 @@ export default function LoginPage() {
     );
   }
 
-  // Oturum yoksa (unauthenticated) giriş formunu göster.
   return (
     <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg animate-fade-in">
       <h1 className="text-2xl font-bold text-center text-light-text dark:text-dark-text">
@@ -105,10 +110,12 @@ export default function LoginPage() {
         <div className="flex justify-center">
           <Turnstile
             sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
-            onVerify={setTurnstileToken}
+            onVerify={handleTurnstileVerify}
+            onExpire={handleTurnstileExpire}
+            onError={() => toast.error("Doğrulama sırasında bir hata oluştu. Lütfen sayfayı yenileyin.")}
           />
         </div>
-        <button type="submit" disabled={isSubmitting || !turnstileToken} className="w-full bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+        <button type="submit" disabled={isSubmitting || !isTurnstileVerified} className="w-full bg-brand-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
           {isSubmitting ? "Giriş Yapılıyor..." : "Giriş Yap"}
         </button>
       </form>

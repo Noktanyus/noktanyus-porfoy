@@ -271,11 +271,69 @@ export async function analyzeChanges(): Promise<{type: string, scope: string, su
   };
 }
 
+
+/**
+ * Depodaki tüm yerel ve uzak dalları listeler.
+ * @returns {Promise<{ name: string; isCurrent: boolean }[]>} Dal listesi.
+ */
+export async function getBranches(): Promise<{ name: string; isCurrent: boolean }[]> {
+  try {
+    // `-a` bayrağı hem yerel hem de uzak dalları listeler
+    const branchSummary = await git.branch(['-a']);
+    const branches = Object.values(branchSummary.branches)
+      .map(branch => ({
+        name: branch.name.replace(/^remotes\/origin\//, ''), // Uzak dal önekini kaldır
+        isCurrent: branch.current,
+      }));
+    
+    // Yinelenenleri kaldır (yerel ve uzak aynı ada sahip olabilir)
+    const uniqueBranches = Array.from(new Map(branches.map(b => [b.name, b])).values());
+    
+    // Mevcut dalı en üste taşı
+    uniqueBranches.sort((a, b) => {
+      if (a.isCurrent) return -1;
+      if (b.isCurrent) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    return uniqueBranches;
+  } catch (error: any) {
+    console.error(`getBranches -> Hata: Dallar alınamadı. Hata: ${error.message}`);
+    throw new Error(`Dallar alınamadı: ${error.message}`);
+  }
+}
+
+/**
+ * Belirtilen bir dala geçer (checkout).
+ * @param {string} branchName - Geçilecek dalın adı.
+ * @returns {Promise<{success: boolean; message: string}>} İşlem sonucu.
+ */
+export async function switchBranch(branchName: string): Promise<{success: boolean; message: string}> {
+  try {
+    // Önce yerel dalları en son değişikliklerle güncelle
+    await git.fetch();
+    
+    // Dala geçiş yap
+    await git.checkout(branchName);
+    
+    // Uzak depodaki değişiklikleri yerel dala çek (isteğe bağlı ama önerilir)
+    await git.pull('origin', branchName).catch(pullError => {
+      // Çekme hatası kritik olmayabilir (örneğin, dal uzakta yoksa), bu yüzden sadece uyar
+      console.warn(`switchBranch -> Uyarı: '${branchName}' dalı için pull işlemi sırasında uyarı: ${pullError.message}`);
+    });
+
+    return { success: true, message: `'${branchName}' dalına başarıyla geçildi.` };
+  } catch (error: any) {
+    console.error(`switchBranch -> Hata: '${branchName}' dal��na geçilemedi. Hata: ${error.message}`);
+    throw new Error(`'${branchName}' dalına geçilemedi: ${error.message}`);
+  }
+}
+
 /**
  * GitHub bağlantısını ve kimlik bilgilerinin doğruluğunu test eder.
  * @returns {Promise<{ok: boolean; message: string}>} Test sonucunu içeren nesne.
  */
-export async function testGitConnection(): Promise<{ok: boolean; message: string}> {
+export async function testGitConnection(): Promise<{ok: boolean; message:string}> {
     try {
         // Kimlik bilgilerinin varlığını ve uzak depo URL'sinin alınabildiğini kontrol et
         await getAuthenticatedRepoUrl();

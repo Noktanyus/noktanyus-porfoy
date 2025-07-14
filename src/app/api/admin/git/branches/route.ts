@@ -2,9 +2,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { env } from "@/lib/env";
-import { analyzeChanges } from "@/lib/git-utils";
+import { getBranches } from "@/lib/git-utils";
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
 
   if (!token || token.role !== 'admin') {
@@ -12,10 +12,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const suggestion = await analyzeChanges();
-    return NextResponse.json(suggestion);
+    const branches = await getBranches();
+    return NextResponse.json({ branches });
   } catch (error) {
-    console.error("Analyze Changes API Error:", error);
+    console.error("Get Branches API Error:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

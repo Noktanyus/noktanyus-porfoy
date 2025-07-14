@@ -2,7 +2,7 @@
 # Bu, imaj boyutunu küçültür ve güvenliği artırır.
 
 .dockerignore
-.env*.local
+#.env*.local
 .git
 .gitignore
 .next

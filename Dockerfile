@@ -1,47 +1,75 @@
-# --- 1. Aşama: Builder ---
-# Bu aşama, uygulamanın bağımlılıklarını yükler ve production build'i oluşturur.
-FROM node:18 AS builder
+# 1. AŞAMA: Builder
+FROM node:18-buster-slim AS builder
 
-# Uygulama çalışma dizini
+# Gerekli sistem kütüphanelerini kur
+RUN apt-get update && apt-get install -y libssl1.1 openssl
+
 WORKDIR /app
 
-# Sadece bağımlılık ve prisma şema dosyalarını kopyala
-COPY package.json package-lock.json* ./
-COPY prisma ./prisma/
-
-# Production için gerekli olan bağımlılıkları yükle
-# --omit=dev, devDependencies'leri yüklemez, imajı küçültür.
-# postinstall script'i 'prisma generate' çalıştıracağı için schema dosyası gereklidir.
-RUN npm install --omit=dev
-
-# Tüm proje dosyalarını kopyala (.dockerignore'a göre)
+# Tüm proje dosyalarını kopyala
 COPY . .
 
-# Uygulamayı build et
-# 'prisma generate' postinstall'da zaten çalıştı, bu yüzden burada tekrar çalıştırmaya gerek yok.
-RUN npm run build
+# Orijinal Prisma şemasını yedekle
+RUN cp prisma/schema.prisma prisma/schema.prisma.original
 
-# --- 2. Aşama: Runner ---
-# Bu aşama, builder'da oluşturulan çıktıları alarak son, hafif imajı oluşturur.
-FROM node:18-alpine
+# Build işlemi için Prisma şemasını SQLite kullanacak şekilde değiştir
+RUN sed -i 's/provider\s*=\s*"postgresql"/provider = "sqlite"/' prisma/schema.prisma
+RUN sed -i 's#url\s*=\s*env("DATABASE_URL")#url = "file:./dev.db"#' prisma/schema.prisma
+# Bu sed komutları, PostgreSQL'e özgü tipleri SQLite uyumlu hale getirmek için gerekli olabilir.
+RUN sed -i 's/String\[\]\s*@default(\[\])\s*@db.Text/String @default("")/g' prisma/schema.prisma
+RUN sed -i 's/Json\s*@default("\[\]")/String @default("[]")/g' prisma/schema.prisma
 
-# Çalışma dizini
+# Bağımlılıkları kur (postinstall burada değiştirilmiş şema ile `prisma generate` çalıştırır)
+RUN npm install
+
+# Değiştirilmiş şema ile veritabanını oluştur
+RUN npx prisma db push --accept-data-loss
+
+# Next.js uygulamasını build et
+# ÖNEMLİ: Next.js build işlemi, ortam değişkenlerini doğrular.
+# Bu nedenle, build sırasında kullanılacak geçici değerler burada sağlanmalıdır.
+RUN NEXTAUTH_URL="http://localhost:3000" \
+    NEXTAUTH_SECRET="dummy-secret" \
+    NEXT_PUBLIC_BASE_URL="http://localhost:3000" \
+    ADMIN_EMAIL="admin@example.com" \
+    ADMIN_PASSWORD="password" \
+    GITHUB_USERNAME="user" \
+    GITHUB_TOKEN="token" \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY="dummy-key" \
+    TURNSTILE_SECRET_KEY="dummy-key" \
+    EMAIL_SERVER="smtp.example.com" \
+    EMAIL_PORT="587" \
+    EMAIL_USER="user@example.com" \
+    EMAIL_PASSWORD="password" \
+    EMAIL_FROM="from@example.com" \
+    EMAIL_FROM_NAME="Dummy Name" \
+    npm run build
+
+# 2. AŞAMA: Runner
+FROM node:18-buster-slim AS runner
+
+# Çalışma ortamı için gerekli kütüphaneler
+RUN apt-get update && apt-get install -y libssl1.1 openssl
+
 WORKDIR /app
 
-# Güvenlik için 'root' olmayan bir kullanıcı oluştur ve kullan
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
+# Güvenlik: root olmayan kullanıcı
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --disabled-password --no-create-home --gid 1001 --uid 1001 nextjs
+
+# Gerekli dosyaları builder aşamasından kopyala
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+# ÖNEMLİ: Production için değiştirilmemiş, orijinal Prisma şemasını kopyala
+COPY --from=builder --chown=nextjs:nodejs /app/prisma/schema.prisma.original ./prisma/schema.prisma
+
+# Kullanıcı olarak çalıştır
 USER nextjs
 
-# Gerekli dosyaları 'builder' aşamasından kopyala
-# Sadece production için gerekli olanları alıyoruz.
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
-
-# Uygulamanın çalışacağı port'u belirt
+# Portu dışarı aç
 EXPOSE 3000
 
-# Uygulamayı başlat
-CMD ["npm", "start"]
+# Başlatıcı komut
+CMD ["node", "server.js"]

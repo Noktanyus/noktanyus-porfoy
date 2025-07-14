@@ -1,17 +1,23 @@
 services:
-  nextjs:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: noktanyus-portfoy
+    image: noktanyus-portfolio:latest
+    container_name: noktanyus-portfolio-app
     restart: unless-stopped
     ports:
-      - "65495:3000"
+      - "3000:3000"
     env_file:
+      - .env
       - .env.local
-    volumes:
-      # Sunucudaki (host) .git klasörünü container içindeki /app/.git'e bağla
-      # Bu, 'analyze-changes' gibi git komutlarının çalışmasını sağlar.
-      - ./.git:/app/.git
     environment:
       - NODE_ENV=production
+      - PORT=3000
+    networks:
+      - postgresql_default
+
+# Docker'a 'postgresql_default' adında harici bir ağ olduğunu belirtiyoruz.
+networks:
+  postgresql_default:
+    external: true
