@@ -37,7 +37,7 @@ describe('ProjectCard', () => {
     expect(screen.getByText('Next.js')).toBeInTheDocument();
 
     const image = screen.getByRole('img');
-    expect(image).toHaveAttribute('src', '/images/test.png');
+    expect(image).toHaveAttribute('src', '/api/static/images/test.png');
   });
 
   it('should render a link to the project page', () => {
