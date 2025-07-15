@@ -1,53 +1,88 @@
-name: Node.js CI/CD
+name: CI/CD - Docker Build & Test
 
 on:
   push:
-    branches: [ master ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ master ]
+    branches: [ "master" ]
+
+env:
+  # Bu değişkeni kendi Docker Hub kullanıcı adınız veya GHCR yolunuz ile değiştirin
+  # Örnek: ghcr.io/kullanici-adiniz/proje-adiniz
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/noktanyus-portfolio
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         node-version: [20.x]
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: package-lock.json
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+      
+      - name: Create .env file for testing
+        run: cp .env.test .env
 
-    - name: Create .env file from example
-      run: cp .env.example .env
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Run linter
+        run: npm run lint
 
-    - name: Adapt Prisma Schema & Seed for SQLite
-      run: |
-        sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
-        sed -i 's/@default(\[\])/@default("")/g' prisma/schema.prisma
-        sed -i 's/String\[\]/String/g' prisma/schema.prisma
-        sed -i 's/@db.Text//g' prisma/schema.prisma
-        sed -i 's/Json/String/g' prisma/schema.prisma
-        sed -i "s/technologies:.*\[.*\],/technologies: 'Next.js,TypeScript,Prisma',/" prisma/seed.ts
+      - name: Run tests
+        run: npm run test
 
-    - name: Sync Database Schema
-      run: npx prisma db push
+  build_and_push:
+    # Test işi başarılı olursa çalışır
+    needs: test
+    # Sadece 'master' branch'ine push yapıldığında çalışır, PR'larda çalışmaz
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
 
-    - name: Run linter
-      run: npm run lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Run tests
-      run: npm run test
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
-    - name: Build project
-      run: npm run build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          # Dockerfile'ın bulunduğu yolu belirtin
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest
+          # Build sırasında kullanılacak argümanları GitHub Secrets'tan al
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}
+            ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}
+            TURNSTILE_SECRET_KEY=${{ secrets.TURNSTILE_SECRET_KEY }}
+            EMAIL_SERVER=${{ secrets.EMAIL_SERVER }}
+            EMAIL_PORT=${{ secrets.EMAIL_PORT }}
+            EMAIL_USER=${{ secrets.EMAIL_USER }}
+            EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+            NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
