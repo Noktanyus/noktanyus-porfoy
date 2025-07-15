@@ -4,12 +4,6 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',
@@ -17,8 +11,12 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'mc.yandex.ru',
-        port: '',
+        hostname: '**',
+        pathname: '/**',
+      },
+       {
+        protocol: 'http',
+        hostname: '**',
         pathname: '/**',
       },
     ],

@@ -1,12 +1,22 @@
-# docker-compose.yml
-version: '3.8'
-
 services:
   web:
     # Mevcut dizindeki Dockerfile'ı kullanarak imajı build et
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - DATABASE_URL=${DATABASE_URL}
+        - NEXTAUTH_URL=${NEXTAUTH_URL}
+        - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+        - ADMIN_EMAIL=${ADMIN_EMAIL}
+        - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+        - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+        - EMAIL_SERVER=${EMAIL_SERVER}
+        - EMAIL_PORT=${EMAIL_PORT}
+        - EMAIL_USER=${EMAIL_USER}
+        - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+        - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+        - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
     # Container'a bir isim ver
     container_name: noktanyus-portfolio
     # Container yeniden başladığında otomatik olarak çalıştır
@@ -19,10 +29,10 @@ services:
       - .env
     # Kalıcı veri için volume tanımı
     volumes:
-      # Host makinesindeki './uploads' klasörünü, container içindeki
-      # '/app/public/images' klasörüne bağla.
-      # Bu sayede container silinse bile yüklenen resimler kaybolmaz.
-      - ./uploads:/app/public/images
+      # 'public_volume' adında bir Docker volume'ünü, container içindeki
+      # '/app/public' klasörüne bağla. Bu, tüm public klasörünü kalıcı hale getirir.
+      - public_volume:/app/public
 
+# Docker tarafından yönetilecek olan volume'ü tanımla
 volumes:
-  uploads:
+  public_volume:

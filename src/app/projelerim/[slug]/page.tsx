@@ -80,6 +80,10 @@ async function ProjectPageContent({ slug }: { slug: string }) {
   const dirtyHtml = md.render(project.content);
   const cleanHtml = DOMPurify.sanitize(dirtyHtml);
 
+  const imageUrl = project.mainImage?.startsWith('/images/')
+    ? `/api/static${project.mainImage}`
+    : project.mainImage || "/images/placeholder.webp";
+
   return (
     <article className="max-w-4xl mx-auto">
       <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
@@ -89,7 +93,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
       
       <div className="relative h-96 mb-8 shadow-2xl rounded-lg overflow-hidden">
         <Image
-          src={project.mainImage || "/images/placeholder.webp"}
+          src={imageUrl}
           alt={project.title}
           fill
           sizes="(max-width: 768px) 100vw, 1024px"

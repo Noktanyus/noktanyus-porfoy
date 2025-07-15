@@ -8,7 +8,9 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
-  const imageUrl = project.mainImage || "/images/placeholder.webp";
+  const imageUrl = project.mainImage?.startsWith('/images/')
+    ? `/api/static${project.mainImage}`
+    : project.mainImage || "/images/placeholder.webp";
 
   return (
     <div className="group bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col md:flex-row transform hover:-translate-y-1">

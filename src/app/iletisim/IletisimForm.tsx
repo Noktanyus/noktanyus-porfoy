@@ -22,9 +22,10 @@ interface IletisimFormProps {
   socialGithub?: string | null;
   socialLinkedin?: string | null;
   socialTwitter?: string | null;
+  sitekey: string;
 }
 
-export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialTwitter }: IletisimFormProps) {
+export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialTwitter, sitekey }: IletisimFormProps) {
   const { 
     register, 
     handleSubmit, 
@@ -127,7 +128,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
           </div>
           <div className="flex justify-center pt-2">
             <Turnstile
-              sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''}
+              sitekey={sitekey}
               onVerify={handleTurnstileVerify}
               onExpire={handleTurnstileExpire}
               onError={() => toast.error("Doğrulama sırasında bir hata oluştu. Lütfen sayfayı yenileyin.")}

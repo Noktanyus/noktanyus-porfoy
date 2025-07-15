@@ -66,6 +66,10 @@ export default async function HakkimdaPage() {
   const cleanHtml = DOMPurify.sanitize(dirtyHtml);
   const { experiences, skills } = aboutData;
 
+  const profileImageUrl = aboutData.aboutImage?.startsWith('/images/')
+    ? `/api/static${aboutData.aboutImage}`
+    : aboutData.aboutImage || "/images/profile.webp";
+
   return (
     <div className="bg-light-background dark:bg-dark-background min-h-screen font-sans">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
@@ -73,7 +77,7 @@ export default async function HakkimdaPage() {
         <header className="flex flex-col lg:flex-row items-center text-center lg:text-left mb-20 lg:mb-28">
           <div className="relative mb-8 lg:mb-0 lg:mr-12 flex-shrink-0">
             <Image
-              src={aboutData.aboutImage || "/images/profile.webp"}
+              src={profileImageUrl}
               alt={`${aboutData.name} - Profil Fotoğrafı`}
               width={200}
               height={200}
@@ -137,11 +141,16 @@ export default async function HakkimdaPage() {
                 {skills.map(skill => {
                   const isUrl = skill.icon && (skill.icon.startsWith('/') || skill.icon.startsWith('http'));
                   const IconComponent = !isUrl && skill.icon ? iconComponents[skill.icon] : null;
+                  
+                  let skillIconUrl = skill.icon;
+                  if (isUrl && skill.icon?.startsWith('/images/')) {
+                    skillIconUrl = `/api/static${skill.icon}`;
+                  }
 
                   return (
                     <div key={skill.id} title={skill.name} className="bg-gray-100/80 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 text-base font-medium pl-3 pr-4 py-2 rounded-full flex items-center gap-2.5 transition-transform hover:scale-105 cursor-default">
                       {isUrl ? (
-                        <Image src={skill.icon!} alt={skill.name} width={24} height={24} className="rounded-full object-contain" />
+                        <Image src={skillIconUrl!} alt={skill.name} width={24} height={24} className="rounded-full object-contain" />
                       ) : IconComponent ? (
                         createElement(IconComponent, { className: "text-xl text-brand-primary" })
                       ) : (

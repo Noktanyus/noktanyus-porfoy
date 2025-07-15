@@ -8,9 +8,9 @@ interface BlogCardProps {
 }
 
 const BlogCard = ({ post }: BlogCardProps) => {
-  const imageUrl = post.thumbnail && !post.thumbnail.startsWith('http')
-    ? `${process.env.NEXT_PUBLIC_BASE_URL}${post.thumbnail}`
-    : post.thumbnail;
+  const imageUrl = post.thumbnail?.startsWith('/images/')
+    ? `/api/static${post.thumbnail}`
+    : post.thumbnail || "/images/placeholder.webp";
 
   return (
     <Link href={`/blog/${post.slug}`} className="group block bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">

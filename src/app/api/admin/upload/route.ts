@@ -61,7 +61,8 @@ async function uploadHandler(request: NextRequest) {
       .toFile(filePath);
 
     // 4. Doğru URL'i döndür
-    return NextResponse.json({ success: true, url: `/images/${newFilename}` });
+    const finalUrl = `/api/static/images/${newFilename}`;
+    return NextResponse.json({ success: true, url: finalUrl });
   } catch (error) {
     console.error('Görsel işlenirken veya kaydedilirken hata:', error);
     return NextResponse.json({ success: false, error: 'Görsel işlenirken bir sunucu hatası oluştu.' }, { status: 500 });

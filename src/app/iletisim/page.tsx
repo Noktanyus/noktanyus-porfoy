@@ -13,6 +13,13 @@ import IletisimForm from "./IletisimForm";
 export default async function IletisimPage() {
   // Sunucu tarafında "Hakkımda" verilerini çek
   const aboutData = await getAbout();
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
+  if (!turnstileSiteKey) {
+    console.error("NEXT_PUBLIC_TURNSTILE_SITE_KEY ortam değişkeni bulunamadı.");
+    // İsteğe bağlı: site anahtarı olmadan formu hiç göstermeyebilirsiniz.
+    // return <div>İletişim formu şu anda kullanılamıyor.</div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -28,6 +35,7 @@ export default async function IletisimPage() {
         socialGithub={aboutData?.socialGithub}
         socialLinkedin={aboutData?.socialLinkedin}
         socialTwitter={aboutData?.socialTwitter}
+        sitekey={turnstileSiteKey || ''}
       />
     </div>
   );
