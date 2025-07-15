@@ -55,12 +55,9 @@ function apiError(message: string, status: number = 500, error?: any): NextRespo
   return NextResponse.json({ error: message }, { status });
 }
 
-export async function GET(request: NextRequest) {
-  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-  if (!token || token.role !== 'admin') {
-    return apiError("Bu bilgilere erişim yetkiniz bulunmamaktadır.", 403);
-  }
+import { withAdminAuth } from '@/lib/auth-utils';
 
+async function getSettingsHandler(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type');
 
@@ -78,12 +75,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-  if (!token || token.role !== 'admin') {
-    return apiError("Bu işlemi yapmak için yönetici yetkiniz bulunmamaktadır.", 403);
-  }
-
+async function postSettingsHandler(request: NextRequest) {
   let body;
   try {
       body = await request.json();
@@ -147,3 +139,6 @@ export async function POST(request: NextRequest) {
     return apiError(`Ayarlar kaydedilirken bir hata oluştu: ${error.message}`, 500, error);
   }
 }
+
+export const GET = withAdminAuth(getSettingsHandler);
+export const POST = withAdminAuth(postSettingsHandler);

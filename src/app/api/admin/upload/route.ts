@@ -20,13 +20,9 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 // Yüklenen resimlerin kaydedileceği dizin
 const uploadDir = path.join(process.cwd(), 'public', 'images');
 
-export async function POST(request: NextRequest) {
-  // 1. Yetkilendirme: Kullanıcı admin mi?
-  const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-  if (!token || token.role !== 'admin') {
-    return NextResponse.json({ success: false, error: 'Bu işlemi yapmak için yönetici yetkiniz bulunmamaktadır.' }, { status: 403 });
-  }
+import { withAdminAuth } from '@/lib/auth-utils';
 
+async function uploadHandler(request: NextRequest) {
   try {
     await fs.mkdir(uploadDir, { recursive: true });
   } catch (error) {
@@ -71,3 +67,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: 'Görsel işlenirken bir sunucu hatası oluştu.' }, { status: 500 });
   }
 }
+
+export const POST = withAdminAuth(uploadHandler);

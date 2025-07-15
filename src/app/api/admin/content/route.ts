@@ -64,12 +64,11 @@ function revalidateContentPaths(type: (typeof ALLOWED_TYPES)[number], slug?: str
     pathsToRevalidate.forEach(path => revalidatePath(path));
 }
 
+import { withAdminAuth } from '@/lib/auth-utils';
+
 // --- HTTP Metotları ---
 
-export async function GET(request: NextRequest) {
-    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-    if (!token) return apiError("Yetkisiz erişim.", 401);
-
+async function getContentHandler(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const slug = searchParams.get("slug");
@@ -91,10 +90,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: NextRequest) {
-    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-    if (!token) return apiError("Yetkisiz erişim. Lütfen tekrar giriş yapın.", 401);
-
+async function postContentHandler(request: NextRequest) {
     let body;
     try {
         body = await request.json();
@@ -126,10 +122,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-export async function DELETE(request: NextRequest) {
-    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
-    if (!token) return apiError("Yetkisiz erişim.", 401);
-
+async function deleteContentHandler(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const slug = searchParams.get("slug");
@@ -146,3 +139,7 @@ export async function DELETE(request: NextRequest) {
         return apiError("İçerik silinirken bir hata oluştu.", 500, error);
     }
 }
+
+export const GET = withAdminAuth(getContentHandler);
+export const POST = withAdminAuth(postContentHandler);
+export const DELETE = withAdminAuth(deleteContentHandler);

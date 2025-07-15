@@ -1,3 +1,4 @@
+import "@/lib/env";
 /**
  * @file Kök layout bileşeni.
  * @description Bu dosya, tüm sayfaları saran ana HTML yapısını oluşturur.
@@ -6,6 +7,7 @@
  *              global context'leri ve script'leri (Yandex Metrica, Turnstile) tanımlar.
  */
 
+import { checkDatabaseConnection } from "@/lib/prisma";
 import Image from "next/image";
 import type { Metadata } from "next";
 import "./globals.css"; // Font importu artık bu dosyanın içinde
@@ -78,6 +80,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await checkDatabaseConnection();
   const aboutData = await getAbout();
   const headerTitle = aboutData?.headerTitle || "Portföyüm";
   const yandexMetricaId = process.env.NEXT_PUBLIC_YANDEX_METRICA_ID;

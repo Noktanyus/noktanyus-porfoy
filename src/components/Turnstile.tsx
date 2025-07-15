@@ -47,6 +47,8 @@ const Turnstile = ({ sitekey, onVerify, onError, onExpire, ...props }: Turnstile
     onError?.();
   }, [onError]);
 
+  const propsString = JSON.stringify(props);
+
   useEffect(() => {
     if (!ref.current || !sitekey) {
       if (!sitekey) console.error("Turnstile -> Hata: 'sitekey' prop'u eksik.");
@@ -86,7 +88,7 @@ const Turnstile = ({ sitekey, onVerify, onError, onExpire, ...props }: Turnstile
         widgetId.current = null;
       }
     };
-  }, [sitekey, handleVerify, handleExpire, handleError, JSON.stringify(props)]);
+  }, [sitekey, handleVerify, handleExpire, handleError, propsString, props]);
 
   return <div ref={ref} />;
 };

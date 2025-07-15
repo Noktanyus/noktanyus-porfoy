@@ -1,3 +1,4 @@
+import "@/lib/env";
 /**
  * @file İletişim formundan gelen verileri işlemek için API rotası.
  * @description Bu rota, iletişim formundan gönderilen mesajları alır.
@@ -6,7 +7,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { env } from '@/lib/env';
 import { prisma } from '@/lib/prisma';
 import { z, ZodError } from 'zod';
 
@@ -27,7 +27,7 @@ async function verifyTurnstile(token: string): Promise<boolean> {
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: `secret=${encodeURIComponent(env.TURNSTILE_SECRET_KEY)}&response=${encodeURIComponent(token)}`,
+      body: `secret=${encodeURIComponent(process.env.TURNSTILE_SECRET_KEY!)}&response=${encodeURIComponent(token)}`,
     });
     if (!response.ok) return false;
     const data = await response.json();

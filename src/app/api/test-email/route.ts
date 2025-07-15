@@ -1,3 +1,4 @@
+import { env } from '@/lib/env';
 /**
  * @file SMTP e-posta sunucusu bağlantısını test etmek için API rotası.
  * @description Bu rota, .env dosyasında tanımlanan SMTP ayarlarını kullanarak
@@ -7,7 +8,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { env } from '@/lib/env';
 import { getToken } from 'next-auth/jwt';
 
 export async function POST(req: NextRequest) {

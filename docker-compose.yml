@@ -1,23 +1,28 @@
+# docker-compose.yml
+version: '3.8'
+
 services:
-  app:
+  web:
+    # Mevcut dizindeki Dockerfile'ı kullanarak imajı build et
     build:
       context: .
       dockerfile: Dockerfile
-    image: noktanyus-portfolio:latest
-    container_name: noktanyus-portfolio-app
+    # Container'a bir isim ver
+    container_name: noktanyus-portfolio
+    # Container yeniden başladığında otomatik olarak çalıştır
     restart: unless-stopped
+    # Port yönlendirmesi: Host'taki 3000 portunu Container'daki 3000 portuna bağla
     ports:
       - "3000:3000"
+    # Ortam değişkenlerini .env dosyasından yükle
     env_file:
       - .env
-      - .env.local
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-    networks:
-      - postgresql_default
+    # Kalıcı veri için volume tanımı
+    volumes:
+      # Host makinesindeki './uploads' klasörünü, container içindeki
+      # '/app/public/images' klasörüne bağla.
+      # Bu sayede container silinse bile yüklenen resimler kaybolmaz.
+      - ./uploads:/app/public/images
 
-# Docker'a 'postgresql_default' adında harici bir ağ olduğunu belirtiyoruz.
-networks:
-  postgresql_default:
-    external: true
+volumes:
+  uploads:
