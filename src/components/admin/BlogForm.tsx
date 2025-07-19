@@ -60,6 +60,21 @@ export default function BlogForm({ post }: BlogFormProps) {
       content: post?.content || '',
     }
   });
+
+  // `post` prop'u değiştiğinde formu sıfırla
+  useEffect(() => {
+    if (post) {
+      setValue('title', post.title);
+      setValue('slug', post.slug);
+      setValue('description', post.description);
+      setValue('thumbnail', post.thumbnail);
+      setValue('author', post.author || session?.user?.name || '');
+      setValue('category', post.category);
+      setValue('tags', (post.tags || []).join(', '));
+      setValue('date', post.date ? new Date(post.date) : new Date());
+      setValue('content', post.content);
+    }
+  }, [post, setValue, session]);
   
   const title = watch("title");
 

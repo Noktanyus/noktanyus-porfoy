@@ -16,7 +16,7 @@
   "dependencies": {
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "^5.1.1",
-    "@prisma/client": "^6.11.1",
+    "@prisma/client": "^6.12.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/typography": "^0.5.16",
@@ -52,8 +52,8 @@
     "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1",
     "remark-rehype": "^11.1.2",
-    "simple-git": "^3.28.0",
     "sharp": "^0.34.2",
+    "simple-git": "^3.28.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.25.67"
@@ -74,7 +74,7 @@
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
     "postcss": "^8",
-    "prisma": "^6.11.1",
+    "prisma": "^6.12.0",
     "tailwindcss": "^3",
     "ts-jest": "^29.4.0",
     "tsx": "^4.20.3",
