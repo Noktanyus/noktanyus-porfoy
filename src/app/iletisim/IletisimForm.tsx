@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import Turnstile from "@/components/Turnstile";
-import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaTwitter } from "react-icons/fa";
+import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaInstagram } from "react-icons/fa";
 
 const schema = z.object({
   name: z.string().min(2, "İsim alanı en az 2 karakter olmalıdır."),
@@ -21,11 +21,11 @@ interface IletisimFormProps {
   contactEmail?: string | null;
   socialGithub?: string | null;
   socialLinkedin?: string | null;
-  socialTwitter?: string | null;
+  socialInstagram?: string | null;
   sitekey: string;
 }
 
-export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialTwitter, sitekey }: IletisimFormProps) {
+export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialInstagram, sitekey }: IletisimFormProps) {
   const { 
     register, 
     handleSubmit, 
@@ -97,7 +97,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
           <div className="flex space-x-4 mt-3">
             {socialGithub && <a href={socialGithub} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-colors"><FaGithub size={24} /></a>}
             {socialLinkedin && <a href={socialLinkedin} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-colors"><FaLinkedin size={24} /></a>}
-            {socialTwitter && <a href={socialTwitter} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-colors"><FaTwitter size={24} /></a>}
+            {socialInstagram && <a href={socialInstagram} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-colors"><FaInstagram size={24} /></a>}
           </div>
         </div>
       </div>

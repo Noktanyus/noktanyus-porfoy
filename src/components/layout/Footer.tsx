@@ -1,6 +1,6 @@
 "use client";
 
-import { FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { About } from '@prisma/client';
 
@@ -47,15 +47,15 @@ const Footer = ({ aboutData }: FooterProps) => {
               <FaLinkedin size={24} />
             </a>
           )}
-          {aboutData.socialTwitter && (
+          {aboutData.socialInstagram && (
             <a 
-              href={aboutData.socialTwitter} 
-              aria-label="Twitter profilim" 
+              href={aboutData.socialInstagram} 
+              aria-label="Instagram profilim" 
               target="_blank" 
               rel="noopener noreferrer"
               className="hover:text-light-text dark:hover:text-white transition-colors"
             >
-              <FaTwitter size={24} />
+              <FaInstagram size={24} />
             </a>
           )}
         </div>

@@ -28,7 +28,7 @@ async function main() {
       contactEmail: 'y.emre.d@msn.com', // İletişim e-postası eklendi
       socialGithub: 'https://github.com/example',
       socialLinkedin: 'https://linkedin.com/in/example',
-      socialTwitter: 'https://twitter.com/example',
+      socialInstagram: 'https://instagram.com/example',
     },
   });
 

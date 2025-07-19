@@ -26,7 +26,7 @@ model About {
   contactEmail   String?
   socialGithub   String?
   socialLinkedin String?
-  socialTwitter  String?
+  socialInstagram  String?
   workingOn      String[]     @default([]) @db.Text
   experiences    Experience[]
   skills         Skill[]

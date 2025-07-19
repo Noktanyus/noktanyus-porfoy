@@ -12,7 +12,7 @@ describe('AboutForm', () => {
     title: 'Test Title',
     socialGithub: 'https://github.com/test',
     socialLinkedin: 'https://linkedin.com/in/test',
-    socialTwitter: 'https://twitter.com/test',
+    socialInstagram: 'https://instagram.com/test',
   };
 
   const mockOnAboutChange = jest.fn();

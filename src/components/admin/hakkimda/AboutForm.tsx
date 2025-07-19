@@ -31,7 +31,7 @@ export default function AboutForm({ aboutData, onAboutChange, onFileChange }: Ab
           <input type="email" placeholder="İletişim E-posta Adresi" value={aboutData.contactEmail || ''} onChange={(e) => onAboutChange('contactEmail', e.target.value)} className="w-full p-2 border rounded" />
           <input type="text" placeholder="GitHub URL" value={aboutData.socialGithub || ''} onChange={(e) => onAboutChange('socialGithub', e.target.value)} className="w-full p-2 border rounded" />
           <input type="text" placeholder="LinkedIn URL" value={aboutData.socialLinkedin || ''} onChange={(e) => onAboutChange('socialLinkedin', e.target.value)} className="w-full p-2 border rounded" />
-          <input type="text" placeholder="Twitter URL" value={aboutData.socialTwitter || ''} onChange={(e) => onAboutChange('socialTwitter', e.target.value)} className="w-full p-2 border rounded" />
+          <input type="text" placeholder="Instagram URL" value={aboutData.socialInstagram || ''} onChange={(e) => onAboutChange('socialInstagram', e.target.value)} className="w-full p-2 border rounded" />
         </div>
       </div>
       {/* Görseller */}

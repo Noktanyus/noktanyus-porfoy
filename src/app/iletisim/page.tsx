@@ -34,7 +34,7 @@ export default async function IletisimPage() {
         contactEmail={aboutData?.contactEmail}
         socialGithub={aboutData?.socialGithub}
         socialLinkedin={aboutData?.socialLinkedin}
-        socialTwitter={aboutData?.socialTwitter}
+        socialInstagram={aboutData?.socialInstagram}
         sitekey={turnstileSiteKey || ''}
       />
     </div>

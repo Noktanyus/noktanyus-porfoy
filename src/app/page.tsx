@@ -1,6 +1,6 @@
 
 
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import {
   getAbout,
   getHomeSettings,
@@ -116,12 +116,12 @@ export default async function Home() {
                       <FaLinkedin size={28} />
                     </a>
                     <a
-                      href={aboutData.socialTwitter || "#"}
-                      aria-label="Twitter"
+                      href={aboutData.socialInstagram || "#"}
+                      aria-label="Instagram"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <FaTwitter size={28} />
+                      <FaInstagram size={28} />
                     </a>
                   </div>
                 </div>
