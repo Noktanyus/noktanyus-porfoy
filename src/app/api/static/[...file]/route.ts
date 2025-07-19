@@ -39,8 +39,24 @@ export async function GET(
       },
     });
   } catch (error) {
-    // Dosya bulunamazsa veya başka bir hata olursa 404 döndür
-    console.error(`[API/STATIC] Dosya okuma hatası: ${absolutePath}`, error);
-    return new NextResponse('File not found', { status: 404 });
+    // Dosya bulunamazsa placeholder.webp dosyasını göstermeyi dene
+    console.warn(`[API/STATIC] Dosya bulunamadı: ${absolutePath}. Placeholder denenecek.`);
+    try {
+      const placeholderPath = path.join(publicDir, 'images', 'placeholder.webp');
+      const placeholderBuffer = await fs.promises.readFile(placeholderPath);
+      const mimeType = 'image/webp';
+
+      return new NextResponse(placeholderBuffer, {
+        status: 200, // Bulunamayan resim yerine placeholder gösterildiği için 200 OK
+        headers: {
+          'Content-Type': mimeType,
+          'Cache-Control': 'public, max-age=3600, must-revalidate', // Daha kısa cache süresi
+        },
+      });
+    } catch (placeholderError) {
+      // Placeholder dosyası da bulunamazsa 404 hatası döndür
+      console.error(`[API/STATIC] Placeholder dosyası da okunamadı!`, placeholderError);
+      return new NextResponse('File not found', { status: 404 });
+    }
   }
 }

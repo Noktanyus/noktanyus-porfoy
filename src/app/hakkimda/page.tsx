@@ -6,7 +6,7 @@
  */
 import { getAbout, getSeoSettings } from '@/services/contentService';
 import Image from 'next/image';
-import { FaBriefcase, FaEnvelope, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { FaBriefcase, FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
 import { createElement } from 'react';
@@ -94,10 +94,9 @@ export default async function HakkimdaPage() {
               {aboutData.title || 'Yazılım Geliştirici & Teknoloji Meraklısı'}
             </p>
             <div className="mt-8 flex justify-center lg:justify-start space-x-6">
-              {aboutData.contactEmail && <a href={`mailto:${aboutData.contactEmail}`} className="text-gray-500 hover:text-brand-primary transition-transform duration-300 hover:scale-125"><FaEnvelope size={28} /></a>}
               {aboutData.socialGithub && <a href={aboutData.socialGithub} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-transform duration-300 hover:scale-125"><FaGithub size={28} /></a>}
               {aboutData.socialLinkedin && <a href={aboutData.socialLinkedin} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-transform duration-300 hover:scale-125"><FaLinkedin size={28} /></a>}
-              {aboutData.socialTwitter && <a href={aboutData.socialTwitter} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-transform duration-300 hover:scale-125"><FaTwitter size={28} /></a>}
+              {aboutData.socialInstagram && <a href={aboutData.socialInstagram} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-brand-primary transition-transform duration-300 hover:scale-125"><FaInstagram size={28} /></a>}
             </div>
           </div>
         </header>

@@ -54,6 +54,23 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       content: project?.content || '', // İçeriği de form state'ine ekle
     }
   });
+
+  // `project` prop'u değiştiğinde formu sıfırla
+  useEffect(() => {
+    if (project) {
+      setValue('title', project.title);
+      setValue('slug', project.slug);
+      setValue('description', project.description);
+      setValue('mainImage', project.mainImage);
+      setValue('technologies', (project.technologies || []).join(', '));
+      setValue('liveDemo', project.liveDemo || '');
+      setValue('githubRepo', project.githubRepo || '');
+      setValue('order', project.order || 0);
+      setValue('featured', project.featured || false);
+      setValue('isLive', project.isLive || false);
+      setValue('content', project.content || '');
+    }
+  }, [project, setValue]);
   
   const title = watch("title");
 

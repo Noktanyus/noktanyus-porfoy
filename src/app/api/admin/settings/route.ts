@@ -13,7 +13,7 @@ const homeSettingsSchema = z.object({
   youtubeUrl: z.string().url({ message: "Geçersiz YouTube URL'si." }).optional().or(z.literal('')),
   textTitle: z.string().optional(),
   textContent: z.string().optional(),
-  customHtml: z.string().optional(),
+  customHtml: z.string().nullable().optional().transform(val => val || ''),
 });
 
 const seoSettingsSchema = z.object({
@@ -99,7 +99,7 @@ async function postSettingsHandler(request: NextRequest) {
         youtubeUrl: data.youtubeUrl || null,
         textTitle: data.textTitle ?? null,
         textContent: data.textContent ?? null,
-        customHtml: data.customHtml ?? null,
+        customHtml: data.customHtml,
       };
       await contentService.saveHomeSettings(homeData);
       revalidatePath('/');
@@ -133,6 +133,7 @@ async function postSettingsHandler(request: NextRequest) {
       };
       await contentService.saveSeoSettings(finalSeoData);
       revalidatePath('/', 'layout');
+      revalidatePath('/hakkimda');
     }
     return NextResponse.json({ message: `${type === 'home' ? 'Ana sayfa' : 'SEO'} ayarları başarıyla kaydedildi.` });
   } catch (error: any) {
