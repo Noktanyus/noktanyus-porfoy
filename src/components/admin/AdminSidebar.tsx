@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { 
   FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower, 
   FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt, 
-  FaEye, FaHome, FaHistory 
+  FaEye, FaHome, FaHistory, FaImages
 } from "react-icons/fa";
 
 const AdminSidebar = () => {
@@ -26,6 +26,7 @@ const AdminSidebar = () => {
     { href: "/admin/hakkimda", text: "Hakkımda Sayfası", icon: <FaUserEdit /> },
     { href: "/admin/projects", text: "Proje Yönetimi", icon: <FaProjectDiagram /> },
     { href: "/admin/popups", text: "Popup Yönetimi", icon: <FaBroadcastTower /> },
+    { href: "/admin/gallery", text: "Galeri", icon: <FaImages /> },
     { href: "/admin/blog", text: "Blog Yönetimi", icon: <FaBlog /> },
     { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
     { href: "/admin/seo", text: "SEO Ayarları", icon: <FaCog /> },
