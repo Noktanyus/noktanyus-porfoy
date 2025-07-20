@@ -69,10 +69,11 @@ export default function PopupForm({ initialData }: PopupFormProps) {
     }
   }, [watchedTitle, isEditMode, setValue]);
 
-  const onSubmit = async (formData: Popup) => {
+  const onSubmit = async (formData: PopupFormData) => {
     const toastId = toast.loading(isEditMode ? 'Popup güncelleniyor...' : 'Popup oluşturuluyor...');
     
     const finalSlug = formData.slug;
+    const { content, ...restOfData } = formData;
 
     try {
       const response = await fetch('/api/admin/content', {
@@ -82,7 +83,8 @@ export default function PopupForm({ initialData }: PopupFormProps) {
           type: 'popups',
           slug: finalSlug,
           originalSlug: initialData?.slug, // Orijinal slug'ı API'ye gönder
-          data: formData 
+          data: restOfData,
+          content: content,
         }),
       });
 

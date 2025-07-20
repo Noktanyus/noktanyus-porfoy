@@ -37,6 +37,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
   
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
+  const [turnstileKey, setTurnstileKey] = useState(0); // Turnstile'ı sıfırlamak için anahtar
 
   const handleTurnstileVerify = useCallback((token: string) => {
     setTurnstileToken(token);
@@ -70,8 +71,8 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
       reset();
       setTurnstileToken(null);
       setIsTurnstileVerified(false);
-      // Turnstile widget'ı `onExpire` callback'i sayesinde kendini resetleyecektir,
-      // bu yüzden burada ek bir işlem yapmaya gerek yok.
+      // Turnstile bileşenini yeniden oluşturarak sıfırla
+      setTurnstileKey(prevKey => prevKey + 1);
     } catch (error) {
       toast.error((error as Error).message, { id: loadingToast });
     }
@@ -128,6 +129,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
           </div>
           <div className="flex justify-center pt-2">
             <Turnstile
+              key={turnstileKey} // Anahtarı ekle
               sitekey={sitekey}
               onVerify={handleTurnstileVerify}
               onExpire={handleTurnstileExpire}

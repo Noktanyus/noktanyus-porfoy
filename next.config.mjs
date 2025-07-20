@@ -21,19 +21,6 @@ const nextConfig = {
       },
     ],
   },
-  async headers() {
-    return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-        ],
-      },
-    ];
-  },
   // Bu satır, belirtilen paketlerin Next.js tarafından (ve dolayısıyla next/jest tarafından)
   // dönüştürülmesini (transpile) sağlar.
   transpilePackages: [
