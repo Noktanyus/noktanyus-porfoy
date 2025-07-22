@@ -51,7 +51,6 @@ const Turnstile = ({ sitekey, onVerify, onError, onExpire, ...props }: Turnstile
 
   useEffect(() => {
     if (!ref.current || !sitekey) {
-      if (!sitekey) console.error("Turnstile -> Hata: 'sitekey' prop'u eksik.");
       return;
     }
 
