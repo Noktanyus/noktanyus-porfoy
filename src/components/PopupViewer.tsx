@@ -11,48 +11,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Popup } from '@/types/content';
 import Image from "next/image";
-
-/**
- * Dinamik olarak gelen HTML içeriğini ve içindeki script'leri güvenli bir şekilde çalıştıran bileşen.
- * @param {{ htmlContent: string }} props - İşlenecek HTML içeriği.
- */
-const DynamicHTMLRenderer = ({ htmlContent }: { htmlContent: string }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // HTML'i geçici bir elemente yükleyerek script'leri ayıkla
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = htmlContent;
-    const scripts = Array.from(tempDiv.querySelectorAll('script'));
-    
-    // Script'leri çıkardıktan sonra kalan HTML'i ana konteynere bas
-    scripts.forEach(s => s.remove());
-    container.innerHTML = tempDiv.innerHTML;
-
-    // Ayıklanan script'leri yeniden oluşturup DOM'a ekleyerek çalıştır
-    scripts.forEach(script => {
-      const newScript = document.createElement('script');
-      // Orijinal script'in tüm attribute'larını kopyala (src, async, defer vb.)
-      for (const attr of script.attributes) {
-        newScript.setAttribute(attr.name, attr.value);
-      }
-      // Inline script içeriğini kopyala
-      if (script.textContent) {
-        try {
-          newScript.appendChild(document.createTextNode(script.textContent));
-        } catch (error) {
-          console.error("DynamicHTMLRenderer -> Hata: Script içeriği oluşturulurken bir sorun oluştu.", error);
-        }
-      }
-      container.appendChild(newScript);
-    });
-  }, [htmlContent]);
-
-  return <div ref={containerRef} className="prose dark:prose-invert max-w-none mb-6" />;
-};
+import ClientOnlyHtml from './ClientOnlyHtml'; // ClientOnlyHtml bileşenini içe aktar
 
 /**
  * Popup'ın görsel arayüzünü oluşturan bileşen.
@@ -110,11 +69,11 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
               ></iframe>
             </div>
           )}
-          {popup.imageUrl && !popup.youtubeEmbedUrl && (
+          {popup.imageUrl && (
             <Image src={popup.imageUrl} alt={popup.title} className="w-full h-auto object-cover rounded-md mb-4" width={800} height={450} />
           )}
 
-          <DynamicHTMLRenderer htmlContent={popup.content} />
+          <ClientOnlyHtml html={popup.content} className="prose dark:prose-invert max-w-none mb-6" />
 
           {revealedText && (
             <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md my-4">
@@ -156,20 +115,25 @@ export default function PopupViewer() {
       setIsLoading(true);
       fetch(`/api/popups/${popupSlug}`)
         .then(res => {
+          if (res.status === 404) {
+            // If 404, don't throw an error, just return null to indicate no popup found
+            return null;
+          }
           if (!res.ok) {
             throw new Error(`API'den ${res.status} koduyla hata alındı.`);
           }
           return res.json();
         })
-        .then((data: Popup) => {
+        .then((data: Popup | null) => { // data can now be null
           // Sadece aktif olan popup'ları göster
-          if (data.isActive) {
+          if (data && data.isActive) {
             setPopup(data);
           } else {
             setPopup(null);
           }
         })
         .catch(err => {
+          // Only log if it's not a 404 (which is handled above) or a network error
           console.error(`PopupViewer -> Hata: '${popupSlug}' popup verisi getirilemedi.`, err);
           setPopup(null);
         })

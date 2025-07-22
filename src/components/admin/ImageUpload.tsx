@@ -57,7 +57,7 @@ export default function ImageUpload({ value, onChange, onRemove }: ImageUploadPr
       <label className="block text-sm font-medium mb-1">Görsel</label>
       <div className="mt-2 flex items-center justify-center w-full">
         {value ? (
-          <div className="relative w-full h-64 rounded-lg overflow-hidden border dark:border-gray-700">
+          <div className="relative w-full max-w-full h-64 rounded-lg overflow-hidden border dark:border-gray-700">
             <Image 
               src={value} 
               alt="Yüklenen Görsel" 
