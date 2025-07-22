@@ -1,78 +1,205 @@
-name: CI/CD - Docker Build & Test
+name: 🚀 CI/CD Pipeline
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main", "develop" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
+  workflow_dispatch:
 
 env:
-  # Bu değişkeni kendi Docker Hub kullanıcı adınız veya GHCR yolunuz ile değiştirin
-  # Örnek: ghcr.io/kullanici-adiniz/proje-adiniz
+  NODE_VERSION: '20.x'
   IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/noktanyus-portfolio
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  # 🔍 Code Quality & Security Checks
+  quality-checks:
+    name: 🔍 Quality & Security
     runs-on: ubuntu-latest
+    outputs:
+      cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🔍 Run ESLint
+        run: npm run lint
+
+      - name: 🔒 Security audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+  # 🧪 Test Suite
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    needs: quality-checks
     strategy:
       matrix:
-        node-version: [20.x]
-
+        node-version: ['18.x', '20.x']
+    
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: 🟢 Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: package-lock.json
-      
-      - name: Create .env file for testing
-        run: cp .env.test .env
 
-      - name: Install dependencies
+      - name: 📦 Restore dependencies cache
+        if: needs.quality-checks.outputs.cache-hit == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 🔧 Install dependencies
+        if: needs.quality-checks.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Run linter
-        run: npm run lint
+      - name: 📝 Create test environment
+        run: |
+          if [ -f .env.test ]; then
+            cp .env.test .env
+          else
+            cat > .env << EOF
+          NEXTAUTH_SECRET=test-secret-for-ci
+          DATABASE_URL=file:./test.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=test@example.com
+          ADMIN_PASSWORD=testpassword
+          EOF
+          fi
 
-      - name: Run tests
-        run: npm run test
+      - name: 🧪 Run tests with coverage
+        run: npm run test -- --coverage --watchAll=false
 
-  build_and_push:
-    # Test işi başarılı olursa çalışır
-    needs: test
-    # Sadece 'master' branch'ine push yapıldığında çalışır, PR'larda çalışmaz
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      - name: 📊 Upload coverage to Codecov
+        if: matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
+
+  # 🏗️ Build Application
+  build:
+    name: 🏗️ Build & Validate
     runs-on: ubuntu-latest
-
+    needs: [quality-checks, test]
+    
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 🔧 Install dependencies
+        if: needs.quality-checks.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: |
+            .next/
+            public/
+          retention-days: 1
+
+  # 🐳 Docker Build & Push
+  docker:
+    name: 🐳 Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
+      - name: 🐳 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: 🔐 Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push Docker image
+
+      - name: 🏷️ Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          # Dockerfile'ın bulunduğu yolu belirtin
           file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.IMAGE_NAME }}:latest
-          # Build sırasında kullanılacak argümanları GitHub Secrets'tan al
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
@@ -86,3 +213,24 @@ jobs:
             EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
             NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}
             NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+
+  # 🚀 Deploy Notification
+  notify:
+    name: 🚀 Deploy Notification
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: always() && github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main')
+    
+    steps:
+      - name: 📢 Deployment Success
+        if: needs.docker.result == 'success'
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "✅ Docker image pushed successfully"
+          echo "🔗 Image: ${{ env.IMAGE_NAME }}:latest"
+      
+      - name: ❌ Deployment Failed
+        if: needs.docker.result == 'failure'
+        run: |
+          echo "❌ Deployment failed!"
+          exit 1

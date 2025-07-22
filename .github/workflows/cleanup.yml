@@ -1,0 +1,176 @@
+name: 🧹 Cleanup & Maintenance
+
+on:
+  schedule:
+    # Her hafta Pazar günü saat 03:00'da çalış
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  # 🧹 Cleanup Old Artifacts
+  cleanup-artifacts:
+    name: 🧹 Cleanup Artifacts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🗑️ Delete old artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            let deletedCount = 0;
+            
+            for (const artifact of artifacts.data.artifacts) {
+              const createdAt = new Date(artifact.created_at);
+              if (createdAt < thirtyDaysAgo) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+                deletedCount++;
+                console.log(`Deleted artifact: ${artifact.name} (${artifact.created_at})`);
+              }
+            }
+            
+            console.log(`🗑️ Deleted ${deletedCount} old artifacts`);
+
+  # 🐳 Cleanup Docker Images
+  cleanup-docker:
+    name: 🐳 Cleanup Docker Images
+    runs-on: ubuntu-latest
+    if: github.repository_owner == github.actor
+    
+    steps:
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 🗑️ Delete old Docker images
+        run: |
+          # Bu script Docker Hub API kullanarak eski image'ları siler
+          # Sadece son 10 tag'i tutar
+          echo "🐳 Cleaning up old Docker images..."
+          
+          # Docker Hub API'den tag listesini al
+          REPO="${{ secrets.DOCKERHUB_USERNAME }}/noktanyus-portfolio"
+          
+          # Bu kısım Docker Hub API token gerektirir
+          # Şimdilik sadece log mesajı bırakıyoruz
+          echo "ℹ️ Docker cleanup requires Docker Hub API token"
+          echo "ℹ️ Manually clean old images if needed"
+
+  # 📊 Repository Statistics
+  repo-stats:
+    name: 📊 Repository Statistics
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📊 Generate statistics
+        run: |
+          echo "## 📊 Repository Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Code statistics
+          echo "### 📝 Code Statistics:" >> $GITHUB_STEP_SUMMARY
+          echo "- Total commits: $(git rev-list --all --count)" >> $GITHUB_STEP_SUMMARY
+          echo "- Contributors: $(git shortlog -sn | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches: $(git branch -r | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Tags: $(git tag | wc -l)" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # File statistics
+          echo "### 📁 File Statistics:" >> $GITHUB_STEP_SUMMARY
+          echo "- TypeScript files: $(find src -name "*.ts" -o -name "*.tsx" | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- JavaScript files: $(find src -name "*.js" -o -name "*.jsx" | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Test files: $(find src -name "*.test.*" -o -name "*.spec.*" | wc -l)" >> $GITHUB_STEP_SUMMARY
+          echo "- Total lines of code: $(find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | xargs wc -l | tail -1 | awk '{print $1}')" >> $GITHUB_STEP_SUMMARY
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Recent activity
+          echo "### 🕒 Recent Activity:" >> $GITHUB_STEP_SUMMARY
+          echo "- Last commit: $(git log -1 --format='%cr by %an')" >> $GITHUB_STEP_SUMMARY
+          echo "- Most active contributor: $(git shortlog -sn | head -1 | awk '{$1=""; print $0}' | sed 's/^ *//')" >> $GITHUB_STEP_SUMMARY
+
+  # 🔍 Health Check
+  health-check:
+    name: 🔍 Repository Health
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 🔍 Check dependencies
+        run: |
+          echo "## 🔍 Dependency Health Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for outdated packages
+          npm outdated --json > outdated.json || true
+          
+          if [ -s outdated.json ]; then
+            echo "### 📦 Outdated Packages:" >> $GITHUB_STEP_SUMMARY
+            jq -r 'to_entries[] | "- **\(.key)**: \(.value.current) → \(.value.wanted)"' outdated.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All packages are up to date!" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check package.json health
+          echo "### 📋 Package.json Health:" >> $GITHUB_STEP_SUMMARY
+          if [ -f "package-lock.json" ]; then
+            echo "✅ package-lock.json exists" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ package-lock.json missing" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # Check for security vulnerabilities
+          npm audit --audit-level=moderate --json > audit.json || true
+          VULN_COUNT=$(jq -r '.metadata.vulnerabilities.total' audit.json 2>/dev/null || echo "0")
+          echo "- Security vulnerabilities: $VULN_COUNT" >> $GITHUB_STEP_SUMMARY
+
+  # 📊 Maintenance Summary
+  maintenance-summary:
+    name: 📊 Maintenance Summary
+    runs-on: ubuntu-latest
+    needs: [cleanup-artifacts, cleanup-docker, repo-stats, health-check]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate summary
+        run: |
+          echo "## 🧹 Maintenance Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Task | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Cleanup Artifacts | ${{ needs.cleanup-artifacts.result == 'success' && '✅ Completed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cleanup Docker | ${{ needs.cleanup-docker.result == 'success' && '✅ Completed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository Stats | ${{ needs.repo-stats.result == 'success' && '✅ Completed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Health Check | ${{ needs.health-check.result == 'success' && '✅ Completed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🕒 Next maintenance: $(date -d '+7 days' '+%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY

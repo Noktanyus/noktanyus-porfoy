@@ -1,0 +1,148 @@
+name: 🔍 PR Quality Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ "master", "main" ]
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # 📝 PR Information
+  pr-info:
+    name: 📝 PR Information
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📋 PR Details
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            console.log(`🔄 PR #${pr.number}: ${pr.title}`);
+            console.log(`👤 Author: ${pr.user.login}`);
+            console.log(`🌿 Branch: ${pr.head.ref} → ${pr.base.ref}`);
+            console.log(`📊 Changes: +${pr.additions} -${pr.deletions}`);
+
+  # 🔍 Code Analysis
+  code-analysis:
+    name: 🔍 Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run ESLint with annotations
+        run: npm run lint
+        continue-on-error: true
+
+  # 🧪 Test Coverage
+  test-coverage:
+    name: 🧪 Test Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📝 Create test environment
+        run: |
+          if [ -f .env.test ]; then
+            cp .env.test .env
+          else
+            cat > .env << EOF
+          NEXTAUTH_SECRET=test-secret-for-ci
+          DATABASE_URL=file:./test.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=test@example.com
+          ADMIN_PASSWORD=testpassword
+          EOF
+          fi
+
+      - name: 🧪 Run tests with coverage
+        run: npm run test -- --coverage --watchAll=false --coverageReporters=text-lcov
+
+      - name: 📊 Coverage comment
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+          delete-old-comments: true
+        continue-on-error: true
+
+  # 📦 Build Check
+  build-check:
+    name: 📦 Build Verification
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build check
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: 📏 Bundle size analysis
+        run: |
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "Build completed successfully!" >> $GITHUB_STEP_SUMMARY
+          if [ -d ".next" ]; then
+            echo "### Build Output:" >> $GITHUB_STEP_SUMMARY
+            du -sh .next/* | head -10 >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ✅ PR Status Check
+  pr-status:
+    name: ✅ PR Status
+    runs-on: ubuntu-latest
+    needs: [code-analysis, test-coverage, build-check]
+    if: always()
+    
+    steps:
+      - name: 🎉 All checks passed
+        if: needs.code-analysis.result == 'success' && needs.test-coverage.result == 'success' && needs.build-check.result == 'success'
+        run: echo "✅ All PR checks passed! Ready for review."
+
+      - name: ❌ Some checks failed
+        if: needs.code-analysis.result == 'failure' || needs.test-coverage.result == 'failure' || needs.build-check.result == 'failure'
+        run: |
+          echo "❌ Some PR checks failed:"
+          echo "- Code Analysis: ${{ needs.code-analysis.result }}"
+          echo "- Test Coverage: ${{ needs.test-coverage.result }}"
+          echo "- Build Check: ${{ needs.build-check.result }}"
+          exit 1

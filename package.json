@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint --fix",
     "db:seed": "prisma db seed",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage --watchAll=false",
+    "test:watch": "jest --watch"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
