@@ -24,7 +24,7 @@ async function main() {
       subTitle: 'I build things for the web.',
       headerTitle: 'Hi, I am Yunus',
       content: 'This is a bio.',
-      profileImage: '/images/1751295333926-profile.webp', // Profil resmi güncellendi
+      profileImage: '/images/profile.webp', // Profil resmi güncellendi
       contactEmail: 'y.emre.d@msn.com', // İletişim e-postası eklendi
       socialGithub: 'https://github.com/example',
       socialLinkedin: 'https://linkedin.com/in/example',
@@ -70,7 +70,7 @@ async function main() {
       slug: 'portfolio-project',
       title: 'My Portfolio',
       description: 'The very portfolio you are looking at.',
-      technologies: ['Next.js', 'TypeScript', 'Prisma'],
+      technologies: 'Next.js,TypeScript,Prisma',
       content: 'Some details about the project.',
       order: 1,
       featured: true,

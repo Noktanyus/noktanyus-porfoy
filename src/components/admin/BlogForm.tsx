@@ -55,7 +55,7 @@ export default function BlogForm({ post }: BlogFormProps) {
       thumbnail: post?.thumbnail || '',
       author: post?.author || session?.user?.name || '',
       category: post?.category || '',
-      tags: (post?.tags || []).join(', '), // Dizi'yi string'e çevir
+      tags: post?.tags || '', // Tags are already stored as string
       date: post?.date ? new Date(post.date) : new Date(),
       content: post?.content || '',
     }
@@ -70,7 +70,7 @@ export default function BlogForm({ post }: BlogFormProps) {
       setValue('thumbnail', post.thumbnail);
       setValue('author', post.author || session?.user?.name || '');
       setValue('category', post.category);
-      setValue('tags', (post.tags || []).join(', '));
+      setValue('tags', post.tags || '');
       setValue('date', post.date ? new Date(post.date) : new Date());
       setValue('content', post.content);
     }
@@ -149,16 +149,16 @@ export default function BlogForm({ post }: BlogFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="admin-content-spacing">
+      <div className="admin-form-grid">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">Yazı Başlığı</label>
-          <input {...register("title", { required: "Başlık zorunludur." })} id="title" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="title" className="block text-sm font-medium mb-2">Yazı Başlığı</label>
+          <input {...register("title", { required: "Başlık zorunludur." })} id="title" className="admin-input" />
           <ErrorMessage errors={errors} name="title" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
         <div>
-          <label htmlFor="slug" className="block text-sm font-medium mb-1">Kimlik (Slug)</label>
-          <input {...register("slug", { required: "Slug zorunludur." })} id="slug" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="slug" className="block text-sm font-medium mb-2">Kimlik (Slug)</label>
+          <input {...register("slug", { required: "Slug zorunludur." })} id="slug" className="admin-input" />
           <ErrorMessage errors={errors} name="slug" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
       </div>
@@ -178,45 +178,58 @@ export default function BlogForm({ post }: BlogFormProps) {
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium mb-1">Kısa Açıklama (Özet)</label>
-        <textarea {...register("description", { required: "Açıklama zorunludur." })} id="description" rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+        <label htmlFor="description" className="block text-sm font-medium mb-2">Kısa Açıklama (Özet)</label>
+        <textarea {...register("description", { required: "Açıklama zorunludur." })} id="description" rows={3} className="admin-input resize-y min-h-[80px]" />
         <ErrorMessage errors={errors} name="description" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="admin-form-grid">
         <div>
-          <label htmlFor="author" className="block text-sm font-medium mb-1">Yazar</label>
-          <input {...register("author", { required: "Yazar zorunludur." })} id="author" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" readOnly />
+          <label htmlFor="author" className="block text-sm font-medium mb-2">Yazar</label>
+          <input {...register("author", { required: "Yazar zorunludur." })} id="author" className="admin-input" readOnly />
           <ErrorMessage errors={errors} name="author" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
         <div>
-          <label htmlFor="category" className="block text-sm font-medium mb-1">Kategori</label>
-          <input {...register("category", { required: "Kategori zorunludur." })} id="category" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="category" className="block text-sm font-medium mb-2">Kategori</label>
+          <input {...register("category", { required: "Kategori zorunludur." })} id="category" className="admin-input" />
           <ErrorMessage errors={errors} name="category" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
       </div>
 
       <div>
-        <label htmlFor="tags" className="block text-sm font-medium mb-1">Etiketler (Virgülle Ayırın)</label>
-        <input {...register("tags")} id="tags" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+        <label htmlFor="tags" className="block text-sm font-medium mb-2">Etiketler (Virgülle Ayırın)</label>
+        <input {...register("tags")} id="tags" className="admin-input" placeholder="React, JavaScript, Web Development" />
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-2">Yazı İçeriği (Markdown)</label>
-        <Controller
-          name="content"
-          control={control}
-          render={({ field }) => (
-            <CustomEditor
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
+        <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <CustomEditor
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
       </div>
 
-      <div className="text-right">
-        <button type="submit" disabled={!isDirty || isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+        <button 
+          type="button" 
+          onClick={() => router.back()} 
+          className="admin-button-secondary order-2 sm:order-1"
+        >
+          İptal
+        </button>
+        <button 
+          type="submit" 
+          disabled={!isDirty || isSubmitting} 
+          className="admin-button-primary order-1 sm:order-2"
+        >
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Değişiklikleri Kaydet" : "Yazıyı Oluştur")}
         </button>
       </div>

@@ -17,8 +17,8 @@ jest.mock('next/image', () => ({
 
 describe('SkillManager', () => {
   const mockSkills: Skill[] = [
-    { id: '1', name: 'React', icon: 'FaReact' },
-    { id: '2', name: 'TypeScript', icon: 'SiTypescript' },
+    { id: '1', name: 'React', icon: 'FaReact', aboutId: 'about1' },
+    { id: '2', name: 'TypeScript', icon: 'SiTypescript', aboutId: 'about1' },
   ];
 
   it('should render initial skills and input correctly', () => {

@@ -60,12 +60,16 @@ export default async function Home() {
   const latestPosts = allBlogs.slice(0, 3);
 
   return (
-    <div className="space-y-20 md:space-y-32">
+    <div className="space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24 xl:space-y-32">
       <section className="relative">
-        <div className="container mx-auto px-4 pt-16 md:pt-24">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <HeroSection aboutData={aboutData} />
-            <FeaturedContent homeSettings={homeSettings} />
+        <div className="w-full pt-8 sm:pt-12 md:pt-16 lg:pt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center">
+            <div className="order-2 lg:order-1">
+              <HeroSection aboutData={aboutData} />
+            </div>
+            <div className="order-1 lg:order-2">
+              <FeaturedContent homeSettings={homeSettings} />
+            </div>
           </div>
         </div>
       </section>

@@ -20,6 +20,18 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+    // Optimize images for mobile performance
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [320, 375, 390, 414, 640, 768, 1024, 1280, 1440, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000, // 1 year
+    dangerouslyAllowSVG: false,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Enable experimental features for better performance
+    unoptimized: false,
+    loader: 'default',
+    path: '/_next/image',
+    domains: [],
   },
   // Bu satır, belirtilen paketlerin Next.js tarafından (ve dolayısıyla next/jest tarafından)
   // dönüştürülmesini (transpile) sağlar.

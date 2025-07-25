@@ -53,7 +53,18 @@ export async function POST(req: NextRequest) {
     const { name, email, subject, message, turnstileToken } = validation.data;
 
     // 2. Bot Koruması
-    const isTokenValid = await verifyTurnstile(turnstileToken);
+    // Sadece development modunda localhost'ta Turnstile doğrulamasını atla
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isLocalhostBypass = turnstileToken === 'localhost-bypass-token';
+    const disableOnLocalhost = process.env.NEXT_PUBLIC_DISABLE_TURNSTILE_ON_LOCALHOST === 'true';
+    
+    let isTokenValid = false;
+    if (isDevelopment && isLocalhostBypass && disableOnLocalhost) {
+      isTokenValid = true; // Development modunda localhost'ta otomatik olarak geçerli say
+    } else {
+      isTokenValid = await verifyTurnstile(turnstileToken);
+    }
+    
     if (!isTokenValid) {
       return NextResponse.json({ error: 'Bot doğrulaması başarısız oldu. Lütfen tekrar deneyin.' }, { status: 401 });
     }

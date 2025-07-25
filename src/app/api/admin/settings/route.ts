@@ -116,7 +116,9 @@ async function postSettingsHandler(request: NextRequest) {
       // Kalan veriyi veritabanına kaydet
       const finalSeoData = {
         ...seoDataForDb,
-        siteKeywords: seoDataForDb.siteKeywords ?? [],
+        siteKeywords: Array.isArray(seoDataForDb.siteKeywords) 
+          ? seoDataForDb.siteKeywords.join(',') 
+          : seoDataForDb.siteKeywords ?? '',
         favicon: seoDataForDb.favicon ?? null,
         ogTitle: seoDataForDb.ogTitle ?? null,
         ogDescription: seoDataForDb.ogDescription ?? null,

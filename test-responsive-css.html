@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive CSS Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Test some of our custom responsive utilities */
+        .test-responsive-text {
+            @apply text-sm sm:text-base lg:text-lg;
+        }
+        
+        .test-mobile-optimized {
+            will-change: transform;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .test-prose-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        
+        .test-prose-table th,
+        .test-prose-table td {
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        
+        .test-prose-table th {
+            font-weight: 600;
+            background-color: #f3f4f6;
+        }
+        
+        @media (max-width: 640px) {
+            .test-prose-table {
+                font-size: 0.75rem;
+                line-height: 1rem;
+            }
+            
+            .test-prose-table th,
+            .test-prose-table td {
+                padding: 0.5rem 0.375rem;
+            }
+        }
+        
+        .test-animation {
+            animation: mobileFade 0.2s ease-out;
+        }
+        
+        @keyframes mobileFade {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-center">Responsive CSS Test</h1>
+        
+        <!-- Test responsive text utilities -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Responsive Text Utilities</h2>
+            <p class="test-responsive-text">This text should be small on mobile, base on tablet, and large on desktop.</p>
+            <p class="text-responsive-xl">This uses our custom responsive XL text class.</p>
+            <p class="text-responsive-md">This uses our custom responsive MD text class.</p>
+        </div>
+        
+        <!-- Test responsive spacing -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Responsive Spacing</h2>
+            <div class="space-responsive-y">
+                <div class="bg-blue-100 p-2 rounded">Item 1</div>
+                <div class="bg-blue-100 p-2 rounded">Item 2</div>
+                <div class="bg-blue-100 p-2 rounded">Item 3</div>
+            </div>
+        </div>
+        
+        <!-- Test responsive grid -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Responsive Grid</h2>
+            <div class="grid-responsive-3 gap-responsive">
+                <div class="bg-green-100 p-4 rounded">Grid Item 1</div>
+                <div class="bg-green-100 p-4 rounded">Grid Item 2</div>
+                <div class="bg-green-100 p-4 rounded">Grid Item 3</div>
+                <div class="bg-green-100 p-4 rounded">Grid Item 4</div>
+                <div class="bg-green-100 p-4 rounded">Grid Item 5</div>
+                <div class="bg-green-100 p-4 rounded">Grid Item 6</div>
+            </div>
+        </div>
+        
+        <!-- Test responsive table -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Responsive Table</h2>
+            <div class="overflow-x-auto">
+                <table class="test-prose-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Doe</td>
+                            <td>john@example.com</td>
+                            <td>Developer</td>
+                            <td>Active</td>
+                        </tr>
+                        <tr>
+                            <td>Jane Smith</td>
+                            <td>jane@example.com</td>
+                            <td>Designer</td>
+                            <td>Active</td>
+                        </tr>
+                        <tr>
+                            <td>Bob Johnson</td>
+                            <td>bob@example.com</td>
+                            <td>Manager</td>
+                            <td>Inactive</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Test mobile-optimized animations -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Mobile-Optimized Animations</h2>
+            <div class="test-mobile-optimized test-animation bg-purple-100 p-4 rounded">
+                This element has mobile-optimized performance and fade animation.
+            </div>
+        </div>
+        
+        <!-- Test responsive visibility -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Responsive Visibility</h2>
+            <div class="mobile-only bg-red-100 p-2 rounded mb-2">This is visible only on mobile</div>
+            <div class="tablet-up bg-blue-100 p-2 rounded mb-2">This is visible on tablet and up</div>
+            <div class="desktop-only bg-green-100 p-2 rounded">This is visible only on desktop</div>
+        </div>
+        
+        <!-- Test touch targets -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-4">Touch-Friendly Elements</h2>
+            <div class="flex gap-4 flex-wrap">
+                <button class="touch-target bg-blue-500 text-white rounded">Touch Target</button>
+                <button class="touch-target-lg bg-green-500 text-white rounded">Large Touch Target</button>
+                <button class="admin-button-primary">Admin Button</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

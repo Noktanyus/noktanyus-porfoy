@@ -30,7 +30,7 @@ export default function BlogList({ allPosts }: BlogListProps) {
     return allPosts.filter(post => {
       const titleMatch = post.title.toLowerCase().includes(lowercasedSearchTerm);
       const descriptionMatch = post.description.toLowerCase().includes(lowercasedSearchTerm);
-      const tagMatch = post.tags?.some(tag => tag.toLowerCase().includes(lowercasedSearchTerm));
+      const tagMatch = post.tags?.toLowerCase().includes(lowercasedSearchTerm);
       const categoryMatch = post.category.toLowerCase().includes(lowercasedSearchTerm);
 
       return titleMatch || descriptionMatch || tagMatch || categoryMatch;
@@ -54,7 +54,7 @@ export default function BlogList({ allPosts }: BlogListProps) {
       {filteredPosts.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPosts.map(post => (
-            <BlogCard key={post.id} post={post} />
+            <BlogCard key={post.id} blog={post} />
           ))}
         </div>
       ) : (

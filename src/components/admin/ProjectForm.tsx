@@ -45,7 +45,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       slug: project?.slug || '',
       description: project?.description || '',
       mainImage: project?.mainImage || '',
-      technologies: (project?.technologies || []).join(', '),
+      technologies: project?.technologies || '',
       liveDemo: project?.liveDemo || '',
       githubRepo: project?.githubRepo || '',
       order: project?.order || 0,
@@ -62,7 +62,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       setValue('slug', project.slug);
       setValue('description', project.description);
       setValue('mainImage', project.mainImage);
-      setValue('technologies', (project.technologies || []).join(', '));
+      setValue('technologies', project.technologies || '');
       setValue('liveDemo', project.liveDemo || '');
       setValue('githubRepo', project.githubRepo || '');
       setValue('order', project.order || 0);
@@ -135,16 +135,16 @@ export default function ProjectForm({ project }: ProjectFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="admin-content-spacing">
+      <div className="admin-form-grid">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-1">Proje Başlığı</label>
-          <input {...register("title", { required: "Başlık zorunludur." })} id="title" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="title" className="block text-sm font-medium mb-2">Proje Başlığı</label>
+          <input {...register("title", { required: "Başlık zorunludur." })} id="title" className="admin-input" />
           <ErrorMessage errors={errors} name="title" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
         <div>
-          <label htmlFor="slug" className="block text-sm font-medium mb-1">Slug</label>
-          <input {...register("slug", { required: "Slug zorunludur." })} id="slug" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="slug" className="block text-sm font-medium mb-2">Slug</label>
+          <input {...register("slug", { required: "Slug zorunludur." })} id="slug" className="admin-input" />
           <ErrorMessage errors={errors} name="slug" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
       </div>
@@ -164,63 +164,77 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium mb-1">Kısa Açıklama</label>
-        <textarea {...register("description", { required: "Açıklama zorunludur." })} id="description" rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+        <label htmlFor="description" className="block text-sm font-medium mb-2">Kısa Açıklama</label>
+        <textarea {...register("description", { required: "Açıklama zorunludur." })} id="description" rows={3} className="admin-input resize-y min-h-[80px]" />
         <ErrorMessage errors={errors} name="description" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
 
       <div>
-        <label htmlFor="technologies" className="block text-sm font-medium mb-1">Kullanılan Teknolojiler (Virgülle Ayırın)</label>
-        <input {...register("technologies", { required: "Teknolojiler zorunludur." })} id="technologies" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+        <label htmlFor="technologies" className="block text-sm font-medium mb-2">Kullanılan Teknolojiler (Virgülle Ayırın)</label>
+        <input {...register("technologies", { required: "Teknolojiler zorunludur." })} id="technologies" className="admin-input" placeholder="React, TypeScript, Node.js" />
         <ErrorMessage errors={errors} name="technologies" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="admin-form-grid">
         <div>
-          <label htmlFor="liveDemo" className="block text-sm font-medium mb-1">Canlı Demo Linki</label>
-          <input {...register("liveDemo")} id="liveDemo" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="liveDemo" className="block text-sm font-medium mb-2">Canlı Demo Linki</label>
+          <input {...register("liveDemo")} id="liveDemo" className="admin-input" placeholder="https://example.com" />
         </div>
         <div>
-          <label htmlFor="githubRepo" className="block text-sm font-medium mb-1">GitHub Repo Linki</label>
-          <input {...register("githubRepo")} id="githubRepo" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="githubRepo" className="block text-sm font-medium mb-2">GitHub Repo Linki</label>
+          <input {...register("githubRepo")} id="githubRepo" className="admin-input" placeholder="https://github.com/user/repo" />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div>
-          <label htmlFor="order" className="block text-sm font-medium mb-1">Sıralama Önceliği</label>
-          <input type="number" {...register("order", { required: "Sıra zorunludur.", valueAsNumber: true })} id="order" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <label htmlFor="order" className="block text-sm font-medium mb-2">Sıralama Önceliği</label>
+          <input type="number" {...register("order", { required: "Sıra zorunludur.", valueAsNumber: true })} id="order" className="admin-input" />
           <ErrorMessage errors={errors} name="order" render={({ message }) => <p className="text-red-500 text-sm mt-1">{message}</p>} />
         </div>
-        <div className="flex items-center pt-6">
-          <input type="checkbox" {...register("featured")} id="featured" className="h-5 w-5 rounded" />
-          <label htmlFor="featured" className="ml-2">Öne Çıkarılsın mı?</label>
+        <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <input type="checkbox" {...register("featured")} id="featured" className="h-5 w-5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" />
+          <label htmlFor="featured" className="text-sm font-medium cursor-pointer">Öne Çıkarılsın mı?</label>
         </div>
-        <div className="flex items-center pt-6">
-          <input type="checkbox" {...register("isLive")} id="isLive" className="h-5 w-5 rounded" />
-          <label htmlFor="isLive" className="ml-2">Canlı Proje mi?</label>
+        <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <input type="checkbox" {...register("isLive")} id="isLive" className="h-5 w-5 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" />
+          <label htmlFor="isLive" className="text-sm font-medium cursor-pointer">Canlı Proje mi?</label>
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-2">Proje Detayları (İçerik)</label>
-        <Controller
-          name="content"
-          control={control}
-          render={({ field }) => (
-            <Editor
-              key={project?.slug || 'new-project'}
-              defaultValue={field.value}
-              renderHTML={text => mdParser.render(text)}
-              onChange={({ text }) => field.onChange(text)}
-              onImageUpload={onEditorImageUpload}
-              className="h-96"
-            />
-          )}
-        />
+        <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+          <Controller
+            name="content"
+            control={control}
+            render={({ field }) => (
+              <Editor
+                key={project?.slug || 'new-project'}
+                defaultValue={field.value}
+                renderHTML={text => mdParser.render(text)}
+                onChange={({ text }) => field.onChange(text)}
+                onImageUpload={onEditorImageUpload}
+                className="h-80 sm:h-96"
+              />
+            )}
+          />
+        </div>
       </div>
-      <div className="text-right">
-        <button type="submit" disabled={!isDirty || isSubmitting} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400">
+      
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+        <button 
+          type="button" 
+          onClick={() => router.back()} 
+          className="admin-button-secondary order-2 sm:order-1"
+        >
+          İptal
+        </button>
+        <button 
+          type="submit" 
+          disabled={!isDirty || isSubmitting} 
+          className="admin-button-primary order-1 sm:order-2"
+        >
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Değişiklikleri Kaydet" : "Proje Oluştur")}
         </button>
       </div>

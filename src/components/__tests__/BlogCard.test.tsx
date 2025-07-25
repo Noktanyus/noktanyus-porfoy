@@ -32,7 +32,7 @@ describe('BlogCard', () => {
     thumbnail: '/images/blog-thumbnail.jpg',
     author: 'Test Yazar',
     category: 'Teknoloji',
-    tags: ['React', 'Next.js', 'TypeScript'],
+    tags: 'React,Next.js,TypeScript',
     content: 'Blog içeriği...',
     date: new Date('2024-01-15'),
   };
@@ -77,7 +77,7 @@ describe('BlogCard', () => {
 
   it('should handle missing thumbnail gracefully', () => {
     const blogWithoutThumbnail = { ...mockBlog, thumbnail: undefined };
-    render(<BlogCard blog={blogWithoutThumbnail} />);
+    render(<BlogCard blog={{...blogWithoutThumbnail, thumbnail: null}} />);
 
     // Placeholder görsel olmalı
     const thumbnail = screen.getByRole('img');

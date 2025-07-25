@@ -32,20 +32,73 @@ export default function ExperienceManager({ experiences, onChange }: ExperienceM
   };
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold mb-4">İş Tecrübeleri</h2>
-      <div className="space-y-4">
+    <div className="admin-card">
+      <h2 className="text-2xl font-semibold mb-6">İş Tecrübeleri</h2>
+      <div className="space-y-6">
         {experiences.map((exp, index) => (
-          <div key={index} className="p-4 border rounded-md space-y-2">
-            <input type="text" placeholder="Unvan" value={exp.title} onChange={(e) => handleExperienceChange(index, 'title', e.target.value)} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="Şirket" value={exp.company} onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} className="w-full p-2 border rounded" />
-            <input type="text" placeholder="Tarih (Örn: 2022 - Günümüz)" value={exp.date} onChange={(e) => handleExperienceChange(index, 'date', e.target.value)} className="w-full p-2 border rounded" />
-            <textarea placeholder="Açıklama" value={exp.description} onChange={(e) => handleExperienceChange(index, 'description', e.target.value)} className="w-full p-2 border rounded" rows={3} />
-            <button type="button" onClick={() => removeExperience(index)} className="text-red-500 hover:text-red-700">Bu Tecrübeyi Sil</button>
+          <div key={index} className="p-4 sm:p-6 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4 bg-gray-50 dark:bg-gray-800/50">
+            <div className="flex justify-between items-center">
+              <h3 className="font-medium text-lg">Tecrübe {index + 1}</h3>
+              <button 
+                type="button" 
+                onClick={() => removeExperience(index)} 
+                className="touch-target text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              >
+                Bu Tecrübeyi Sil
+              </button>
+            </div>
+            <div className="admin-form-grid">
+              <div>
+                <label className="block text-sm font-medium mb-2">Unvan</label>
+                <input 
+                  type="text" 
+                  placeholder="Yazılım Geliştirici" 
+                  value={exp.title} 
+                  onChange={(e) => handleExperienceChange(index, 'title', e.target.value)} 
+                  className="admin-input" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Şirket</label>
+                <input 
+                  type="text" 
+                  placeholder="ABC Teknoloji" 
+                  value={exp.company} 
+                  onChange={(e) => handleExperienceChange(index, 'company', e.target.value)} 
+                  className="admin-input" 
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Tarih</label>
+              <input 
+                type="text" 
+                placeholder="2022 - Günümüz" 
+                value={exp.date} 
+                onChange={(e) => handleExperienceChange(index, 'date', e.target.value)} 
+                className="admin-input" 
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Açıklama</label>
+              <textarea 
+                placeholder="İş tanımı ve sorumluluklar..." 
+                value={exp.description} 
+                onChange={(e) => handleExperienceChange(index, 'description', e.target.value)} 
+                className="admin-input resize-y min-h-[80px]" 
+                rows={3} 
+              />
+            </div>
           </div>
         ))}
       </div>
-      <button type="button" onClick={addExperience} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Yeni Tecrübe Ekle</button>
+      <button 
+        type="button" 
+        onClick={addExperience} 
+        className="mt-6 admin-button-primary w-full sm:w-auto"
+      >
+        Yeni Tecrübe Ekle
+      </button>
     </div>
   );
 }

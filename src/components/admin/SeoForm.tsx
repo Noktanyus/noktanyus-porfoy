@@ -18,7 +18,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
     defaultValues: {
       siteTitle: settings?.siteTitle || '',
       siteDescription: settings?.siteDescription || '',
-      siteKeywords: (settings?.siteKeywords || []).join(', '),
+      siteKeywords: settings?.siteKeywords || '',
       canonicalUrl: settings?.canonicalUrl || '',
       robots: settings?.robots || 'index, follow',
       favicon: settings?.favicon || '/favicon.ico',
@@ -45,7 +45,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
     
     const processedData: Omit<SeoSettings, 'id'> = {
       ...data,
-      siteKeywords: data.siteKeywords.split(',').map(k => k.trim()).filter(Boolean),
+      siteKeywords: data.siteKeywords, // Keep as string since database expects string
     };
 
     try {
@@ -68,110 +68,114 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="admin-content-spacing">
       {/* General SEO Settings */}
-      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
-        <h2 className="text-xl font-semibold mb-4">Genel SEO Ayarları</h2>
-        <div className="space-y-4">
+      <div className="admin-card">
+        <h2 className="text-xl font-semibold mb-6">Genel SEO Ayarları</h2>
+        <div className="space-y-6">
           <div>
-            <label htmlFor="siteTitle" className="block text-sm font-medium mb-1">Site Başlığı</label>
-            <input {...register("siteTitle", { required: "Zorunlu alan" })} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="siteTitle" className="block text-sm font-medium mb-2">Site Başlığı</label>
+            <input {...register("siteTitle", { required: "Zorunlu alan" })} className="admin-input" />
           </div>
           <div>
-            <label htmlFor="siteDescription" className="block text-sm font-medium mb-1">Site Açıklaması</label>
-            <textarea {...register("siteDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="siteDescription" className="block text-sm font-medium mb-2">Site Açıklaması</label>
+            <textarea {...register("siteDescription")} rows={3} className="admin-input resize-y min-h-[80px]" />
           </div>
           <div>
-            <label htmlFor="siteKeywords" className="block text-sm font-medium mb-1">Anahtar Kelimeler (virgülle ayırın)</label>
-            <input {...register("siteKeywords")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="siteKeywords" className="block text-sm font-medium mb-2">Anahtar Kelimeler (virgülle ayırın)</label>
+            <input {...register("siteKeywords")} className="admin-input" placeholder="web development, portfolio, blog" />
+          </div>
+          <div className="admin-form-grid">
+            <div>
+              <label htmlFor="canonicalUrl" className="block text-sm font-medium mb-2">Canonical URL</label>
+              <input {...register("canonicalUrl")} placeholder="https://ornek.com" className="admin-input" />
+            </div>
+            <div>
+              <label htmlFor="robots" className="block text-sm font-medium mb-2">Robots Meta</label>
+              <input {...register("robots")} placeholder="index, follow" className="admin-input" />
+            </div>
           </div>
           <div>
-            <label htmlFor="canonicalUrl" className="block text-sm font-medium mb-1">Canonical URL</label>
-            <input {...register("canonicalUrl")} placeholder="https://ornek.com" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-          </div>
-          <div>
-            <label htmlFor="robots" className="block text-sm font-medium mb-1">Robots Meta</label>
-            <input {...register("robots")} placeholder="index, follow" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-          </div>
-          <div>
-            <label htmlFor="favicon" className="block text-sm font-medium mb-1">Favicon URL</label>
-            <input {...register("favicon")} placeholder="/favicon.ico" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="favicon" className="block text-sm font-medium mb-2">Favicon URL</label>
+            <input {...register("favicon")} placeholder="/favicon.ico" className="admin-input" />
           </div>
         </div>
       </div>
 
       {/* robots.txt and sitemap.xml */}
-      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
-        <h2 className="text-xl font-semibold mb-4">Arama Motoru Dosyaları</h2>
-        <div className="space-y-4">
+      <div className="admin-card">
+        <h2 className="text-xl font-semibold mb-6">Arama Motoru Dosyaları</h2>
+        <div className="space-y-6">
           <div>
-            <label htmlFor="robotsTxt" className="block text-sm font-medium mb-1">robots.txt İçeriği</label>
-            <textarea {...register("robotsTxt")} rows={8} className="w-full p-2 rounded bg-gray-800 text-gray-200 font-mono" />
+            <label htmlFor="robotsTxt" className="block text-sm font-medium mb-2">robots.txt İçeriği</label>
+            <textarea {...register("robotsTxt")} rows={8} className="admin-input bg-gray-800 text-gray-200 font-mono resize-y min-h-[160px]" />
           </div>
-          <div>
-            <h3 className="text-lg font-medium">Sitemap</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <h3 className="text-lg font-medium mb-2">Sitemap</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               `sitemap.xml` dosyası, blog yazılarınız ve projeleriniz eklendikçe otomatik olarak güncellenir. Manuel bir işlem yapmanıza gerek yoktur.
-              <Link href="/sitemap.xml" target="_blank" className="text-brand-primary hover:underline ml-2">
-                Sitemap&apos;i Görüntüle
-              </Link>
             </p>
+            <Link href="/sitemap.xml" target="_blank" className="inline-block mt-2 text-brand-primary hover:underline font-medium">
+              Sitemap&apos;i Görüntüle →
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Open Graph (Facebook, etc.) */}
-      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
-        <h2 className="text-xl font-semibold mb-4">Open Graph Ayarları (Sosyal Medya)</h2>
-        <div className="space-y-4">
+      <div className="admin-card">
+        <h2 className="text-xl font-semibold mb-6">Open Graph Ayarları (Sosyal Medya)</h2>
+        <div className="space-y-6">
           <input type="hidden" {...register("ogType")} value="website" />
           <input type="hidden" {...register("ogUrl")} value={watch("canonicalUrl")} />
           <input type="hidden" {...register("ogSiteName")} value={watch("siteTitle")} />
           <div>
-            <label htmlFor="ogTitle" className="block text-sm font-medium mb-1">OG Başlık</label>
-            <input {...register("ogTitle")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogTitle" className="block text-sm font-medium mb-2">OG Başlık</label>
+            <input {...register("ogTitle")} className="admin-input" />
           </div>
           <div>
-            <label htmlFor="ogDescription" className="block text-sm font-medium mb-1">OG Açıklama</label>
-            <textarea {...register("ogDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogDescription" className="block text-sm font-medium mb-2">OG Açıklama</label>
+            <textarea {...register("ogDescription")} rows={3} className="admin-input resize-y min-h-[80px]" />
           </div>
           <div>
-            <label htmlFor="ogImage" className="block text-sm font-medium mb-1">OG Görsel URL</label>
-            <input {...register("ogImage")} placeholder="https://ornek.com/og-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="ogImage" className="block text-sm font-medium mb-2">OG Görsel URL</label>
+            <input {...register("ogImage")} placeholder="https://ornek.com/og-gorsel.png" className="admin-input" />
           </div>
         </div>
       </div>
 
       {/* Twitter Card */}
-      <div className="p-6 border rounded-lg bg-white dark:bg-dark-card">
-        <h2 className="text-xl font-semibold mb-4">Twitter Kart Ayarları</h2>
-        <div className="space-y-4">
+      <div className="admin-card">
+        <h2 className="text-xl font-semibold mb-6">Twitter Kart Ayarları</h2>
+        <div className="space-y-6">
           <input type="hidden" {...register("twitterCard")} value="summary_large_image" />
-          <div>
-            <label htmlFor="twitterSite" className="block text-sm font-medium mb-1">Twitter Site (@kullanici)</label>
-            <input {...register("twitterSite")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="admin-form-grid">
+            <div>
+              <label htmlFor="twitterSite" className="block text-sm font-medium mb-2">Twitter Site (@kullanici)</label>
+              <input {...register("twitterSite")} placeholder="@kullaniciadi" className="admin-input" />
+            </div>
+            <div>
+              <label htmlFor="twitterCreator" className="block text-sm font-medium mb-2">Twitter Yaratıcı (@kullanici)</label>
+              <input {...register("twitterCreator")} placeholder="@kullaniciadi" className="admin-input" />
+            </div>
           </div>
           <div>
-            <label htmlFor="twitterCreator" className="block text-sm font-medium mb-1">Twitter Yaratıcı (@kullanici)</label>
-            <input {...register("twitterCreator")} placeholder="@kullaniciadi" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
-          </div>
-           <div>
-            <label htmlFor="twitterTitle" className="block text-sm font-medium mb-1">Twitter Başlık</label>
-            <input {...register("twitterTitle")} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterTitle" className="block text-sm font-medium mb-2">Twitter Başlık</label>
+            <input {...register("twitterTitle")} className="admin-input" />
           </div>
           <div>
-            <label htmlFor="twitterDescription" className="block text-sm font-medium mb-1">Twitter Açıklama</label>
-            <textarea {...register("twitterDescription")} rows={3} className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterDescription" className="block text-sm font-medium mb-2">Twitter Açıklama</label>
+            <textarea {...register("twitterDescription")} rows={3} className="admin-input resize-y min-h-[80px]" />
           </div>
           <div>
-            <label htmlFor="twitterImage" className="block text-sm font-medium mb-1">Twitter Görsel URL</label>
-            <input {...register("twitterImage")} placeholder="https://ornek.com/twitter-gorsel.png" className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700" />
+            <label htmlFor="twitterImage" className="block text-sm font-medium mb-2">Twitter Görsel URL</label>
+            <input {...register("twitterImage")} placeholder="https://ornek.com/twitter-gorsel.png" className="admin-input" />
           </div>
         </div>
       </div>
 
-      <div className="text-right">
-        <button type="submit" disabled={isSubmitting} className="bg-brand-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-gray-400">
+      <div className="flex justify-end">
+        <button type="submit" disabled={isSubmitting} className="admin-button-primary">
           {isSubmitting ? "Güncelleniyor..." : "Güncelle"}
         </button>
       </div>

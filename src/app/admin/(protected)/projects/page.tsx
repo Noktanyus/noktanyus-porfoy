@@ -71,38 +71,81 @@ export default function ProjectsAdminPage() {
   }
 
   return (
-    <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md animate-fade-in">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Proje Yönetimi</h1>
+    <div className="admin-card animate-fade-in">
+      {/* Mobile-first responsive header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold">Proje Yönetimi</h1>
         <Link href="/admin/projects/new">
-          <button className="bg-brand-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
-            Yeni Proje Ekle
+          <button className="admin-button-primary w-full sm:w-auto">
+            <span className="sm:hidden">+ Yeni Proje</span>
+            <span className="hidden sm:inline">Yeni Proje Ekle</span>
           </button>
         </Link>
       </div>
       
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto">
+      {/* Responsive table container */}
+      <div className="admin-table-container">
+        {/* Mobile card view for small screens */}
+        <div className="block sm:hidden space-y-4">
+          {projects.length > 0 ? (
+            projects.map((project) => (
+              <div key={project.slug} className="bg-gray-50 dark:bg-dark-bg rounded-lg p-4 space-y-3">
+                <div>
+                  <h3 className="font-medium text-base">{project.title}</h3>
+                  <p className="text-sm text-gray-500 font-mono mt-1">{project.slug}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Link href={`/admin/projects/edit/${project.slug}`} className="flex-1">
+                    <button className="admin-button-secondary w-full text-sm">
+                      Düzenle
+                    </button>
+                  </Link>
+                  <button 
+                    onClick={() => handleDelete(project.slug)} 
+                    className="admin-button bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 flex-1 text-sm"
+                  >
+                    Sil
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <p className="text-base">Henüz proje eklenmemiş.</p>
+              <p className="text-sm mt-2">&quot;Yeni Proje&quot; butonu ile başlayabilirsiniz.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop table view */}
+        <table className="admin-table hidden sm:table">
           <thead className="bg-gray-100 dark:bg-dark-bg">
             <tr>
-              <th className="text-left py-3 px-4 font-semibold">Proje Başlığı</th>
-              <th className="text-left py-3 px-4 font-semibold">Dosya Adı (Slug)</th>
-              <th className="text-right py-3 px-4 font-semibold">İşlemler</th>
+              <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-semibold">Proje Başlığı</th>
+              <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-semibold">Dosya Adı (Slug)</th>
+              <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-semibold">İşlemler</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {projects.length > 0 ? (
               projects.map((project) => (
                 <tr key={project.slug} className="hover:bg-gray-50 dark:hover:bg-dark-card transition-colors">
-                  <td className="py-3 px-4 font-medium">{project.title}</td>
-                  <td className="py-3 px-4 text-gray-500 font-mono">{project.slug}</td>
-                  <td className="py-3 px-4 text-right">
-                    <Link href={`/admin/projects/edit/${project.slug}`} className="text-brand-primary hover:underline mr-4 font-medium">
-                      Düzenle
-                    </Link>
-                    <button onClick={() => handleDelete(project.slug)} className="text-red-500 hover:underline font-medium">
-                      Sil
-                    </button>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium">{project.title}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base text-gray-500 font-mono">{project.slug}</td>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/admin/projects/edit/${project.slug}`}>
+                        <button className="text-brand-primary hover:underline font-medium px-2 py-1 rounded">
+                          Düzenle
+                        </button>
+                      </Link>
+                      <button 
+                        onClick={() => handleDelete(project.slug)} 
+                        className="text-red-500 hover:underline font-medium px-2 py-1 rounded"
+                      >
+                        Sil
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

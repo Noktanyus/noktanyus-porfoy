@@ -20,12 +20,18 @@ jest.mock('next/image', () => ({
 describe('ProjectCard', () => {
   const mockProject: Project = {
     id: 'test-project',
+    slug: 'test-project',
     title: 'My Awesome Project',
     description: 'This is a description of the project.',
     mainImage: '/images/test.png', // Doğru prop adı: mainImage
-    technologies: ['React', 'Next.js'],
-    date: '2023-01-01',
+    technologies: 'React,Next.js',
+    date: new Date('2023-01-01'),
     order: 1,
+    liveDemo: null,
+    githubRepo: null,
+    featured: false,
+    isLive: false,
+    content: '',
   };
 
   it('should render project details correctly', () => {

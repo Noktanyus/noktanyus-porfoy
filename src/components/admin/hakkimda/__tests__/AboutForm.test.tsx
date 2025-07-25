@@ -24,6 +24,7 @@ describe('AboutForm', () => {
       <AboutForm 
         aboutData={mockAboutData}
         onAboutChange={mockOnAboutChange}
+        onFileChange={jest.fn()}
       />
     );
   });

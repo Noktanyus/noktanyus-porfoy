@@ -106,22 +106,22 @@ export default function PopupForm({ initialData }: PopupFormProps) {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         
         <div className={cardStyle}>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <h2 className="text-xl font-semibold">Temel Ayarlar</h2>
-            <button type="button" onClick={() => setIsPreviewOpen(true)} className="bg-gray-200 dark:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center transition-colors">
+            <button type="button" onClick={() => setIsPreviewOpen(true)} className="admin-button-secondary w-full sm:w-auto">
               <FaEye className="mr-2" />
               Önizleme
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="admin-form-grid">
             <div>
               <label htmlFor="title" className={labelStyle}>Başlık</label>
               <input
                 id="title"
                 {...register('title', { required: 'Başlık zorunludur.' })}
                 placeholder="Popup Başlığı"
-                className={inputStyle}
+                className="admin-input"
               />
               {errors.title && <p className={errorStyle}>{errors.title.message}</p>}
             </div>
@@ -131,7 +131,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                 id="slug"
                 {...register('slug', { required: 'Slug zorunludur.' })}
                 placeholder="basliktan-otomatik-olusur"
-                className={inputStyle}
+                className="admin-input"
               />
               {errors.slug && <p className={errorStyle}>{errors.slug.message}</p>}
             </div>
@@ -144,7 +144,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
               {...register('content')}
               placeholder="Popup içeriğini buraya yazın..."
               rows={6}
-              className={inputStyle}
+              className="admin-input resize-y min-h-[120px]"
             />
           </div>
 
@@ -188,7 +188,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
               id="youtubeEmbedUrl"
               {...register('youtubeEmbedUrl')}
               placeholder="https://www.youtube.com/embed/video_id"
-              className={inputStyle}
+              className="admin-input"
             />
           </div>
         </div>
@@ -197,10 +197,10 @@ export default function PopupForm({ initialData }: PopupFormProps) {
           <h3 className="text-xl font-semibold mb-4">Butonlar</h3>
           <div className="space-y-4">
             {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3 relative bg-gray-50 dark:bg-gray-800">
+              <div key={field.id} className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-4 relative bg-gray-50 dark:bg-gray-800">
                 <div className="flex justify-between items-center">
                   <h4 className="font-medium">Buton {index + 1}</h4>
-                  <button type="button" onClick={() => remove(index)} className="text-red-500 hover:text-red-700 transition-colors">
+                  <button type="button" onClick={() => remove(index)} className="touch-target text-red-500 hover:text-red-700 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">
                     <FaTrash />
                   </button>
                 </div>
@@ -210,7 +210,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                         <input
                           {...register(`buttons.${index}.text`, { required: 'Buton metni zorunludur.' })}
                           placeholder="Örn: İncele"
-                          className={inputStyle}
+                          className="admin-input"
                         />
                     </div>
                     <div>
@@ -219,7 +219,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                           name={`buttons.${index}.actionType`}
                           control={control}
                           render={({ field: { onChange, value } }) => (
-                            <select onChange={onChange} value={value} className={inputStyle}>
+                            <select onChange={onChange} value={value} className="admin-input">
                               <option value="redirect">Yönlendirme (Link)</option>
                               <option value="show-text">Gizli Metin Göster</option>
                               <option value="run-code">Kod Çalıştır (JS)</option>
@@ -234,22 +234,33 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                       {...register(`buttons.${index}.actionValue`, { required: 'Aksiyon değeri zorunludur.' })}
                       placeholder="URL, Metin, Kod"
                       rows={2}
-                      className={inputStyle}
+                      className="admin-input resize-y min-h-[60px]"
                     />
                 </div>
               </div>
             ))}
           </div>
           {fields.length < 4 && (
-            <button type="button" onClick={() => append({ text: '', actionType: 'redirect', actionValue: '' })} className="mt-4 bg-gray-200 dark:bg-gray-700 text-black dark:text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center transition-colors">
+            <button type="button" onClick={() => append({ text: '', actionType: 'redirect', actionValue: '' })} className="mt-4 admin-button-secondary w-full sm:w-auto">
               <FaPlus className="mr-2" />
               Yeni Buton Ekle
             </button>
           )}
         </div>
 
-        <div className="flex justify-end mt-8">
-          <button type="submit" disabled={isSubmitting} className="bg-brand-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 flex items-center transition-transform transform hover:scale-105">
+        <div className="flex flex-col sm:flex-row gap-3 sm:justify-end mt-8">
+          <button 
+            type="button" 
+            onClick={() => router.back()} 
+            className="admin-button-secondary order-2 sm:order-1"
+          >
+            İptal
+          </button>
+          <button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="admin-button-primary order-1 sm:order-2"
+          >
             <FaSave className="mr-2" />
             {isSubmitting ? 'Kaydediliyor...' : (isEditMode ? 'Değişiklikleri Kaydet' : 'Popup Oluştur')}
           </button>
@@ -257,7 +268,11 @@ export default function PopupForm({ initialData }: PopupFormProps) {
       </form>
 
       {isPreviewOpen && (
-        <PopupDisplay popup={watchedPopupData} onClose={() => setIsPreviewOpen(false)} />
+        <PopupDisplay popup={{
+          ...watchedPopupData,
+          id: watchedPopupData.id || 'preview',
+          buttons: JSON.stringify(watchedPopupData.buttons)
+        }} onClose={() => setIsPreviewOpen(false)} />
       )}
     </>
   );

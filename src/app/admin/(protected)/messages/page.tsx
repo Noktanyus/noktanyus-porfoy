@@ -100,50 +100,68 @@ export default function MessagesAdminPage() {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 h-[calc(100vh-8rem)]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8 h-[calc(100vh-8rem)]">
         {/* Mesaj Listesi Bölümü */}
-        <div className="md:col-span-1 bg-white dark:bg-dark-card rounded-lg shadow-md overflow-y-auto">
-          <h1 className="text-xl font-bold p-4 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-dark-card z-10">
+        <div className="lg:col-span-1 bg-white dark:bg-dark-card rounded-lg shadow-md overflow-y-auto max-h-[50vh] lg:max-h-full">
+          <h1 className="text-lg lg:text-xl font-bold p-3 lg:p-4 border-b dark:border-gray-700 sticky top-0 bg-white dark:bg-dark-card z-10">
             Gelen Kutusu ({messages.length})
           </h1>
           <ul>
             {messages.length > 0 ? messages.map(msg => (
-              <li key={msg.id} onClick={() => setSelectedMessage(msg)} className={`p-4 border-b dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${selectedMessage?.id === msg.id ? 'bg-blue-100 dark:bg-blue-900' : ''}`}>
-                <p className="font-bold">{msg.name}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{msg.subject}</p>
+              <li 
+                key={msg.id} 
+                onClick={() => setSelectedMessage(msg)} 
+                className={`p-3 lg:p-4 border-b dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors touch-manipulation ${selectedMessage?.id === msg.id ? 'bg-blue-100 dark:bg-blue-900' : ''}`}
+              >
+                <p className="font-bold text-sm lg:text-base">{msg.name}</p>
+                <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-400 truncate">{msg.subject}</p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{new Date(msg.timestamp).toLocaleString('tr-TR')}</p>
               </li>
-            )) : <p className="p-4 text-center text-gray-500">Gelen kutunuzda hiç mesaj yok.</p>}
+            )) : <p className="p-3 lg:p-4 text-center text-gray-500 text-sm lg:text-base">Gelen kutunuzda hiç mesaj yok.</p>}
           </ul>
         </div>
 
         {/* Mesaj Detayı Bölümü */}
-        <div className="md:col-span-2 bg-white dark:bg-dark-card rounded-lg shadow-md flex flex-col">
+        <div className="lg:col-span-2 bg-white dark:bg-dark-card rounded-lg shadow-md flex flex-col min-h-[50vh] lg:min-h-full">
           {selectedMessage ? (
             <>
-              <div className="p-4 border-b dark:border-gray-700">
-                <h2 className="text-xl font-bold">{selectedMessage.subject}</h2>
-                <p className="text-sm mt-1">
-                  <span className="font-semibold">{selectedMessage.name}</span>
-                  <span className="text-gray-500"> ({selectedMessage.email})</span>
-                </p>
-                <p className="text-xs text-gray-400 mt-1">{new Date(selectedMessage.timestamp).toLocaleString('tr-TR')}</p>
+              <div className="p-3 lg:p-4 border-b dark:border-gray-700">
+                <h2 className="text-lg lg:text-xl font-bold line-clamp-2">{selectedMessage.subject}</h2>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm lg:text-base">
+                    <span className="font-semibold">{selectedMessage.name}</span>
+                  </p>
+                  <p className="text-xs lg:text-sm text-gray-500 break-all">
+                    {selectedMessage.email}
+                  </p>
+                  <p className="text-xs text-gray-400">{new Date(selectedMessage.timestamp).toLocaleString('tr-TR')}</p>
+                </div>
               </div>
-              <div className="p-4 flex-grow overflow-y-auto whitespace-pre-wrap">
+              <div className="p-3 lg:p-4 flex-grow overflow-y-auto whitespace-pre-wrap text-sm lg:text-base">
                 {selectedMessage.message}
               </div>
-              <div className="p-4 border-t dark:border-gray-700 flex justify-end gap-4">
-                <button onClick={() => setIsReplyModalOpen(true)} className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                  Cevapla
-                </button>
-                <button onClick={() => handleDelete(selectedMessage.id)} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
-                  Sil
-                </button>
+              <div className="p-3 lg:p-4 border-t dark:border-gray-700">
+                <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                  <button 
+                    onClick={() => setIsReplyModalOpen(true)} 
+                    className="admin-button-primary order-1 sm:order-2"
+                  >
+                    Cevapla
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(selectedMessage.id)} 
+                    className="admin-button bg-red-600 text-white hover:bg-red-700 order-2 sm:order-1"
+                  >
+                    Sil
+                  </button>
+                </div>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">Okumak için soldaki listeden bir mesaj seçin.</p>
+            <div className="flex items-center justify-center h-full p-4">
+              <div className="text-center">
+                <p className="text-gray-500 text-sm lg:text-base">Okumak için {window.innerWidth < 1024 ? 'yukarıdaki' : 'soldaki'} listeden bir mesaj seçin.</p>
+              </div>
             </div>
           )}
         </div>
@@ -152,18 +170,27 @@ export default function MessagesAdminPage() {
       {/* Yanıt Modalı */}
       {isReplyModalOpen && selectedMessage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-dark-card rounded-lg shadow-xl p-6 w-full max-w-2xl">
-            <h2 className="text-xl font-bold mb-4">Yanıtla: {selectedMessage.subject}</h2>
+          <div className="bg-white dark:bg-dark-card rounded-lg shadow-xl p-4 sm:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-lg sm:text-xl font-bold mb-4 line-clamp-2">Yanıtla: {selectedMessage.subject}</h2>
             <textarea
               value={replyContent}
               onChange={(e) => setReplyContent(e.target.value)}
-              rows={10}
-              className="w-full p-2 border rounded-md bg-gray-100 dark:bg-gray-800"
+              rows={8}
+              className="admin-input resize-y min-h-[160px] sm:min-h-[200px]"
               placeholder="Yanıtınızı buraya yazın..."
             />
-            <div className="mt-4 flex justify-end gap-4">
-              <button onClick={() => setIsReplyModalOpen(false)} className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors">İptal</button>
-              <button onClick={handleReply} disabled={isReplying} className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:bg-gray-400 transition-colors">
+            <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:justify-end">
+              <button 
+                onClick={() => setIsReplyModalOpen(false)} 
+                className="admin-button-secondary order-2 sm:order-1"
+              >
+                İptal
+              </button>
+              <button 
+                onClick={handleReply} 
+                disabled={isReplying} 
+                className="admin-button-primary order-1 sm:order-2"
+              >
                 {isReplying ? "Gönderiliyor..." : "Gönder"}
               </button>
             </div>

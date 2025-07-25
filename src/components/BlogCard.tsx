@@ -1,67 +1,102 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { Blog } from '@prisma/client';
 import { FaArrowRight } from 'react-icons/fa';
+import OptimizedImage from '@/components/ui/OptimizedImage';
 
 interface BlogCardProps {
   blog: Blog;
 }
 
 const BlogCard = ({ blog }: BlogCardProps) => {
+  if (!blog) {
+    return null;
+  }
+  
   const imageUrl = blog.thumbnail?.startsWith('/images/')
     ? `/api/static${blog.thumbnail}`
     : blog.thumbnail || "/images/placeholder.webp";
 
   return (
-    <Link href={`/blog/${blog.slug}`} className="group block bg-white dark:bg-dark-card rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1">
-      <div className="relative h-52">
-        <Image
-          src={imageUrl || "/images/placeholder.webp"}
-          alt={`${blog.title} için küçük resim`}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
-          className="transition-transform duration-500 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 p-6">
-          <h3 className="text-xl font-bold text-white leading-tight">{blog.title}</h3>
-        </div>
-      </div>
-      <div className="p-6">
-        <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">{blog.description}</p>
-        
-        {/* Author and Category */}
-        <div className="flex items-center gap-4 mb-3 text-xs text-gray-500 dark:text-gray-400">
-          <span>{blog.author}</span>
-          <span>•</span>
-          <span>{blog.category}</span>
-        </div>
-
-        {/* Tags */}
-        {blog.tags && blog.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {blog.tags.map((tag, index) => (
-              <span
-                key={index}
-                className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-xs rounded-full text-gray-600 dark:text-gray-300"
-              >
-                {tag}
-              </span>
-            ))}
+    <article className="group">
+      <Link 
+        href={`/blog/${blog.slug}`} 
+        className="block bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-300 overflow-hidden transform hover:-translate-y-1 min-h-[44px]"
+      >
+        {/* Image Section */}
+        <div className="relative h-44 sm:h-48 md:h-52 lg:h-56">
+          <OptimizedImage
+            src={imageUrl || "/images/placeholder.webp"}
+            alt={`${blog.title} için küçük resim`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+            className="transition-transform duration-300 group-hover:scale-105"
+            priority={false}
+            quality={80}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+          
+          {/* Title Overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-white leading-tight line-clamp-2 drop-shadow-lg">
+              {blog.title}
+            </h3>
           </div>
-        )}
-
-        <div className="flex justify-between items-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {new Date(blog.date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
-          <span className="inline-flex items-center font-semibold text-sm text-brand-primary group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
-            Devamını Oku <FaArrowRight className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </span>
         </div>
-      </div>
-    </Link>
+        
+        {/* Content Section */}
+        <div className="p-4 sm:p-6">
+          {/* Description */}
+          <p className="text-gray-600 dark:text-gray-400 mb-4 sm:mb-5 text-sm sm:text-base leading-relaxed line-clamp-3">
+            {blog.description}
+          </p>
+          
+          {/* Author and Category */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-3 sm:mb-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-medium">{blog.author}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full text-xs">
+              {blog.category}
+            </span>
+          </div>
+
+          {/* Tags */}
+          {blog.tags && blog.tags.trim() && (
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-5">
+              {blog.tags.split(',').filter(tag => tag.trim()).slice(0, 4).map((tag: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-xs sm:text-sm rounded-full text-gray-600 dark:text-gray-300 whitespace-nowrap"
+                >
+                  {tag.trim()}
+                </span>
+              ))}
+              {blog.tags.split(',').filter(tag => tag.trim()).length > 4 && (
+                <span className="px-2 sm:px-3 py-1 bg-gray-100 dark:bg-gray-700 text-xs sm:text-sm rounded-full text-gray-500 dark:text-gray-400">
+                  +{blog.tags.split(',').filter(tag => tag.trim()).length - 4}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-200 dark:border-gray-700">
+            <time className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium">
+              {new Date(blog.date).toLocaleDateString('tr-TR', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </time>
+            
+            <span className="inline-flex items-center font-semibold text-sm sm:text-base text-brand-primary group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors min-h-[44px] sm:min-h-0 justify-center sm:justify-start">
+              Devamını Oku 
+              <FaArrowRight className="ml-2 w-3 h-3 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-200" />
+            </span>
+          </div>
+        </div>
+      </Link>
+    </article>
   );
 };
 

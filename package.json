@@ -10,7 +10,17 @@
     "db:seed": "prisma db seed",
     "test": "jest",
     "test:coverage": "jest --coverage --watchAll=false",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:responsive": "tsx src/__tests__/responsive-test-runner.ts",
+    "test:responsive:unit": "jest responsive.test.tsx --verbose",
+    "test:responsive:visual": "jest visual --verbose",
+    "test:responsive:a11y": "jest accessibility --verbose",
+    "test:responsive:touch": "jest touch.test.tsx --verbose",
+    "test:cross-browser": "tsx src/__tests__/cross-browser-test-suite.ts",
+    "test:cross-browser:chrome": "tsx src/__tests__/cross-browser-test-suite.ts --browser chrome",
+    "test:cross-browser:firefox": "tsx src/__tests__/cross-browser-test-suite.ts --browser firefox",
+    "test:cross-browser:safari": "tsx src/__tests__/cross-browser-test-suite.ts --browser safari",
+    "test:cross-browser:mobile": "tsx src/__tests__/cross-browser-test-suite.ts --browser iphone"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -63,6 +73,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/nodemailer": "^6.4.17",
@@ -74,6 +85,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "jest": "^30.0.4",
+    "jest-axe": "^9.0.0",
     "jest-environment-jsdom": "^30.0.4",
     "postcss": "^8",
     "prisma": "^6.12.0",

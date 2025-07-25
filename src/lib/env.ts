@@ -13,6 +13,8 @@ const envSchema = z.object({
   EMAIL_PORT: z.string().min(1),
   EMAIL_USER: z.string().min(1),
   EMAIL_PASSWORD: z.string().min(1),
+  EMAIL_FROM: z.string().email().optional(),
+  EMAIL_FROM_NAME: z.string().optional(),
   NEXT_PUBLIC_BASE_URL: z.string().min(1),
   NEXT_PUBLIC_YANDEX_METRICA_ID: z.string().optional(),
 });

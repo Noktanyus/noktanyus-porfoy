@@ -54,31 +54,39 @@ export function HistoryClientPage({ commits, repoUrl }: HistoryClientPageProps) 
     <div className="bg-white dark:bg-dark-card shadow-md rounded-lg overflow-hidden">
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {commits.map((commit) => (
-          <li key={commit.hash} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <div className="flex items-center justify-between">
+          <li key={commit.hash} className="p-3 sm:p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-brand-primary truncate">{commit.message}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  <span className="font-mono bg-gray-100 dark:bg-gray-700 px-1 rounded">{commit.hash.substring(0, 7)}</span>
-                  {' by '}
-                  <strong>{commit.author_name}</strong>
-                  {' on '}
-                  <time dateTime={commit.date}>{new Date(commit.date).toLocaleString('tr-TR')}</time>
-                </p>
+                <p className="text-sm sm:text-base font-semibold text-brand-primary line-clamp-2">{commit.message}</p>
+                <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 space-y-1 sm:space-y-0">
+                  <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+                    <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded text-xs">
+                      {commit.hash.substring(0, 7)}
+                    </span>
+                    <span className="hidden sm:inline">by</span>
+                    <strong className="truncate max-w-[150px] sm:max-w-none">{commit.author_name}</strong>
+                  </div>
+                  <div className="sm:inline">
+                    <span className="hidden sm:inline">on </span>
+                    <time dateTime={commit.date} className="text-xs sm:text-sm">
+                      {new Date(commit.date).toLocaleString('tr-TR')}
+                    </time>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4 flex-shrink-0 flex items-center space-x-2">
+              <div className="flex-shrink-0 flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <a
                   href={`${repoUrl}/commit/${commit.hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-1 text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 rounded-md transition"
+                  className="admin-button-secondary text-center text-xs sm:text-sm"
                 >
                   Görüntüle
                 </a>
                 <button
                   onClick={() => handleRevert(commit.hash)}
                   disabled={isReverting === commit.hash}
-                  className="px-3 py-1 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition disabled:bg-red-400"
+                  className="admin-button bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400 text-xs sm:text-sm"
                 >
                   {isReverting === commit.hash ? "Geri Alınıyor..." : "Geçmişe Al"}
                 </button>

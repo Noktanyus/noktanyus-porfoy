@@ -54,7 +54,7 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       
       {homeSettings.featuredContentType === "html" && homeSettings.customHtml && (
         <div className="w-full max-w-lg animate-float">
-          <ClientOnlyHtml htmlContent={homeSettings.customHtml} />
+          <ClientOnlyHtml html={homeSettings.customHtml} />
         </div>
       )}
     </div>

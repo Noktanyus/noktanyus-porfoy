@@ -128,18 +128,24 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-12">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Yönetim Paneli</h1>
-        <button onClick={fetchData} disabled={isLoading} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50" aria-label="Verileri Yenile">
-          <FaSyncAlt className={`text-2xl ${isLoading ? 'animate-spin' : ''}`} />
+    <div className="admin-content-spacing">
+      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 xs:gap-4">
+        <h1 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">Yönetim Paneli</h1>
+        <button 
+          onClick={fetchData} 
+          disabled={isLoading} 
+          className="admin-button admin-button-secondary touch-target-lg shrink-0" 
+          aria-label="Verileri Yenile"
+        >
+          <FaSyncAlt className={`text-lg sm:text-xl ${isLoading ? 'animate-spin' : ''}`} />
+          <span className="ml-2 hidden xs:inline">Yenile</span>
         </button>
       </div>
 
       {/* Genel Bakış ve İstatistikler */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Genel Bakış</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section>
+        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Genel Bakış</h2>
+        <div className="admin-grid">
           {isLoading ? (
             <>
               <StatCardSkeleton />
@@ -154,61 +160,71 @@ export default function DashboardPage() {
             </>
           )}
         </div>
-      </div>
+      </section>
       
       {/* Son Gelen Mesajlar */}
       <RecentMessages messages={recentMessages} isLoading={isLoading} />
 
       {/* Kaynak Kodu Yönetimi */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Kaynak Kodu Yönetimi</h2>
-        <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md">
+      <section>
+        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Kaynak Kodu Yönetimi</h2>
+        <div className="admin-card">
           <SourceCodeCommitter />
         </div>
-      </div>
+      </section>
 
       {/* Hızlı Erişim ve Araçlar */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Hızlı Erişim ve Araçlar</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section>
+        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Hızlı Erişim ve Araçlar</h2>
+        <div className="admin-grid">
           {adminLinks.map((link) => (
-            <Link href={link.href} key={link.href} className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transform transition-all duration-300 flex items-center space-x-4">
-              <div className="text-brand-primary text-3xl">{link.icon}</div>
-              <h3 className="text-xl font-semibold">{link.text}</h3>
+            <Link 
+              href={link.href} 
+              key={link.href} 
+              className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 touch-manipulation focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 group"
+            >
+              <div className="text-brand-primary text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">{link.icon}</div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">{link.text}</h3>
             </Link>
           ))}
-          <div onClick={handleTestEmail} className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transform transition-all duration-300 flex items-center space-x-4 cursor-pointer">
-            <div className="text-green-500 text-3xl"><FaPaperPlane /></div>
-            <h3 className="text-xl font-semibold">E-posta Bağlantısını Test Et</h3>
-          </div>
-          <div onClick={handleTestGitHub} className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md hover:shadow-xl hover:scale-105 transform transition-all duration-300 flex items-center space-x-4 cursor-pointer">
-            <div className="text-gray-800 dark:text-white text-3xl"><FaGithub /></div>
-            <h3 className="text-xl font-semibold">GitHub Bağlantısını Test Et</h3>
-          </div>
+          <button 
+            onClick={handleTestEmail} 
+            className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group text-left w-full"
+          >
+            <div className="text-green-500 text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"><FaPaperPlane /></div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">E-posta Bağlantısını Test Et</h3>
+          </button>
+          <button 
+            onClick={handleTestGitHub} 
+            className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 group text-left w-full"
+          >
+            <div className="text-gray-800 dark:text-white text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"><FaGithub /></div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">GitHub Bağlantısını Test Et</h3>
+          </button>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
 /** İstatistik kartı bileşeni. */
 const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, value: number }) => (
-  <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4">
-    <div className="text-4xl text-brand-primary">{icon}</div>
-    <div>
-      <p className="text-gray-500 dark:text-gray-400">{title}</p>
-      <p className="text-2xl font-bold">{value}</p>
+  <div className="admin-card flex items-center space-x-3 sm:space-x-4 hover:shadow-lg transition-shadow duration-200">
+    <div className="text-3xl sm:text-4xl text-brand-primary flex-shrink-0">{icon}</div>
+    <div className="min-w-0 flex-1">
+      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-tight">{title}</p>
+      <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{value}</p>
     </div>
   </div>
 );
 
 /** İstatistik kartı için iskelet (skeleton) yükleme göstergesi. */
 const StatCardSkeleton = () => (
-  <div className="bg-white dark:bg-dark-card p-6 rounded-lg shadow-md flex items-center space-x-4 animate-pulse">
-    <div className="w-12 h-12 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
-    <div className="flex-1 space-y-2">
-      <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
-      <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2"></div>
+  <div className="admin-card flex items-center space-x-3 sm:space-x-4 animate-pulse">
+    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 dark:bg-gray-700 rounded-full flex-shrink-0"></div>
+    <div className="flex-1 space-y-2 min-w-0">
+      <div className="h-3 sm:h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4"></div>
+      <div className="h-5 sm:h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2"></div>
     </div>
   </div>
 );
@@ -321,17 +337,17 @@ function SourceCodeCommitter() {
       {/* Dal Değiştirme Bölümü */}
       <div>
         <h3 className="text-lg font-semibold mb-2">Dal Yönetimi</h3>
-        <div className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
-          <div className="flex-grow">
-            <label htmlFor="branch-select" className="block text-sm font-medium mb-1">Aktif Dal</label>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 sm:gap-4 p-3 sm:p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
+          <div className="flex-grow min-w-0">
+            <label htmlFor="branch-select" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Aktif Dal</label>
             {isLoadingBranches ? (
-              <div className="w-full p-2 rounded bg-gray-200 dark:bg-gray-700 animate-pulse h-10"></div>
+              <div className="w-full admin-input animate-pulse bg-gray-200 dark:bg-gray-700 h-10 sm:h-11"></div>
             ) : (
               <select 
                 id="branch-select" 
                 value={selectedBranch} 
                 onChange={(e) => setSelectedBranch(e.target.value)} 
-                className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
+                className="admin-input"
                 disabled={isSwitching || branches.length === 0}
               >
                 {branches.map(branch => (
@@ -342,11 +358,11 @@ function SourceCodeCommitter() {
               </select>
             )}
           </div>
-          <div className="self-end">
+          <div className="flex-shrink-0">
             <button 
               onClick={handleSwitchBranch} 
               disabled={isSwitching || isLoadingBranches || branches.find(b => b.isCurrent)?.name === selectedBranch}
-              className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="admin-button-primary w-full sm:w-auto"
             >
               {isSwitching ? "Değiştiriliyor..." : "Dal Değiştir"}
             </button>
@@ -357,25 +373,43 @@ function SourceCodeCommitter() {
       {/* Commit Bölümü */}
       <div>
         <h3 className="text-lg font-semibold mb-2">Değişiklikleri Gönder</h3>
-        <div className="space-y-4 p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
+        <div className="space-y-4 p-3 sm:p-4 border rounded-lg bg-gray-50 dark:bg-gray-900/30">
           <p className="text-sm text-gray-600 dark:text-gray-400">
             Kaynak kodundaki değişiklikleri GitHub deposuna gönderin.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="admin-form-grid">
             <div>
-              <label htmlFor="commit-type" className="block text-sm font-medium mb-1">Tip</label>
-              <select id="commit-type" value={commitType} onChange={(e) => setCommitType(e.target.value)} className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting}>
+              <label htmlFor="commit-type" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Tip</label>
+              <select 
+                id="commit-type" 
+                value={commitType} 
+                onChange={(e) => setCommitType(e.target.value)} 
+                className="admin-input" 
+                disabled={isCommitting}
+              >
                 {commitTypes.map(type => <option key={type.value} value={type.value}>{type.label}</option>)}
               </select>
             </div>
-            <div className="md:col-span-2">
-              <label htmlFor="commit-subject" className="block text-sm font-medium mb-1">İçerik</label>
-              <input id="commit-subject" type="text" value={commitSubject} onChange={(e) => setCommitSubject(e.target.value)} placeholder="Değişikliklerin kısa ve net bir özeti" className="w-full p-2 rounded bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600" disabled={isCommitting} />
+            <div>
+              <label htmlFor="commit-subject" className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">İçerik</label>
+              <input 
+                id="commit-subject" 
+                type="text" 
+                value={commitSubject} 
+                onChange={(e) => setCommitSubject(e.target.value)} 
+                placeholder="Değişikliklerin kısa ve net bir özeti" 
+                className="admin-input" 
+                disabled={isCommitting} 
+              />
             </div>
           </div>
           
-          <div className="text-right">
-            <button onClick={handleCommit} disabled={isCommitting || !commitSubject.trim()} className="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <div className="flex justify-end">
+            <button 
+              onClick={handleCommit} 
+              disabled={isCommitting || !commitSubject.trim()} 
+              className="bg-red-600 text-white hover:bg-red-700 admin-button disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
               {isCommitting ? "Gönderiliyor..." : "Commit'le ve Gönder"}
             </button>
           </div>

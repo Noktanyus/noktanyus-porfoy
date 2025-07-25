@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Utilities Test</title>
+    <link href="./test-output.css" rel="stylesheet">
+</head>
+<body class="bg-light-bg dark:bg-dark-bg text-light-text dark:text-dark-text">
+    <div class="container-responsive py-8">
+        <h1 class="text-responsive-display mb-8">Responsive Utilities Test</h1>
+        
+        <!-- Typography Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Typography</h2>
+            <div class="space-responsive">
+                <p class="text-body-responsive-md">This is responsive body text that scales appropriately across devices.</p>
+                <p class="text-caption-responsive">This is responsive caption text.</p>
+                <h3 class="text-heading-responsive-md">Responsive Heading Medium</h3>
+                <h4 class="text-heading-responsive-sm">Responsive Heading Small</h4>
+            </div>
+        </section>
+
+        <!-- Grid Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Grids</h2>
+            
+            <h3 class="text-heading-responsive-sm mb-4">Cards Grid</h3>
+            <div class="grid-responsive-cards mb-8">
+                <div class="card-responsive">
+                    <h4 class="text-heading-responsive-sm mb-2">Card 1</h4>
+                    <p class="text-body-responsive-sm">This card uses responsive padding and shadows.</p>
+                </div>
+                <div class="card-responsive">
+                    <h4 class="text-heading-responsive-sm mb-2">Card 2</h4>
+                    <p class="text-body-responsive-sm">Cards adapt to different screen sizes.</p>
+                </div>
+                <div class="card-responsive">
+                    <h4 class="text-heading-responsive-sm mb-2">Card 3</h4>
+                    <p class="text-body-responsive-sm">Mobile-first responsive design.</p>
+                </div>
+                <div class="card-responsive">
+                    <h4 class="text-heading-responsive-sm mb-2">Card 4</h4>
+                    <p class="text-body-responsive-sm">Touch-optimized for mobile devices.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aspect Ratio Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Aspect Ratios</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-3">Project Card Aspect</h3>
+                    <div class="aspect-project-card bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span class="text-body-responsive-sm">1:1 → 4:3 → 16:10</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-3">Blog Card Aspect</h3>
+                    <div class="aspect-blog-card bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span class="text-body-responsive-sm">4:3 → 16:9</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-3">Hero Image Aspect</h3>
+                    <div class="aspect-hero-image bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span class="text-body-responsive-sm">4:3 → 3:2 → 5:2</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Button Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Touch-Optimized Buttons</h2>
+            
+            <div class="flex-responsive-center">
+                <button class="btn-touch bg-brand-primary text-white hover:bg-blue-600 transition-colors">
+                    Primary Button
+                </button>
+                <button class="btn-touch bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                    Secondary Button
+                </button>
+                <button class="btn-touch border border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white transition-colors">
+                    Outline Button
+                </button>
+            </div>
+        </section>
+
+        <!-- Form Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Forms</h2>
+            
+            <form class="form-responsive max-w-2xl">
+                <div class="form-group-responsive">
+                    <label class="text-body-responsive-sm font-medium">Name</label>
+                    <input type="text" class="form-input-responsive" placeholder="Enter your name">
+                </div>
+                
+                <div class="form-row-responsive">
+                    <div class="form-group-responsive flex-1">
+                        <label class="text-body-responsive-sm font-medium">Email</label>
+                        <input type="email" class="form-input-responsive" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group-responsive flex-1">
+                        <label class="text-body-responsive-sm font-medium">Phone</label>
+                        <input type="tel" class="form-input-responsive" placeholder="Enter your phone">
+                    </div>
+                </div>
+                
+                <div class="form-group-responsive">
+                    <label class="text-body-responsive-sm font-medium">Message</label>
+                    <textarea class="form-input-responsive min-h-32" placeholder="Enter your message"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-touch bg-brand-primary text-white hover:bg-blue-600 transition-colors w-full sm:w-auto">
+                    Send Message
+                </button>
+            </form>
+        </section>
+
+        <!-- Visibility Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Visibility</h2>
+            
+            <div class="space-y-4">
+                <div class="show-mobile p-4 bg-red-100 dark:bg-red-900 rounded-lg">
+                    <p class="text-body-responsive-sm">This is only visible on mobile devices</p>
+                </div>
+                
+                <div class="show-tablet p-4 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                    <p class="text-body-responsive-sm">This is only visible on tablet devices</p>
+                </div>
+                
+                <div class="show-desktop p-4 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <p class="text-body-responsive-sm">This is only visible on desktop devices</p>
+                </div>
+                
+                <div class="hide-mobile p-4 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                    <p class="text-body-responsive-sm">This is hidden on mobile devices</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Text Truncation Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Text Truncation</h2>
+            
+            <div class="space-y-4 max-w-md">
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-2">Truncate 1 → 2 lines</h3>
+                    <p class="truncate-responsive-1">This is a long text that will be truncated to 1 line on mobile and 2 lines on larger screens. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-2">Truncate 2 → 3 lines</h3>
+                    <p class="truncate-responsive-2">This is a long text that will be truncated to 2 lines on mobile and 3 lines on larger screens. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-heading-responsive-sm mb-2">Truncate 3 → 4 lines</h3>
+                    <p class="truncate-responsive-3">This is a long text that will be truncated to 3 lines on mobile and 4 lines on larger screens. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Images</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="image-container-responsive aspect-responsive-photo">
+                    <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white">
+                        <span class="text-body-responsive-sm">Responsive Photo</span>
+                    </div>
+                </div>
+                
+                <div class="image-container-responsive aspect-responsive-video">
+                    <div class="w-full h-full bg-gradient-to-br from-green-400 to-blue-600 flex items-center justify-center text-white">
+                        <span class="text-body-responsive-sm">Responsive Video</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spacing Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Responsive Spacing</h2>
+            
+            <div class="space-y-responsive">
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-body-responsive-sm">Item 1 - Responsive vertical spacing</p>
+                </div>
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-body-responsive-sm">Item 2 - Spacing adapts to screen size</p>
+                </div>
+                <div class="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p class="text-body-responsive-sm">Item 3 - Mobile-first approach</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Touch Target Test -->
+        <section class="mb-12">
+            <h2 class="text-heading-responsive-lg mb-6">Touch Targets</h2>
+            
+            <div class="flex flex-wrap gap-4">
+                <button class="min-h-touch min-w-touch bg-brand-primary text-white rounded-lg flex items-center justify-center touch-manipulation">
+                    44px
+                </button>
+                <button class="min-h-touch-lg min-w-touch-lg bg-green-500 text-white rounded-lg flex items-center justify-center touch-manipulation">
+                    56px
+                </button>
+                <div class="min-h-touch min-w-touch bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                    <span class="text-xs">Touch</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Dark mode toggle for testing -->
+    <button 
+        onclick="document.documentElement.classList.toggle('dark')"
+        class="fixed bottom-4 right-4 btn-touch bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 rounded-full shadow-lg"
+    >
+        🌓
+    </button>
+</body>
+</html>

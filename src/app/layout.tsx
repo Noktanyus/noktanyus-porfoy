@@ -18,6 +18,7 @@ import { getAbout, getSeoSettings } from "@/services/contentService";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
+import PerformanceInitializer from "@/components/PerformanceInitializer";
 import dynamic from "next/dynamic";
 
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
@@ -96,14 +97,17 @@ export default async function RootLayout({
           >
             <div className="relative flex flex-col min-h-screen">
               <Header headerTitle={headerTitle} />
-              <main className="flex-grow container mx-auto px-4 pt-24">
-                {children}
+              <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
+                <div className="w-full">
+                  {children}
+                </div>
               </main>
               <Footer aboutData={aboutData} />
             </div>
             <Suspense fallback={<Spinner />}>
               <PopupViewer />
             </Suspense>
+            <PerformanceInitializer />
           </ThemeProvider>
         </AuthProvider>
         

@@ -1,0 +1,154 @@
+{
+  "timestamp": "2025-07-25T13:07:54.392Z",
+  "summary": {
+    "totalTests": 5,
+    "passedTests": 0,
+    "failedTests": 5,
+    "totalDuration": 2891,
+    "browserResults": {
+      "Chrome Desktop": {
+        "passed": 0,
+        "failed": 5
+      }
+    }
+  },
+  "results": [
+    {
+      "browser": "Chrome Desktop",
+      "test": "cross-browser/browser-responsive.test.tsx",
+      "passed": false,
+      "duration": 678,
+      "errors": [
+        "Command failed: npm test -- --testPathPattern=\"cross-browser/browser-responsive.test.tsx\" --verbose --coverage=false --silent\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+      ]
+    },
+    {
+      "browser": "Chrome Desktop",
+      "test": "cross-browser/touch-interaction.test.tsx",
+      "passed": false,
+      "duration": 478,
+      "errors": [
+        "Command failed: npm test -- --testPathPattern=\"cross-browser/touch-interaction.test.tsx\" --verbose --coverage=false --silent\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+      ]
+    },
+    {
+      "browser": "Chrome Desktop",
+      "test": "visual/visual-regression.test.tsx",
+      "passed": false,
+      "duration": 666,
+      "errors": [
+        "Command failed: npm test -- --testPathPattern=\"visual/visual-regression.test.tsx\" --verbose --coverage=false --silent\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+      ]
+    },
+    {
+      "browser": "Chrome Desktop",
+      "test": "performance/mobile-performance.test.tsx",
+      "passed": false,
+      "duration": 528,
+      "errors": [
+        "Command failed: npm test -- --testPathPattern=\"performance/mobile-performance.test.tsx\" --verbose --coverage=false --silent\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+      ]
+    },
+    {
+      "browser": "Chrome Desktop",
+      "test": "accessibility/mobile-navigation.test.tsx",
+      "passed": false,
+      "duration": 541,
+      "errors": [
+        "Command failed: npm test -- --testPathPattern=\"accessibility/mobile-navigation.test.tsx\" --verbose --coverage=false --silent\ntestPathPattern:\n\n  Option \"testPathPattern\" was replaced by \"--testPathPatterns\". \"--testPathPatterns\" is only available as a command-line option.\n  \n  Please update your configuration.\n\n  CLI Options Documentation:\n  https://jestjs.io/docs/cli\n\n"
+      ]
+    }
+  ],
+  "browserConfigs": [
+    {
+      "name": "Chrome Desktop",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "pixelRatio": 1,
+      "touchSupport": false
+    },
+    {
+      "name": "Firefox Desktop",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "pixelRatio": 1,
+      "touchSupport": false
+    },
+    {
+      "name": "Safari Desktop",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "pixelRatio": 2,
+      "touchSupport": false
+    },
+    {
+      "name": "Edge Desktop",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59",
+      "viewport": {
+        "width": 1920,
+        "height": 1080
+      },
+      "pixelRatio": 1,
+      "touchSupport": false
+    },
+    {
+      "name": "iPhone Safari",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+      "viewport": {
+        "width": 375,
+        "height": 667
+      },
+      "pixelRatio": 2,
+      "touchSupport": true
+    },
+    {
+      "name": "iPhone Safari Landscape",
+      "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+      "viewport": {
+        "width": 667,
+        "height": 375
+      },
+      "pixelRatio": 2,
+      "touchSupport": true
+    },
+    {
+      "name": "Android Chrome",
+      "userAgent": "Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36",
+      "viewport": {
+        "width": 360,
+        "height": 640
+      },
+      "pixelRatio": 3,
+      "touchSupport": true
+    },
+    {
+      "name": "iPad Safari",
+      "userAgent": "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "pixelRatio": 2,
+      "touchSupport": true
+    },
+    {
+      "name": "iPad Safari Landscape",
+      "userAgent": "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "pixelRatio": 2,
+      "touchSupport": true
+    }
+  ]
+}

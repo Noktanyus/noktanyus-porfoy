@@ -16,6 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
 import Turnstile from "@/components/Turnstile";
+import NoSSR from "@/components/NoSSR";
 import Spinner from "@/components/ui/Spinner";
 
 // Form verilerinin şemasını Zod ile tanımla

@@ -34,6 +34,11 @@ export type AboutWithRelations = About & {
 };
 
 /**
+ * Alias for About type for backward compatibility
+ */
+export type AboutData = About;
+
+/**
  * Represents the SeoSettings from Prisma.
  * Re-exported for consistency.
  */

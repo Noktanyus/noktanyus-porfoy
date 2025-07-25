@@ -22,8 +22,8 @@ describe('Markdown Processor', () => {
   it('should highlight code blocks with correct classes and spans', async () => {
     const markdown = "```js\nconst x = 1;\n```";
     const result = await processMarkdown(markdown);
-    // 's' bayrağı (dotall), '.' karakterinin yeni satırları da eşleştirmesini sağlar.
-    expect(result).toMatch(/<pre><code class="language-js">.*<span.*>const<\/span>.*<\/code><\/pre>/s);
+    // Use [\s\S]* instead of .* with 's' flag to match newlines
+    expect(result).toMatch(/<pre><code class="language-js">[\s\S]*<span[\s\S]*>const<\/span>[\s\S]*<\/code><\/pre>/);
   });
 
   it('should sanitize potentially dangerous HTML', async () => {

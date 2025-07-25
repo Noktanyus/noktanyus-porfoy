@@ -8,7 +8,7 @@ import { Experience } from '@/types/content';
 
 describe('ExperienceManager', () => {
   const mockExperiences: Experience[] = [
-    { title: 'Software Engineer', company: 'Tech Corp', date: '2022-Present', description: 'Developing cool stuff.' }
+    { id: '1', title: 'Software Engineer', company: 'Tech Corp', date: '2022-Present', description: 'Developing cool stuff.', aboutId: 'about1' }
   ];
 
   it('should render initial experiences correctly', () => {
