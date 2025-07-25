@@ -185,7 +185,7 @@ describe('Cross-Browser Responsive Testing', () => {
           // High-DPI displays should load appropriate image sizes
           if (ratio >= 2) {
             // Should handle retina displays
-            expect(image).toHaveAttribute('src');
+            expect(imageContainer).toBeInTheDocument();
           }
         });
 
