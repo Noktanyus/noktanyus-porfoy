@@ -47,7 +47,7 @@ describe('Visual Regression Testing', () => {
         });
 
         test('header should maintain consistent layout', () => {
-          render(<Header />);
+          render(<Header headerTitle="Test Portfolio" />);
           
           const header = screen.getByRole('banner');
           const styles = getResponsiveStyles(header);
@@ -236,7 +236,7 @@ describe('Visual Regression Testing', () => {
         });
 
         test('navigation should remain accessible in all orientations', () => {
-          render(<Header />);
+          render(<Header headerTitle="Test Portfolio" />);
           
           const navigation = screen.getByRole('navigation');
           const rect = navigation.getBoundingClientRect();
@@ -298,7 +298,7 @@ describe('Visual Regression Testing', () => {
         });
 
         test('text should remain crisp at all pixel densities', () => {
-          render(<Header />);
+          render(<Header headerTitle="Test Portfolio" />);
           
           const headings = screen.getAllByRole('heading');
           const links = screen.getAllByRole('link');
@@ -354,7 +354,7 @@ describe('Visual Regression Testing', () => {
       mockWindowDimensions(BREAKPOINTS.desktop);
       mockMatchMedia(BREAKPOINTS.desktop);
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const styles = window.getComputedStyle(header);
@@ -399,7 +399,7 @@ describe('Visual Regression Testing', () => {
       mockWindowDimensions(BREAKPOINTS.mobile);
       mockMatchMedia(BREAKPOINTS.mobile);
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const styles = window.getComputedStyle(header);
@@ -416,7 +416,7 @@ describe('Visual Regression Testing', () => {
         mockWindowDimensions(width);
         mockMatchMedia(width);
 
-        render(<Header />);
+        render(<Header headerTitle="Test Portfolio" />);
         
         const header = screen.getByRole('banner');
         const styles = window.getComputedStyle(header);

@@ -157,7 +157,7 @@ describe('AdminSidebar Responsive Tests', () => {
     });
 
     it('should have proper mobile sidebar width', () => {
-      const sidebar = screen.getByRole('navigation');
+      const sidebar = document.getElementById('admin-sidebar');
       expect(sidebar).toHaveClass('w-80', 'sm:w-84', 'md:w-80');
       expect(sidebar).toHaveClass('max-w-[90vw]', 'sm:max-w-[85vw]', 'md:max-w-[320px]');
     });
@@ -223,7 +223,7 @@ describe('AdminSidebar Responsive Tests', () => {
     it('should support keyboard navigation on desktop', async () => {
       renderWithViewport(<AdminSidebar />, 'desktop');
       
-      const firstLink = screen.getByText('Gösterge Paneli').closest('a');
+      const firstLink = screen.getAllByText('Gösterge Paneli')[1]?.closest('a');
       const secondLink = screen.getByText('Ana Sayfa Ayarları').closest('a');
       
       // Focus elements
@@ -241,7 +241,7 @@ describe('AdminSidebar Responsive Tests', () => {
       fireEvent.click(hamburgerButton);
       
       await waitFor(() => {
-        const sidebar = screen.getByRole('navigation');
+        const sidebar = document.getElementById('admin-sidebar');
         expect(sidebar).not.toHaveClass('-translate-x-full');
       });
       
@@ -249,7 +249,7 @@ describe('AdminSidebar Responsive Tests', () => {
       fireEvent.keyDown(document, { key: 'Escape' });
       
       await waitFor(() => {
-        const sidebar = screen.getByRole('navigation');
+        const sidebar = document.getElementById('admin-sidebar');
         expect(sidebar).toHaveClass('-translate-x-full');
       });
     });
@@ -257,7 +257,7 @@ describe('AdminSidebar Responsive Tests', () => {
     it('should have proper ARIA attributes', () => {
       renderWithViewport(<AdminSidebar />, 'mobile');
       
-      const sidebar = screen.getByRole('navigation');
+      const sidebar = document.getElementById('admin-sidebar');
       expect(sidebar).toHaveAttribute('aria-label', 'Ana navigasyon menüsü');
       expect(sidebar).toHaveAttribute('aria-hidden', 'true');
       
@@ -420,8 +420,8 @@ describe('AdminSidebar Responsive Tests', () => {
     it('should have performance optimizations for animations', () => {
       renderWithViewport(<AdminSidebar />, 'mobile');
       
-      const sidebar = screen.getByRole('navigation');
-      const sidebarStyle = window.getComputedStyle(sidebar);
+      const sidebar = document.getElementById('admin-sidebar');
+      const sidebarStyle = window.getComputedStyle(sidebar!);
       
       // Check for performance optimization styles
       expect(sidebar.style.willChange).toBe('transform');

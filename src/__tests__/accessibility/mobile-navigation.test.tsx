@@ -38,7 +38,7 @@ describe('Mobile Navigation Accessibility', () => {
 
   describe('WCAG 2.1 AA Compliance', () => {
     test('header navigation should have no accessibility violations', async () => {
-      const { container } = render(<Header />);
+      const { container } = render(<Header headerTitle="Test Portfolio" />);
       
       const results = await axe(container);
       expect(results).toHaveNoViolations();
@@ -81,7 +81,7 @@ describe('Mobile Navigation Accessibility', () => {
 
   describe('Touch Target Accessibility', () => {
     test('all interactive elements should meet minimum touch target size', () => {
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const buttons = screen.getAllByRole('button');
       const links = screen.getAllByRole('link');
@@ -129,7 +129,7 @@ describe('Mobile Navigation Accessibility', () => {
     test('should support keyboard navigation in mobile header', async () => {
       const user = userEvent.setup();
       
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       // Tab through navigation elements
       await user.tab();
@@ -157,7 +157,7 @@ describe('Mobile Navigation Accessibility', () => {
     test('should handle Enter and Space key activation', async () => {
       const user = userEvent.setup();
       
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const button = screen.getAllByRole('button')[0];
       
@@ -177,7 +177,7 @@ describe('Mobile Navigation Accessibility', () => {
     test('should trap focus in mobile menu when open', async () => {
       const user = userEvent.setup();
       
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const menuButton = screen.queryByLabelText(/menu/i) || 
                         screen.queryByRole('button', { name: /menu/i });
@@ -207,7 +207,7 @@ describe('Mobile Navigation Accessibility', () => {
 
   describe('Screen Reader Support', () => {
     test('navigation should have proper ARIA labels', () => {
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const navigation = screen.getByRole('navigation');
       expect(navigation).toHaveAttribute('aria-label');
@@ -283,7 +283,7 @@ describe('Mobile Navigation Accessibility', () => {
     test('should manage focus when mobile menu opens/closes', async () => {
       const user = userEvent.setup();
       
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const menuButton = screen.queryByLabelText(/menu/i) || 
                         screen.queryByRole('button', { name: /menu/i });
@@ -309,7 +309,7 @@ describe('Mobile Navigation Accessibility', () => {
     });
 
     test('should handle focus indicators on touch devices', () => {
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const buttons = screen.getAllByRole('button');
       
@@ -378,7 +378,7 @@ describe('Mobile Navigation Accessibility', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const computedStyle = window.getComputedStyle(header);
@@ -418,7 +418,7 @@ describe('Mobile Navigation Accessibility', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
@@ -433,7 +433,7 @@ describe('Mobile Navigation Accessibility', () => {
       mockWindowDimensions(BREAKPOINTS.mobile / 2); // Simulate 200% zoom
       mockMatchMedia(BREAKPOINTS.mobile / 2);
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
@@ -481,7 +481,7 @@ describe('Mobile Navigation Accessibility', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const computedStyle = window.getComputedStyle(header);
@@ -492,7 +492,7 @@ describe('Mobile Navigation Accessibility', () => {
     });
 
     test('should not cause seizures with flashing content', () => {
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const computedStyle = window.getComputedStyle(header);

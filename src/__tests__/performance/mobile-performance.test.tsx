@@ -57,7 +57,7 @@ describe('Mobile Performance Testing', () => {
     test('header should render quickly on mobile', () => {
       const startTime = performance.now();
       
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const endTime = performance.now();
       const renderTime = endTime - startTime;
@@ -227,7 +227,7 @@ describe('Mobile Performance Testing', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       const computedStyle = window.getComputedStyle(header);
@@ -266,7 +266,7 @@ describe('Mobile Performance Testing', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
@@ -358,7 +358,7 @@ describe('Mobile Performance Testing', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
@@ -371,7 +371,7 @@ describe('Mobile Performance Testing', () => {
 
   describe('Touch Performance', () => {
     test('should handle rapid touch events efficiently', async () => {
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const button = screen.getAllByRole('button')[0];
       
@@ -456,7 +456,7 @@ describe('Mobile Performance Testing', () => {
         writable: true,
       });
 
-      render(<Header />);
+      render(<Header headerTitle="Test Portfolio" />);
       
       const header = screen.getByRole('banner');
       expect(header).toBeInTheDocument();
