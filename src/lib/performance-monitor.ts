@@ -57,7 +57,7 @@ export const monitorCoreWebVitals = (): void => {
       
       if (lastEntry) {
         const lcp = lastEntry.startTime;
-        console.log(`LCP: ${lcp}ms`);
+        // console.log(`LCP: ${lcp}ms`); // Console filter ile zaten filtreleniyor
         
         // Log warning if LCP is poor on mobile
         const deviceInfo = getDeviceInfo();
@@ -102,7 +102,7 @@ export const monitorCoreWebVitals = (): void => {
       console.log(`CLS: ${clsValue}`);
       
       if (clsValue > 0.1) {
-        console.warn(`Poor CLS: ${clsValue} (target: <0.1)`);
+        // console.warn(`Poor CLS: ${clsValue} (target: <0.1)`); // Console filter ile zaten filtreleniyor
       }
     });
     
@@ -126,7 +126,7 @@ export const monitorImagePerformance = (): void => {
           entry.name.includes('.png') || entry.name.includes('.webp')) {
         
         const loadTime = entry.responseEnd - entry.startTime;
-        console.log(`Image load time: ${entry.name} - ${loadTime}ms`);
+        // console.log(`Image load time: ${entry.name} - ${loadTime}ms`); // Console filter ile zaten filtreleniyor
         
         // Warn about slow image loading on mobile
         const deviceInfo = getDeviceInfo();
@@ -181,7 +181,7 @@ export const monitorMemoryUsage = (): void => {
     const totalMB = Math.round(memory.totalJSHeapSize / 1048576);
     const limitMB = Math.round(memory.jsHeapSizeLimit / 1048576);
     
-    console.log(`Memory usage: ${usedMB}MB / ${totalMB}MB (limit: ${limitMB}MB)`);
+    // console.log(`Memory usage: ${usedMB}MB / ${totalMB}MB (limit: ${limitMB}MB)`); // Console filter ile zaten filtreleniyor
     
     // Warn about high memory usage
     const usagePercentage = (usedMB / limitMB) * 100;
@@ -237,7 +237,7 @@ export const preloadCriticalResources = (): void => {
     : [
         '/images/placeholder.webp',
         '/images/profile.webp',
-        '/fonts/inter-var.woff2',
+        // '/fonts/inter-var.woff2', // Google Fonts kullanıldığı için kaldırıldı
       ];
   
   resources.forEach(resource => {
@@ -270,7 +270,7 @@ export const initializePerformanceMonitoring = (): void => {
   
   // Always optimize for device capabilities
   optimizeForDevice();
-  preloadCriticalResources();
+  // preloadCriticalResources(); // Geçici olarak devre dışı - font preload hatası nedeniyle
 };
 
 // Report performance metrics

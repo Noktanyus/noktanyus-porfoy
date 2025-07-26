@@ -277,20 +277,19 @@ export const initializeCSSOptimizations = (): void => {
   // Set CSS custom properties
   setCSSCustomProperties();
   
-  // Preload critical resources
-  preloadCriticalResources([
-    '/fonts/inter-var.woff2',
-    '/images/placeholder.webp',
-  ]);
+  // Preload critical resources - geçici olarak devre dışı
+  // preloadCriticalResources([
+  //   '/images/placeholder.webp',
+  // ]);
   
-  // Load non-critical CSS after page load
-  if (typeof window !== 'undefined') {
-    window.addEventListener('load', () => {
-      // Load additional stylesheets asynchronously
-      loadNonCriticalCSS('/css/animations.css').catch(console.warn);
-      loadNonCriticalCSS('/css/utilities.css').catch(console.warn);
-    });
-  }
+  // Load non-critical CSS after page load - geçici olarak devre dışı
+  // if (typeof window !== 'undefined') {
+  //   window.addEventListener('load', () => {
+  //     // Load additional stylesheets asynchronously
+  //     loadNonCriticalCSS('/css/animations.css').catch(console.warn);
+  //     loadNonCriticalCSS('/css/utilities.css').catch(console.warn);
+  //   });
+  // }
 };
 
 // CSS minification utility (for build time)

@@ -23,8 +23,7 @@ const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "E-posta", type: "email" },
         password: { label: "Şifre", type: "password" },
-        // Turnstile token'ı da credentials'a dahil edilebilir, ancak authorize içinde doğrudan erişilmez.
-        // Genellikle middleware veya API rotasında ayrıca doğrulanır.
+        // Sadece email ve password kullanılıyor
       },
       /**
        * Kullanıcının giriş bilgilerini doğrulayan fonksiyon.

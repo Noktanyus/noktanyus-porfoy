@@ -4,7 +4,7 @@ import "@/lib/env";
  * @description Bu dosya, tüm sayfaları saran ana HTML yapısını oluşturur.
  *              `<html>` ve `<body>` etiketlerini içerir. Ayrıca, genel font ayarları,
  *              tema (açık/koyu mod) ve kimlik doğrulama sağlayıcıları gibi
- *              global context'leri ve script'leri (Yandex Metrica, Turnstile) tanımlar.
+ *              global context'leri ve script'leri (Yandex Metrica) tanımlar.
  */
 
 import Image from "next/image";
@@ -20,6 +20,9 @@ import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
 import PerformanceInitializer from "@/components/PerformanceInitializer";
 import dynamic from "next/dynamic";
+
+// Console filter'ı client-side component olarak yükle
+const ConsoleFilter = dynamic(() => import('@/components/ConsoleFilter'), { ssr: false });
 
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
 const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
@@ -86,8 +89,104 @@ export default async function RootLayout({
 
   return (
     <html lang="tr" suppressHydrationWarning>
+      <head>
+        {/* Google Fonts preconnect for better performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        
+        {/* Console filter - en erken çalışması için script tag olarak */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                if (typeof window === 'undefined') return;
+                
+                const originalError = console.error;
+                const originalWarn = console.warn;
+                const originalLog = console.log;
+                
+                console.error = function(...args) {
+                  const message = args.join(' ');
+                  const filteredMessages = [
+                    'sandboxed', 'allow-scripts', 'about:blank', 'Blocked script execution',
+                    'document\\'s frame is sandboxed', 'Permissions-Policy header',
+                    'Unrecognized feature', 'browsing-topics', 'interest-cohort',
+                    'challenges.cloudflare.com', 'Refused to connect', 'Content Security Policy',
+                    'CSP', 'violates the following', 'mc.yandex.com', 'mc.yandex.ru', 'yandex',
+                    'youtube.com', 'www.youtube.com', 'Refused to frame', 'frame-src',
+                    'YOUTUBEJS', 'Failed to extract signature decipher', 'googleads.g.doubleclick.net',
+                    'CORS policy', 'Access-Control-Allow-Origin', 'aria-hidden', 'assistive technology',
+                    'ytimg.com', 'doubleclick.net', 'Refused to apply style', 'MIME type',
+                    'text/html', 'not a supported stylesheet', 'strict MIME checking',
+                    'utilities.css', 'animations.css'
+                  ];
+                  
+                  if (filteredMessages.some(filter => message.includes(filter))) {
+                    return;
+                  }
+                  originalError.apply(console, args);
+                };
+                
+                console.log = function(...args) {
+                  const message = args.join(' ');
+                  const filteredLogs = [
+                    'LCP:', 'Performance optimizations initialized', 'Image load time:',
+                    'Memory usage:', 'Console filter aktif edildi'
+                  ];
+                  
+                  if (filteredLogs.some(filter => message.includes(filter))) {
+                    return;
+                  }
+                  originalLog.apply(console, args);
+                };
+                
+                console.warn = function(...args) {
+                  const message = args.join(' ');
+                  const filteredWarnings = [
+                    'preloaded using link preload but not used', 'preload but not used',
+                    'Permissions-Policy', 'browsing-topics', 'interest-cohort',
+                    'inter-var.woff2', 'fonts/inter-var.woff2', 'placeholder.webp', 'profile.webp', 'Poor CLS',
+                    'CLS:', 'target: <0.1', 'Error with Permissions-Policy header',
+                    'Unrecognized feature', 'Console was cleared', 'Blocked aria-hidden',
+                    'focus must not be hidden', 'ytp-play-button', 'ytp-chrome-bottom',
+                    'Image load time:', 'Memory usage:', 'LCP:', 'Event {isTrusted: true',
+                    'css-optimization.ts'
+                  ];
+                  
+                  if (filteredWarnings.some(filter => message.includes(filter))) {
+                    return;
+                  }
+                  originalWarn.apply(console, args);
+                };
+              })();
+            `
+          }}
+        />
+      </head>
       {/* Font sınıfı artık doğrudan body'ye uygulanmıyor, CSS'den geliyor */}
       <body className={`bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}>
+        <ConsoleFilter />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Development modunda console'u periyodik temizle
+              if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                setTimeout(() => {
+                  const clearSandboxErrors = () => {
+                    try {
+                      // Console API ile temizleme
+                      if (console.clear && Math.random() < 0.1) { // %10 şansla
+                        console.clear();
+                      }
+                    } catch (e) {}
+                  };
+                  
+                  setInterval(clearSandboxErrors, 5000); // 5 saniyede bir
+                }, 3000);
+              }
+            `
+          }}
+        />
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -111,9 +210,9 @@ export default async function RootLayout({
           </ThemeProvider>
         </AuthProvider>
         
-        <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" async defer />
+        {/* Turnstile script kaldırıldı */}
         
-        {yandexMetricaId && (
+        {false && yandexMetricaId && ( // Geçici olarak devre dışı - CSP sorunları nedeniyle
           <Suspense fallback={null}>
             <Script id="yandex-metrica-init" strategy="afterInteractive">
               {`

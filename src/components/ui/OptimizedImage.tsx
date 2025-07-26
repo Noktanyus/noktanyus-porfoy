@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLazyLoading } from '@/hooks/useLazyLoading';
 
 interface OptimizedImageProps {
@@ -43,6 +43,16 @@ const OptimizedImage = ({
 }: OptimizedImageProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [currentSrc, setSrc] = useState(src);
+
+  // src prop'u değiştiğinde currentSrc'yi güncelle
+  useEffect(() => {
+    if (src !== currentSrc) {
+      setSrc(src);
+      setIsLoaded(false);
+      setHasError(false);
+    }
+  }, [src, currentSrc]);
   
   // Use optimized lazy loading hook
   const { ref: imgRef, hasIntersected } = useLazyLoading({
@@ -79,25 +89,18 @@ const OptimizedImage = ({
   };
 
   const handleError = () => {
-    setHasError(true);
+    // Eğer currentSrc zaten profile.webp değilse, fallback olarak profile.webp'yi dene
+    if (currentSrc !== "/images/profile.webp") {
+      setSrc("/images/profile.webp");
+      setIsLoaded(false); // Yeni görsel yüklenecek
+    } else {
+      // Zaten fallback görseliyse, error state'ini göster
+      setHasError(true);
+    }
     onError?.();
   };
 
-  // Don't render image until it's in view (unless priority)
-  if (!hasIntersected && !priority) {
-    return (
-      <div
-        ref={imgRef}
-        className={`bg-gray-200 dark:bg-gray-700 animate-pulse ${className}`}
-        style={{
-          width: fill ? '100%' : width,
-          height: fill ? '100%' : height,
-          aspectRatio: width && height ? `${width}/${height}` : undefined,
-          ...style,
-        }}
-      />
-    );
-  }
+  // Lazy loading tamamen devre dışı
 
   // Error state
   if (hasError) {
@@ -129,33 +132,24 @@ const OptimizedImage = ({
   }
 
   return (
-    <div ref={imgRef} className={`relative ${!isLoaded ? 'animate-pulse' : ''}`}>
-      <Image
-        src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        fill={fill}
-        sizes={responsiveSizes}
-        priority={priority}
-        quality={quality}
-        loading={loading}
-        unoptimized={unoptimized}
-        placeholder={placeholder}
-        blurDataURL={blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL() : undefined)}
-        className={`transition-opacity duration-300 ${
-          isLoaded ? 'opacity-100' : 'opacity-0'
-        } ${className}`}
-        style={style}
-        onLoad={handleLoad}
-        onError={handleError}
-      />
-      
-      {/* Loading overlay */}
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg" />
-      )}
-    </div>
+    <Image
+      src={currentSrc}
+      alt={alt}
+      width={width}
+      height={height}
+      fill={fill}
+      sizes={responsiveSizes}
+      priority={priority}
+      quality={quality}
+      {...(!priority && { loading })}
+      unoptimized={unoptimized}
+      placeholder={placeholder}
+      blurDataURL={blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL() : undefined)}
+      className={className}
+      style={style}
+      onLoad={handleLoad}
+      onError={handleError}
+    />
   );
 };
 

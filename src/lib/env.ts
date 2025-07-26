@@ -8,7 +8,7 @@ const envSchema = z.object({
   NEXTAUTH_SECRET: z.string().min(1, { message: "NextAuth secret is required" }),
   ADMIN_EMAIL: z.string().email(),
   ADMIN_PASSWORD: z.string().min(1),
-  TURNSTILE_SECRET_KEY: z.string().min(1),
+  // TURNSTILE_SECRET_KEY kaldırıldı
   EMAIL_SERVER: z.string().min(1),
   EMAIL_PORT: z.string().min(1),
   EMAIL_USER: z.string().min(1),

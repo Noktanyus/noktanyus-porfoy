@@ -10,13 +10,13 @@ services:
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
         - ADMIN_EMAIL=${ADMIN_EMAIL}
         - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-        - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+        # TURNSTILE_SECRET_KEY kaldırıldı
         - EMAIL_SERVER=${EMAIL_SERVER}
         - EMAIL_PORT=${EMAIL_PORT}
         - EMAIL_USER=${EMAIL_USER}
         - EMAIL_PASSWORD=${EMAIL_PASSWORD}
         - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
-        - NEXT_PUBLIC_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
+        # NEXT_PUBLIC_TURNSTILE_SITE_KEY kaldırıldı
     # Container'a bir isim ver
     container_name: noktanyus-portfolio
     # Container yeniden başladığında otomatik olarak çalıştır

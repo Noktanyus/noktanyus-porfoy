@@ -84,14 +84,14 @@ const Header = ({ headerTitle }: HeaderProps) => {
       <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 flex justify-center px-2 sm:px-4">
         <div className="w-full max-w-5xl">
           <div className="flex items-center justify-between h-14 sm:h-16 bg-white/90 dark:bg-black/90 border border-white/60 dark:border-black/60 rounded-full shadow-lg backdrop-blur-md px-3 sm:px-6">
-            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-light-text dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4" aria-label="Ana Sayfa">
+            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-light-text dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4 hover-glow transition-all duration-300 ease-out" aria-label="Ana Sayfa">
               <span className="block truncate max-w-[120px] sm:max-w-none">{headerTitle}</span>
             </Link>
             
             {/* Masaüstü Navigasyonu */}
             <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 flex-shrink-0">
               {navLinks.map(link => (
-                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-light-text dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary transition-colors whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg hover:bg-white/10 dark:hover:bg-black/10 min-h-[40px] flex items-center">
+                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-light-text dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary transition-all duration-300 ease-out whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg hover:bg-white/10 dark:hover:bg-black/10 min-h-[40px] flex items-center hover-lift">
                   {link.label}
                 </Link>
               ))}
@@ -101,7 +101,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
               <button
                 onClick={toggleTheme}
                 aria-label={theme === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-200 active:scale-95"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 ease-out active:scale-95 hover-scale"
               >
                 <ThemeChangerIcon />
               </button>
@@ -110,7 +110,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 <button 
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                   aria-label="Menüyü aç/kapat"
-                  className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-200 active:scale-95"
+                  className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-white/20 dark:hover:bg-black/20 transition-all duration-300 ease-out active:scale-95 hover-rotate"
                 >
                   {isMobileMenuOpen ? <FaTimes className="w-5 h-5 text-light-text dark:text-white" /> : <FaBars className="w-5 h-5 text-light-text dark:text-white" />}
                 </button>

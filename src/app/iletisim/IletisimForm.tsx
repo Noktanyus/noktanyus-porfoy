@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
-import Turnstile from "@/components/Turnstile";
-import NoSSR from "@/components/NoSSR";
 import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaInstagram } from "react-icons/fa";
+import CloudflareTurnstile from "@/components/CloudflareTurnstile";
 
 const schema = z.object({
   name: z.string().min(2, "İsim alanı en az 2 karakter olmalıdır."),
@@ -23,10 +22,9 @@ interface IletisimFormProps {
   socialGithub?: string | null;
   socialLinkedin?: string | null;
   socialInstagram?: string | null;
-  sitekey: string;
 }
 
-export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialInstagram, sitekey }: IletisimFormProps) {
+export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialInstagram }: IletisimFormProps) {
   const { 
     register, 
     handleSubmit, 
@@ -36,46 +34,73 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
     resolver: zodResolver(schema),
   });
   
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [isTurnstileVerified, setIsTurnstileVerified] = useState(false);
-  const [turnstileKey, setTurnstileKey] = useState(0); // Turnstile'ı sıfırlamak için anahtar
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
-  const handleTurnstileVerify = useCallback((token: string) => {
+  // Cleanup effect - component unmount olduğunda tüm toast'ları temizle
+  useEffect(() => {
+    return () => {
+      toast.dismiss();
+    };
+  }, []);
+
+  const handleTurnstileVerify = (token: string) => {
     setTurnstileToken(token);
-    setIsTurnstileVerified(true);
-  }, []);
+  };
 
-  const handleTurnstileExpire = useCallback(() => {
-    toast.error("Doğrulama süresi doldu, lütfen tekrar deneyin.");
-    setTurnstileToken(null);
-    setIsTurnstileVerified(false);
-  }, []);
+  const handleTurnstileError = () => {
+    toast.error("Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.");
+    setTurnstileToken("");
+  };
 
   const onSubmit = async (data: FormData) => {
-    if (!isTurnstileVerified || !turnstileToken) {
-      toast.error("Lütfen insan olduğunuzu doğrulayın.");
+    if (!turnstileToken) {
+      toast.error("Lütfen güvenlik doğrulamasını tamamlayın.");
       return;
     }
 
+    // Turnstile token'ını doğrula
+    try {
+      const verifyResponse = await fetch('/api/verify-turnstile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+
+      const verifyResult = await verifyResponse.json();
+      if (!verifyResult.success) {
+        toast.error("Güvenlik doğrulaması başarısız.");
+        setTurnstileToken(""); // Doğrulama başarısızsa token'ı sıfırla
+        return;
+      }
+    } catch (error) {
+      toast.error("Güvenlik doğrulaması sırasında hata oluştu.");
+      setTurnstileToken(""); // Hata durumunda token'ı sıfırla
+      return;
+    }
     const loadingToast = toast.loading("Mesajınız gönderiliyor...");
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, turnstileToken }),
+        body: JSON.stringify({
+          ...data,
+          turnstileToken
+        }),
       });
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "Mesaj gönderilirken bir hata oluştu.");
       }
-      toast.success("Mesajınız başarıyla gönderildi! En kısa sürede dönüş yapılacaktır.", { id: loadingToast });
+      const successToast = toast.success("Mesajınız başarıyla gönderildi! En kısa sürede dönüş yapılacaktır.", { id: loadingToast });
+      setTimeout(() => toast.dismiss(successToast), 8000);
       reset();
-      setTurnstileToken(null);
-      setIsTurnstileVerified(false);
-      // Turnstile bileşenini yeniden oluşturarak sıfırla
-      setTurnstileKey(prevKey => prevKey + 1);
+      setTurnstileToken(""); // Turnstile token'ını sıfırla
     } catch (error) {
-      toast.error((error as Error).message, { id: loadingToast });
+      const errorToast = toast.error((error as Error).message, { id: loadingToast });
+      setTimeout(() => toast.dismiss(errorToast), 5000);
+      setTurnstileToken(""); // Hata durumunda token'ı sıfırla
     }
   };
 
@@ -224,25 +249,20 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
             )}
           </div>
 
-          {/* Turnstile Section */}
-          <div className="flex justify-center pt-2 sm:pt-4">
-            <div className="w-full max-w-[280px] sm:max-w-xs md:max-w-sm">
-              <NoSSR fallback={<div className="h-16 w-full bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />}>
-                <Turnstile
-                  key={turnstileKey}
-                  sitekey={sitekey}
-                  onVerify={handleTurnstileVerify}
-                  onExpire={handleTurnstileExpire}
-                  onError={() => toast.error("Doğrulama sırasında bir hata oluştu. Lütfen sayfayı yenileyin.")}
-                />
-              </NoSSR>
-            </div>
+          {/* Cloudflare Turnstile */}
+          <div className="flex justify-center py-4">
+            <CloudflareTurnstile
+              onVerify={handleTurnstileVerify}
+              onError={handleTurnstileError}
+              onExpire={() => setTurnstileToken("")}
+              theme="light"
+            />
           </div>
 
           {/* Submit Button */}
           <button 
             type="submit" 
-            disabled={isSubmitting || !isTurnstileVerified} 
+            disabled={isSubmitting || !turnstileToken} 
             className="w-full flex items-center justify-center bg-brand-primary text-white font-bold py-3 sm:py-4 px-6 rounded-lg hover:bg-brand-primary/90 focus:ring-4 focus:ring-brand-primary/20 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] text-sm sm:text-base md:text-lg touch-manipulation shadow-lg hover:shadow-xl disabled:shadow-none"
           >
             <FaPaperPlane className="mr-2 sm:mr-3 flex-shrink-0 text-sm sm:text-base" />

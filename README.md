@@ -32,7 +32,7 @@ Bu projenin temel amacı, bir geliştiricinin çalışmalarını, projelerini, y
 - **Blog Sistemi:** Kendi yazılarınızı yayınlayabileceğiniz, kategori ve etiket desteği olan bir blog modülü.
 - **Yönetim Paneli (Admin):** Tüm içeriği yönetmek için tasarlanmış güvenli bir admin paneli.
 - **"Hakkımda" Sayfası:** Kişisel bilgilerin, sosyal medya hesaplarının ve yeteneklerin dinamik olarak yönetildiği bir sayfa.
-- **İletişim Formu:** Google reCAPTCHA veya Cloudflare Turnstile ile korunan, spam'a karşı güvenli bir iletişim formu.
+- **İletişim Formu:** Basit ve güvenli bir iletişim formu.
 - **Veritabanı Entegrasyonu:** Prisma ORM ile PostgreSQL, MySQL veya SQLite gibi farklı veritabanlarıyla kolayca çalışabilir.
 - **Modern Arayüz:** Tailwind CSS ile oluşturulmuş, mobil uyumlu ve şık bir tasarım.
 - **SEO Uyumlu:** Next.js'in getirdiği sunucu tarafı işleme (SSR) ve statik site oluşturma (SSG) yetenekleri sayesinde arama motoru dostu.
@@ -135,9 +135,7 @@ DATABASE_URL="postgresql://..."
 NEXTAUTH_SECRET="super-secret-key"
 NEXTAUTH_URL="http://localhost:3000"
 
-# İletişim formunda kullanılacak Cloudflare Turnstile bilgileri
-NEXT_PUBLIC_CLOUDFLARE_SITE_KEY="your-cloudflare-site-key"
-CLOUDFLARE_TURNSTILE_SECRET_KEY="your-cloudflare-secret-key"
+# Cloudflare Turnstile kaldırıldı
 
 # Diğer API anahtarları (varsa)
 # Örneğin: GITHUB_TOKEN="ghp_..."

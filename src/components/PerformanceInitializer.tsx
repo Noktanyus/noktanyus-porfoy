@@ -22,7 +22,7 @@ const PerformanceInitializer = () => {
     
     // Log initialization in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('Performance optimizations initialized');
+      // console.log('Performance optimizations initialized'); // Console filter ile zaten filtreleniyor
     }
   }, []);
 

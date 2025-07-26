@@ -13,7 +13,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
     : project.mainImage || "/images/placeholder.webp";
 
   return (
-    <article className="group bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col lg:flex-row transform hover:-translate-y-1">
+    <article className="group bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-500 ease-out overflow-hidden flex flex-col lg:flex-row transform hover:-translate-y-2 hover:shadow-brand-primary/20 card-hover-glow fade-in">
       {/* Image Section */}
       <div className="lg:w-2/5 xl:w-1/3 relative h-48 sm:h-56 md:h-64 lg:h-auto min-h-[200px] lg:min-h-[280px]">
         <OptimizedImage
@@ -22,7 +22,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 40vw"
           style={{ objectFit: 'cover' }}
-          className="transition-transform duration-300 group-hover:scale-105"
+          className="transition-transform duration-500 ease-out group-hover:scale-110 image-hover-zoom"
           priority={false}
           quality={80}
         />
@@ -62,7 +62,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           {/* Main Action */}
           <Link 
             href={`/projelerim/${project.slug}`} 
-            className="inline-flex items-center justify-center sm:justify-start font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-colors min-h-[44px] px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base"
+            className="inline-flex items-center justify-center sm:justify-start font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-300 ease-out min-h-[44px] px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base hover-slide-right"
           >
             Daha Fazlasını Gör 
             <FaArrowRight className="ml-2 w-4 h-4" />
@@ -76,7 +76,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="Canlı Demo" 
-                className="group/demo min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 active:scale-95"
+                className="group/demo min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95 hover-bounce"
               >
                 <FaExternalLinkAlt size={16} className="transition-transform duration-500 ease-in-out group-hover/demo:rotate-12" />
               </a>
@@ -87,7 +87,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 target="_blank" 
                 rel="noopener noreferrer" 
                 title="Kaynak Kodu" 
-                className="group/code min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 active:scale-95"
+                className="group/code min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95 hover-bounce"
               >
                 <FaGithub size={16} className="transition-transform duration-500 ease-in-out group-hover/code:rotate-12" />
               </a>
