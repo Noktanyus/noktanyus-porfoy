@@ -13,7 +13,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
     : project.mainImage || "/images/placeholder.webp";
 
   return (
-    <article className="group bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-500 ease-out overflow-hidden flex flex-col lg:flex-row transform hover:-translate-y-2 hover:shadow-brand-primary/20 card-hover-glow fade-in">
+    <article className="group bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-700 ease-out overflow-hidden flex flex-col lg:flex-row transform hover:-translate-y-3 hover:scale-[1.015] hover:shadow-brand-primary/20 card-hover-glow fade-in">
       {/* Image Section */}
       <div className="lg:w-2/5 xl:w-1/3 relative h-48 sm:h-56 md:h-64 lg:h-auto min-h-[200px] lg:min-h-[280px]">
         <OptimizedImage
@@ -22,7 +22,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 40vw"
           style={{ objectFit: 'cover' }}
-          className="transition-transform duration-500 ease-out group-hover:scale-110 image-hover-zoom"
+          className="image-hover-zoom"
           priority={false}
           quality={80}
         />
@@ -37,17 +37,17 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         
         {/* Technology Tags */}
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-5">
-          {project.technologies?.split(',').filter((tech: string) => tech.trim()).slice(0, 5).map((tech: string) => (
+          {project.technologies?.slice(0, 5).map((tech: string) => (
             <span 
               key={tech} 
               className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap"
             >
-              {tech.trim()}
+              {tech}
             </span>
           ))}
-          {project.technologies && project.technologies.split(',').filter(tech => tech.trim()).length > 5 && (
+          {project.technologies && project.technologies.length > 5 && (
             <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold">
-              +{project.technologies.split(',').filter(tech => tech.trim()).length - 5}
+              +{project.technologies.length - 5}
             </span>
           )}
         </div>
@@ -62,7 +62,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           {/* Main Action */}
           <Link 
             href={`/projelerim/${project.slug}`} 
-            className="inline-flex items-center justify-center sm:justify-start font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-300 ease-out min-h-[44px] px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base hover-slide-right"
+            className="inline-flex items-center justify-center sm:justify-start font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-400 ease-out min-h-[44px] px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base hover-slide-right"
           >
             Daha Fazlasını Gör 
             <FaArrowRight className="ml-2 w-4 h-4" />
@@ -71,26 +71,36 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           {/* External Links */}
           <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 sm:ml-auto">
             {project.liveDemo && (
-              <a 
-                href={project.liveDemo} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                title="Canlı Demo" 
-                className="group/demo min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95 hover-bounce"
-              >
-                <FaExternalLinkAlt size={16} className="transition-transform duration-500 ease-in-out group-hover/demo:rotate-12" />
-              </a>
+              <div className="relative group/tooltip">
+                <a 
+                  href={project.liveDemo} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group/demo min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95"
+                >
+                  <FaExternalLinkAlt size={16} className="transition-transform duration-300 ease-out group-hover/demo:rotate-12" />
+                </a>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                  Canlı Demo
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                </div>
+              </div>
             )}
             {project.githubRepo && (
-              <a 
-                href={project.githubRepo} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                title="Kaynak Kodu" 
-                className="group/code min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95 hover-bounce"
-              >
-                <FaGithub size={16} className="transition-transform duration-500 ease-in-out group-hover/code:rotate-12" />
-              </a>
+              <div className="relative group/tooltip">
+                <a 
+                  href={project.githubRepo} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group/code min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95"
+                >
+                  <FaGithub size={16} className="transition-transform duration-300 ease-out group-hover/code:rotate-12" />
+                </a>
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                  GitHub
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                </div>
+              </div>
             )}
           </div>
         </div>

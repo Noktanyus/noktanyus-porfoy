@@ -45,6 +45,9 @@ const OptimizedImage = ({
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setSrc] = useState(src);
 
+  // priority true ise loading'i 'eager' yap, değilse varsayılan değeri kullan
+  const imageLoading = priority ? 'eager' : loading;
+
   // src prop'u değiştiğinde currentSrc'yi güncelle
   useEffect(() => {
     if (src !== currentSrc) {
@@ -141,7 +144,7 @@ const OptimizedImage = ({
       sizes={responsiveSizes}
       priority={priority}
       quality={quality}
-      {...(!priority && { loading })}
+      loading={imageLoading}
       unoptimized={unoptimized}
       placeholder={placeholder}
       blurDataURL={blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL() : undefined)}

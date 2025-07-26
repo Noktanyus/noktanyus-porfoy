@@ -14,17 +14,22 @@ export const dynamic = 'force-dynamic';
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { SessionProvider } from "next-auth/react";
 
 /**
  * Korumalı yönetici sayfalarının layout bileşeni.
  * @param {object} props - Bileşen propları.
  * @param {React.ReactNode} props.children - Sarmalanacak alt bileşenler (sayfa içeriği).
  */
-export default function ProtectedAdminLayout({
+function ProtectedAdminLayoutInner({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -66,6 +71,21 @@ export default function ProtectedAdminLayout({
     };
   }, [isMobileMenuOpen]);
 
+  // Auth kontrolü
+  useEffect(() => {
+    if (status === 'loading') return; // Yükleniyor
+    
+    if (!session) {
+      router.push('/admin/login');
+      return;
+    }
+
+    if (session.user?.role !== 'admin') {
+      router.push('/admin/login');
+      return;
+    }
+  }, [session, status, router]);
+
   // Handle mobile menu close when clicking outside or navigation
   const handleMobileMenuClose = () => {
     if (isMobile) {
@@ -105,6 +125,30 @@ export default function ProtectedAdminLayout({
 
     return 'Yönetim Paneli';
   };
+
+  // Yükleniyor durumu
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-dark-bg flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Yetkisiz erişim
+  if (!session || session.user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-dark-bg flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Yetkisiz Erişim</h1>
+          <p className="text-gray-600 dark:text-gray-400">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     // Ana kapsayıcı, mobile-first responsive sidebar ve ana içeriği düzenler.
@@ -185,5 +229,17 @@ export default function ProtectedAdminLayout({
 
 
     </div>
+  );
+}
+
+export default function ProtectedAdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SessionProvider>
+      <ProtectedAdminLayoutInner>{children}</ProtectedAdminLayoutInner>
+    </SessionProvider>
   );
 }

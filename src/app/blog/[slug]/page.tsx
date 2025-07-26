@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       publishedTime: new Date(post.date).toISOString(),
       authors: [post.author],
-      tags: post.tags ? post.tags.split(',').map(tag => tag.trim()) : [],
+      tags: typeof post.tags === 'string' ? post.tags.split(',').map(tag => tag.trim()) : [],
     },
     twitter: {
       card: "summary_large_image",

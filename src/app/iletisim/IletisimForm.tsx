@@ -249,15 +249,17 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
             )}
           </div>
 
-          {/* Cloudflare Turnstile */}
-          <div className="flex justify-center py-4">
-            <CloudflareTurnstile
-              onVerify={handleTurnstileVerify}
-              onError={handleTurnstileError}
-              onExpire={() => setTurnstileToken("")}
-              theme="light"
-            />
-          </div>
+          {/* Cloudflare Turnstile - Sadece production'da göster */}
+          {process.env.NODE_ENV === 'production' && (
+            <div className="flex justify-center py-4">
+              <CloudflareTurnstile
+                onVerify={handleTurnstileVerify}
+                onError={handleTurnstileError}
+                onExpire={() => setTurnstileToken("")}
+                theme="light"
+              />
+            </div>
+          )}
 
           {/* Submit Button */}
           <button 

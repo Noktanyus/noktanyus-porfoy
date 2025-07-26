@@ -209,16 +209,17 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
         id="admin-sidebar"
         className={`
           fixed lg:static inset-y-0 left-0 z-40 lg:z-auto
-          w-80 sm:w-84 md:w-80 lg:w-64 xl:w-72 2xl:w-80
+          w-80 sm:w-84 md:w-80 lg:w-72 xl:w-80 2xl:w-84
           max-w-[90vw] sm:max-w-[85vw] md:max-w-[320px] lg:max-w-none
-          bg-white dark:bg-dark-card 
-          text-light-text dark:text-dark-text 
-          flex flex-col shadow-2xl lg:shadow-lg
-          transform transition-all duration-300 ease-out lg:transform-none
+          bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800
+          text-gray-900 dark:text-gray-100
+          flex flex-col shadow-2xl lg:shadow-xl
+          transform transition-all duration-500 ease-out lg:transform-none
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           overflow-hidden
-          border-r border-gray-200 dark:border-dark-border
-          rounded-r-2xl lg:rounded-none
+          border-r border-gray-200 dark:border-gray-700
+          rounded-r-3xl lg:rounded-none
+          backdrop-blur-xl
         `}
         role="navigation"
         aria-label="Ana navigasyon menüsü"
@@ -232,28 +233,28 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
         }}
       >
         {/* Header with improved mobile layout */}
-        <div className="p-4 sm:p-5 lg:p-6 border-b border-gray-200 dark:border-dark-border flex items-center justify-between flex-shrink-0 min-h-[72px] lg:min-h-[80px]">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0 min-h-[80px] bg-gradient-to-r from-blue-600 to-purple-600">
           <Link 
             href="/admin/dashboard"
             onClick={handleMobileLinkClick}
-            className="text-lg sm:text-xl lg:text-2xl font-bold hover:text-brand-primary transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 rounded-md touch-manipulation truncate flex-1 min-w-0 mr-2"
+            className="text-xl font-bold text-white hover:text-blue-100 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 rounded-lg px-2 py-1 touch-manipulation truncate flex-1 min-w-0 mr-2"
           >
-            Yönetim Paneli
+            🚀 Admin Panel
           </Link>
           {/* Close button for mobile - improved touch target */}
           <button
             onClick={handleMobileLinkClick}
             aria-label="Menüyü kapat"
             disabled={isAnimating}
-            className="lg:hidden min-w-[48px] min-h-[48px] w-12 h-12 flex items-center justify-center rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 touch-manipulation flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="lg:hidden min-w-[48px] min-h-[48px] w-12 h-12 flex items-center justify-center rounded-xl hover:bg-white/20 active:bg-white/30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-600 touch-manipulation flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <FaTimes className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            <FaTimes className="w-5 h-5 text-white" />
           </button>
         </div>
 
         {/* Navigation with improved scrolling and spacing */}
         <nav 
-          className="flex-1 px-3 sm:px-4 lg:px-4 py-4 sm:py-5 lg:py-6 space-y-1 sm:space-y-2 overflow-y-auto overflow-x-hidden mobile-scroll-container min-h-0"
+          className="flex-1 px-4 py-6 space-y-2 overflow-y-auto overflow-x-hidden mobile-scroll-container min-h-0"
           role="list"
         >
           {navLinks.map((link) => {
@@ -273,25 +274,25 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
               >
                 <div
                   className={`
-                    flex items-center space-x-3 sm:space-x-4
-                    px-3 sm:px-4 lg:px-4 py-3 sm:py-4 lg:py-3
-                    min-h-[52px] sm:min-h-[56px] lg:min-h-[48px]
-                    rounded-xl lg:rounded-lg transition-all duration-200
+                    flex items-center space-x-4
+                    px-4 py-3
+                    min-h-[52px]
+                    rounded-xl transition-all duration-300 ease-out
                     touch-manipulation
-                    focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-primary focus-within:ring-offset-2
+                    focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2
                     group relative overflow-hidden
                     ${
                       isActive
-                        ? "bg-brand-primary text-white font-semibold shadow-lg transform scale-[1.02] lg:scale-100" // Aktif link stili with subtle scale on mobile
-                        : "hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-gray-200 dark:active:bg-gray-600 hover:transform hover:scale-[1.01] lg:hover:scale-100" // Hover ve active stili
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold shadow-lg transform scale-[1.02]" 
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700/50 active:bg-gray-200 dark:active:bg-gray-600 hover:transform hover:scale-[1.01] text-gray-700 dark:text-gray-300"
                     }
                   `}
                 >
-                  <span className="text-xl sm:text-2xl lg:text-xl flex-shrink-0 min-w-[28px] sm:min-w-[32px] lg:min-w-[24px] flex items-center justify-center">{link.icon}</span>
-                  <span className="text-base sm:text-lg lg:text-base font-medium truncate flex-1 min-w-0 leading-tight">{link.text}</span>
+                  <span className={`text-xl flex-shrink-0 min-w-[24px] flex items-center justify-center transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>{link.icon}</span>
+                  <span className="text-sm font-medium truncate flex-1 min-w-0 leading-tight">{link.text}</span>
                   {/* Active indicator */}
                   {isActive && (
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-white rounded-r-full" />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-white rounded-full animate-pulse" />
                   )}
                 </div>
               </Link>
@@ -300,27 +301,30 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
         </nav>
 
         {/* Footer Actions with improved touch targets */}
-        <div className="px-3 sm:px-4 lg:px-4 py-4 sm:py-5 lg:py-6 border-t border-gray-200 dark:border-dark-border space-y-2 sm:space-y-3 flex-shrink-0">
+        <div className="px-4 py-6 border-t border-gray-200 dark:border-gray-700 space-y-3 flex-shrink-0 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700">
           <a 
             href="/" 
             target="_blank" 
             rel="noopener noreferrer" 
             onClick={handleMobileLinkClick}
             className="
-              w-full flex items-center space-x-3 sm:space-x-4
-              px-3 sm:px-4 lg:px-4 py-3 sm:py-4 lg:py-3
-              min-h-[52px] sm:min-h-[56px] lg:min-h-[48px]
-              rounded-xl lg:rounded-lg text-left 
-              hover:bg-gray-100 dark:hover:bg-gray-700 
-              active:bg-gray-200 dark:active:bg-gray-600
-              transition-all duration-200
+              w-full flex items-center space-x-4
+              px-4 py-3
+              min-h-[48px]
+              rounded-xl text-left 
+              bg-gradient-to-r from-green-500 to-emerald-600
+              text-white font-medium
+              hover:from-green-600 hover:to-emerald-700
+              active:from-green-700 active:to-emerald-800
+              transition-all duration-300 ease-out
               touch-manipulation
-              focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2
-              hover:transform hover:scale-[1.01] lg:hover:scale-100
+              focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2
+              transform hover:scale-105 active:scale-95
+              shadow-lg hover:shadow-xl
             "
           >
-            <span className="text-xl sm:text-2xl lg:text-xl flex-shrink-0 min-w-[28px] sm:min-w-[32px] lg:min-w-[24px] flex items-center justify-center"><FaEye /></span>
-            <span className="text-base sm:text-lg lg:text-base font-medium flex-1 leading-tight">Siteyi Görüntüle</span>
+            <span className="text-lg flex-shrink-0 min-w-[20px] flex items-center justify-center"><FaEye /></span>
+            <span className="text-sm font-medium flex-1 leading-tight">Siteyi Görüntüle</span>
           </a>
           <button
             onClick={() => {
@@ -329,22 +333,24 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
             }}
             disabled={isAnimating}
             className="
-              w-full flex items-center space-x-3 sm:space-x-4
-              px-3 sm:px-4 lg:px-4 py-3 sm:py-4 lg:py-3
-              min-h-[52px] sm:min-h-[56px] lg:min-h-[48px]
-              rounded-xl lg:rounded-lg text-left 
-              text-red-600 dark:text-red-500 
-              hover:bg-red-50 dark:hover:bg-red-900/20
-              active:bg-red-100 dark:active:bg-red-900/30
-              transition-all duration-200
+              w-full flex items-center space-x-4
+              px-4 py-3
+              min-h-[48px]
+              rounded-xl text-left 
+              bg-gradient-to-r from-red-500 to-red-600
+              text-white font-medium
+              hover:from-red-600 hover:to-red-700
+              active:from-red-700 active:to-red-800
+              transition-all duration-300 ease-out
               touch-manipulation
-              focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2
-              hover:transform hover:scale-[1.01] lg:hover:scale-100
-              disabled:opacity-50 disabled:cursor-not-allowed
+              focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2
+              transform hover:scale-105 active:scale-95
+              shadow-lg hover:shadow-xl
+              disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
             "
           >
-            <span className="text-xl sm:text-2xl lg:text-xl flex-shrink-0 min-w-[28px] sm:min-w-[32px] lg:min-w-[24px] flex items-center justify-center"><FaSignOutAlt /></span>
-            <span className="text-base sm:text-lg lg:text-base font-medium flex-1 leading-tight">Güvenli Çıkış</span>
+            <span className="text-lg flex-shrink-0 min-w-[20px] flex items-center justify-center"><FaSignOutAlt /></span>
+            <span className="text-sm font-medium flex-1 leading-tight">Güvenli Çıkış</span>
           </button>
         </div>
       </aside>

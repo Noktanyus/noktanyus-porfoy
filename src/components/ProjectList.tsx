@@ -113,7 +113,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
               {filteredProjects.length} proje bulundu
               {searchTerm && (
                 <span className="ml-1">
-                  "<span className="font-semibold text-brand-primary">{searchTerm}</span>" için
+                  &quot;<span className="font-semibold text-brand-primary">{searchTerm}</span>&quot; için
                 </span>
               )}
               {filter === 'live' && !searchTerm && (

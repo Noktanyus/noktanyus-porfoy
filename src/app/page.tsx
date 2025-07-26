@@ -60,10 +60,10 @@ export default async function Home() {
   const latestPosts = allBlogs.slice(0, 3);
 
   return (
-    <div className="space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24 xl:space-y-32 smooth-scroll">
+    <div className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 xl:space-y-14 smooth-scroll">
       <section className="relative fade-in">
-        <div className="w-full pt-8 sm:pt-12 md:pt-16 lg:pt-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center">
+        <div className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-center">
             <div className="order-2 lg:order-1">
               <HeroSection aboutData={aboutData} />
             </div>

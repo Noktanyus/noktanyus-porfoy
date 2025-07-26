@@ -120,7 +120,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 mr-2">Teknolojiler:</span>
-          {project.technologies?.split(',').filter(tech => tech.trim()).map((tech: string) => (
+          {typeof project.technologies === 'string' && project.technologies.split(',').filter(tech => tech.trim()).map((tech: string) => (
             <span key={tech} className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
               {tech.trim()}
             </span>

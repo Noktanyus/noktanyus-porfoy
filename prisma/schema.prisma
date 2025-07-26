@@ -61,7 +61,7 @@ model Blog {
   thumbnail   String?
   author      String
   category    String
-  tags        String   @default("")
+  tags        Json     @default("[]")
   content     String
 }
 
@@ -71,7 +71,7 @@ model Project {
   title        String
   description  String
   mainImage    String?
-  technologies String    @default("")
+  technologies Json      @default("[]")
   liveDemo     String?
   githubRepo   String?
   order        Int       @default(0)
@@ -89,7 +89,7 @@ model Popup {
   imageUrl        String?
   youtubeEmbedUrl String?
   isActive        Boolean @default(true)
-  buttons         String  @default("[]")
+  buttons         Json    @default("[]")
 }
 
 model Message {
@@ -100,7 +100,7 @@ model Message {
   message   String
   timestamp DateTime @default(now())
   isRead    Boolean  @default(false)
-  replies   String   @default("[]")
+  replies   Json     @default("[]")
 }
 
 model HomeSettings {

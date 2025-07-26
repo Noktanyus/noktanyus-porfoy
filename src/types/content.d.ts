@@ -3,10 +3,10 @@ import type {
   Experience,
   Skill,
   Testimonial,
-  Blog,
-  Project,
-  Popup,
-  Message,
+  Blog as PrismaBlog,
+  Project as PrismaProject,
+  Popup as PrismaPopup,
+  Message as PrismaMessage,
   HomeSettings,
   SeoSettings as PrismaSeoSettings,
 } from '@prisma/client';
@@ -17,12 +17,22 @@ export type {
   Experience,
   Skill,
   Testimonial,
-  Blog,
-  Project,
-  Popup,
-  Message,
   HomeSettings,
 };
+
+// Re-exporting Prisma types directly since they now use Json fields
+export type {
+  Blog as PrismaBlog,
+  Project as PrismaProject,
+  Popup as PrismaPopup,
+  Message as PrismaMessage,
+} from '@prisma/client';
+
+// Type aliases for consistency
+export type Blog = PrismaBlog;
+export type Project = PrismaProject;
+export type Popup = PrismaPopup;
+export type Message = PrismaMessage;
 
 /**
  * Represents the About data including its relations (Experience and Skill).

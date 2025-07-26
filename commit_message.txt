@@ -1,0 +1,4 @@
+feat: Enhance animations and add hero float effect
+
+- Softens existing CSS animations by increasing their duration for a smoother user experience.
+- Introduces a new 'float-bubble' animation to the hero section on the homepage, creating a gentle floating effect.

@@ -35,22 +35,17 @@ const Header = ({ headerTitle }: HeaderProps) => {
     setIsMounted(true);
   }, []);
 
-  // Mobil menü açıkken body scroll'unu engelle ve performans optimizasyonu
+  // Mobil menü açıkken body scroll'unu engelle
   useEffect(() => {
     if (isMobileMenuOpen) {
-      // Scrollbar genişliğini hesapla
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = `${scrollbarWidth}px`; // Scrollbar jump'ını önle
+      document.body.classList.add('body-scroll-lock');
     } else {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.classList.remove('body-scroll-lock');
     }
 
     // Cleanup function
     return () => {
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
+      document.body.classList.remove('body-scroll-lock');
     };
   }, [isMobileMenuOpen]);
 

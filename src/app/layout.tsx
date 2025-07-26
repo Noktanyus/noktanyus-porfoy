@@ -21,11 +21,11 @@ import Spinner from "@/components/ui/Spinner";
 import PerformanceInitializer from "@/components/PerformanceInitializer";
 import dynamic from "next/dynamic";
 
-// Console filter'ı client-side component olarak yükle
-const ConsoleFilter = dynamic(() => import('@/components/ConsoleFilter'), { ssr: false });
-
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
 const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
+
+// Extension detector'ı client-side component olarak yükle
+const ExtensionDetector = dynamic(() => import('@/components/ExtensionDetector'), { ssr: false });
 
 /**
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
@@ -90,103 +90,50 @@ export default async function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <head>
-        {/* Google Fonts preconnect for better performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* Console filter - en erken çalışması için script tag olarak */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 if (typeof window === 'undefined') return;
-                
-                const originalError = console.error;
-                const originalWarn = console.warn;
-                const originalLog = console.log;
-                
-                console.error = function(...args) {
-                  const message = args.join(' ');
-                  const filteredMessages = [
-                    'sandboxed', 'allow-scripts', 'about:blank', 'Blocked script execution',
-                    'document\\'s frame is sandboxed', 'Permissions-Policy header',
-                    'Unrecognized feature', 'browsing-topics', 'interest-cohort',
-                    'challenges.cloudflare.com', 'Refused to connect', 'Content Security Policy',
-                    'CSP', 'violates the following', 'mc.yandex.com', 'mc.yandex.ru', 'yandex',
-                    'youtube.com', 'www.youtube.com', 'Refused to frame', 'frame-src',
-                    'YOUTUBEJS', 'Failed to extract signature decipher', 'googleads.g.doubleclick.net',
-                    'CORS policy', 'Access-Control-Allow-Origin', 'aria-hidden', 'assistive technology',
-                    'ytimg.com', 'doubleclick.net', 'Refused to apply style', 'MIME type',
-                    'text/html', 'not a supported stylesheet', 'strict MIME checking',
-                    'utilities.css', 'animations.css'
-                  ];
-                  
-                  if (filteredMessages.some(filter => message.includes(filter))) {
-                    return;
+
+                // 1. Define a mock 'browser' object to prevent ReferenceError.
+                if (typeof window.browser === 'undefined') {
+                  window.browser = {
+                    runtime: {
+                      onMessage: { addListener: () => {}, removeListener: () => {} },
+                      sendMessage: () => Promise.resolve(),
+                    }
+                  };
+                }
+
+                // 2. Catch unhandled errors globally.
+                const problematicScripts = ['myContent.js', 'pagehelper.js'];
+                window.onerror = function(message, source) {
+                  if (typeof source === 'string' && problematicScripts.some(script => source.includes(script))) {
+                    return true; // Prevents the default browser error handling (and logging).
                   }
-                  originalError.apply(console, args);
+                  return false;
                 };
-                
-                console.log = function(...args) {
-                  const message = args.join(' ');
-                  const filteredLogs = [
-                    'LCP:', 'Performance optimizations initialized', 'Image load time:',
-                    'Memory usage:', 'Console filter aktif edildi'
-                  ];
-                  
-                  if (filteredLogs.some(filter => message.includes(filter))) {
-                    return;
+
+                // 3. Suppress specific console.error messages as a fallback.
+                const originalConsoleError = console.error;
+                const filteredMessages = ['YOUTUBEJS', 'Turnstile', 'Permissions-Policy'];
+                console.error = (...args) => {
+                  const msg = args.join(' ');
+                  if (!filteredMessages.some(f => msg.includes(f))) {
+                    originalConsoleError(...args);
                   }
-                  originalLog.apply(console, args);
-                };
-                
-                console.warn = function(...args) {
-                  const message = args.join(' ');
-                  const filteredWarnings = [
-                    'preloaded using link preload but not used', 'preload but not used',
-                    'Permissions-Policy', 'browsing-topics', 'interest-cohort',
-                    'inter-var.woff2', 'fonts/inter-var.woff2', 'placeholder.webp', 'profile.webp', 'Poor CLS',
-                    'CLS:', 'target: <0.1', 'Error with Permissions-Policy header',
-                    'Unrecognized feature', 'Console was cleared', 'Blocked aria-hidden',
-                    'focus must not be hidden', 'ytp-play-button', 'ytp-chrome-bottom',
-                    'Image load time:', 'Memory usage:', 'LCP:', 'Event {isTrusted: true',
-                    'css-optimization.ts'
-                  ];
-                  
-                  if (filteredWarnings.some(filter => message.includes(filter))) {
-                    return;
-                  }
-                  originalWarn.apply(console, args);
                 };
               })();
-            `
+            `,
           }}
         />
+        {/* Google Fonts preconnect for better performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       {/* Font sınıfı artık doğrudan body'ye uygulanmıyor, CSS'den geliyor */}
-      <body className={`bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}>
-        <ConsoleFilter />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Development modunda console'u periyodik temizle
-              if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-                setTimeout(() => {
-                  const clearSandboxErrors = () => {
-                    try {
-                      // Console API ile temizleme
-                      if (console.clear && Math.random() < 0.1) { // %10 şansla
-                        console.clear();
-                      }
-                    } catch (e) {}
-                  };
-                  
-                  setInterval(clearSandboxErrors, 5000); // 5 saniyede bir
-                }, 3000);
-              }
-            `
-          }}
-        />
+      <body className={'bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text'}>
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -206,11 +153,10 @@ export default async function RootLayout({
             <Suspense fallback={<Spinner />}>
               <PopupViewer />
             </Suspense>
+            <ExtensionDetector />
             <PerformanceInitializer />
           </ThemeProvider>
         </AuthProvider>
-        
-        {/* Turnstile script kaldırıldı */}
         
         {false && yandexMetricaId && ( // Geçici olarak devre dışı - CSP sorunları nedeniyle
           <Suspense fallback={null}>

@@ -129,36 +129,43 @@ export default function DashboardPage() {
 
   return (
     <div className="admin-content-spacing">
-      <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-3 xs:gap-4">
-        <h1 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">Yönetim Paneli</h1>
+      <div className="admin-header">
+        <div>
+          <h1 className="admin-title">Hoş Geldiniz! 👋</h1>
+          <p className="admin-subtitle">Yönetim paneline genel bakış ve hızlı işlemler</p>
+        </div>
         <button 
           onClick={fetchData} 
           disabled={isLoading} 
-          className="admin-button admin-button-secondary touch-target-lg shrink-0" 
+          className="admin-button-secondary" 
           aria-label="Verileri Yenile"
         >
-          <FaSyncAlt className={`text-lg sm:text-xl ${isLoading ? 'animate-spin' : ''}`} />
-          <span className="ml-2 hidden xs:inline">Yenile</span>
+          <FaSyncAlt className={`text-lg ${isLoading ? 'animate-spin' : ''}`} />
+          <span className="ml-2">Yenile</span>
         </button>
       </div>
 
       {/* Genel Bakış ve İstatistikler */}
-      <section>
-        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Genel Bakış</h2>
-        <div className="admin-grid">
-          {isLoading ? (
-            <>
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-              <StatCardSkeleton />
-            </>
-          ) : (
-            <>
-              <StatCard icon={<FaProjectDiagram />} title="Toplam Proje" value={stats.projects} />
-              <StatCard icon={<FaFileAlt />} title="Toplam Blog Yazısı" value={stats.blogs} />
-              <StatCard icon={<FaComments />} title="Toplam Mesaj" value={stats.messages} />
-            </>
-          )}
+      <section className="admin-section">
+        <div className="admin-section-header">
+          <h2 className="admin-section-title">📊 Genel Bakış</h2>
+        </div>
+        <div className="admin-section-content">
+          <div className="admin-grid">
+            {isLoading ? (
+              <>
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
+              </>
+            ) : (
+              <>
+                <StatCard icon={<FaProjectDiagram />} title="Toplam Proje" value={stats.projects} color="blue" />
+                <StatCard icon={<FaFileAlt />} title="Toplam Blog Yazısı" value={stats.blogs} color="green" />
+                <StatCard icon={<FaComments />} title="Toplam Mesaj" value={stats.messages} color="purple" />
+              </>
+            )}
+          </div>
         </div>
       </section>
       
@@ -166,41 +173,47 @@ export default function DashboardPage() {
       <RecentMessages messages={recentMessages} isLoading={isLoading} />
 
       {/* Kaynak Kodu Yönetimi */}
-      <section>
-        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Kaynak Kodu Yönetimi</h2>
-        <div className="admin-card">
+      <section className="admin-section">
+        <div className="admin-section-header">
+          <h2 className="admin-section-title">🔧 Kaynak Kodu Yönetimi</h2>
+        </div>
+        <div className="admin-section-content">
           <SourceCodeCommitter />
         </div>
       </section>
 
       {/* Hızlı Erişim ve Araçlar */}
-      <section>
-        <h2 className="text-responsive-md font-semibold mb-4 sm:mb-6 text-gray-900 dark:text-gray-100">Hızlı Erişim ve Araçlar</h2>
-        <div className="admin-grid">
-          {adminLinks.map((link) => (
-            <Link 
-              href={link.href} 
-              key={link.href} 
-              className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 touch-manipulation focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 group"
+      <section className="admin-section">
+        <div className="admin-section-header">
+          <h2 className="admin-section-title">⚡ Hızlı Erişim ve Araçlar</h2>
+        </div>
+        <div className="admin-section-content">
+          <div className="admin-grid">
+            {adminLinks.map((link) => (
+              <Link 
+                href={link.href} 
+                key={link.href} 
+                className="group bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:scale-105 transform transition-all duration-500 ease-out flex items-center space-x-4 touch-manipulation focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="text-blue-600 dark:text-blue-400 text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-400 ease-out">{link.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight">{link.text}</h3>
+              </Link>
+            ))}
+            <button 
+              onClick={handleTestEmail} 
+              className="group bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-6 shadow-lg border border-green-200 dark:border-green-700 hover:shadow-xl hover:scale-105 transform transition-all duration-500 ease-out flex items-center space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-left w-full"
             >
-              <div className="text-brand-primary text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">{link.icon}</div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">{link.text}</h3>
-            </Link>
-          ))}
-          <button 
-            onClick={handleTestEmail} 
-            className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group text-left w-full"
-          >
-            <div className="text-green-500 text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"><FaPaperPlane /></div>
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">E-posta Bağlantısını Test Et</h3>
-          </button>
-          <button 
-            onClick={handleTestGitHub} 
-            className="admin-card hover:shadow-xl hover:scale-[1.02] lg:hover:scale-105 transform transition-all duration-300 flex items-center space-x-3 sm:space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 group text-left w-full"
-          >
-            <div className="text-gray-800 dark:text-white text-2xl sm:text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200"><FaGithub /></div>
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 leading-tight">GitHub Bağlantısını Test Et</h3>
-          </button>
+              <div className="text-green-600 dark:text-green-400 text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-400 ease-out"><FaPaperPlane /></div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight">E-posta Bağlantısını Test Et</h3>
+            </button>
+            <button 
+              onClick={handleTestGitHub} 
+              className="group bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-800 dark:to-slate-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:scale-105 transform transition-all duration-500 ease-out flex items-center space-x-4 cursor-pointer touch-manipulation focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-left w-full"
+            >
+              <div className="text-gray-800 dark:text-white text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-400 ease-out"><FaGithub /></div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight">GitHub Bağlantısını Test Et</h3>
+            </button>
+          </div>
         </div>
       </section>
     </div>
@@ -208,15 +221,27 @@ export default function DashboardPage() {
 }
 
 /** İstatistik kartı bileşeni. */
-const StatCard = ({ icon, title, value }: { icon: JSX.Element, title: string, value: number }) => (
-  <div className="admin-card flex items-center space-x-3 sm:space-x-4 hover:shadow-lg transition-shadow duration-200">
-    <div className="text-3xl sm:text-4xl text-brand-primary flex-shrink-0">{icon}</div>
-    <div className="min-w-0 flex-1">
-      <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-tight">{title}</p>
-      <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{value}</p>
+const StatCard = ({ icon, title, value, color }: { icon: JSX.Element, title: string, value: number, color: string }) => {
+  const colorClasses = {
+    blue: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400',
+    green: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700 text-green-600 dark:text-green-400',
+    purple: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200 dark:border-purple-700 text-purple-600 dark:text-purple-400'
+  };
+
+  const selectedColor = colorClasses[color as keyof typeof colorClasses];
+
+  return (
+    <div className={`bg-gradient-to-br ${selectedColor} rounded-2xl p-6 shadow-lg border hover:shadow-xl transition-all duration-500 ease-out transform hover:scale-105`}>
+      <div className="flex items-center space-x-4">
+        <div className="text-4xl flex-shrink-0">{icon}</div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 leading-tight mb-1">{title}</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{value}</p>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /** İstatistik kartı için iskelet (skeleton) yükleme göstergesi. */
 const StatCardSkeleton = () => (

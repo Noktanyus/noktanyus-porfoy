@@ -113,8 +113,11 @@ export async function listContent(type: string): Promise<any[]> {
   }
 }
 
+
+
 export async function saveContent(type: string, slug: string, data: any, content?: string): Promise<any> {
   const payload = { ...data, content: content ?? '' };
+  
   switch (type) {
     case 'blog':
       return prisma.blog.upsert({
@@ -134,6 +137,10 @@ export async function saveContent(type: string, slug: string, data: any, content
             update: payload,
             create: { slug, ...payload, content: content ?? '' },
         });
+    case 'messages':
+        // Messages genellikle ID ile güncellenir, slug ile değil
+        // Bu durumda özel bir yaklaşım gerekebilir
+        throw new Error('Message güncelleme işlemi henüz desteklenmiyor.');
     // Diğer "type" türleri için de benzer yapıları ekleyebilirsiniz.
     default:
       throw new Error(`'${type}' için kaydetme işlemi desteklenmiyor.`);

@@ -84,8 +84,8 @@ export default async function ProjelerimPage() {
   return (
     <div className="space-y-8">
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-light-text dark:text-dark-text">Projelerim</h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.</p>
+        <h1 className="text-3xl sm:text-4xl font-bold text-light-text dark:text-dark-text">Projelerim</h1>
+        <p className="mt-2 text-base sm:text-lg text-gray-600 dark:text-gray-400">Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.</p>
       </div>
       
       {/* Suspense, istemci bileşeni yüklenirken bir fallback göstermeyi sağlar */}

@@ -82,7 +82,8 @@ export default function GalleryPage() {
                 alt={image.name}
                 width={300}
                 height={300}
-                className="object-cover w-full h-full"
+                className="object-cover w-full h-full transition-transform duration-500 ease-out hover:scale-110"
+                unoptimized
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
                 <p className="text-white text-xs break-all">{image.name}</p>

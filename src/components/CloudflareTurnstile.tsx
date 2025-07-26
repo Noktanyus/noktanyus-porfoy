@@ -100,7 +100,7 @@ export default function CloudflareTurnstile({
         }
       }
     };
-  }, []);
+  }, [onError]);
 
   // Widget render etme
   useEffect(() => {
@@ -153,7 +153,7 @@ export default function CloudflareTurnstile({
         'expired-callback': () => {
           console.log('Turnstile süresi doldu');
           setIsRendered(false);
-          widgetIdRef.current = null;
+widgetIdRef.current = null;
           onExpire?.();
         },
         theme,
@@ -172,7 +172,7 @@ export default function CloudflareTurnstile({
       console.error('Turnstile render hatası:', error);
       onError?.();
     }
-  }, [isScriptLoaded, onVerify, onError, onExpire, theme, size]);
+  }, [isScriptLoaded, onVerify, onError, onExpire, theme, size, isRendered]);
 
   return (
     <div 

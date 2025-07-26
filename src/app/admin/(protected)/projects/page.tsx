@@ -10,6 +10,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 
 /** Projenin temel bilgilerini içeren tip. */
 type ProjectPost = {
@@ -71,93 +72,62 @@ export default function ProjectsAdminPage() {
   }
 
   return (
-    <div className="admin-card animate-fade-in">
-      {/* Mobile-first responsive header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">Proje Yönetimi</h1>
-        <Link href="/admin/projects/new">
-          <button className="admin-button-primary w-full sm:w-auto">
-            <span className="sm:hidden">+ Yeni Proje</span>
-            <span className="hidden sm:inline">Yeni Proje Ekle</span>
-          </button>
+    <div className="admin-content-spacing">
+      <div className="admin-header">
+        <div>
+          <h1 className="admin-title">🚀 Proje Yönetimi</h1>
+          <p className="admin-subtitle">Projelerinizi oluşturun, düzenleyin ve yönetin</p>
+        </div>
+        <Link href="/admin/projects/new" className="admin-button-primary">
+          <FaPlus className="mr-2" />
+          Yeni Proje Ekle
         </Link>
       </div>
       
-      {/* Responsive table container */}
-      <div className="admin-table-container">
-        {/* Mobile card view for small screens */}
-        <div className="block sm:hidden space-y-4">
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <div key={project.slug} className="bg-gray-50 dark:bg-dark-bg rounded-lg p-4 space-y-3">
-                <div>
-                  <h3 className="font-medium text-base">{project.title}</h3>
-                  <p className="text-sm text-gray-500 font-mono mt-1">{project.slug}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Link href={`/admin/projects/edit/${project.slug}`} className="flex-1">
-                    <button className="admin-button-secondary w-full text-sm">
-                      Düzenle
-                    </button>
-                  </Link>
-                  <button 
-                    onClick={() => handleDelete(project.slug)} 
-                    className="admin-button bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/30 flex-1 text-sm"
-                  >
-                    Sil
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-12 text-gray-500">
-              <p className="text-base">Henüz proje eklenmemiş.</p>
-              <p className="text-sm mt-2">&quot;Yeni Proje&quot; butonu ile başlayabilirsiniz.</p>
-            </div>
-          )}
-        </div>
-
-        {/* Desktop table view */}
-        <table className="admin-table hidden sm:table">
-          <thead className="bg-gray-100 dark:bg-dark-bg">
-            <tr>
-              <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-semibold">Proje Başlığı</th>
-              <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-semibold">Dosya Adı (Slug)</th>
-              <th className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-semibold">İşlemler</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {projects.length > 0 ? (
-              projects.map((project) => (
-                <tr key={project.slug} className="hover:bg-gray-50 dark:hover:bg-dark-card transition-colors">
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base font-medium">{project.title}</td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-left text-sm sm:text-base text-gray-500 font-mono">{project.slug}</td>
-                  <td className="px-3 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/admin/projects/edit/${project.slug}`}>
-                        <button className="text-brand-primary hover:underline font-medium px-2 py-1 rounded">
-                          Düzenle
+      <div className="admin-section">
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+              <tr>
+                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Proje Başlığı</th>
+                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Slug</th>
+                <th className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+              {projects.length > 0 ? (
+                projects.map((project) => (
+                  <tr key={project.slug} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-300 ease-out">
+                    <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">{project.title}</td>
+                    <td className="py-4 px-6 font-mono text-sm text-gray-600 dark:text-gray-400">{project.slug}</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex justify-end space-x-3">
+                        <Link href={`/admin/projects/edit/${project.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${project.title} projesini düzenle`}>
+                          <FaEdit size={16} />
+                        </Link>
+                        <button onClick={() => handleDelete(project.slug)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" aria-label={`${project.title} projesini sil`}>
+                          <FaTrash size={16} />
                         </button>
-                      </Link>
-                      <button 
-                        onClick={() => handleDelete(project.slug)} 
-                        className="text-red-500 hover:underline font-medium px-2 py-1 rounded"
-                      >
-                        Sil
-                      </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={3} className="text-center py-12 text-gray-500 dark:text-gray-400">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="text-4xl">🚀</div>
+                      <div>
+                        <p className="text-lg font-medium">Henüz proje eklenmemiş</p>
+                        <p className="text-sm mt-1">"Yeni Proje Ekle" butonu ile başlayabilirsiniz</p>
+                      </div>
                     </div>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={3} className="text-center py-16 text-gray-500">
-                  Henüz proje eklenmemiş. &quot;Yeni Proje Ekle&quot; butonu ile başlayabilirsiniz.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
