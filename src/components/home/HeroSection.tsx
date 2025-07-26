@@ -11,8 +11,8 @@ interface HeroSectionProps {
 
 export default function HeroSection({ aboutData }: HeroSectionProps) {
   return (
-    <div className="text-center md:text-left fade-in">
-      <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12">
+    <div className="text-center md:text-left fade-in animate-float-bubble">
+      <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
         {/* Profile Image - Mobile-first sizing with better responsive scaling */}
         <div className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 flex-shrink-0 slide-in-left stagger-1">
           <OptimizedImage
@@ -21,21 +21,21 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
             fill
             sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, (max-width: 1024px) 176px, 192px"
             style={{ objectFit: "cover" }}
-            className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg hover-scale transition-all duration-500 ease-out float"
+            className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg"
             priority
             quality={90}
           />
         </div>
         
-        {/* Content - Improved text hierarchy and spacing */}
-        <div className="flex-grow space-y-4 sm:space-y-5 md:space-y-6 slide-in-right stagger-2">
-          {/* Name - Better mobile-first typography scaling */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-light-text dark:text-dark-text text-hover-glow">
+        {/* Content - More compact text hierarchy and spacing */}
+        <div className="flex-grow space-y-3 sm:space-y-4 md:space-y-5 slide-in-right stagger-2">
+          {/* Name - Smaller, more balanced typography scaling */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-light-text dark:text-dark-text text-hover-glow">
             {aboutData.name}
           </h1>
           
-          {/* Title - Improved responsive text sizing */}
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-600 dark:text-gray-400 leading-relaxed">
+          {/* Title - More moderate responsive text sizing */}
+          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
             {aboutData.title}
           </p>
           

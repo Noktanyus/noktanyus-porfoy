@@ -1,5 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +26,10 @@
   body {
     @apply bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text transition-colors duration-300;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .body-scroll-lock {
+    overflow: hidden;
   }
 
   .container-responsive {
@@ -63,27 +85,51 @@
   /* Gereksiz hover efektleri kaldırıldı - sadece kart animasyonları korundu */
 
   .fade-in {
-    animation: fadeIn 0.6s ease-out;
+    animation: fadeIn 0.8s ease-in-out;
   }
 
   .slide-up {
-    animation: slideUp 0.6s ease-out;
+    animation: slideUp 0.8s ease-in-out;
   }
 
   .slide-in-left {
-    animation: slideInLeft 0.6s ease-out;
+    animation: slideInLeft 0.8s ease-in-out;
   }
 
   .slide-in-right {
-    animation: slideInRight 0.6s ease-out;
+    animation: slideInRight 0.8s ease-in-out;
   }
 
   .scale-in {
-    animation: scaleIn 0.5s ease-out;
+    animation: scaleIn 0.6s ease-in-out;
   }
 
   .float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-bubble {
+    animation: float-bubble 6s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-float-gentle {
+    animation: float-gentle 3s ease-in-out infinite;
+  }
+
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float-delayed 4.5s ease-in-out infinite;
+  }
+
+  .animate-float-reverse {
+    animation: float-reverse 5.5s ease-in-out infinite;
   }
 
   .stagger-1 {
@@ -109,14 +155,14 @@
   /* Header buton animasyonları da kaldırıldı */
 
   .card-hover-glow {
-    @apply transition-all duration-500 ease-out;
+    @apply transition-all duration-1000 ease-out;
     transform: translateY(0) scale(1);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .card-hover-glow:hover {
     @apply shadow-2xl;
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-3px) scale(1.01);
     box-shadow: 0 25px 50px rgba(59, 130, 246, 0.15), 0 0 30px rgba(59, 130, 246, 0.1);
   }
 
@@ -126,14 +172,14 @@
   }
 
   .image-hover-zoom img {
-    @apply transition-all duration-700 ease-out;
+    @apply transition-all duration-1500 ease-out;
     transform: scale(1);
   }
 
   .image-hover-zoom:hover img {
-    @apply scale-110;
-    transform: scale(1.1);
-    filter: brightness(1.1) contrast(1.05);
+    @apply scale-[1.03];
+    transform: scale(1.03);
+    filter: brightness(1.02) contrast(1.01);
   }
 
   /* Text hover efektleri kaldırıldı - sadece kartlar için hover animasyonları */
@@ -152,6 +198,111 @@
   }
 
   /* Sadece kart animasyonları için gerekli hover efektleri korundu */
+
+  .shadow-3xl {
+    box-shadow: 0 35px 60px rgba(0, 0, 0, 0.15), 0 0 40px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Modern Admin Panel Styles */
+  .admin-card {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 ease-out hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-700;
+  }
+
+  .admin-button {
+    @apply px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center;
+  }
+
+  .admin-button-primary {
+    @apply admin-button bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl focus:ring-blue-500 transform hover:scale-105 active:scale-95;
+  }
+
+  .admin-button-secondary {
+    @apply admin-button bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 focus:ring-gray-500;
+  }
+
+  .admin-button-danger {
+    @apply admin-button bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl focus:ring-red-500 transform hover:scale-105 active:scale-95;
+  }
+
+  .admin-input {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ease-out placeholder-gray-500 dark:placeholder-gray-400;
+  }
+
+  .admin-textarea {
+    @apply admin-input min-h-[120px] resize-vertical;
+  }
+
+  .admin-select {
+    @apply admin-input cursor-pointer;
+  }
+
+  .admin-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .admin-content-spacing {
+    @apply space-y-8;
+  }
+
+  .admin-header {
+    @apply flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8;
+  }
+
+  .admin-title {
+    @apply text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 dark:from-gray-100 dark:to-gray-300 bg-clip-text text-transparent;
+  }
+
+  .admin-subtitle {
+    @apply text-lg text-gray-600 dark:text-gray-400 mt-2;
+  }
+
+  .admin-section {
+    @apply bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden;
+  }
+
+  .admin-section-header {
+    @apply px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-b border-gray-200 dark:border-gray-600;
+  }
+
+  .admin-section-title {
+    @apply text-xl font-semibold text-gray-900 dark:text-gray-100;
+  }
+
+  .admin-section-content {
+    @apply p-6;
+  }
+
+  .admin-stats-card {
+    @apply bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 ease-out transform hover:scale-105;
+  }
+
+  .admin-nav-item {
+    @apply flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ease-out hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .admin-nav-item.active {
+    @apply bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg;
+  }
+
+  .admin-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .admin-badge-success {
+    @apply admin-badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+
+  .admin-badge-warning {
+    @apply admin-badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+  }
+
+  .admin-badge-error {
+    @apply admin-badge bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+
+  .admin-badge-info {
+    @apply admin-badge bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+  }
 }
 
 @keyframes fadeIn {
@@ -222,7 +373,7 @@
   }
 
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-15px);
   }
 }
 
@@ -243,6 +394,54 @@
 
   75% {
     transform: translateY(-2px) scale(1.005);
+  }
+}
+
+@keyframes float-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(2deg);
+  }
+}
+
+@keyframes float-slow {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+@keyframes float-delayed {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-18px) rotate(2deg);
+  }
+}
+
+@keyframes float-reverse {
+
+  0%,
+  100% {
+    transform: translateY(-10px) scale(0.95);
+  }
+
+  50% {
+    transform: translateY(0px) scale(1);
   }
 }
 
@@ -289,4 +488,16 @@
 .scroll-reveal.revealed {
   opacity: 1;
   transform: translateY(0);
+}
+
+@keyframes float-bubble {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
