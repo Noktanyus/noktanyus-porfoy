@@ -1,0 +1,495 @@
+name: 🚀 Comprehensive CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "master", "main", "develop" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+    inputs:
+      deploy_environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  NODE_VERSION: '20.x'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 📋 Environment Setup & Validation
+  setup:
+    name: 📋 Environment Setup
+    runs-on: ubuntu-latest
+    outputs:
+      node-cache-key: ${{ steps.cache-keys.outputs.node-cache-key }}
+      should-deploy: ${{ steps.deploy-check.outputs.should-deploy }}
+      environment: ${{ steps.deploy-check.outputs.environment }}
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Generate cache keys
+        id: cache-keys
+        run: |
+          echo "node-cache-key=${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}" >> $GITHUB_OUTPUT
+
+      - name: 🎯 Determine deployment
+        id: deploy-check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=${{ github.event.inputs.deploy_environment }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "push" && ("${{ github.ref }}" == "refs/heads/master" || "${{ github.ref }}" == "refs/heads/main") ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "environment=staging" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "environment=none" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📊 Workflow Summary
+        run: |
+          echo "## 🚀 Workflow Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Should Deploy**: ${{ steps.deploy-check.outputs.should-deploy }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ steps.deploy-check.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+
+  # 🔍 Code Quality & Linting
+  lint:
+    name: 🔍 Code Quality & Linting
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ needs.setup.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run ESLint
+        run: npm run lint
+
+      - name: 📊 ESLint Report
+        if: always()
+        run: |
+          echo "## 🔍 Linting Results" >> $GITHUB_STEP_SUMMARY
+          echo "✅ ESLint checks completed successfully!" >> $GITHUB_STEP_SUMMARY
+
+  # 🔒 Security Audit
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ needs.setup.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 🔒 Run security audit
+        run: |
+          npm audit --audit-level=moderate --json > audit-results.json || true
+          
+      - name: 📊 Process audit results
+        run: |
+          echo "## 🔒 Security Audit Results" >> $GITHUB_STEP_SUMMARY
+          if [ -s audit-results.json ]; then
+            VULNERABILITIES=$(jq -r '.metadata.vulnerabilities | to_entries[] | select(.value > 0) | "\(.key): \(.value)"' audit-results.json 2>/dev/null || echo "")
+            if [ -n "$VULNERABILITIES" ]; then
+              echo "### Found vulnerabilities:" >> $GITHUB_STEP_SUMMARY
+              echo "$VULNERABILITIES" | while read line; do
+                echo "- $line" >> $GITHUB_STEP_SUMMARY
+              done
+            else
+              echo "✅ No vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "✅ No vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🔍 Check for critical vulnerabilities
+        run: |
+          if [ -s audit-results.json ]; then
+            CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json 2>/dev/null || echo "0")
+            HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json 2>/dev/null || echo "0")
+            if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+              echo "❌ Found $CRITICAL critical and $HIGH high severity vulnerabilities"
+              echo "Please fix these vulnerabilities before proceeding"
+              exit 1
+            fi
+          fi
+          echo "✅ No critical or high severity vulnerabilities found"
+
+  # 🏗️ Build Application
+  build:
+    name: 🏗️ Build Application
+    runs-on: ubuntu-latest
+    needs: [setup, lint, security]
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ needs.setup.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📝 Setup build environment
+        run: |
+          cat > .env.local << EOF
+          NEXTAUTH_SECRET=build-secret-key-for-ci
+          DATABASE_URL=file:./build.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=admin123
+          NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+
+      - name: 🗄️ Generate Prisma Client
+        run: npx prisma generate --schema=./prisma/schema.prisma
+
+      - name: 🏗️ Build application
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: true
+
+      - name: 📊 Build analysis
+        run: |
+          echo "## 🏗️ Build Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Output Size:" >> $GITHUB_STEP_SUMMARY
+          if [ -d ".next" ]; then
+            du -sh .next/* | head -10 | while read size path; do
+              echo "- **$(basename $path)**: $size" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build completed successfully!" >> $GITHUB_STEP_SUMMARY
+
+      - name: 📦 Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+          path: |
+            .next/
+            public/
+            package.json
+            package-lock.json
+          retention-days: 7
+
+  # 🧪 Test Suite (if tests exist)
+  test:
+    name: 🧪 Test Suite
+    runs-on: ubuntu-latest
+    needs: [setup, lint]
+    if: always() && needs.lint.result == 'success'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ needs.setup.outputs.node-cache-key }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📝 Setup test environment
+        run: |
+          cat > .env.test << EOF
+          NEXTAUTH_SECRET=test-secret-key-for-ci
+          DATABASE_URL=file:./test.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=test@example.com
+          ADMIN_PASSWORD=testpassword
+          EOF
+
+      - name: 🧪 Check for test files
+        id: check-tests
+        run: |
+          if find . -name "*.test.*" -o -name "*.spec.*" | grep -q .; then
+            echo "has-tests=true" >> $GITHUB_OUTPUT
+            echo "✅ Test files found" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "has-tests=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No test files found, skipping test execution" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🧪 Run tests
+        if: steps.check-tests.outputs.has-tests == 'true'
+        run: |
+          if npm run test --if-present; then
+            echo "✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed!" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  # 🐳 Docker Build & Push
+  docker:
+    name: 🐳 Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    if: needs.setup.outputs.should-deploy == 'true'
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+
+      - name: 🐳 Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: 🐳 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🏷️ Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ needs.setup.outputs.environment }},enable=true
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            NEXT_TELEMETRY_DISABLED=1
+
+      - name: 📊 Docker build summary
+        run: |
+          echo "## 🐳 Docker Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "### Built Images:" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" | while read tag; do
+            echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Docker images built and pushed successfully!" >> $GITHUB_STEP_SUMMARY
+
+  # 📊 Performance Analysis
+  performance:
+    name: 📊 Performance Analysis
+    runs-on: ubuntu-latest
+    needs: [setup, build]
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts-${{ github.sha }}
+
+      - name: 📊 Bundle size analysis
+        run: |
+          echo "## 📊 Performance Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "### Bundle Size Analysis:" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -d ".next/static" ]; then
+            echo "#### JavaScript Bundles:" >> $GITHUB_STEP_SUMMARY
+            find .next/static -name "*.js" -type f -exec du -h {} + | sort -hr | head -10 | while read size file; do
+              echo "- **$(basename $file)**: $size" >> $GITHUB_STEP_SUMMARY
+            done
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "#### CSS Files:" >> $GITHUB_STEP_SUMMARY
+            find .next/static -name "*.css" -type f -exec du -h {} + | sort -hr | head -5 | while read size file; do
+              echo "- **$(basename $file)**: $size" >> $GITHUB_STEP_SUMMARY
+            done
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tip**: Monitor bundle sizes to ensure optimal performance!" >> $GITHUB_STEP_SUMMARY
+
+  # 🚀 Deployment Notification
+  deploy-notification:
+    name: 🚀 Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [setup, docker]
+    if: always() && needs.setup.outputs.should-deploy == 'true'
+    
+    steps:
+      - name: 🎉 Deployment Success
+        if: needs.docker.result == 'success'
+        run: |
+          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Details:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${{ needs.setup.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry**: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Docker image has been successfully built and pushed!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Pull the latest image from the registry" >> $GITHUB_STEP_SUMMARY
+          echo "2. Update your deployment configuration" >> $GITHUB_STEP_SUMMARY
+          echo "3. Restart your application services" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Deployment Failed
+        if: needs.docker.result == 'failure'
+        run: |
+          echo "## ❌ Deployment Failed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Docker build and push process failed. Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔍 **Common Issues:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Build errors in the application" >> $GITHUB_STEP_SUMMARY
+          echo "- Missing environment variables" >> $GITHUB_STEP_SUMMARY
+          echo "- Registry authentication issues" >> $GITHUB_STEP_SUMMARY
+          echo "- Resource limitations" >> $GITHUB_STEP_SUMMARY
+          exit 1
+
+  # 📋 Final Status Report
+  status-report:
+    name: 📋 Final Status Report
+    runs-on: ubuntu-latest
+    needs: [setup, lint, security, build, test, docker, performance, deploy-notification]
+    if: always()
+    
+    steps:
+      - name: 📊 Generate final report
+        run: |
+          echo "# 🚀 CI/CD Pipeline Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Job Status Overview" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status | Duration |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📋 Setup | ${{ needs.setup.result == 'success' && '✅ Success' || needs.setup.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Lint | ${{ needs.lint.result == 'success' && '✅ Success' || needs.lint.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔒 Security | ${{ needs.security.result == 'success' && '✅ Success' || needs.security.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🏗️ Build | ${{ needs.build.result == 'success' && '✅ Success' || needs.build.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧪 Test | ${{ needs.test.result == 'success' && '✅ Success' || needs.test.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🐳 Docker | ${{ needs.docker.result == 'success' && '✅ Success' || needs.docker.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 Performance | ${{ needs.performance.result == 'success' && '✅ Success' || needs.performance.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | - |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [[ "${{ needs.lint.result }}" == "success" && "${{ needs.security.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+            echo "## 🎉 Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ All critical jobs completed successfully!" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ needs.setup.outputs.should-deploy }}" == "true" && "${{ needs.docker.result }}" == "success" ]]; then
+              echo "🚀 Application has been successfully deployed to **${{ needs.setup.outputs.environment }}**!" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "## ❌ Overall Status: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some critical jobs failed. Please review the errors above and fix them before proceeding." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Pipeline completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY

@@ -1,17 +1,34 @@
-name: ⚡ Performance & Lighthouse
+name: ⚡ Enhanced Performance Monitoring
 
 on:
-  pull_request:
-    branches: [ "master", "main" ]
   push:
     branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  schedule:
+    # Her hafta Pazartesi saat 09:00'da çalış (UTC)
+    - cron: '0 9 * * 1'
   workflow_dispatch:
+    inputs:
+      analysis_type:
+        description: 'Type of performance analysis'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - bundle-only
+        - lighthouse-only
+
+env:
+  NODE_VERSION: '20.x'
 
 jobs:
-  # ⚡ Lighthouse CI
-  lighthouse:
-    name: ⚡ Lighthouse Performance
+  # 📊 Bundle Size Analysis
+  bundle-analysis:
+    name: 📊 Bundle Size Analysis
     runs-on: ubuntu-latest
+    if: github.event.inputs.analysis_type != 'lighthouse-only' || github.event.inputs.analysis_type == null
     
     steps:
       - name: 📥 Checkout code
@@ -20,145 +37,134 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 🔧 Install dependencies
         run: npm ci
+
+      - name: 📝 Setup build environment
+        run: |
+          cat > .env.local << EOF
+          NEXTAUTH_SECRET=perf-analysis-secret
+          DATABASE_URL=file:./perf.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=admin123
+          NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+
+      - name: 🗄️ Generate Prisma Client
+        run: npx prisma generate --schema=./prisma/schema.prisma
 
       - name: 🏗️ Build application
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: true
 
-      - name: 🚀 Start application
+      - name: 📊 Comprehensive bundle analysis
         run: |
-          npm start &
-          sleep 30
-        env:
-          PORT: 3000
-
-      - name: ⚡ Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v10
-        with:
-          configPath: './.lighthouserc.json'
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-        continue-on-error: true
-
-  # 📊 Bundle Analysis
-  bundle-analysis:
-    name: 📊 Bundle Size Analysis
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: npm ci
-
-      - name: 🏗️ Build for analysis
-        run: npm run build
-        env:
-          ANALYZE: true
-          SKIP_ENV_VALIDATION: true
-
-      - name: 📊 Analyze bundle size
-        run: |
-          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "# 📊 Comprehensive Bundle Analysis Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ -d ".next/static" ]; then
-            echo "### JavaScript Bundles:" >> $GITHUB_STEP_SUMMARY
-            find .next/static -name "*.js" -type f -exec ls -lh {} \; | awk '{print "- " $9 ": " $5}' | head -10 >> $GITHUB_STEP_SUMMARY
+          if [ -d ".next" ]; then
+            # Total build size
+            BUILD_SIZE=$(du -sh .next | cut -f1)
+            STATIC_SIZE=$(du -sh .next/static 2>/dev/null | cut -f1 || echo "N/A")
             
+            echo "## 📦 Build Size Overview" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Size |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Total Build | $BUILD_SIZE |" >> $GITHUB_STEP_SUMMARY
+            echo "| Static Assets | $STATIC_SIZE |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### CSS Files:" >> $GITHUB_STEP_SUMMARY
-            find .next/static -name "*.css" -type f -exec ls -lh {} \; | awk '{print "- " $9 ": " $5}' | head -5 >> $GITHUB_STEP_SUMMARY
             
+            # Page analysis
+            echo "## 📄 Page Analysis" >> $GITHUB_STEP_SUMMARY
+            STATIC_PAGES=$(find .next -name "*.html" | wc -l)
+            SERVER_PAGES=$(find .next/server/app -name "page.js" 2>/dev/null | wc -l || echo "0")
+            echo "- **Static pages**: $STATIC_PAGES" >> $GITHUB_STEP_SUMMARY
+            echo "- **Server pages**: $SERVER_PAGES" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Total Build Size:" >> $GITHUB_STEP_SUMMARY
-            du -sh .next >> $GITHUB_STEP_SUMMARY
+            
+            # JavaScript bundles analysis
+            echo "## 📄 JavaScript Bundles (Top 10)" >> $GITHUB_STEP_SUMMARY
+            echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+            find .next/static -name "*.js" -type f -exec du -h {} + 2>/dev/null | \
+            sort -hr | head -10 | while read size file; do
+              echo "| $(basename $file) | $size |" >> $GITHUB_STEP_SUMMARY
+            done || echo "| No JS files found | - |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # CSS files analysis
+            echo "## 🎨 CSS Files" >> $GITHUB_STEP_SUMMARY
+            echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+            echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+            find .next/static -name "*.css" -type f -exec du -h {} + 2>/dev/null | \
+            sort -hr | head -5 | while read size file; do
+              echo "| $(basename $file) | $size |" >> $GITHUB_STEP_SUMMARY
+            done || echo "| No CSS files found | - |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Performance recommendations
+            echo "## 💡 Performance Recommendations" >> $GITHUB_STEP_SUMMARY
+            echo "### 🎯 Optimization Tips:" >> $GITHUB_STEP_SUMMARY
+            echo "- **Code Splitting**: Use dynamic imports for large components" >> $GITHUB_STEP_SUMMARY
+            echo "- **Tree Shaking**: Remove unused code and dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "- **Image Optimization**: Use Next.js Image component with proper sizing" >> $GITHUB_STEP_SUMMARY
+            echo "- **Bundle Analysis**: Regularly monitor bundle sizes" >> $GITHUB_STEP_SUMMARY
+            echo "- **Lazy Loading**: Implement lazy loading for non-critical resources" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Build directory not found!" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # 🔍 Performance Audit
-  performance-audit:
-    name: 🔍 Performance Audit
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 📦 Upload bundle analysis
+        uses: actions/upload-artifact@v4
         with:
-          node-version: '20.x'
-          cache: 'npm'
-
-      - name: 🔧 Install dependencies
-        run: npm ci
-
-      - name: 🔍 Check for performance anti-patterns
-        run: |
-          echo "## 🔍 Performance Audit Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check for large images
-          echo "### 🖼️ Image Analysis:" >> $GITHUB_STEP_SUMMARY
-          if [ -d "public" ]; then
-            find public -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.gif" 2>/dev/null | while read file; do
-              if [ -f "$file" ]; then
-                size=$(stat -c%s "$file" 2>/dev/null || echo "0")
-                if [ "$size" -gt 500000 ]; then
-                  echo "⚠️ Large image detected: $file ($(($size / 1024))KB)" >> $GITHUB_STEP_SUMMARY
-                fi
-              fi
-            done || echo "✅ No large images found" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ No public directory found" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check for console.log statements
-          echo "### 🐛 Debug Code Analysis:" >> $GITHUB_STEP_SUMMARY
-          if grep -r "console\." src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | head -5; then
-            echo "⚠️ Console statements found in production code" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ No console statements found" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Check for TODO/FIXME comments
-          echo "### 📝 Code Quality Notes:" >> $GITHUB_STEP_SUMMARY
-          TODO_COUNT=$(grep -r "TODO\|FIXME" src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | wc -l || echo "0")
-          echo "📋 TODO/FIXME comments: $TODO_COUNT" >> $GITHUB_STEP_SUMMARY
+          name: bundle-analysis-${{ github.sha }}
+          path: |
+            .next/
+            !.next/cache
+          retention-days: 7
 
   # 📊 Performance Summary
   performance-summary:
     name: 📊 Performance Summary
     runs-on: ubuntu-latest
-    needs: [lighthouse, bundle-analysis, performance-audit]
+    needs: [bundle-analysis]
     if: always()
     
     steps:
       - name: 📊 Generate performance summary
         run: |
-          echo "## ⚡ Performance Analysis Complete" >> $GITHUB_STEP_SUMMARY
+          echo "# ⚡ Performance Monitoring Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Lighthouse | ${{ needs.lighthouse.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Bundle Analysis | ${{ needs.bundle-analysis.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance Audit | ${{ needs.performance-audit.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Analysis Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 Check individual job results for detailed performance metrics." >> $GITHUB_STEP_SUMMARY
+          echo "| Analysis Type | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 Bundle Analysis | ${{ needs.bundle-analysis.result == 'success' && '✅ Completed' || needs.bundle-analysis.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | Check bundle sizes and optimization opportunities |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.bundle-analysis.result }}" == "success" ]]; then
+            echo "## 🎯 Key Performance Insights" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 💡 Optimization Recommendations:" >> $GITHUB_STEP_SUMMARY
+            echo "1. **Monitor Bundle Sizes**: Keep JavaScript bundles under 5MB total" >> $GITHUB_STEP_SUMMARY
+            echo "2. **Image Optimization**: Use WebP/AVIF formats and proper sizing" >> $GITHUB_STEP_SUMMARY
+            echo "3. **Code Splitting**: Implement dynamic imports for large components" >> $GITHUB_STEP_SUMMARY
+            echo "4. **Caching Strategy**: Leverage browser and CDN caching" >> $GITHUB_STEP_SUMMARY
+            echo "5. **Core Web Vitals**: Focus on LCP, FID, and CLS metrics" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📈 Performance Tracking:" >> $GITHUB_STEP_SUMMARY
+            echo "- Regular monitoring helps identify performance regressions" >> $GITHUB_STEP_SUMMARY
+            echo "- Set up alerts for bundle size increases" >> $GITHUB_STEP_SUMMARY
+            echo "- Track performance metrics over time" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Performance analysis incomplete**. Please check the individual job logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Performance analysis completed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')*" >> $GITHUB_STEP_SUMMARY

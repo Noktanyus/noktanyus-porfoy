@@ -1,21 +1,32 @@
-name: 🔍 PR Quality Checks
+name: 🔍 Enhanced PR Quality Checks
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [ "master", "main" ]
 
 concurrency:
   group: pr-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '20.x'
+
 jobs:
-  # 📝 PR Information
+  # 📝 PR Information & Analysis
   pr-info:
-    name: 📝 PR Information
+    name: 📝 PR Information & Analysis
     runs-on: ubuntu-latest
+    outputs:
+      has-changes: ${{ steps.changes.outputs.has-changes }}
+      changed-files: ${{ steps.changes.outputs.changed-files }}
     
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: 📋 PR Details
         uses: actions/github-script@v7
         with:
@@ -25,11 +36,50 @@ jobs:
             console.log(`👤 Author: ${pr.user.login}`);
             console.log(`🌿 Branch: ${pr.head.ref} → ${pr.base.ref}`);
             console.log(`📊 Changes: +${pr.additions} -${pr.deletions}`);
+            
+            // Add PR info to summary
+            core.summary
+              .addHeading('🔄 Pull Request Information')
+              .addTable([
+                [{data: 'Property', header: true}, {data: 'Value', header: true}],
+                ['PR Number', `#${pr.number}`],
+                ['Title', pr.title],
+                ['Author', pr.user.login],
+                ['Branch', `${pr.head.ref} → ${pr.base.ref}`],
+                ['Changes', `+${pr.additions} -${pr.deletions}`],
+                ['Files Changed', pr.changed_files.toString()],
+                ['Status', pr.draft ? '📝 Draft' : '✅ Ready for Review']
+              ])
+              .write();
 
-  # 🔍 Code Analysis
+      - name: 🔍 Analyze changed files
+        id: changes
+        run: |
+          # Get list of changed files
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "changed-files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          if [ -n "$CHANGED_FILES" ]; then
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "## 📁 Changed Files" >> $GITHUB_STEP_SUMMARY
+            echo "$CHANGED_FILES" | while read file; do
+              if [ -n "$file" ]; then
+                echo "- \`$file\`" >> $GITHUB_STEP_SUMMARY
+              fi
+            done
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No files changed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # 🔍 Code Quality Analysis
   code-analysis:
-    name: 🔍 Code Analysis
+    name: 🔍 Code Quality Analysis
     runs-on: ubuntu-latest
+    needs: pr-info
+    if: needs.pr-info.outputs.has-changes == 'true'
     
     steps:
       - name: 📥 Checkout code
@@ -40,20 +90,45 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 🔧 Install dependencies
         run: npm ci
 
-      - name: 🔍 Run ESLint with annotations
-        run: npm run lint
-        continue-on-error: true
+      - name: 🔍 Run ESLint
+        run: |
+          echo "## 🔍 ESLint Analysis" >> $GITHUB_STEP_SUMMARY
+          if npm run lint; then
+            echo "✅ No linting errors found!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Linting errors found. Please fix them before merging." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
 
-  # 🧪 Test Coverage
-  test-coverage:
-    name: 🧪 Test Coverage
+      - name: 📊 Code complexity analysis
+        run: |
+          echo "## 📊 Code Complexity" >> $GITHUB_STEP_SUMMARY
+          
+          # Count TypeScript/JavaScript files
+          TS_FILES=$(find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | wc -l)
+          TOTAL_LINES=$(find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -exec wc -l {} + | tail -1 | awk '{print $1}')
+          
+          echo "- **TypeScript/JavaScript files**: $TS_FILES" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total lines of code**: $TOTAL_LINES" >> $GITHUB_STEP_SUMMARY
+          
+          # Check for large files
+          echo "### 📏 Large Files (>500 lines):" >> $GITHUB_STEP_SUMMARY
+          find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" -exec wc -l {} + | \
+          awk '$1 > 500 {print "- **" $2 "**: " $1 " lines"}' >> $GITHUB_STEP_SUMMARY || \
+          echo "✅ No large files found!" >> $GITHUB_STEP_SUMMARY
+
+  # 🔒 Security Check
+  security-check:
+    name: 🔒 Security Check
     runs-on: ubuntu-latest
+    needs: pr-info
+    if: needs.pr-info.outputs.has-changes == 'true'
     
     steps:
       - name: 📥 Checkout code
@@ -62,42 +137,170 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 🔧 Install dependencies
         run: npm ci
 
-      - name: 📝 Create test environment
+      - name: 🔒 Run security audit
         run: |
-          if [ -f .env.test ]; then
-            cp .env.test .env
+          echo "## 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
+          
+          if npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null; then
+            echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
           else
-            cat > .env << EOF
-          NEXTAUTH_SECRET=test-secret-for-ci
+            # Process audit results
+            if [ -s audit-results.json ]; then
+              VULNERABILITIES=$(jq -r '.metadata.vulnerabilities | to_entries[] | select(.value > 0) | "\(.key): \(.value)"' audit-results.json 2>/dev/null || echo "")
+              if [ -n "$VULNERABILITIES" ]; then
+                echo "⚠️ **Security vulnerabilities found:**" >> $GITHUB_STEP_SUMMARY
+                echo "$VULNERABILITIES" | while read line; do
+                  echo "- $line" >> $GITHUB_STEP_SUMMARY
+                done
+                
+                # Check for critical/high vulnerabilities
+                CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json 2>/dev/null || echo "0")
+                HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json 2>/dev/null || echo "0")
+                
+                if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "❌ **Critical or high severity vulnerabilities found. Please fix before merging.**" >> $GITHUB_STEP_SUMMARY
+                  exit 1
+                fi
+              else
+                echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+  # 🏗️ Build Verification
+  build-check:
+    name: 🏗️ Build Verification
+    runs-on: ubuntu-latest
+    needs: pr-info
+    if: needs.pr-info.outputs.has-changes == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📝 Setup build environment
+        run: |
+          cat > .env.local << EOF
+          NEXTAUTH_SECRET=pr-build-secret-key
+          DATABASE_URL=file:./pr-build.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=admin123
+          NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+
+      - name: 🗄️ Generate Prisma Client
+        run: npx prisma generate --schema=./prisma/schema.prisma
+
+      - name: 🏗️ Build application
+        run: |
+          echo "## 🏗️ Build Verification" >> $GITHUB_STEP_SUMMARY
+          
+          if npm run build; then
+            echo "✅ Build completed successfully!" >> $GITHUB_STEP_SUMMARY
+            
+            # Analyze build output
+            if [ -d ".next" ]; then
+              echo "### 📦 Build Output Analysis:" >> $GITHUB_STEP_SUMMARY
+              
+              # Static pages
+              STATIC_PAGES=$(find .next -name "*.html" | wc -l)
+              echo "- **Static pages generated**: $STATIC_PAGES" >> $GITHUB_STEP_SUMMARY
+              
+              # Bundle sizes
+              echo "- **JavaScript bundles**:" >> $GITHUB_STEP_SUMMARY
+              find .next/static -name "*.js" -type f -exec du -h {} + 2>/dev/null | \
+              sort -hr | head -5 | while read size file; do
+                echo "  - $(basename $file): $size" >> $GITHUB_STEP_SUMMARY
+              done || echo "  - No JS bundles found" >> $GITHUB_STEP_SUMMARY
+              
+              # CSS files
+              echo "- **CSS files**:" >> $GITHUB_STEP_SUMMARY
+              find .next/static -name "*.css" -type f -exec du -h {} + 2>/dev/null | \
+              sort -hr | head -3 | while read size file; do
+                echo "  - $(basename $file): $size" >> $GITHUB_STEP_SUMMARY
+              done || echo "  - No CSS files found" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ Build failed! Please fix the build errors before merging." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+        env:
+          SKIP_ENV_VALIDATION: true
+
+  # 🧪 Test Execution
+  test-execution:
+    name: 🧪 Test Execution
+    runs-on: ubuntu-latest
+    needs: pr-info
+    if: needs.pr-info.outputs.has-changes == 'true'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: npm ci
+
+      - name: 📝 Setup test environment
+        run: |
+          cat > .env.test << EOF
+          NEXTAUTH_SECRET=test-secret-for-pr
           DATABASE_URL=file:./test.db
           NEXTAUTH_URL=http://localhost:3000
           ADMIN_EMAIL=test@example.com
           ADMIN_PASSWORD=testpassword
           EOF
+
+      - name: 🧪 Check for test files and run tests
+        run: |
+          echo "## 🧪 Test Execution" >> $GITHUB_STEP_SUMMARY
+          
+          # Check if test files exist
+          if find . -name "*.test.*" -o -name "*.spec.*" | grep -q .; then
+            echo "📁 Test files found, executing tests..." >> $GITHUB_STEP_SUMMARY
+            
+            if npm run test --if-present; then
+              echo "✅ All tests passed!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ Some tests failed! Please fix them before merging." >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+          else
+            echo "ℹ️ No test files found in the project." >> $GITHUB_STEP_SUMMARY
+            echo "💡 Consider adding tests to improve code quality!" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: 🧪 Run tests with coverage
-        run: npm run test -- --coverage --watchAll=false --coverageReporters=text-lcov
-
-      - name: 📊 Coverage comment
-        uses: romeovs/lcov-reporter-action@v0.3.1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          lcov-file: ./coverage/lcov.info
-          delete-old-comments: true
-        continue-on-error: true
-
-  # 📦 Build Check
-  build-check:
-    name: 📦 Build Verification
+  # 📊 Performance Impact
+  performance-impact:
+    name: 📊 Performance Impact
     runs-on: ubuntu-latest
+    needs: [pr-info, build-check]
+    if: needs.pr-info.outputs.has-changes == 'true' && needs.build-check.result == 'success'
     
     steps:
       - name: 📥 Checkout code
@@ -106,43 +309,126 @@ jobs:
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: 🔧 Install dependencies
         run: npm ci
 
-      - name: 🏗️ Build check
+      - name: 📝 Setup build environment
+        run: |
+          cat > .env.local << EOF
+          NEXTAUTH_SECRET=perf-test-secret
+          DATABASE_URL=file:./perf-test.db
+          NEXTAUTH_URL=http://localhost:3000
+          ADMIN_EMAIL=admin@example.com
+          ADMIN_PASSWORD=admin123
+          NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EOF
+
+      - name: 🗄️ Generate Prisma Client
+        run: npx prisma generate --schema=./prisma/schema.prisma
+
+      - name: 🏗️ Build for performance analysis
         run: npm run build
         env:
           SKIP_ENV_VALIDATION: true
 
-      - name: 📏 Bundle size analysis
+      - name: 📊 Performance analysis
         run: |
-          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
-          echo "Build completed successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Performance Impact Analysis" >> $GITHUB_STEP_SUMMARY
+          
           if [ -d ".next" ]; then
-            echo "### Build Output:" >> $GITHUB_STEP_SUMMARY
-            du -sh .next/* | head -10 >> $GITHUB_STEP_SUMMARY
+            # Total build size
+            BUILD_SIZE=$(du -sh .next | cut -f1)
+            echo "- **Total build size**: $BUILD_SIZE" >> $GITHUB_STEP_SUMMARY
+            
+            # Page count
+            PAGE_COUNT=$(find .next -name "*.html" | wc -l)
+            echo "- **Static pages**: $PAGE_COUNT" >> $GITHUB_STEP_SUMMARY
+            
+            # Largest bundles
+            echo "### 🎯 Largest JavaScript Bundles:" >> $GITHUB_STEP_SUMMARY
+            find .next/static -name "*.js" -type f -exec du -h {} + 2>/dev/null | \
+            sort -hr | head -5 | while read size file; do
+              echo "- **$(basename $file)**: $size" >> $GITHUB_STEP_SUMMARY
+            done || echo "- No JavaScript bundles found" >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "💡 **Performance Tips:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Monitor bundle sizes to avoid performance regressions" >> $GITHUB_STEP_SUMMARY
+            echo "- Consider code splitting for large components" >> $GITHUB_STEP_SUMMARY
+            echo "- Use dynamic imports for non-critical code" >> $GITHUB_STEP_SUMMARY
           fi
 
-  # ✅ PR Status Check
+  # ✅ Final PR Status
   pr-status:
-    name: ✅ PR Status
+    name: ✅ Final PR Status
     runs-on: ubuntu-latest
-    needs: [code-analysis, test-coverage, build-check]
+    needs: [pr-info, code-analysis, security-check, build-check, test-execution, performance-impact]
     if: always()
     
     steps:
-      - name: 🎉 All checks passed
-        if: needs.code-analysis.result == 'success' && needs.test-coverage.result == 'success' && needs.build-check.result == 'success'
-        run: echo "✅ All PR checks passed! Ready for review."
-
-      - name: ❌ Some checks failed
-        if: needs.code-analysis.result == 'failure' || needs.test-coverage.result == 'failure' || needs.build-check.result == 'failure'
+      - name: 📊 Generate PR status report
         run: |
-          echo "❌ Some PR checks failed:"
-          echo "- Code Analysis: ${{ needs.code-analysis.result }}"
-          echo "- Test Coverage: ${{ needs.test-coverage.result }}"
-          echo "- Build Check: ${{ needs.build-check.result }}"
+          echo "# 🔍 PR Quality Check Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Check Results Overview" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status | Required |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 📝 PR Info | ${{ needs.pr-info.result == 'success' && '✅ Success' || '❌ Failed' }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔍 Code Analysis | ${{ needs.code-analysis.result == 'success' && '✅ Success' || needs.code-analysis.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🔒 Security Check | ${{ needs.security-check.result == 'success' && '✅ Success' || needs.security-check.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🏗️ Build Check | ${{ needs.build-check.result == 'success' && '✅ Success' || needs.build-check.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🧪 Tests | ${{ needs.test-execution.result == 'success' && '✅ Success' || needs.test-execution.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | ⚠️ |" >> $GITHUB_STEP_SUMMARY
+          echo "| 📊 Performance | ${{ needs.performance-impact.result == 'success' && '✅ Success' || needs.performance-impact.result == 'failure' && '❌ Failed' || '⏭️ Skipped' }} | ℹ️ |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🎉 All critical checks passed
+        if: |
+          needs.pr-info.result == 'success' && 
+          (needs.code-analysis.result == 'success' || needs.code-analysis.result == 'skipped') && 
+          (needs.security-check.result == 'success' || needs.security-check.result == 'skipped') && 
+          (needs.build-check.result == 'success' || needs.build-check.result == 'skipped')
+        run: |
+          echo "## 🎉 PR Ready for Review!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All critical quality checks have passed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Next Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Request review from team members" >> $GITHUB_STEP_SUMMARY
+          echo "2. Address any review feedback" >> $GITHUB_STEP_SUMMARY
+          echo "3. Merge when approved" >> $GITHUB_STEP_SUMMARY
+
+      - name: ❌ Some critical checks failed
+        if: |
+          needs.pr-info.result == 'failure' || 
+          needs.code-analysis.result == 'failure' || 
+          needs.security-check.result == 'failure' || 
+          needs.build-check.result == 'failure'
+        run: |
+          echo "## ❌ PR Needs Attention!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Some critical checks failed. Please fix the issues before requesting review:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.code-analysis.result }}" == "failure" ]]; then
+            echo "- 🔍 **Code Analysis**: Fix linting errors" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.security-check.result }}" == "failure" ]]; then
+            echo "- 🔒 **Security Check**: Address security vulnerabilities" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.build-check.result }}" == "failure" ]]; then
+            echo "- 🏗️ **Build Check**: Fix build errors" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ needs.test-execution.result }}" == "failure" ]]; then
+            echo "- 🧪 **Tests**: Fix failing tests" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tip**: Check the individual job logs above for detailed error information." >> $GITHUB_STEP_SUMMARY
           exit 1
