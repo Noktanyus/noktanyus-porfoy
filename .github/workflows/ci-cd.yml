@@ -223,6 +223,8 @@ jobs:
         run: |
           npx prisma generate --schema=./prisma/schema.ci.prisma
           npx prisma db push --schema=./prisma/schema.ci.prisma --accept-data-loss
+        env:
+          DATABASE_URL: file:./build.db
 
       - name: 🏗️ Build application
         run: npm run build
