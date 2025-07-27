@@ -30,7 +30,7 @@ export default function BlogList({ allPosts }: BlogListProps) {
     return allPosts.filter(post => {
       const titleMatch = post.title.toLowerCase().includes(lowercasedSearchTerm);
       const descriptionMatch = post.description.toLowerCase().includes(lowercasedSearchTerm);
-      const tagMatch = post.tags?.toLowerCase().includes(lowercasedSearchTerm);
+      const tagMatch = Array.isArray(post.tags) ? post.tags.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(lowercasedSearchTerm)) : false;
       const categoryMatch = post.category.toLowerCase().includes(lowercasedSearchTerm);
 
       return titleMatch || descriptionMatch || tagMatch || categoryMatch;

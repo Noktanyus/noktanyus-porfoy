@@ -47,7 +47,7 @@ export default async function Home() {
     listBlogs(),
   ]);
 
-  if (!aboutData || !homeSettings) {
+  if (!aboutData) {
     return <div>İçerik yüklenemedi.</div>;
   }
 
@@ -61,10 +61,10 @@ export default async function Home() {
         <section className="relative min-h-[60vh] flex items-center">
           <div className="w-full">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              <div className="order-2 lg:order-1 slide-in-left">
+              <div className="order-2 lg:order-1 animate-slide-in-left">
                 <HeroSection aboutData={aboutData} homeSettings={homeSettings} />
               </div>
-              <div className="order-1 lg:order-2 slide-in-right" style={{animationDelay: '0.3s'}}>
+              <div className="order-1 lg:order-2 animate-slide-in-right" style={{animationDelay: '0.3s'}}>
                 <FeaturedContent homeSettings={homeSettings} />
               </div>
             </div>
@@ -72,12 +72,12 @@ export default async function Home() {
         </section>
         
         {/* Featured Projects */}
-        <section className="fade-in" style={{animationDelay: '0.8s'}}>
+        <section className="animate-fade-in" style={{animationDelay: '0.8s'}}>
           <FeaturedProjects projects={featuredProjects} />
         </section>
         
         {/* Latest Blogs */}
-        <section className="fade-in" style={{animationDelay: '1.2s'}}>
+        <section className="animate-fade-in" style={{animationDelay: '1.2s'}}>
           <LatestBlogs blogs={latestPosts} />
         </section>
       </div>

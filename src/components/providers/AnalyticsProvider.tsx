@@ -88,7 +88,7 @@ export default function AnalyticsProvider({ children }: { children: React.ReactN
 // Throttle utility function
 function throttle<T extends (...args: any[]) => any>(func: T, limit: number): T {
   let inThrottle: boolean;
-  return ((...args: any[]) => {
+  return (function(this: any, ...args: any[]) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;

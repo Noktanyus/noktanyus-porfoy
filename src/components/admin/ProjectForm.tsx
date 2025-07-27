@@ -45,7 +45,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       slug: project?.slug || '',
       description: project?.description || '',
       mainImage: project?.mainImage || '',
-      technologies: Array.isArray(project?.technologies) ? project.technologies.join(', ') : (project?.technologies || ''),
+      technologies: Array.isArray(project?.technologies) ? project.technologies.join(', ') : (typeof project?.technologies === 'string' ? project.technologies : ''),
       liveDemo: project?.liveDemo || '',
       githubRepo: project?.githubRepo || '',
       order: project?.order || 0,
@@ -62,7 +62,7 @@ export default function ProjectForm({ project }: ProjectFormProps) {
       setValue('slug', project.slug);
       setValue('description', project.description);
       setValue('mainImage', project.mainImage);
-      setValue('technologies', Array.isArray(project.technologies) ? project.technologies.join(', ') : (project.technologies || ''));
+      setValue('technologies', Array.isArray(project.technologies) ? project.technologies.join(', ') : (typeof project.technologies === 'string' ? project.technologies : ''));
       setValue('liveDemo', project.liveDemo || '');
       setValue('githubRepo', project.githubRepo || '');
       setValue('order', project.order || 0);

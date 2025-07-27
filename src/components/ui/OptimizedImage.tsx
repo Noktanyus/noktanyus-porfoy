@@ -41,7 +41,7 @@ const OptimizedImage = ({
   loading = 'lazy',
   unoptimized = false,
 }: OptimizedImageProps) => {
-  // const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setSrc] = useState(src);
 

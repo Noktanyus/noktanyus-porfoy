@@ -35,6 +35,29 @@ const cardStyle = "bg-white dark:bg-dark-card p-6 rounded-lg shadow-md";
 export default function PopupForm({ initialData }: PopupFormProps) {
   const router = useRouter();
   const isEditMode = !!initialData;
+  // initialData'daki buttons'ı güvenli bir şekilde parse et
+  const parseButtons = (buttonsData: any): PopupButton[] => {
+    if (!buttonsData) return [];
+    
+    if (Array.isArray(buttonsData)) {
+      return buttonsData;
+    }
+    
+    if (typeof buttonsData === 'string') {
+      if (!buttonsData.trim()) return [];
+      
+      try {
+        const parsed = JSON.parse(buttonsData);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn('PopupForm -> Buttons parse hatası:', error);
+        return [];
+      }
+    }
+    
+    return [];
+  };
+
   const { register, handleSubmit, control, watch, setValue, formState: { errors, isSubmitting } } = useForm<PopupFormData>({
     defaultValues: {
       ...initialData,
@@ -43,7 +66,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
       content: initialData?.content || '',
       imageUrl: initialData?.imageUrl || '',
       youtubeEmbedUrl: initialData?.youtubeEmbedUrl || '',
-      buttons: (initialData?.buttons as any as PopupButton[]) || [], // JSON'u PopupButton[]'a cast et
+      buttons: parseButtons(initialData?.buttons),
       isActive: initialData?.isActive ?? true,
     },
   });
@@ -73,7 +96,18 @@ export default function PopupForm({ initialData }: PopupFormProps) {
     const toastId = toast.loading(isEditMode ? 'Popup güncelleniyor...' : 'Popup oluşturuluyor...');
     
     const finalSlug = formData.slug;
-    const { content, ...restOfData } = formData;
+    const { content, buttons, ...restOfData } = formData;
+
+    // Buttons array'ini güvenli bir şekilde JSON string'e çevir
+    let buttonsJson = "[]"; // Varsayılan boş array
+    if (buttons && Array.isArray(buttons) && buttons.length > 0) {
+      try {
+        buttonsJson = JSON.stringify(buttons);
+      } catch (error) {
+        console.warn('PopupForm -> Buttons JSON.stringify hatası:', error);
+        buttonsJson = "[]";
+      }
+    }
 
     try {
       const response = await fetch('/api/admin/content', {
@@ -83,7 +117,10 @@ export default function PopupForm({ initialData }: PopupFormProps) {
           type: 'popups',
           slug: finalSlug,
           originalSlug: initialData?.slug, // Orijinal slug'ı API'ye gönder
-          data: restOfData,
+          data: {
+            ...restOfData,
+            buttons: buttonsJson
+          },
           content: content,
         }),
       });

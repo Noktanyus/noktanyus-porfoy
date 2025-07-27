@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Popup } from '@/types/content';
 import Image from "next/image";
@@ -82,15 +82,40 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
           )}
 
           <div className="flex flex-wrap gap-3 justify-end border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-            {popup.buttons && JSON.parse(popup.buttons).map((button: any, index: number) => (
-              <button
-                key={index}
-                onClick={() => handleButtonClick(button.actionType, button.actionValue)}
-                className="bg-brand-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-              >
-                {button.text}
-              </button>
-            ))}
+            {(() => {
+              // Buttons kontrolü ve parse işlemi
+              if (!popup.buttons || typeof popup.buttons !== 'string' || !popup.buttons.trim()) {
+                return null;
+              }
+              
+              try {
+                const buttons = JSON.parse(popup.buttons);
+                if (!Array.isArray(buttons) || buttons.length === 0) {
+                  return null;
+                }
+                
+                return buttons.map((button: any, index: number) => {
+                  // Button objesinin gerekli alanlarını kontrol et
+                  if (!button || typeof button !== 'object' || !button.text || !button.actionType) {
+                    console.warn(`PopupViewer -> Geçersiz button objesi (index: ${index}):`, button);
+                    return null;
+                  }
+                  
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleButtonClick(button.actionType, button.actionValue)}
+                      className="bg-brand-primary text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                      {button.text}
+                    </button>
+                  );
+                }).filter(Boolean); // null değerleri filtrele
+              } catch (error) {
+                console.warn('PopupViewer -> JSON parse error for buttons:', error);
+                return null;
+              }
+            })()}
           </div>
         </div>
       </div>

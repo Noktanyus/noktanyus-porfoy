@@ -4,7 +4,7 @@ import ClientOnlyHtml from "@/components/ClientOnlyHtml";
 import { HomeSettings } from "@/types/content";
 
 interface FeaturedContentProps {
-  homeSettings: HomeSettings;
+  homeSettings: HomeSettings | null;
 }
 
 // YouTube video ID'sini URL'den çıkaran yardımcı fonksiyon
@@ -18,7 +18,7 @@ const getYouTubeId = (url: string): string | null => {
 
 export default function FeaturedContent({ homeSettings }: FeaturedContentProps) {
   const videoId =
-    homeSettings.featuredContentType === "video" && homeSettings.youtubeUrl
+    homeSettings?.featuredContentType === "video" && homeSettings?.youtubeUrl
       ? getYouTubeId(homeSettings.youtubeUrl)
       : null;
 
@@ -26,19 +26,18 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
     <div className="relative flex items-center justify-center min-h-[300px] p-4">
       {/* Arka plan dekoratif elementler */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200/20 dark:bg-blue-800/10 rounded-full floating-element"></div>
-        <div className="absolute bottom-16 right-8 w-16 h-16 bg-purple-200/20 dark:bg-purple-800/10 rounded-full floating-element" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute top-1/2 left-4 w-12 h-12 bg-green-200/20 dark:bg-green-800/10 rounded-full floating-element" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200/20 dark:bg-blue-800/10 rounded-full animate-float"></div>
+        <div className="absolute bottom-16 right-8 w-16 h-16 bg-purple-200/20 dark:bg-purple-800/10 rounded-full animate-float" style={{animationDelay: '0.5s'}}></div>
+        <div className="absolute top-1/2 left-4 w-12 h-12 bg-green-200/20 dark:bg-green-800/10 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
       </div>
 
       {/* Video Content */}
       {videoId && (
-        <div className="w-full max-w-lg relative z-10 scale-in">
+        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{animationDelay: '0.2s'}}>
           <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-gray-300 dark:border-gray-700 hover:shadow-blue-500/20 transition-all duration-300">
             <iframe
               className="w-full h-full"
               src={`https://www.youtube.com/embed/${videoId}`}
-              frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title="Öne Çıkan YouTube Videosu"
@@ -48,8 +47,8 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       )}
       
       {/* Text Content */}
-      {homeSettings.featuredContentType === "text" && homeSettings.textTitle && (
-        <div className="w-full max-w-lg admin-card relative z-10 scale-in text-center">
+      {homeSettings?.featuredContentType === "text" && homeSettings?.textTitle && (
+        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{animationDelay: '0.2s'}}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {homeSettings.textTitle}
           </h3>
@@ -70,17 +69,17 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       )}
       
       {/* HTML Content */}
-      {homeSettings.featuredContentType === "html" && homeSettings.customHtml && (
-        <div className="w-full max-w-lg relative z-10 scale-in">
+      {homeSettings?.featuredContentType === "html" && homeSettings?.customHtml && (
+        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{animationDelay: '0.2s'}}>
           <div className="admin-card">
             <ClientOnlyHtml html={homeSettings.customHtml} />
           </div>
         </div>
       )}
       
-      {/* Default Content when no settings */}
-      {!homeSettings.featuredContentType && (
-        <div className="w-full max-w-lg admin-card relative z-10 scale-in text-center">
+      {/* Default Content - Always show if no specific content type */}
+      {(!homeSettings?.featuredContentType || homeSettings?.featuredContentType === "") && (
+        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{animationDelay: '0.2s'}}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Hoş Geldiniz!
           </h3>

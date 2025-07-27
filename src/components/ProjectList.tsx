@@ -41,7 +41,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
         // Proje başlığı, açıklaması veya teknolojileri arama terimini içeriyor mu?
         const titleMatch = project.title.toLowerCase().includes(lowercasedSearchTerm);
         const descriptionMatch = project.description.toLowerCase().includes(lowercasedSearchTerm);
-        const techMatch = project.technologies?.toLowerCase().includes(lowercasedSearchTerm);
+        const techMatch = Array.isArray(project.technologies) ? project.technologies.some(tech => typeof tech === 'string' && tech.toLowerCase().includes(lowercasedSearchTerm)) : false;
 
         return titleMatch || descriptionMatch || techMatch;
       });

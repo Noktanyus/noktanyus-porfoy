@@ -55,7 +55,7 @@ export default function BlogForm({ post }: BlogFormProps) {
       thumbnail: post?.thumbnail || '',
       author: post?.author || session?.user?.name || '',
       category: post?.category || '',
-      tags: Array.isArray(post?.tags) ? post.tags.join(', ') : (post?.tags || ''),
+      tags: Array.isArray(post?.tags) ? post.tags.join(', ') : (typeof post?.tags === 'string' ? post.tags : ''),
       date: post?.date ? new Date(post.date) : new Date(),
       content: post?.content || '',
     }
@@ -70,7 +70,7 @@ export default function BlogForm({ post }: BlogFormProps) {
       setValue('thumbnail', post.thumbnail);
       setValue('author', post.author || session?.user?.name || '');
       setValue('category', post.category);
-      setValue('tags', Array.isArray(post.tags) ? post.tags.join(', ') : (post.tags || ''));
+      setValue('tags', Array.isArray(post.tags) ? post.tags.join(', ') : (typeof post.tags === 'string' ? post.tags : ''));
       setValue('date', post.date ? new Date(post.date) : new Date());
       setValue('content', post.content);
     }

@@ -19,6 +19,10 @@ const config: Config = {
         "dark-border": "#262626",
       },
       
+      backdropBlur: {
+        'xs': '1px',
+      },
+      
       keyframes: {
         float: {
           '0%': { transform: 'translateY(0px)' },

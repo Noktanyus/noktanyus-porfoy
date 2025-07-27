@@ -39,7 +39,7 @@ const BlogCard = ({ blog }: BlogCardProps) => {
           </span>
         </div>
 
-        <TagList tags={blog.tags} />
+        <TagList tags={Array.isArray(blog.tags) ? blog.tags.filter((tag): tag is string => typeof tag === 'string') : []} />
       </CardBody>
 
       <CardFooter>

@@ -77,15 +77,15 @@ const Header = ({ headerTitle }: HeaderProps) => {
     <>
       <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 fade-in">
         <div className="w-full max-w-5xl">
-          <div className="flex items-center justify-between h-14 sm:h-16 bg-white/90 dark:bg-black/90 border border-white/60 dark:border-black/60 rounded-full shadow-lg backdrop-blur-md px-3 sm:px-6 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300">
-            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-light-text dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" aria-label="Ana Sayfa">
+          <div className="flex items-center justify-between h-14 sm:h-16 bg-white/80 dark:bg-black/80 border border-white/40 dark:border-black/40 rounded-full shadow-lg backdrop-blur-sm backdrop-saturate-110 px-3 sm:px-6 hover:shadow-xl hover:shadow-blue-500/10 hover:backdrop-blur-md hover:backdrop-saturate-125 hover:bg-white/85 hover:dark:bg-black/85 transition-all duration-700 ease-out">
+            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" aria-label="Ana Sayfa">
               <span className="block truncate max-w-[120px] sm:max-w-none">{headerTitle}</span>
             </Link>
             
             {/* Masaüstü Navigasyonu */}
             <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 flex-shrink-0">
               {navLinks.map((link, index) => (
-                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-light-text dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 slide-in-right" style={{animationDelay: `${index * 0.1}s`}}>
+                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300" style={{animationDelay: `${index * 0.1}s`}}>
                   {link.label}
                 </Link>
               ))}
@@ -104,9 +104,20 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 <button 
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                   aria-label="Menüyü aç/kapat"
-                  className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring"
+                  className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring relative overflow-hidden"
                 >
-                  {isMobileMenuOpen ? <FaTimes className="w-5 h-5 text-light-text dark:text-white" /> : <FaBars className="w-5 h-5 text-light-text dark:text-white" />}
+                  <div className="relative w-5 h-5">
+                    <FaBars 
+                      className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
+                        isMobileMenuOpen ? 'rotate-90 opacity-0 scale-75' : 'rotate-0 opacity-100 scale-100'
+                      }`} 
+                    />
+                    <FaTimes 
+                      className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
+                        isMobileMenuOpen ? 'rotate-0 opacity-100 scale-100' : '-rotate-90 opacity-0 scale-75'
+                      }`} 
+                    />
+                  </div>
                 </button>
               </div>
             </div>
@@ -115,34 +126,52 @@ const Header = ({ headerTitle }: HeaderProps) => {
       </header>
 
       {/* Mobil Menü */}
-      {isMobileMenuOpen && (
-        <>
-          {/* Backdrop Overlay */}
-          <div
-            className="md:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          
-          {/* Menu Content */}
-          <div
-            className="md:hidden fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/95 dark:bg-black/95 border border-white/90 dark:border-black/90 rounded-2xl shadow-xl backdrop-blur-md p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto"
-          >
-            <nav className="flex flex-col space-y-1">
-              {navLinks.map((link, index) => (
-                <div key={link.href}>
-                  <Link 
-                    href={link.href} 
-                    className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring" 
-                    onClick={handleMobileLinkClick}
-                  >
-                    {link.label}
-                  </Link>
-                </div>
-              ))}
-            </nav>
-          </div>
-        </>
-      )}
+      <div className={`md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${
+        isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+      }`}>
+        {/* Backdrop Overlay */}
+        <div
+          className={`fixed inset-0 transition-all duration-700 ease-out ${
+            isMobileMenuOpen 
+              ? 'bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100' 
+              : 'bg-black/0 backdrop-blur-none backdrop-saturate-100 opacity-0'
+          }`}
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+        
+        {/* Menu Content */}
+        <div
+          className={`fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/85 dark:bg-black/85 border border-white/60 dark:border-black/60 rounded-2xl shadow-xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto transition-all duration-700 ease-out transform ${
+            isMobileMenuOpen 
+              ? 'opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115' 
+              : 'opacity-0 scale-95 -translate-y-2 backdrop-blur-none backdrop-saturate-100'
+          }`}
+        >
+          <nav className="flex flex-col space-y-1">
+            {navLinks.map((link, index) => (
+              <div 
+                key={link.href}
+                className={`transition-all duration-500 ease-out transform ${
+                  isMobileMenuOpen 
+                    ? 'opacity-100 translate-x-0' 
+                    : 'opacity-0 -translate-x-4'
+                }`}
+                style={{
+                  transitionDelay: isMobileMenuOpen ? `${index * 100 + 300}ms` : '0ms'
+                }}
+              >
+                <Link 
+                  href={link.href} 
+                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring block" 
+                  onClick={handleMobileLinkClick}
+                >
+                  {link.label}
+                </Link>
+              </div>
+            ))}
+          </nav>
+        </div>
+      </div>
     </>
   );
 };
