@@ -20,6 +20,7 @@ Bu proje [MIT Lisansı](./LICENSE) ile lisanslanmıştır. Kullanımda kaynak be
 - [Ortam Değişkenleri (.env)](#-ortam-değişkenleri-env)
 - [Testler](#-testler)
 - [Docker ile Çalıştırma](#-docker-ile-çalıştırma)
+- [CI/CD Pipeline](#-cicd-pipeline)
 
 
 ## 🌟 Proje Hakkında
@@ -159,3 +160,198 @@ Proje, Docker ve Docker Compose ile kolayca ayağa kaldırılabilir.
     docker-compose up --build
     ```
 Bu komut, veritabanı servisini ve Next.js uygulamasını başlatacaktır.
+
+## 🚀 CI/CD Pipeline
+
+Bu proje, GitHub Actions kullanarak kapsamlı bir CI/CD pipeline'ına sahiptir. Her push ve pull request işleminde otomatik olarak kod kalitesi, güvenlik ve performans kontrolleri yapılır.
+
+### 📋 Workflow'lar
+
+#### 🚀 Ana CI/CD Pipeline (`ci-cd.yml`)
+Ana deployment pipeline'ı aşağıdaki aşamaları içerir:
+
+**Tetikleyiciler:**
+- `master`/`main` branch'e push
+- Pull request oluşturma
+- Manuel tetikleme (workflow_dispatch)
+
+**Aşamalar:**
+1. **📋 Environment Setup**: Ortam hazırlığı ve cache yönetimi
+2. **🔍 Code Quality & Linting**: ESLint ile kod kalitesi kontrolü
+3. **🔒 Security Audit**: npm audit ile güvenlik taraması
+4. **🏗️ Build Application**: Uygulama build işlemi
+5. **🧪 Test Suite**: Test dosyalarının çalıştırılması (varsa)
+6. **🐳 Docker Build & Push**: Docker image oluşturma ve registry'e push
+7. **📊 Performance Analysis**: Bundle boyutu analizi (PR'larda)
+8. **🚀 Deployment Notification**: Deployment durumu bildirimi
+
+**Özellikler:**
+- ✅ Paralel job execution (hızlı build)
+- ✅ Akıllı cache yönetimi
+- ✅ Environment-specific deployment
+- ✅ Detaylı raporlama ve status summary
+- ✅ Multi-platform Docker builds (amd64, arm64)
+
+#### 🔍 PR Quality Checks (`pr-checks.yml`)
+Pull request'ler için özel kalite kontrolleri:
+
+**Kontroller:**
+- **📝 PR Information**: PR detayları ve değişen dosyalar analizi
+- **🔍 Code Analysis**: ESLint ve kod karmaşıklığı analizi
+- **🔒 Security Check**: Güvenlik açığı taraması
+- **🏗️ Build Verification**: Build başarı kontrolü
+- **🧪 Test Execution**: Test dosyalarının çalıştırılması
+- **📊 Performance Impact**: Bundle boyutu ve performans analizi
+
+**Özellikler:**
+- ✅ Detaylı PR summary raporları
+- ✅ Otomatik kod kalitesi değerlendirmesi
+- ✅ Güvenlik açığı uyarıları
+- ✅ Performance regression detection
+
+#### 🔒 Security Scanning (`security.yml`)
+Gelişmiş güvenlik taraması:
+
+**Taramalar:**
+- **🔍 Dependency Scan**: npm audit ile bağımlılık taraması
+- **🔍 CodeQL Analysis**: GitHub CodeQL ile kod analizi
+- **🔒 Secret Detection**: TruffleHog ile secret taraması
+- **🛡️ OWASP Dependency Check**: OWASP güvenlik kontrolü
+
+**Çalışma Zamanları:**
+- Her push ve PR'da
+- Günlük otomatik tarama (02:00 UTC)
+- Manuel tetikleme desteği
+
+#### ⚡ Performance Monitoring (`performance.yml`)
+Performans izleme ve optimizasyon:
+
+**Analizler:**
+- **📊 Bundle Size Analysis**: JavaScript ve CSS bundle analizi
+- **📄 Page Analysis**: Static ve server page sayıları
+- **📏 Large File Detection**: 1MB üzeri dosya uyarıları
+- **💡 Optimization Recommendations**: Performans önerileri
+
+**Çalışma Zamanları:**
+- Her push ve PR'da
+- Haftalık otomatik analiz (Pazartesi 09:00 UTC)
+- Manuel tetikleme seçenekleri
+
+#### 🧹 Cleanup & Maintenance (`cleanup.yml`)
+Otomatik temizlik ve bakım:
+
+**Görevler:**
+- **🗑️ Artifact Cleanup**: 30 gün üzeri artifact'ları temizleme
+- **🐳 Docker Image Cleanup**: Eski Docker image'larını temizleme
+- **📊 Repository Statistics**: Repo istatistikleri
+- **🔍 Health Check**: Dependency ve güvenlik durumu
+
+**Çalışma Zamanı:**
+- Haftalık otomatik çalışma (Pazar 03:00 UTC)
+
+#### 🚀 Release & Deploy (`release.yml`)
+Release yönetimi ve deployment:
+
+**Süreç:**
+- **🏷️ GitHub Release**: Otomatik release oluşturma
+- **🧪 Pre-Release Tests**: Release öncesi testler
+- **🐳 Release Image Build**: Production Docker image
+- **📊 Release Summary**: Deployment durumu raporu
+
+**Tetikleyiciler:**
+- Git tag push (`v*`)
+- Manuel release tetikleme
+
+### 🔧 Workflow Konfigürasyonu
+
+#### Gerekli Secrets
+GitHub repository settings'de aşağıdaki secrets'ların tanımlanması gerekir:
+
+```bash
+# Docker Hub
+DOCKERHUB_USERNAME=your-dockerhub-username
+DOCKERHUB_TOKEN=your-dockerhub-token
+
+# Application Secrets
+DATABASE_URL=your-database-url
+NEXTAUTH_SECRET=your-nextauth-secret
+NEXTAUTH_URL=your-app-url
+ADMIN_EMAIL=your-admin-email
+ADMIN_PASSWORD=your-admin-password
+
+# Optional Services
+TURNSTILE_SECRET_KEY=your-turnstile-secret
+EMAIL_SERVER=your-email-server
+EMAIL_PORT=your-email-port
+EMAIL_USER=your-email-user
+EMAIL_PASSWORD=your-email-password
+
+# Public Variables
+NEXT_PUBLIC_BASE_URL=your-public-url
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your-turnstile-site-key
+```
+
+#### Manuel Workflow Tetikleme
+
+Workflow'ları manuel olarak tetiklemek için:
+
+1. GitHub repository'de **Actions** sekmesine gidin
+2. İstediğiniz workflow'u seçin
+3. **Run workflow** butonuna tıklayın
+4. Gerekli parametreleri girin (varsa)
+5. **Run workflow** ile başlatın
+
+### 📊 Monitoring ve Raporlama
+
+Her workflow çalışması sonunda detaylı raporlar oluşturulur:
+
+- **✅ Success Reports**: Başarılı işlemler özeti
+- **❌ Failure Reports**: Hata detayları ve çözüm önerileri
+- **📊 Performance Metrics**: Bundle boyutları ve optimizasyon önerileri
+- **🔒 Security Status**: Güvenlik tarama sonuçları
+- **📈 Trend Analysis**: Zaman içindeki değişimler
+
+### 🎯 Best Practices
+
+**Geliştirme Süreci:**
+1. Feature branch oluşturun
+2. Değişikliklerinizi yapın
+3. PR açın (otomatik kalite kontrolleri çalışır)
+4. Review sonrası merge edin
+5. Master branch'e merge sonrası otomatik deployment
+
+**Güvenlik:**
+- Secrets'ları asla kod içinde tutmayın
+- Düzenli güvenlik taramaları yapın
+- Bağımlılıkları güncel tutun
+
+**Performans:**
+- Bundle boyutlarını izleyin
+- Performance regression'ları önleyin
+- Optimizasyon önerilerini uygulayın
+
+---
+
+## 🤝 Katkıda Bulunma
+
+Bu projeye katkıda bulunmak istiyorsanız:
+
+1. Projeyi fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+## 📞 İletişim
+
+- **Website:** [noktanyus.com](https://noktanyus.com)
+- **GitHub:** [@noktanyus](https://github.com/noktanyus)
+- **Email:** [İletişim formu üzerinden](https://noktanyus.com/iletisim)
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+---
+
+⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
