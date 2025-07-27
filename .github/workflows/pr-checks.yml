@@ -205,6 +205,12 @@ jobs:
           ADMIN_EMAIL=admin@example.com
           ADMIN_PASSWORD=admin123
           NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EMAIL_SERVER=smtp.example.com
+          EMAIL_PORT=587
+          EMAIL_USER=test@example.com
+          EMAIL_PASSWORD=testpassword
+          TURNSTILE_SECRET_KEY=test-turnstile-secret
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY=test-turnstile-site-key
           EOF
 
       - name: 🗄️ Generate Prisma Client
@@ -274,6 +280,12 @@ jobs:
           NEXTAUTH_URL=http://localhost:3000
           ADMIN_EMAIL=test@example.com
           ADMIN_PASSWORD=testpassword
+          EMAIL_SERVER=smtp.example.com
+          EMAIL_PORT=587
+          EMAIL_USER=test@example.com
+          EMAIL_PASSWORD=testpassword
+          TURNSTILE_SECRET_KEY=test-turnstile-secret
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY=test-turnstile-site-key
           EOF
 
       - name: 🧪 Check for test files and run tests
@@ -324,6 +336,12 @@ jobs:
           ADMIN_EMAIL=admin@example.com
           ADMIN_PASSWORD=admin123
           NEXT_PUBLIC_BASE_URL=http://localhost:3000
+          EMAIL_SERVER=smtp.example.com
+          EMAIL_PORT=587
+          EMAIL_USER=test@example.com
+          EMAIL_PASSWORD=testpassword
+          TURNSTILE_SECRET_KEY=test-turnstile-secret
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY=test-turnstile-site-key
           EOF
 
       - name: 🗄️ Generate Prisma Client
