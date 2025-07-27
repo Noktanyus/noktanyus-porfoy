@@ -60,8 +60,10 @@ jobs:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY=test-turnstile-site-key
           EOF
 
-      - name: 🗄️ Generate Prisma Client
-        run: npx prisma generate --schema=./prisma/schema.prisma
+      - name: 🗄️ Setup Prisma
+        run: |
+          npx prisma generate --schema=./prisma/schema.ci.prisma
+          npx prisma db push --schema=./prisma/schema.ci.prisma --accept-data-loss
 
       - name: 🏗️ Build application
         run: npm run build
