@@ -37,7 +37,7 @@ const OptimizedImage = ({
   onError,
   placeholder = 'empty',
   blurDataURL,
-  quality = 75,
+  quality = 80,
   loading = 'lazy',
   unoptimized = false,
 }: OptimizedImageProps) => {
@@ -64,13 +64,13 @@ const OptimizedImage = ({
     skip: priority,
   });
 
-  // Generate responsive sizes if not provided
+  // Generate responsive sizes with mobile-first approach
   const responsiveSizes = sizes || (
     fill 
-      ? "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+      ? "(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 50vw, 33vw"
       : width && height
-        ? `(max-width: 640px) ${Math.min(width, 640)}px, (max-width: 1024px) ${Math.min(width, 1024)}px, ${width}px`
-        : "100vw"
+        ? `(max-width: 320px) 320px, (max-width: 640px) ${Math.min(width, 640)}px, (max-width: 1024px) ${Math.min(width, 1024)}px, ${width}px`
+        : "(max-width: 320px) 320px, (max-width: 640px) 640px, 100vw"
   );
 
   // Generate blur placeholder for better loading experience

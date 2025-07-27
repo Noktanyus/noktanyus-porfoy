@@ -3,6 +3,7 @@ import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import { About, HomeSettings } from "@/types/content";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroSectionProps {
   aboutData: About;
@@ -10,6 +11,11 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ aboutData, homeSettings }: HeroSectionProps) {
+  const { trackSocialClick } = useAnalytics();
+
+  const handleSocialClick = (platform: string) => {
+    trackSocialClick(platform, 'hero_section');
+  };
   return (
     <div className={cn("text-center md:text-left")}>
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
@@ -44,6 +50,7 @@ export default function HeroSection({ aboutData, homeSettings }: HeroSectionProp
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              onClick={() => handleSocialClick('github')}
             >
               <FaGithub size={32} />
             </a>
@@ -53,6 +60,7 @@ export default function HeroSection({ aboutData, homeSettings }: HeroSectionProp
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              onClick={() => handleSocialClick('linkedin')}
             >
               <FaLinkedin size={32} />
             </a>
@@ -62,6 +70,7 @@ export default function HeroSection({ aboutData, homeSettings }: HeroSectionProp
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              onClick={() => handleSocialClick('instagram')}
             >
               <FaInstagram size={32} />
             </a>

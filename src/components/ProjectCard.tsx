@@ -3,15 +3,30 @@ import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 import TagList from './ui/TagList';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
+  const { trackProjectDemo, trackProjectGithub, trackLinkClick } = useAnalytics();
+  
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
+
+  const handleDemoClick = () => {
+    trackProjectDemo(project.slug);
+  };
+
+  const handleGithubClick = () => {
+    trackProjectGithub(project.slug);
+  };
+
+  const handleProjectClick = () => {
+    trackLinkClick(`/projelerim/${project.slug}`, project.title);
+  };
 
   return (
     <article className="group card-professional stagger-item overflow-hidden flex flex-col lg:flex-row">
@@ -52,6 +67,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           <Link 
             href={`/projelerim/${project.slug}`} 
             className="inline-flex items-center font-semibold text-brand-primary text-sm sm:text-base"
+            onClick={handleProjectClick}
           >
             Daha Fazlasını Gör 
             <FaArrowRight className="ml-2 w-4 h-4" />
@@ -65,6 +81,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 rel="noopener noreferrer" 
                 className="btn-expandable btn-demo bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300"
                 aria-label="Canlı Demo"
+                onClick={handleDemoClick}
               >
                 <span className="btn-icon">
                   <FaExternalLinkAlt size={16} />
@@ -82,6 +99,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 rel="noopener noreferrer" 
                 className="btn-expandable btn-github bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-all duration-300"
                 aria-label="GitHub"
+                onClick={handleGithubClick}
               >
                 <span className="btn-icon">
                   <FaGithub size={16} />

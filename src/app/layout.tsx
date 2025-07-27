@@ -14,6 +14,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
 import { getAbout, getSeoSettings } from "@/services/contentService";
 import { Suspense } from 'react';
 import Script from "next/script";
@@ -137,18 +138,20 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="relative flex flex-col min-h-screen">
-              <Header headerTitle={headerTitle} />
-              <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
-                <div className="w-full">
-                  {children}
-                </div>
-              </main>
-              <Footer aboutData={aboutData} />
-            </div>
-            <Suspense fallback={<Spinner />}>
-              <PopupViewer />
-            </Suspense>
+            <AnalyticsProvider>
+              <div className="relative flex flex-col min-h-screen">
+                <Header headerTitle={headerTitle} />
+                <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
+                  <div className="w-full">
+                    {children}
+                  </div>
+                </main>
+                <Footer aboutData={aboutData} />
+              </div>
+              <Suspense fallback={<Spinner />}>
+                <PopupViewer />
+              </Suspense>
+            </AnalyticsProvider>
           </ThemeProvider>
         </AuthProvider>
         
