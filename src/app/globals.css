@@ -350,3 +350,192 @@
 .glow-blue {
   animation: glow 2s ease-in-out infinite alternate;
 }
+/* =====
+ ADMIN PANEL STYLES ===== */
+
+/* Admin content spacing and layout */
+.admin-content-spacing {
+  @apply space-y-6 sm:space-y-8 w-full max-w-none;
+}
+
+/* Admin header section */
+.admin-header {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 sm:mb-8;
+}
+
+.admin-title {
+  @apply text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white leading-tight;
+}
+
+.admin-subtitle {
+  @apply text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 sm:mt-2 leading-relaxed;
+}
+
+/* Admin sections */
+.admin-section {
+  @apply bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 dark:border-dark-border overflow-hidden;
+}
+
+.admin-section-header {
+  @apply px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200 dark:border-dark-border bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700;
+}
+
+.admin-section-title {
+  @apply text-lg sm:text-xl font-semibold text-gray-900 dark:text-white;
+}
+
+.admin-section-content {
+  @apply p-4 sm:p-6;
+}
+
+/* Admin grid layouts */
+.admin-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+}
+
+.admin-form-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+}
+
+/* Admin cards */
+.admin-card {
+  @apply bg-white dark:bg-dark-card rounded-xl p-4 sm:p-6 shadow-lg border border-gray-200 dark:border-dark-border hover:shadow-xl transition-all duration-300 ease-out;
+}
+
+/* Admin buttons */
+.admin-button {
+  @apply px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] flex items-center justify-center gap-2 touch-manipulation;
+}
+
+.admin-button-primary {
+  @apply admin-button bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95;
+}
+
+.admin-button-secondary {
+  @apply admin-button bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-600 focus:ring-gray-500 border border-gray-300 dark:border-gray-600;
+}
+
+.admin-button-danger {
+  @apply admin-button bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95;
+}
+
+.admin-button-success {
+  @apply admin-button bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95;
+}
+
+/* Admin form inputs */
+.admin-input {
+  @apply w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 min-h-[44px] touch-manipulation;
+}
+
+.admin-textarea {
+  @apply admin-input resize-vertical min-h-[120px];
+}
+
+.admin-select {
+  @apply admin-input cursor-pointer;
+}
+
+/* Admin responsive utilities */
+@media (max-width: 640px) {
+  .admin-content-spacing {
+    @apply space-y-4;
+  }
+  
+  .admin-header {
+    @apply mb-4;
+  }
+  
+  .admin-section-content {
+    @apply p-3;
+  }
+  
+  .admin-grid {
+    @apply grid-cols-1 gap-3;
+  }
+}
+
+/* Admin mobile optimizations */
+.admin-mobile-scroll {
+  @apply overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent;
+}
+
+/* Admin loading states */
+.admin-skeleton {
+  @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+}
+
+/* Admin focus states for accessibility */
+.admin-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900;
+}
+
+/* Admin hover states */
+.admin-hover {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200;
+}
+
+/* Admin table styles */
+.admin-table {
+  @apply w-full border-collapse;
+}
+
+.admin-table th {
+  @apply px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700;
+}
+
+.admin-table td {
+  @apply px-4 sm:px-6 py-3 sm:py-4 text-sm text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700;
+}
+
+.admin-table tr:hover {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+/* Admin status indicators */
+.admin-status-active {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+}
+
+.admin-status-inactive {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+.admin-status-pending {
+  @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+}
+
+/* Admin notification styles */
+.admin-notification {
+  @apply fixed top-4 right-4 z-50 max-w-sm w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg border border-gray-200 dark:border-gray-700 p-4;
+}
+
+/* Admin sidebar mobile improvements */
+@media (max-width: 1024px) {
+  .admin-sidebar-mobile {
+    @apply fixed inset-0 z-50 lg:static lg:inset-auto lg:z-auto;
+  }
+  
+  .admin-main-mobile {
+    @apply pt-16 px-3 py-4;
+  }
+}
+
+/* Admin responsive text sizes */
+.admin-text-responsive {
+  @apply text-sm sm:text-base lg:text-lg;
+}
+
+.admin-heading-responsive {
+  @apply text-lg sm:text-xl lg:text-2xl;
+}
+
+/* Admin safe area for mobile devices */
+.admin-safe-area {
+  @apply pb-safe-area-inset-bottom;
+}
+
+/* Admin touch targets for mobile */
+.admin-touch-target {
+  @apply min-h-[44px] min-w-[44px] touch-manipulation;
+}
