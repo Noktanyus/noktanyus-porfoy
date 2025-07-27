@@ -33,11 +33,27 @@ COPY prisma ./prisma
 # Tüm proje dosyalarını kopyala
 COPY . .
 
-# Prisma Client'ı oluştur
-RUN npx prisma generate --schema=./prisma/schema.prisma
+# Prisma Client'ı oluştur (CI schema ile)
+RUN npx prisma generate --schema=./prisma/schema.ci.prisma
+
+# Environment variables'ları ayarla
+ENV DATABASE_URL=${DATABASE_URL:-"file:./docker.db"}
+ENV NEXTAUTH_URL=${NEXTAUTH_URL:-"http://localhost:3000"}
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-"docker-build-secret"}
+ENV ADMIN_EMAIL=${ADMIN_EMAIL:-"admin@example.com"}
+ENV ADMIN_PASSWORD=${ADMIN_PASSWORD:-"admin123"}
+ENV EMAIL_SERVER=${EMAIL_SERVER:-"smtp.example.com"}
+ENV EMAIL_PORT=${EMAIL_PORT:-"587"}
+ENV EMAIL_USER=${EMAIL_USER:-"test@example.com"}
+ENV EMAIL_PASSWORD=${EMAIL_PASSWORD:-"testpassword"}
+ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-"http://localhost:3000"}
+ENV SKIP_ENV_VALIDATION=true
+
+# Database'i hazırla
+RUN npx prisma db push --schema=./prisma/schema.ci.prisma --accept-data-loss
 
 # Projeyi build et
-RUN npm run build
+RUN npx next build
 
 # Build sonrası gereksiz devDependencies'i kaldır
 RUN npm prune --production
