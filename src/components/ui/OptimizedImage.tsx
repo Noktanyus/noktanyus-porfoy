@@ -41,7 +41,7 @@ const OptimizedImage = ({
   loading = 'lazy',
   unoptimized = false,
 }: OptimizedImageProps) => {
-  const [isLoaded, setIsLoaded] = useState(false);
+  // const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setSrc] = useState(src);
 
@@ -57,12 +57,12 @@ const OptimizedImage = ({
     }
   }, [src, currentSrc]);
   
-  // Use optimized lazy loading hook
-  const { ref: imgRef, hasIntersected } = useLazyLoading({
-    rootMargin: '50px',
-    threshold: 0.1,
-    skip: priority,
-  });
+  // Use optimized lazy loading hook (currently disabled)
+  // const { ref: imgRef, hasIntersected } = useLazyLoading({
+  //   rootMargin: '50px',
+  //   threshold: 0.1,
+  //   skip: priority,
+  // });
 
   // Generate responsive sizes with mobile-first approach
   const responsiveSizes = sizes || (
@@ -87,7 +87,7 @@ const OptimizedImage = ({
   };
 
   const handleLoad = () => {
-    setIsLoaded(true);
+    // setIsLoaded(true);
     onLoad?.();
   };
 
@@ -95,7 +95,7 @@ const OptimizedImage = ({
     // Eğer currentSrc zaten profile.webp değilse, fallback olarak profile.webp'yi dene
     if (currentSrc !== "/images/profile.webp") {
       setSrc("/images/profile.webp");
-      setIsLoaded(false); // Yeni görsel yüklenecek
+      // setIsLoaded(false); // Yeni görsel yüklenecek
     } else {
       // Zaten fallback görseliyse, error state'ini göster
       setHasError(true);

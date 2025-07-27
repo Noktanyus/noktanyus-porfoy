@@ -3,29 +3,32 @@ import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 import TagList from './ui/TagList';
-import { useAnalytics } from '@/hooks/useAnalytics';
+// import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
-  const { trackProjectDemo, trackProjectGithub, trackLinkClick } = useAnalytics();
+  // const { trackProjectDemo, trackProjectGithub, trackLinkClick } = useAnalytics();
   
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
 
   const handleDemoClick = () => {
-    trackProjectDemo(project.slug);
+    // trackProjectDemo(project.slug);
+    console.log('Demo click:', project.slug);
   };
 
   const handleGithubClick = () => {
-    trackProjectGithub(project.slug);
+    // trackProjectGithub(project.slug);
+    console.log('GitHub click:', project.slug);
   };
 
   const handleProjectClick = () => {
-    trackLinkClick(`/projelerim/${project.slug}`, project.title);
+    // trackLinkClick(`/projelerim/${project.slug}`, project.title);
+    console.log('Project click:', project.slug);
   };
 
   return (
@@ -53,7 +56,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </h3>
         
         <TagList 
-          tags={project.technologies || []}
+          tags={(project.technologies as string[]) || []}
           limit={5}
           tagClassName="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 font-semibold"
         />
@@ -67,7 +70,6 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
           <Link 
             href={`/projelerim/${project.slug}`} 
             className="inline-flex items-center font-semibold text-brand-primary text-sm sm:text-base"
-            onClick={handleProjectClick}
           >
             Daha Fazlasını Gör 
             <FaArrowRight className="ml-2 w-4 h-4" />
@@ -81,7 +83,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 rel="noopener noreferrer" 
                 className="btn-expandable btn-demo bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300"
                 aria-label="Canlı Demo"
-                onClick={handleDemoClick}
+
               >
                 <span className="btn-icon">
                   <FaExternalLinkAlt size={16} />
@@ -99,7 +101,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
                 rel="noopener noreferrer" 
                 className="btn-expandable btn-github bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-all duration-300"
                 aria-label="GitHub"
-                onClick={handleGithubClick}
+
               >
                 <span className="btn-icon">
                   <FaGithub size={16} />

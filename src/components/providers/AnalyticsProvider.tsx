@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { initGA, trackPageView, analytics } from '@/lib/analytics';
 
-export default function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+function AnalyticsCore({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -75,6 +75,14 @@ export default function AnalyticsProvider({ children }: { children: React.ReactN
   }, [pathname]);
 
   return <>{children}</>;
+}
+
+export default function AnalyticsProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <AnalyticsCore>{children}</AnalyticsCore>
+    </Suspense>
+  );
 }
 
 // Throttle utility function

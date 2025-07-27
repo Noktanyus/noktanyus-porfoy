@@ -3,7 +3,7 @@ import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 import { About, HomeSettings } from "@/types/content";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
-import { useAnalytics } from "@/hooks/useAnalytics";
+// import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroSectionProps {
   aboutData: About;
@@ -11,10 +11,11 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ aboutData, homeSettings }: HeroSectionProps) {
-  const { trackSocialClick } = useAnalytics();
+  // const { trackSocialClick } = useAnalytics();
 
   const handleSocialClick = (platform: string) => {
-    trackSocialClick(platform, 'hero_section');
+    // trackSocialClick(platform, 'hero_section');
+    console.log('Social click:', platform);
   };
   return (
     <div className={cn("text-center md:text-left")}>

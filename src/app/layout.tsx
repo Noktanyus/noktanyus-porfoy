@@ -138,20 +138,18 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AnalyticsProvider>
-              <div className="relative flex flex-col min-h-screen">
-                <Header headerTitle={headerTitle} />
-                <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
-                  <div className="w-full">
-                    {children}
-                  </div>
-                </main>
-                <Footer aboutData={aboutData} />
-              </div>
-              <Suspense fallback={<Spinner />}>
-                <PopupViewer />
-              </Suspense>
-            </AnalyticsProvider>
+            <div className="relative flex flex-col min-h-screen">
+              <Header headerTitle={headerTitle} />
+              <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
+                <div className="w-full">
+                  {children}
+                </div>
+              </main>
+              <Footer aboutData={aboutData} />
+            </div>
+            <Suspense fallback={<Spinner />}>
+              <PopupViewer />
+            </Suspense>
           </ThemeProvider>
         </AuthProvider>
         

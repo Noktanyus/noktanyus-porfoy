@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Popup } from '@/types/content';
 import Image from "next/image";
@@ -102,7 +102,7 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
  * Popup verisini URL'den getirme ve gösterme mantığını yöneten ana bileşen.
  * URL'deki 'rp' (rich-popup) parametresini dinler.
  */
-export default function PopupViewer() {
+function PopupViewerCore() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const popupSlug = searchParams.get('rp');
@@ -178,4 +178,12 @@ export default function PopupViewer() {
   }
 
   return <PopupDisplay popup={popup} onClose={handleClose} />;
+}
+
+export default function PopupViewer() {
+  return (
+    <Suspense fallback={null}>
+      <PopupViewerCore />
+    </Suspense>
+  );
 }

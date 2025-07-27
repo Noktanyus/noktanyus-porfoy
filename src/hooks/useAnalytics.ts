@@ -78,10 +78,13 @@ export const useAnalytics = () => {
     value?: number,
     customParameters?: Record<string, any>
   ) => {
-    analytics.pageView(window.location.href); // Ensure page context
+    if (typeof window !== 'undefined') {
+      analytics.pageView(window.location.href); // Ensure page context
+    }
     // Use the generic trackEvent from analytics
-    const { trackEvent: genericTrack } = require('@/lib/analytics');
-    genericTrack(action, category, label, value, customParameters);
+    import('@/lib/analytics').then(({ trackEvent: genericTrack }) => {
+      genericTrack(action, category, label, value, customParameters);
+    });
   }, []);
 
   return {

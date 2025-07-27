@@ -59,7 +59,7 @@ const BlogList = () => {
    */
   const handleDelete = async (slug: string) => {
     // Kullanıcıdan silme onayı al.
-    if (confirm(`'${slug}' başlıklı yazıyı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
+    if (confirm(`&apos;${slug}&apos; başlıklı yazıyı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
       const toastId = toast.loading('Yazı siliniyor, lütfen bekleyin...');
       try {
         const response = await fetch(`/api/admin/content?type=blog&slug=${slug}`, {
@@ -131,7 +131,7 @@ const BlogList = () => {
                       <div className="text-4xl">📝</div>
                       <div>
                         <p className="text-lg font-medium">Henüz blog yazısı eklenmemiş</p>
-                        <p className="text-sm mt-1">"Yeni Yazı Ekle" butonu ile başlayabilirsiniz</p>
+                        <p className="text-sm mt-1">&quot;Yeni Yazı Ekle&quot; butonu ile başlayabilirsiniz</p>
                       </div>
                     </div>
                   </td>

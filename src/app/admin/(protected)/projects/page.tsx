@@ -48,7 +48,7 @@ export default function ProjectsAdminPage() {
    * @param {string} slug - Silinecek projenin kimliği.
    */
   const handleDelete = async (slug: string) => {
-    if (confirm(`Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
+    if (confirm(`&quot;Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.&quot;`)) {
       const toastId = toast.loading('Proje siliniyor, lütfen bekleyin...');
       try {
         const response = await fetch(`/api/admin/content?type=projects&slug=${slug}`, {
@@ -119,7 +119,7 @@ export default function ProjectsAdminPage() {
                       <div className="text-4xl">🚀</div>
                       <div>
                         <p className="text-lg font-medium">Henüz proje eklenmemiş</p>
-                        <p className="text-sm mt-1">"Yeni Proje Ekle" butonu ile başlayabilirsiniz</p>
+                        <p className="text-sm mt-1">&quot;Yeni Proje Ekle&quot; butonu ile başlayabilirsiniz</p>
                       </div>
                     </div>
                   </td>

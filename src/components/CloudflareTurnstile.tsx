@@ -35,24 +35,14 @@ export default function CloudflareTurnstile({
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
 
-  // Geliştirme modunda Turnstile'ı atla
+  // Script yükleme
   useEffect(() => {
+    // Geliştirme modunda Turnstile'ı atla
     if (process.env.NODE_ENV === 'development') {
       console.log('Geliştirme modu: Turnstile atlandı.');
       onVerify('dev-mode-token'); // Sahte token ile doğrula
+      return;
     }
-  }, [onVerify]);
-
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <div className={`${className} p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center`}>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Turnstile (Dev Mode)</p>
-      </div>
-    );
-  }
-
-  // Script yükleme
-  useEffect(() => {
     if (window.turnstile) {
       setIsScriptLoaded(true);
       return;
@@ -105,10 +95,14 @@ export default function CloudflareTurnstile({
         }
       }
     };
-  }, [onError]);
+  }, [onError, onVerify]);
 
   // Widget render etme
   useEffect(() => {
+    // Geliştirme modunda widget render etme
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
     if (!isScriptLoaded || !containerRef.current || isRendered || widgetIdRef.current) {
       return;
     }
@@ -151,6 +145,15 @@ export default function CloudflareTurnstile({
       onError?.();
     }
   }, [isScriptLoaded, onVerify, onError, onExpire, theme, size, isRendered]);
+
+  // Geliştirme modunda basit bir div döndür
+  if (process.env.NODE_ENV === 'development') {
+    return (
+      <div className={`${className} p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center`}>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Turnstile (Dev Mode)</p>
+      </div>
+    );
+  }
 
   return (
     <div 

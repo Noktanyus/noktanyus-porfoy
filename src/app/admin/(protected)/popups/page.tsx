@@ -44,7 +44,7 @@ export default function PopupsAdminPage() {
    * @param slug - Silinecek popup'ın kimliği.
    */
   const handleDelete = async (slug: string) => {
-    if (!confirm(`'${slug}' kodlu popup'ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
+    if (!confirm(`&apos;${slug}&apos; kodlu popup&apos;ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
 
     const loadingToast = toast.loading("Popup siliniyor...");
     try {
@@ -100,7 +100,7 @@ export default function PopupsAdminPage() {
         <div className="admin-header">
           <div>
             <h1 className="admin-title">🎯 Popup Yönetimi</h1>
-            <p className="admin-subtitle">Popup'larınızı oluşturun, düzenleyin ve yönetin</p>
+            <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
           </div>
           <div className="admin-button-primary animate-pulse">
             Yükleniyor...
@@ -151,7 +151,7 @@ export default function PopupsAdminPage() {
       <div className="admin-header">
         <div>
           <h1 className="admin-title">🎯 Popup Yönetimi</h1>
-          <p className="admin-subtitle">Popup'larınızı oluşturun, düzenleyin ve yönetin</p>
+          <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
         </div>
         <Link href="/admin/popups/new" className="admin-button-primary">
           <FaPlus className="mr-2" />
@@ -189,10 +189,10 @@ export default function PopupsAdminPage() {
                     <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">{popup.title}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end space-x-3">
-                        <Link href={`/admin/popups/edit/${popup.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${popup.title} popup'ını düzenle`}>
+                        <Link href={`/admin/popups/edit/${popup.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${popup.title} popup&apos;ını düzenle`}>
                           <FaEdit size={16} />
                         </Link>
-                        <button onClick={() => handleDelete(popup.slug)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" aria-label={`${popup.title} popup'ını sil`}>
+                        <button onClick={() => handleDelete(popup.slug)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" aria-label={`${popup.title} popup&apos;ını sil`}>
                           <FaTrash size={16} />
                         </button>
                       </div>
@@ -206,7 +206,7 @@ export default function PopupsAdminPage() {
                       <div className="text-4xl">🎯</div>
                       <div>
                         <p className="text-lg font-medium">Henüz popup oluşturulmamış</p>
-                        <p className="text-sm mt-1">"Yeni Popup Ekle" butonu ile başlayabilirsiniz</p>
+                        <p className="text-sm mt-1">&quot;Yeni Popup Ekle&quot; butonu ile başlayabilirsiniz</p>
                       </div>
                     </div>
                   </td>
