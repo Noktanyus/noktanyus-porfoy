@@ -12,7 +12,7 @@ export default function TestComponentsPage() {
           <div className="admin-header">
             <div>
               <h1 className="admin-title">Tailwind Component Showcase</h1>
-              <p className="admin-subtitle">Profesyonel component sistemi - Tüm bileşenlerin canlı demo'su</p>
+              <p className="admin-subtitle">Profesyonel component sistemi - Tüm bileşenlerin canlı demosu</p>
             </div>
           </div>
 
@@ -189,7 +189,7 @@ export default function TestComponentsPage() {
                       <p className="text-sm text-gray-500">Adaptive padding</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400">Ekran boyutuna göre padding'i değişir. Mobil-first yaklaşım.</p>
+                  <p className="text-gray-600 dark:text-gray-400">Ekran boyutuna göre paddingi değişir. Mobil-first yaklaşım.</p>
                 </div>
               </div>
             </div>
@@ -607,7 +607,7 @@ export default function TestComponentsPage() {
                   🎉 Component Showcase Complete!
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Tüm component'lar başarıyla Tailwind CSS ile oluşturuldu ve test edildi.
+                  Tüm componentlar başarıyla Tailwind CSS ile oluşturuldu ve test edildi.
                 </p>
                 <div className="flex justify-center gap-4">
                   <button className="admin-btn admin-btn-primary">
