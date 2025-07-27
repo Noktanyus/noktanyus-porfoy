@@ -227,7 +227,7 @@ jobs:
           DATABASE_URL: file:./build.db
 
       - name: 🏗️ Build application
-        run: next build
+        run: npx next build
         env:
           SKIP_ENV_VALIDATION: true
 

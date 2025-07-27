@@ -224,7 +224,7 @@ jobs:
         run: |
           echo "## 🏗️ Build Verification" >> $GITHUB_STEP_SUMMARY
           
-          if next build; then
+          if npx next build; then
             echo "✅ Build completed successfully!" >> $GITHUB_STEP_SUMMARY
             
             # Analyze build output
@@ -356,7 +356,7 @@ jobs:
           DATABASE_URL: file:./perf-test.db
 
       - name: 🏗️ Build for performance analysis
-        run: next build
+        run: npx next build
         env:
           SKIP_ENV_VALIDATION: true
 
