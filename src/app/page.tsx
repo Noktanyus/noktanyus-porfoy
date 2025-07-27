@@ -1,4 +1,3 @@
-
 import {
   getAbout,
   getHomeSettings,
@@ -12,10 +11,7 @@ import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
 
-/**
- * Ana sayfa için dinamik metadata oluşturur.
- * Bu fonksiyon, sunucu tarafında çalışır ve SEO ayarlarını veritabanından çeker.
- */
+
 export async function generateMetadata(): Promise<Metadata> {
   const seoSettings = await getSeoSettings();
   if (!seoSettings) {
@@ -43,7 +39,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-
 export default async function Home() {
   const [aboutData, homeSettings, allProjects, allBlogs] = await Promise.all([
     getAbout(),
@@ -56,25 +51,29 @@ export default async function Home() {
     return <div>İçerik yüklenemedi.</div>;
   }
 
-  const featuredProjects = allProjects.filter((p) => p.featured).slice(0, 3); // Anasayfada maksimum 3 proje göster
+  const featuredProjects = allProjects.filter((p) => p.featured).slice(0, 3);
   const latestPosts = allBlogs.slice(0, 3);
 
   return (
-    <div className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 xl:space-y-14 smooth-scroll">
-      <section className="relative fade-in">
+    <div className="space-y-6 sm:space-y-8 md:space-y-10 lg:space-y-12 xl:space-y-14">
+      <section className="relative">
         <div className="w-full pt-6 sm:pt-8 md:pt-10 lg:pt-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 items-center">
-            <div className="order-2 lg:order-1">
-              <HeroSection aboutData={aboutData} />
+            <div className="order-2 lg:order-1 slide-in-left">
+              <HeroSection aboutData={aboutData} homeSettings={homeSettings} />
             </div>
-            <div className="order-1 lg:order-2">
+            <div className="order-1 lg:order-2 floating-element slide-in-right" style={{animationDelay: '0.3s'}}>
               <FeaturedContent homeSettings={homeSettings} />
             </div>
           </div>
         </div>
       </section>
-      <FeaturedProjects projects={featuredProjects} />
-      <LatestBlogs blogs={latestPosts} />
+      <div className="fade-in" style={{animationDelay: '0.8s'}}>
+        <FeaturedProjects projects={featuredProjects} />
+      </div>
+      <div className="fade-in" style={{animationDelay: '1.2s'}}>
+        <LatestBlogs blogs={latestPosts} />
+      </div>
     </div>
   );
 }

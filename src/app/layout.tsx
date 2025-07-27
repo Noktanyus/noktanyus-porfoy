@@ -18,14 +18,10 @@ import { getAbout, getSeoSettings } from "@/services/contentService";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
-import PerformanceInitializer from "@/components/PerformanceInitializer";
 import dynamic from "next/dynamic";
 
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
 const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
-
-// Extension detector'ı client-side component olarak yükle
-const ExtensionDetector = dynamic(() => import('@/components/ExtensionDetector'), { ssr: false });
 
 /**
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
@@ -153,8 +149,6 @@ export default async function RootLayout({
             <Suspense fallback={<Spinner />}>
               <PopupViewer />
             </Suspense>
-            <ExtensionDetector />
-            <PerformanceInitializer />
           </ThemeProvider>
         </AuthProvider>
         

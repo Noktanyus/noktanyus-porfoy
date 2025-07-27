@@ -37,7 +37,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="GitHub profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-light-text dark:hover:text-white transition-all duration-200 active:scale-95"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
               >
                 <FaGithub size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -48,7 +48,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="LinkedIn profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-light-text dark:hover:text-white transition-all duration-200 active:scale-95"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
               >
                 <FaLinkedin size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -59,7 +59,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="Instagram profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-light-text dark:hover:text-white transition-all duration-200 active:scale-95"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
               >
                 <FaInstagram size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -83,7 +83,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                     href="https://noktanyus.com" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="underline hover:text-light-text dark:hover:text-white transition-colors font-medium"
+                    className="underline font-medium"
                   >
                     noktanyus
                   </a>
@@ -92,7 +92,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                     href="https://github.com/noktanyus/noktanyus-porfoy" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="underline hover:text-light-text dark:hover:text-white transition-colors font-medium"
+                    className="underline font-medium"
                   >
                     Open Source
                   </a>

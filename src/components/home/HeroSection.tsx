@@ -1,72 +1,69 @@
 "use client";
-
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
-import { About } from "@/types/content";
+import { About, HomeSettings } from "@/types/content";
 import OptimizedImage from "@/components/ui/OptimizedImage";
-import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
   aboutData: About;
+  homeSettings: HomeSettings | null;
 }
 
-export default function HeroSection({ aboutData }: HeroSectionProps) {
+export default function HeroSection({ aboutData, homeSettings }: HeroSectionProps) {
   return (
-    <div className="text-center md:text-left fade-in animate-float-bubble">
-      <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
-        {/* Profile Image - Mobile-first sizing with better responsive scaling */}
-        <div className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 flex-shrink-0 slide-in-left stagger-1">
+    <div className={cn("text-center md:text-left")}>
+      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
+        {/* Profile Image */}
+        <div className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-48 md:h-48 flex-shrink-0 scale-in">
           <OptimizedImage
             src={aboutData.profileImage || "/images/profile.webp"}
             alt={`${aboutData.name} - Profil Fotoğrafı`}
             fill
-            sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, (max-width: 1024px) 176px, 192px"
-            style={{ objectFit: "cover" }}
-            className="rounded-full border-4 border-gray-200 dark:border-gray-700 shadow-lg"
+            sizes="(max-width: 768px) 160px, 192px"
+            className="rounded-full border-4 border-blue-200 dark:border-blue-700 shadow-lg hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105"
             priority
-            quality={90}
           />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
         </div>
         
-        {/* Content - More compact text hierarchy and spacing */}
-        <div className="flex-grow space-y-3 sm:space-y-4 md:space-y-5 slide-in-right stagger-2">
-          {/* Name - Smaller, more balanced typography scaling */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-light-text dark:text-dark-text text-hover-glow">
+        {/* Content */}
+        <div className="flex-grow space-y-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-light-text dark:text-dark-text slide-in-left bg-gradient-to-r from-gray-900 to-blue-600 dark:from-gray-100 dark:to-blue-400 bg-clip-text text-transparent">
             {aboutData.name}
           </h1>
           
-          {/* Title - More moderate responsive text sizing */}
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-600 dark:text-gray-400 slide-in-left" style={{animationDelay: '0.2s'}}>
             {aboutData.title}
           </p>
           
-          {/* Social Icons - Touch-friendly with proper spacing */}
-          <div className="flex justify-center md:justify-start gap-4 sm:gap-5 md:gap-6 pt-2 scale-in stagger-3">
+          {/* Social Icons */}
+          <div className="flex justify-center md:justify-start gap-5 pt-3 slide-in-left" style={{animationDelay: '0.4s'}}>
             <a
               href={aboutData.socialGithub || "#"}
               aria-label="GitHub"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 hover-bounce mobile-touch"
+              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
             >
-              <FaGithub className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 dark:text-gray-300" />
+              <FaGithub size={32} />
             </a>
             <a
               href={aboutData.socialLinkedin || "#"}
               aria-label="LinkedIn"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 hover-bounce mobile-touch"
+              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
             >
-              <FaLinkedin className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 dark:text-gray-300" />
+              <FaLinkedin size={32} />
             </a>
             <a
               href={aboutData.socialInstagram || "#"}
               aria-label="Instagram"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 hover-bounce mobile-touch"
+              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
             >
-              <FaInstagram className="w-6 h-6 sm:w-7 sm:h-7 text-gray-700 dark:text-gray-300" />
+              <FaInstagram size={32} />
             </a>
           </div>
         </div>

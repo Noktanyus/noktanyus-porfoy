@@ -26,7 +26,7 @@ const Spinner = ({ size = 'medium' }: SpinnerProps) => {
   return (
     <div className="flex justify-center items-center" aria-label="Yükleme göstergesi">
       <div
-        className={`animate-spin rounded-full ${sizeClasses[size]} border-brand-primary border-t-transparent`}
+        className={`rounded-full ${sizeClasses[size]} border-brand-primary border-t-transparent`}
         role="status"
         aria-live="polite"
       >

@@ -21,13 +21,13 @@ export default function SocialIcons({ github, linkedin, instagram, size = 28 }: 
     return (
       <div className="flex justify-center md:justify-start space-x-6">
         {github && (
-          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded" />
         )}
         {linkedin && (
-          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded" />
         )}
         {instagram && (
-          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded animate-pulse" />
+          <div className="w-7 h-7 bg-gray-300 dark:bg-gray-600 rounded" />
         )}
       </div>
     );

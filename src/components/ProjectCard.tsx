@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
+import TagList from './ui/TagList';
 
 interface ProjectCardProps {
   project: Project;
@@ -13,94 +14,83 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
     : project.mainImage || "/images/placeholder.webp";
 
   return (
-    <article className="group bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark hover:shadow-2xl transition-all duration-700 ease-out overflow-hidden flex flex-col lg:flex-row transform hover:-translate-y-3 hover:scale-[1.015] hover:shadow-brand-primary/20 card-hover-glow fade-in">
+    <article className="group card-professional stagger-item overflow-hidden flex flex-col lg:flex-row">
       {/* Image Section */}
-      <div className="lg:w-2/5 xl:w-1/3 relative h-48 sm:h-56 md:h-64 lg:h-auto min-h-[200px] lg:min-h-[280px]">
-        <OptimizedImage
-          src={imageUrl}
-          alt={`${project.title} projesinin görseli`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 40vw"
-          style={{ objectFit: 'cover' }}
-          className="image-hover-zoom"
-          priority={false}
-          quality={80}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/20 group-hover:from-black/40 group-hover:to-black/30 transition-all duration-200"></div>
+      <div className="lg:w-2/5 xl:w-1/3 relative h-56 lg:h-auto image-hover">
+        <Link href={`/projelerim/${project.slug}`} className="block w-full h-full">
+          <OptimizedImage
+            src={imageUrl}
+            alt={`${project.title} projesinin görseli`}
+            fill
+            sizes="(max-width: 1023px) 100vw, (max-width: 1279px) 40vw, 33vw"
+            style={{ objectFit: 'cover' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/10" />
+        </Link>
       </div>
       
       {/* Content Section */}
-      <div className="lg:w-3/5 xl:w-2/3 p-4 sm:p-6 lg:p-8 flex flex-col">
-        <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 dark:text-white mb-3 sm:mb-4 line-clamp-2">
-          {project.title}
+      <div className="lg:w-3/5 xl:w-2/3 p-5 sm:p-6 flex flex-col">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-3 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+          <Link href={`/projelerim/${project.slug}`}>
+            {project.title}
+          </Link>
         </h3>
         
-        {/* Technology Tags */}
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-5">
-          {project.technologies?.slice(0, 5).map((tech: string) => (
-            <span 
-              key={tech} 
-              className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap"
-            >
-              {tech}
-            </span>
-          ))}
-          {project.technologies && project.technologies.length > 5 && (
-            <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold">
-              +{project.technologies.length - 5}
-            </span>
-          )}
-        </div>
+        <TagList 
+          tags={project.technologies || []}
+          limit={5}
+          tagClassName="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 font-semibold"
+        />
         
-        {/* Description */}
-        <p className="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base leading-relaxed flex-grow line-clamp-3 sm:line-clamp-4">
+        <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base leading-relaxed flex-grow line-clamp-3 sm:line-clamp-4 mb-4">
           {project.description}
         </p>
         
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-auto pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
-          {/* Main Action */}
+        {/* Footer */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
           <Link 
             href={`/projelerim/${project.slug}`} 
-            className="inline-flex items-center justify-center sm:justify-start font-semibold text-brand-primary hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-400 ease-out min-h-[44px] px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm sm:text-base hover-slide-right"
+            className="inline-flex items-center font-semibold text-brand-primary text-sm sm:text-base"
           >
             Daha Fazlasını Gör 
             <FaArrowRight className="ml-2 w-4 h-4" />
           </Link>
           
-          {/* External Links */}
-          <div className="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 sm:ml-auto">
+          <div className="flex items-center gap-3 sm:ml-auto">
             {project.liveDemo && (
-              <div className="relative group/tooltip">
-                <a 
-                  href={project.liveDemo} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="group/demo min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-500 text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95"
-                >
-                  <FaExternalLinkAlt size={16} className="transition-transform duration-300 ease-out group-hover/demo:rotate-12" />
-                </a>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                  Canlı Demo
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                </div>
-              </div>
+              <a 
+                href={project.liveDemo} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-expandable btn-demo bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-300"
+                aria-label="Canlı Demo"
+              >
+                <span className="btn-icon">
+                  <FaExternalLinkAlt size={16} />
+                </span>
+                <span className="btn-text-expand">
+                  <FaExternalLinkAlt size={14} />
+                  <span className="ml-2">Canlı Demo</span>
+                </span>
+              </a>
             )}
             {project.githubRepo && (
-              <div className="relative group/tooltip">
-                <a 
-                  href={project.githubRepo} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="group/code min-w-[44px] min-h-[44px] w-11 h-11 inline-flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-black text-gray-600 dark:text-gray-300 hover:text-white transition-all duration-300 ease-out active:scale-95"
-                >
-                  <FaGithub size={16} className="transition-transform duration-300 ease-out group-hover/code:rotate-12" />
-                </a>
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                  GitHub
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                </div>
-              </div>
+              <a 
+                href={project.githubRepo} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="btn-expandable btn-github bg-gray-700 hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-700 text-white rounded-lg transition-all duration-300"
+                aria-label="GitHub"
+              >
+                <span className="btn-icon">
+                  <FaGithub size={16} />
+                </span>
+                <span className="btn-text-expand">
+                  <FaGithub size={14} />
+                  <span className="ml-2">Açık Kaynak</span>
+                </span>
+              </a>
             )}
           </div>
         </div>
