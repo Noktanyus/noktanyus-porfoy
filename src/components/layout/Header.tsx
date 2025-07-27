@@ -95,7 +95,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
               <button
                 onClick={toggleTheme}
                 aria-label={theme === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-110"
+                className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-110 focus-ring"
               >
                 <ThemeChangerIcon />
               </button>
@@ -104,7 +104,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 <button 
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
                   aria-label="Menüyü aç/kapat"
-                  className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full"
+                  className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring"
                 >
                   {isMobileMenuOpen ? <FaTimes className="w-5 h-5 text-light-text dark:text-white" /> : <FaBars className="w-5 h-5 text-light-text dark:text-white" />}
                 </button>
@@ -132,7 +132,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 <div key={link.href}>
                   <Link 
                     href={link.href} 
-                    className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium min-h-[52px] flex items-center touch-manipulation" 
+                    className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring" 
                     onClick={handleMobileLinkClick}
                   >
                     {link.label}

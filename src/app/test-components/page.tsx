@@ -66,7 +66,7 @@ export default function TestComponentsPage() {
                   <p>Bu bir prose paragrafıdır. Responsive typography ile otomatik olarak boyutlandırılır ve tüm ekran boyutlarında mükemmel görünür.</p>
                   <p className="line-clamp-2">Bu çok uzun bir metin örneğidir. Line clamp ile sadece 2 satır gösterilecek ve geri kalanı gizlenecek. Bu özellik özellikle kart bileşenlerinde çok kullanışlıdır ve kullanıcı deneyimini iyileştirir.</p>
                 </div>
-                
+
                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <h3 className="text-responsive-heading mb-2">Responsive Heading</h3>
@@ -286,9 +286,9 @@ export default function TestComponentsPage() {
                     <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                       Admin Input Field
                     </label>
-                    <input 
-                      type="text" 
-                      className="admin-input" 
+                    <input
+                      type="text"
+                      className="admin-input"
                       placeholder="Enter your text here..."
                     />
                     <p className="text-xs text-gray-500 mt-1">Touch-optimized with focus states</p>
@@ -306,31 +306,31 @@ export default function TestComponentsPage() {
                     <p className="text-xs text-gray-500 mt-1">Styled select dropdown</p>
                   </div>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Admin Textarea
                   </label>
-                  <textarea 
-                    className="admin-input admin-textarea" 
+                  <textarea
+                    className="admin-input admin-textarea"
                     placeholder="Enter your message here..."
                     rows={4}
                   />
                   <p className="text-xs text-gray-500 mt-1">Resizable textarea with minimum height</p>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Responsive Form Input
                   </label>
-                  <input 
-                    type="email" 
-                    className="form-input-responsive" 
+                  <input
+                    type="email"
+                    className="form-input-responsive"
                     placeholder="responsive@example.com"
                   />
                   <p className="text-xs text-gray-500 mt-1">Adapts padding based on screen size</p>
                 </div>
-                
+
                 <div className="flex gap-4 pt-4">
                   <button className="admin-btn admin-btn-primary">
                     <FaPlus className="mr-2" />
@@ -359,7 +359,7 @@ export default function TestComponentsPage() {
                     <span className="admin-status-pending">⏳ Pending</span>
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                   <h4 className="text-sm font-medium mb-3">Usage Examples</h4>
                   <div className="space-y-2">
@@ -392,20 +392,20 @@ export default function TestComponentsPage() {
                   <div className="text-responsive-display mb-2">Responsive Display</div>
                   <p className="text-caption-responsive">Scales from 3xl to 6xl across breakpoints</p>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
                     <div className="text-responsive-heading mb-2">Responsive Heading</div>
                     <div className="text-responsive-body">This body text adapts beautifully to all screen sizes, ensuring optimal readability across devices.</div>
                   </div>
-                  
+
                   <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
                     <div className="text-heading-responsive-lg mb-2">Large Heading</div>
                     <div className="text-body-responsive-md mb-2">Medium body text with perfect line height and spacing.</div>
                     <div className="text-caption-responsive">Caption text for additional context</div>
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
                   <h3 className="text-lg font-semibold mb-4">Typography Scale Demo</h3>
                   <div className="space-y-3">
@@ -499,7 +499,7 @@ export default function TestComponentsPage() {
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Image scales 1.1x on hover with smooth transition</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Responsive Container</h3>
                   <div className="image-container-responsive aspect-video">
@@ -512,7 +512,7 @@ export default function TestComponentsPage() {
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Maintains aspect ratio across all screen sizes</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Professional Card Image</h3>
                   <div className="card-professional">
@@ -545,7 +545,7 @@ export default function TestComponentsPage() {
                   </div>
                   <p className="text-xs text-gray-500 mt-2">Ensures accessibility compliance with minimum touch target size</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Focus Ring</h3>
                   <button className="focus-ring admin-btn admin-btn-primary">
@@ -554,7 +554,7 @@ export default function TestComponentsPage() {
                   </button>
                   <p className="text-xs text-gray-500 mt-2">Keyboard navigation with visible focus indicators</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Responsive Grid</h3>
                   <div className="grid-responsive-cards">
@@ -577,7 +577,7 @@ export default function TestComponentsPage() {
                   </div>
                   <p className="text-xs text-gray-500 mt-2">1 column on mobile, 2 on tablet, 3 on desktop, 4 on xl screens</p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-sm font-medium mb-3 text-gray-700 dark:text-gray-300">Line Clamp</h3>
                   <div className="space-y-3">
@@ -598,7 +598,7 @@ export default function TestComponentsPage() {
               </div>
             </div>
           </div>
-          
+
           {/* Footer */}
           <div className="admin-section">
             <div className="admin-section-content">

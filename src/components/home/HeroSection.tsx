@@ -43,37 +43,60 @@ export default function HeroSection({ aboutData, homeSettings }: HeroSectionProp
             {aboutData.title}
           </p>
           
+          {/* Description */}
+          {aboutData.description && (
+            <div className="text-gray-600 dark:text-gray-400 text-base sm:text-lg leading-relaxed slide-in-left" style={{animationDelay: '0.3s'}}>
+              <p className="line-clamp-3">{aboutData.description}</p>
+            </div>
+          )}
+          
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center md:justify-start slide-in-left" style={{animationDelay: '0.4s'}}>
+            <a
+              href="/projelerim"
+              className="btn-animated admin-btn admin-btn-primary text-center"
+            >
+              Projelerimi İncele
+            </a>
+            <a
+              href="/iletisim"
+              className="admin-btn admin-btn-secondary text-center"
+            >
+              İletişime Geç
+            </a>
+          </div>
+
           {/* Social Icons */}
-          <div className="flex justify-center md:justify-start gap-5 pt-3 slide-in-left" style={{animationDelay: '0.4s'}}>
+          <div className="flex justify-center md:justify-start gap-4 pt-2 slide-in-left" style={{animationDelay: '0.5s'}}>
             <a
               href={aboutData.socialGithub || "#"}
               aria-label="GitHub"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
               onClick={() => handleSocialClick('github')}
             >
-              <FaGithub size={32} />
+              <FaGithub size={28} />
             </a>
             <a
               href={aboutData.socialLinkedin || "#"}
               aria-label="LinkedIn"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
               onClick={() => handleSocialClick('linkedin')}
             >
-              <FaLinkedin size={32} />
+              <FaLinkedin size={28} />
             </a>
             <a
               href={aboutData.socialInstagram || "#"}
               aria-label="Instagram"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 p-2 rounded-full"
+              className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
               onClick={() => handleSocialClick('instagram')}
             >
-              <FaInstagram size={32} />
+              <FaInstagram size={28} />
             </a>
           </div>
         </div>

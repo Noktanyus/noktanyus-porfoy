@@ -30,10 +30,10 @@ export default function LatestBlogs({ blogs }: LatestBlogsProps) {
         </div>
         
         {/* Tüm blog yazılarını görme linki */}
-        <div className="text-center mt-4 sm:mt-6 md:mt-8 fade-in" style={{animationDelay: '0.6s'}}>
+        <div className="text-center mt-8 fade-in" style={{animationDelay: '0.6s'}}>
           <a 
             href="/blog" 
-            className="btn-animated inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl sm:rounded-2xl text-base sm:text-lg shadow-lg min-h-[48px] sm:min-h-[52px] transition-all duration-300 hover:scale-105 glow-blue"
+            className="btn-animated admin-btn admin-btn-primary inline-flex items-center group"
           >
             Tüm Blog Yazılarını Oku
             <svg className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
