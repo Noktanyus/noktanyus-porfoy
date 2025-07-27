@@ -143,7 +143,7 @@ export default function SkillManager({ skills, onChange }: { skills: Skill[], on
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3">
-            <label htmlFor="custom-icon-upload" className="admin-button-secondary cursor-pointer flex-1 sm:flex-initial">
+            <label htmlFor="custom-icon-upload" className="admin-btn admin-btn-secondary cursor-pointer flex-1 sm:flex-initial">
               <FaUpload className="mr-2" /> Özel İkon Yükle
               <input id="custom-icon-upload" type="file" accept="image/*,.svg" onChange={handleCustomIconChange} className="hidden" />
             </label>
@@ -152,7 +152,7 @@ export default function SkillManager({ skills, onChange }: { skills: Skill[], on
                 <FaTimes className="mr-1"/>İptal
               </Button>
             )}
-            <Button onClick={handleAddSkill} disabled={isUploading || !newSkillName} className="admin-button-primary flex-1 sm:flex-initial">
+            <Button onClick={handleAddSkill} disabled={isUploading || !newSkillName} className="admin-btn admin-btn-primary flex-1 sm:flex-initial">
               <FaPlus className="mr-2" /> {isUploading ? 'Ekleniyor...' : 'Ekle'}
             </Button>
           </div>

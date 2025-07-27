@@ -137,7 +137,7 @@ export default function DashboardPage() {
         <button 
           onClick={fetchData} 
           disabled={isLoading} 
-          className="admin-button-secondary" 
+          className="admin-btn admin-btn-secondary" 
           aria-label="Verileri Yenile"
         >
           <FaSyncAlt className={`text-lg ${isLoading ? 'animate-spin' : ''}`} />
@@ -387,7 +387,7 @@ function SourceCodeCommitter() {
             <button 
               onClick={handleSwitchBranch} 
               disabled={isSwitching || isLoadingBranches || branches.find(b => b.isCurrent)?.name === selectedBranch}
-              className="admin-button-primary w-full sm:w-auto"
+              className="admin-btn admin-btn-primary w-full sm:w-auto"
             >
               {isSwitching ? "Değiştiriliyor..." : "Dal Değiştir"}
             </button>

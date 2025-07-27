@@ -145,7 +145,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
         <div className={cardStyle}>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
             <h2 className="text-xl font-semibold">Temel Ayarlar</h2>
-            <button type="button" onClick={() => setIsPreviewOpen(true)} className="admin-button-secondary w-full sm:w-auto">
+            <button type="button" onClick={() => setIsPreviewOpen(true)} className="admin-btn admin-btn-secondary w-full sm:w-auto">
               <FaEye className="mr-2" />
               Önizleme
             </button>
@@ -278,7 +278,7 @@ export default function PopupForm({ initialData }: PopupFormProps) {
             ))}
           </div>
           {fields.length < 4 && (
-            <button type="button" onClick={() => append({ text: '', actionType: 'redirect', actionValue: '' })} className="mt-4 admin-button-secondary w-full sm:w-auto">
+            <button type="button" onClick={() => append({ text: '', actionType: 'redirect', actionValue: '' })} className="mt-4 admin-btn admin-btn-secondary w-full sm:w-auto">
               <FaPlus className="mr-2" />
               Yeni Buton Ekle
             </button>
@@ -289,14 +289,14 @@ export default function PopupForm({ initialData }: PopupFormProps) {
           <button 
             type="button" 
             onClick={() => router.back()} 
-            className="admin-button-secondary order-2 sm:order-1"
+            className="admin-btn admin-btn-secondary order-2 sm:order-1"
           >
             İptal
           </button>
           <button 
             type="submit" 
             disabled={isSubmitting} 
-            className="admin-button-primary order-1 sm:order-2"
+            className="admin-btn admin-btn-primary order-1 sm:order-2"
           >
             <FaSave className="mr-2" />
             {isSubmitting ? 'Kaydediliyor...' : (isEditMode ? 'Değişiklikleri Kaydet' : 'Popup Oluştur')}

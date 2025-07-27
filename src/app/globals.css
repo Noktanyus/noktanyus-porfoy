@@ -11,4 +11,36 @@
   }
 }
 
+@layer components {
+  /* Admin Panel Layout Styles */
+  .admin-content-spacing {
+    @apply space-y-6;
+  }
+
+  .admin-header {
+    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8;
+  }
+
+  .admin-title {
+    @apply text-3xl font-bold text-gray-900 dark:text-white;
+  }
+
+  .admin-subtitle {
+    @apply text-gray-600 dark:text-gray-400 mt-1;
+  }
+
+  .admin-section {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+  }
+
+  .admin-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6;
+  }
+
+  /* Admin Form Styles */
+  .admin-form-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+  }
+}
+
 

@@ -102,7 +102,7 @@ export default function PopupsAdminPage() {
             <h1 className="admin-title">🎯 Popup Yönetimi</h1>
             <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
           </div>
-          <div className="admin-button-primary animate-pulse">
+          <div className="admin-btn admin-btn-primary animate-pulse">
             Yükleniyor...
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function PopupsAdminPage() {
           <h1 className="admin-title">🎯 Popup Yönetimi</h1>
           <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
         </div>
-        <Link href="/admin/popups/new" className="admin-button-primary">
+        <Link href="/admin/popups/new" className="admin-btn admin-btn-primary">
           <FaPlus className="mr-2" />
           Yeni Popup Ekle
         </Link>

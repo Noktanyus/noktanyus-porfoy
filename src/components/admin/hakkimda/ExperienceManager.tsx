@@ -95,7 +95,7 @@ export default function ExperienceManager({ experiences, onChange }: ExperienceM
       <button 
         type="button" 
         onClick={addExperience} 
-        className="mt-6 admin-button-primary w-full sm:w-auto"
+        className="mt-6 admin-btn admin-btn-primary w-full sm:w-auto"
       >
         Yeni Tecrübe Ekle
       </button>

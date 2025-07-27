@@ -175,7 +175,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
       </div>
 
       <div className="flex justify-end">
-        <button type="submit" disabled={isSubmitting} className="admin-button-primary">
+        <button type="submit" disabled={isSubmitting} className="admin-btn admin-btn-primary">
           {isSubmitting ? "Güncelleniyor..." : "Güncelle"}
         </button>
       </div>

@@ -79,7 +79,7 @@ export function HistoryClientPage({ commits, repoUrl }: HistoryClientPageProps) 
                   href={`${repoUrl}/commit/${commit.hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="admin-button-secondary text-center text-xs sm:text-sm"
+                  className="admin-btn admin-btn-secondary text-center text-xs sm:text-sm"
                 >
                   Görüntüle
                 </a>

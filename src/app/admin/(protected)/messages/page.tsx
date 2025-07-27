@@ -144,7 +144,7 @@ export default function MessagesAdminPage() {
                 <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
                   <button 
                     onClick={() => setIsReplyModalOpen(true)} 
-                    className="admin-button-primary order-1 sm:order-2"
+                    className="admin-btn admin-btn-primary order-1 sm:order-2"
                   >
                     Cevapla
                   </button>
@@ -182,14 +182,14 @@ export default function MessagesAdminPage() {
             <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:justify-end">
               <button 
                 onClick={() => setIsReplyModalOpen(false)} 
-                className="admin-button-secondary order-2 sm:order-1"
+                className="admin-btn admin-btn-secondary order-2 sm:order-1"
               >
                 İptal
               </button>
               <button 
                 onClick={handleReply} 
                 disabled={isReplying} 
-                className="admin-button-primary order-1 sm:order-2"
+                className="admin-btn admin-btn-primary order-1 sm:order-2"
               >
                 {isReplying ? "Gönderiliyor..." : "Gönder"}
               </button>

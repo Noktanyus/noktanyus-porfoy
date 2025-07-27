@@ -221,14 +221,14 @@ export default function BlogForm({ post }: BlogFormProps) {
         <button 
           type="button" 
           onClick={() => router.back()} 
-          className="admin-button-secondary order-2 sm:order-1"
+          className="admin-btn admin-btn-secondary order-2 sm:order-1"
         >
           İptal
         </button>
         <button 
           type="submit" 
           disabled={!isDirty || isSubmitting} 
-          className="admin-button-primary order-1 sm:order-2"
+          className="admin-btn admin-btn-primary order-1 sm:order-2"
         >
           {isSubmitting ? "Kaydediliyor..." : (isEditMode ? "Değişiklikleri Kaydet" : "Yazıyı Oluştur")}
         </button>

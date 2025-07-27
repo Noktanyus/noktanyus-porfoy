@@ -78,7 +78,7 @@ export default function ProjectsAdminPage() {
           <h1 className="admin-title">🚀 Proje Yönetimi</h1>
           <p className="admin-subtitle">Projelerinizi oluşturun, düzenleyin ve yönetin</p>
         </div>
-        <Link href="/admin/projects/new" className="admin-button-primary">
+        <Link href="/admin/projects/new" className="admin-btn admin-btn-primary">
           <FaPlus className="mr-2" />
           Yeni Proje Ekle
         </Link>
