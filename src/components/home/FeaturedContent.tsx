@@ -27,13 +27,13 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       {/* Arka plan dekoratif elementler */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200/20 dark:bg-blue-800/10 rounded-full animate-float"></div>
-        <div className="absolute bottom-16 right-8 w-16 h-16 bg-purple-200/20 dark:bg-purple-800/10 rounded-full animate-float" style={{animationDelay: '0.5s'}}></div>
-        <div className="absolute top-1/2 left-4 w-12 h-12 bg-green-200/20 dark:bg-green-800/10 rounded-full animate-float" style={{animationDelay: '1s'}}></div>
+        <div className="absolute bottom-16 right-8 w-16 h-16 bg-purple-200/20 dark:bg-purple-800/10 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
+        <div className="absolute top-1/2 left-4 w-12 h-12 bg-green-200/20 dark:bg-green-800/10 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
       </div>
 
       {/* Video Content */}
       {videoId && (
-        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{animationDelay: '0.2s'}}>
+        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{ animationDelay: '0.2s' }}>
           <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-gray-300 dark:border-gray-700 hover:shadow-blue-500/20 transition-all duration-300">
             <iframe
               className="w-full h-full"
@@ -45,41 +45,33 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
           </div>
         </div>
       )}
-      
+
       {/* Text Content */}
       {homeSettings?.featuredContentType === "text" && homeSettings?.textTitle && (
-        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{animationDelay: '0.2s'}}>
+        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {homeSettings.textTitle}
           </h3>
           {homeSettings.textContent && (
-            <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
+            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
               {homeSettings.textContent}
             </p>
           )}
-          <div className="flex justify-center gap-3">
-            <a href="/projelerim" className="admin-btn admin-btn-primary">
-              Projelerim
-            </a>
-            <a href="/blog" className="admin-btn admin-btn-secondary">
-              Blog
-            </a>
-          </div>
         </div>
       )}
-      
+
       {/* HTML Content */}
       {homeSettings?.featuredContentType === "html" && homeSettings?.customHtml && (
-        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{animationDelay: '0.2s'}}>
+        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{ animationDelay: '0.2s' }}>
           <div className="admin-card">
             <ClientOnlyHtml html={homeSettings.customHtml} />
           </div>
         </div>
       )}
-      
+
       {/* Default Content - Always show if no specific content type */}
       {(!homeSettings?.featuredContentType || homeSettings?.featuredContentType === "") && (
-        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{animationDelay: '0.2s'}}>
+        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Hoş Geldiniz!
           </h3>
