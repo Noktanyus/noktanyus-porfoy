@@ -18,7 +18,7 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
     defaultValues: {
       siteTitle: settings?.siteTitle || '',
       siteDescription: settings?.siteDescription || '',
-      siteKeywords: settings?.siteKeywords || '',
+      siteKeywords: Array.isArray(settings?.siteKeywords) ? settings.siteKeywords.join(', ') : '',
       canonicalUrl: settings?.canonicalUrl || '',
       robots: settings?.robots || 'index, follow',
       favicon: settings?.favicon || '/favicon.ico',
@@ -43,9 +43,9 @@ export default function SeoForm({ settings, robotsTxt }: { settings: SeoSettings
   const onSubmit = async (data: SeoFormData) => {
     const loadingToast = toast.loading("Ayarlar güncelleniyor...");
     
-    const processedData: Omit<SeoSettings, 'id'> = {
+    const processedData = {
       ...data,
-      siteKeywords: data.siteKeywords, // Keep as string since database expects string
+      siteKeywords: data.siteKeywords.split(',').map(k => k.trim()).filter(Boolean),
     };
 
     try {
