@@ -61,6 +61,7 @@ async function main() {
       author: 'Yunus Emre',
       category: 'Technology',
       content: 'Hello world!',
+      tags: ['TypeScript', 'Next.js', 'Prisma']
     },
   });
 
@@ -70,7 +71,7 @@ async function main() {
       slug: 'portfolio-project',
       title: 'My Portfolio',
       description: 'The very portfolio you are looking at.',
-      technologies: 'Next.js,TypeScript,Prisma',
+      technologies: ['Next.js', 'TypeScript', 'Prisma', 'Tailwind CSS'],
       content: 'Some details about the project.',
       order: 1,
       featured: true,

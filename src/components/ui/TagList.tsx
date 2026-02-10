@@ -6,12 +6,30 @@ interface TagListProps {
 }
 
 const TagList = ({ tags, limit = 4, className = '', tagClassName = '' }: TagListProps) => {
-  if (!tags || tags.length === 0) {
+  // tags bir string (JSON) ise parse etmeye çalış, değilse dizi olarak devam et
+  let normalizedTags: string[] = [];
+  
+  if (Array.isArray(tags)) {
+    normalizedTags = tags;
+  } else if (typeof tags === 'string') {
+    try {
+      const parsed = JSON.parse(tags);
+      if (Array.isArray(parsed)) {
+        normalizedTags = parsed;
+      } else {
+        normalizedTags = [tags];
+      }
+    } catch {
+      normalizedTags = tags.split(',').map(t => t.trim()).filter(Boolean);
+    }
+  }
+
+  if (!normalizedTags || normalizedTags.length === 0) {
     return null;
   }
 
-  const visibleTags = tags.slice(0, limit);
-  const hiddenTagsCount = tags.length - limit;
+  const visibleTags = normalizedTags.slice(0, limit);
+  const hiddenTagsCount = normalizedTags.length - limit;
 
   return (
     <div className={`flex flex-wrap gap-2 mb-4 ${className}`}>

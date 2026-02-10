@@ -1,87 +1,63 @@
-# Dockerfile
-
-# --- 1. Aşama: Builder ---
-# Bu aşamada projenin bağımlılıkları yüklenir ve build işlemi yapılır.
-# Alpine yerine standart Node.js imajını kullanıyoruz. Bu, git ve sharp için gerekli tüm bağımlılıkları içerir.
-FROM node:22 AS builder
-
-# Build sırasında kullanılacak argümanları tanımla
-ARG DATABASE_URL
-ARG NEXTAUTH_URL
-ARG NEXTAUTH_SECRET
-ARG ADMIN_EMAIL
-ARG ADMIN_PASSWORD
-# TURNSTILE_SECRET_KEY kaldırıldı
-ARG EMAIL_SERVER
-ARG EMAIL_PORT
-ARG EMAIL_USER
-ARG EMAIL_PASSWORD
-ARG NEXT_PUBLIC_BASE_URL
-# NEXT_PUBLIC_TURNSTILE_SITE_KEY kaldırıldı
-
-# Uygulama için çalışma dizini oluştur
+# Stage 1: Bağımlılıkları yükle
+FROM node:22 AS deps
 WORKDIR /app
 
-# Bağımlılıkları kopyala
+# Paket dosyalarını kopyala
 COPY package.json package-lock.json ./
 
-# Önce tüm bağımlılıkları yükle (devDependencies dahil)
+# Bağımlılıkları yükle
 RUN npm ci
 
-# Prisma şemasını kopyala
-COPY prisma ./prisma
-# Tüm proje dosyalarını kopyala
-COPY . .
-
-# Environment variables'ları ayarla (build sırasında)
-ENV DATABASE_URL="file:./docker.db"
-ENV NEXTAUTH_URL="http://localhost:3000"
-ENV NEXTAUTH_SECRET="docker-build-secret"
-ENV ADMIN_EMAIL="admin@example.com"
-ENV ADMIN_PASSWORD="admin123"
-ENV EMAIL_SERVER="smtp.example.com"
-ENV EMAIL_PORT="587"
-ENV EMAIL_USER="test@example.com"
-ENV EMAIL_PASSWORD="testpassword"
-ENV NEXT_PUBLIC_BASE_URL="http://localhost:3000"
-ENV SKIP_ENV_VALIDATION="true"
-
-# Prisma Client'ı oluştur ve build et
-RUN npx prisma generate --schema=./prisma/schema.ci.prisma && \
-    npx prisma db push --schema=./prisma/schema.ci.prisma --accept-data-loss --force-reset && \
-    npx next build
-
-# Build sonrası gereksiz devDependencies'i kaldır
-RUN npm prune --production
-
-# --- 2. Aşama: Runner ---
-# Bu aşamada, build edilmiş olan hafif ve çalıştırılabilir uygulama oluşturulur.
-# Alpine yerine standart Node.js imajını kullanıyoruz.
-FROM node:22 AS runner
-
+# Stage 2: Uygulamayı build et
+FROM node:22 AS builder
 WORKDIR /app
 
-# Güvenlik için root olmayan bir kullanıcı oluştur
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Bağımlılıkları ve kaynak kodu kopyala
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
 
-# Gerekli dosyaları builder aşamasından kopyala
+# Çevresel değişkenleri ayarla (Build zamanı için - Dummy değerler)
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV SKIP_ENV_VALIDATION=true
+ENV DATABASE_URL="postgresql://user:password@localhost:5432/db"
+ENV NEXTAUTH_URL="http://localhost:3000"
+ENV NEXTAUTH_SECRET="f6578a9c2b4d1e3f8a9c2b4d1e3f8a9c"
+ENV ADMIN_EMAIL="admin@noktanyus.com"
+ENV ADMIN_PASSWORD="adminpassword123"
+ENV EMAIL_SERVER="smtp.gmail.com"
+ENV EMAIL_PORT="587"
+ENV EMAIL_USER="admin@noktanyus.com"
+ENV EMAIL_PASSWORD="password"
+ENV NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+
+# Prisma Client'ı oluştur ve build et
+RUN npx prisma generate --schema=./prisma/schema.prisma && \
+    find src/app -name "page.tsx" -exec sed -i 's/export async function generateStaticParams/export async function _generateStaticParams/g' {} + && \
+    sed -i 's/import dynamic from "next\/dynamic"/import nextDynamic from "next\/dynamic"/g' src/app/layout.tsx && \
+    sed -i 's/dynamic(() =>/nextDynamic(() =>/g' src/app/layout.tsx && \
+    echo "export const dynamic = 'force-dynamic';" >> src/app/layout.tsx && \
+    npx next build
+
+# Stage 3: Çalışma zamanı imajı
+FROM node:22-slim AS runner
+WORKDIR /app
+
+# Slim imajda gerekli olabilecek kütüphaneler
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Gerekli dosyaları kopyala (Standalone output için)
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.git ./.git
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/prisma ./prisma
 
-# Dosya sahipliğini yeni kullanıcıya ver (zaten chown ile yapıldı, ama genel bir güvence)
-RUN chown -R nextjs:nodejs .
-
-# Yeni kullanıcıya geçiş yap
-USER nextjs
-
-# Uygulamanın çalışacağı portu belirt
+# Portu ayarla
 EXPOSE 3000
-
-# Ortam değişkeni ile portu ayarla
-ENV PORT 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Uygulamayı başlat
 CMD ["node", "server.js"]

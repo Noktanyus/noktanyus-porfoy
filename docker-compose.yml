@@ -1,6 +1,18 @@
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: noktanyus-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: noktanyus
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: noktanyus_porfoy
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   web:
-    # Mevcut dizindeki Dockerfile'ı kullanarak imajı build et
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,29 +22,31 @@ services:
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
         - ADMIN_EMAIL=${ADMIN_EMAIL}
         - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-        # TURNSTILE_SECRET_KEY kaldırıldı
         - EMAIL_SERVER=${EMAIL_SERVER}
         - EMAIL_PORT=${EMAIL_PORT}
         - EMAIL_USER=${EMAIL_USER}
         - EMAIL_PASSWORD=${EMAIL_PASSWORD}
         - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
-        # NEXT_PUBLIC_TURNSTILE_SITE_KEY kaldırıldı
-    # Container'a bir isim ver
     container_name: noktanyus-portfolio
-    # Container yeniden başladığında otomatik olarak çalıştır
     restart: unless-stopped
-    # Port yönlendirmesi: Host'taki 3000 portunu Container'daki 3000 portuna bağla
     ports:
       - "3000:3000"
-    # Ortam değişkenlerini .env dosyasından yükle
     env_file:
       - .env
-    # Kalıcı veri için volume tanımı
+    depends_on:
+      - db
     volumes:
-      # 'public_volume' adında bir Docker volume'ünü, container içindeki
-      # '/app/public' klasörüne bağla. Bu, tüm public klasörünü kalıcı hale getirir.
       - public_volume:/app/public
 
-# Docker tarafından yönetilecek olan volume'ü tanımla
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: noktanyus-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token eyJhIjoiOTllMDA5Y2I3Y2JjYmNjNWVlY2QyYjY1MGMxYzQwMDkiLCJ0IjoiZmVlZDVhOTQtMWEyNi00MGJlLThmMDctMmFlNzYzOWRhZjVhIiwicyI6IllURmtPR0ppTm1RdFpqQXhOaTAwWVRJNExXSmxPRFl0Wm1JME5UQTJZMlZrTVdZeCJ9
+    network_mode: host
+    depends_on:
+      - web
+
 volumes:
   public_volume:
+  postgres_data:
