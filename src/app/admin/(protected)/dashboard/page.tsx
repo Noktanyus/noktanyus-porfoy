@@ -33,13 +33,15 @@ interface Stats {
   projects: number;
   blogs: number;
   messages: number;
+  skills: number;
+  experiences: number;
 }
 
 /**
  * Gösterge panelinin ana bileşeni.
  */
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({ projects: 0, blogs: 0, messages: 0 });
+  const [stats, setStats] = useState<Stats>({ projects: 0, blogs: 0, messages: 0, skills: 0, experiences: 0 });
   const [recentMessages, setRecentMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -54,6 +56,8 @@ export default function DashboardPage() {
         fetch('/api/admin/content?action=list&type=projects'),
         fetch('/api/admin/content?action=list&type=blog'),
         fetch('/api/admin/content?action=list&type=messages'),
+        fetch('/api/admin/content?action=list&type=skills'),
+        fetch('/api/admin/content?action=list&type=experiences'),
       ]);
       
       // Herhangi bir istek başarısız olduysa hata fırlat
@@ -61,13 +65,15 @@ export default function DashboardPage() {
         if (!response.ok) throw new Error(`API isteği başarısız oldu: ${response.statusText}`);
       }
 
-      const [projects, blogs, messages] = await Promise.all(responses.map(res => res.json()));
+      const [projects, blogs, messages, skills, experiences] = await Promise.all(responses.map(res => res.json()));
 
       // İstatistikleri güncelle
       setStats({
         projects: Array.isArray(projects) ? projects.length : 0,
         blogs: Array.isArray(blogs) ? blogs.length : 0,
         messages: Array.isArray(messages) ? messages.length : 0,
+        skills: Array.isArray(skills) ? skills.length : 0,
+        experiences: Array.isArray(experiences) ? experiences.length : 0,
       });
       
       // Son mesajları tarihe göre sırala ve state'e ata
@@ -157,12 +163,16 @@ export default function DashboardPage() {
                 <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
+                <StatCardSkeleton />
+                <StatCardSkeleton />
               </>
             ) : (
               <>
                 <StatCard icon={<FaProjectDiagram />} title="Toplam Proje" value={stats.projects} color="blue" />
                 <StatCard icon={<FaFileAlt />} title="Toplam Blog Yazısı" value={stats.blogs} color="green" />
                 <StatCard icon={<FaComments />} title="Toplam Mesaj" value={stats.messages} color="purple" />
+                <StatCard icon={<FaUserEdit />} title="Yetenek Sayısı" value={stats.skills} color="blue" />
+                <StatCard icon={<FaFileAlt />} title="Tecrübe Sayısı" value={stats.experiences} color="green" />
               </>
             )}
           </div>

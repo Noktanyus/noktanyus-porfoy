@@ -153,7 +153,7 @@ export default async function RootLayout({
           </ThemeProvider>
         </AuthProvider>
         
-        {false && yandexMetricaId && ( // Geçici olarak devre dışı - CSP sorunları nedeniyle
+        {yandexMetricaId && (
           <Suspense fallback={null}>
             <Script id="yandex-metrica-init" strategy="afterInteractive">
               {`

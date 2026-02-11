@@ -10,14 +10,18 @@ const TagList = ({ tags, limit = 4, className = '', tagClassName = '' }: TagList
   let normalizedTags: string[] = [];
   
   if (Array.isArray(tags)) {
-    normalizedTags = tags;
-  } else if (typeof tags === 'string') {
+    normalizedTags = tags.filter((t): t is string => typeof t === 'string' && t.trim() !== '');
+  } else if (typeof tags === 'string' && tags.trim() !== '') {
     try {
-      const parsed = JSON.parse(tags);
-      if (Array.isArray(parsed)) {
-        normalizedTags = parsed;
+      if (tags.startsWith('[') || tags.startsWith('{')) {
+        const parsed = JSON.parse(tags);
+        if (Array.isArray(parsed)) {
+          normalizedTags = parsed.filter(t => typeof t === 'string');
+        } else {
+          normalizedTags = [String(tags)];
+        }
       } else {
-        normalizedTags = [tags];
+        normalizedTags = tags.split(',').map(t => t.trim()).filter(Boolean);
       }
     } catch {
       normalizedTags = tags.split(',').map(t => t.trim()).filter(Boolean);

@@ -43,7 +43,7 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: noktanyus-tunnel
     restart: unless-stopped
-    command: tunnel --no-autoupdate run --token eyJhIjoiOTllMDA5Y2I3Y2JjYmNjNWVlY2QyYjY1MGMxYzQwMDkiLCJ0IjoiZmVlZDVhOTQtMWEyNi00MGJlLThmMDctMmFlNzYzOWRhZjVhIiwicyI6IllURmtPR0ppTm1RdFpqQXhOaTAwWVRJNExXSmxPRFl0Wm1JME5UQTJZMlZrTVdZeCJ9
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     network_mode: host
     depends_on:
       - web

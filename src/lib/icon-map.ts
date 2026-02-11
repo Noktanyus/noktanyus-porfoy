@@ -10,14 +10,14 @@ import {
   FaReact, FaNodeJs, FaHtml5, FaCss3Alt, FaJsSquare, FaPython, FaJava, FaPhp, FaGitAlt, FaDocker, FaSass, FaLess, FaWordpress, FaVuejs, FaAngular, FaSwift, FaFigma, FaCode, FaDatabase, FaServer, FaLinux, FaWindows, FaApple, FaAndroid,
 } from 'react-icons/fa';
 import {
-  SiTypescript, SiPrisma, SiNextdotjs, SiPostgresql, SiMysql, SiMongodb, SiRedis, SiGraphql, SiExpress, SiNestjs, SiDjango, SiFlask, SiKotlin, SiGo, SiRust, SiKubernetes, SiTerraform, SiVercel, SiNetlify, SiTailwindcss, SiBootstrap, SiJquery, SiRedux, SiWebpack, SiBabel, SiEslint, SiJest, SiCypress, SiStorybook, SiPostman, SiSwagger, SiSocketdotio, SiDotnet, SiMicrosoft,
+  SiTypescript, SiPrisma, SiNextdotjs, SiPostgresql, SiMysql, SiMongodb, SiRedis, SiGraphql, SiExpress, SiNestjs, SiDjango, SiFlask, SiKotlin, SiGo, SiRust, SiKubernetes, SiTerraform, SiVercel, SiNetlify, SiTailwindcss, SiBootstrap, SiJquery, SiRedux, SiWebpack, SiBabel, SiEslint, SiJest, SiCypress, SiStorybook, SiPostman, SiSwagger, SiSocketdotio, SiDotnet,
 } from 'react-icons/si';
-import { TbBrandCSharp } from 'react-icons/tb';
+import { TbBrandCSharp, TbSql } from 'react-icons/tb';
 
 export const iconComponents: { [key: string]: ElementType } = {
   FaReact, FaNodeJs, FaHtml5, FaCss3Alt, FaJsSquare, FaPython, FaJava, FaPhp, FaGitAlt, FaDocker, FaSass, FaLess, FaWordpress, FaVuejs, FaAngular, FaSwift, FaFigma, FaCode, FaDatabase, FaServer, FaLinux, FaWindows, FaApple, FaAndroid,
-  SiTypescript, SiPrisma, SiNextdotjs, SiPostgresql, SiMysql, SiMongodb, SiRedis, SiGraphql, SiExpress, SiNestjs, SiDjango, SiFlask, SiKotlin, SiGo, SiRust, SiKubernetes, SiTerraform, SiVercel, SiNetlify, SiTailwindcss, SiBootstrap, SiJquery, SiRedux, SiWebpack, SiBabel, SiEslint, SiJest, SiCypress, SiStorybook, SiPostman, SiSwagger, SiSocketdotio, SiDotnet, SiMicrosoft,
-  TbBrandCSharp,
+  SiTypescript, SiPrisma, SiNextdotjs, SiPostgresql, SiMysql, SiMongodb, SiRedis, SiGraphql, SiExpress, SiNestjs, SiDjango, SiFlask, SiKotlin, SiGo, SiRust, SiKubernetes, SiTerraform, SiVercel, SiNetlify, SiTailwindcss, SiBootstrap, SiJquery, SiRedux, SiWebpack, SiBabel, SiEslint, SiJest, SiCypress, SiStorybook, SiPostman, SiSwagger, SiSocketdotio, SiDotnet,
+  TbBrandCSharp, TbSql,
 };
 
 // Arama için normalize edilmiş bir anahtar listesi oluştur

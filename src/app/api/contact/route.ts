@@ -8,6 +8,7 @@ import { env } from "@/lib/env";
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z, ZodError } from 'zod';
+import rateLimiter from '@/lib/rate-limiter';
 
 // Gelen isteğin gövdesini doğrulamak için Zod şeması
 const contactSchema = z.object({
@@ -48,6 +49,17 @@ async function verifyTurnstile(token: string): Promise<boolean> {
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Rate Limiting (IP tabanlı: 15 dakikada 5 mesaj)
+    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown';
+    const limitResult = rateLimiter.check(ip, 5, 15 * 60 * 1000);
+    
+    if (!limitResult.allowed) {
+      return NextResponse.json(
+        { error: 'Çok fazla mesaj gönderdiniz. Lütfen bir süre bekleyin.' }, 
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     // 1. Veri Doğrulama
