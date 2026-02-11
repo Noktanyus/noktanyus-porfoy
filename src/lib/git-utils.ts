@@ -33,12 +33,12 @@ type CommitDetails = {
  * @throws {Error} Gerekli ortam değişkenleri veya 'origin' remote'u bulunamazsa hata fırlatır.
  */
 async function getAuthenticatedRepoUrl(): Promise<string> {
-  const username = process.env.GITHUB_USERNAME;
+  const username = process.env.GITHUB_USERNAME || process.env.ADMIN_EMAIL?.split('@')[0];
   const token = process.env.GITHUB_TOKEN;
 
-  if (!username || !token) {
-    console.error("getAuthenticatedRepoUrl -> Hata: Gerekli GitHub kimlik bilgileri .env.local dosyasında eksik.");
-    throw new Error('GitHub kullanıcı adı veya token .env.local dosyasında tanımlanmamış. Lütfen GITHUB_USERNAME ve GITHUB_TOKEN değişkenlerini ekleyin.');
+  if (!token) {
+    console.error("getAuthenticatedRepoUrl -> Hata: GITHUB_TOKEN eksik.");
+    throw new Error('GitHub token .env dosyasında tanımlanmamış. Lütfen GITHUB_TOKEN değişkenini ekleyin.');
   }
 
   const remotes = await git.getRemotes(true);
@@ -60,10 +60,21 @@ async function getAuthenticatedRepoUrl(): Promise<string> {
  */
 async function pushChanges(): Promise<void> {
   try {
-    const authenticatedUrl = await getAuthenticatedRepoUrl();
-    const currentBranch = await git.branch();
-    await git.push(authenticatedUrl, currentBranch.current); 
-    console.log(`pushChanges -> Başarılı: Değişiklikler GitHub'daki '${currentBranch.current}' dalına gönderildi.`);
+    const remotes = await git.getRemotes(true);
+    const origin = remotes.find(remote => remote.name === 'origin');
+    
+    if (origin?.refs.push.startsWith('git@')) {
+      // Use SSH if configured
+      const currentBranch = await git.branch();
+      await git.push('origin', currentBranch.current);
+      console.log(`pushChanges -> Success: Changes pushed to '${currentBranch.current}' via SSH.`);
+    } else {
+      // Use HTTPS with tokens if SSH is not used
+      const authenticatedUrl = await getAuthenticatedRepoUrl();
+      const currentBranch = await git.branch();
+      await git.push(authenticatedUrl, currentBranch.current); 
+      console.log(`pushChanges -> Success: Changes pushed to '${currentBranch.current}' via HTTPS.`);
+    }
   } catch (error: any) {
     console.error(`pushChanges -> Kritik Hata: GitHub'a gönderme işlemi sırasında bir hata oluştu. Hata: ${error.message}`);
     if (error.message.includes('authentication failed')) {

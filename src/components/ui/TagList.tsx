@@ -1,5 +1,5 @@
 interface TagListProps {
-  tags: string[];
+  tags: any; // Veritabanından string veya string[] gelebilir
   limit?: number;
   className?: string;
   tagClassName?: string;

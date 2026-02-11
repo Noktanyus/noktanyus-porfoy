@@ -137,6 +137,43 @@ export async function saveContent(type: string, slug: string, data: any, content
             update: payload,
             create: { slug, ...payload, content: content ?? '' },
         });
+    case 'about':
+        const existingAbout = await prisma.about.findFirst();
+        if (existingAbout) {
+          return prisma.about.update({
+            where: { id: existingAbout.id },
+            data: payload,
+          });
+        }
+        return prisma.about.create({ data: payload });
+    case 'home-settings':
+        return saveHomeSettings(payload);
+    case 'seo-settings':
+        return saveSeoSettings(payload);
+    case 'skills':
+        if (data.id) {
+          return prisma.skill.update({
+            where: { id: data.id },
+            data: payload,
+          });
+        }
+        return prisma.skill.create({ data: payload });
+    case 'experiences':
+        if (data.id) {
+          return prisma.experience.update({
+            where: { id: data.id },
+            data: payload,
+          });
+        }
+        return prisma.experience.create({ data: payload });
+    case 'testimonials':
+        if (data.id) {
+          return prisma.testimonial.update({
+            where: { id: data.id },
+            data: payload,
+          });
+        }
+        return prisma.testimonial.create({ data: payload });
     case 'messages':
         // Messages genellikle ID ile güncellenir, slug ile değil
         // Bu durumda özel bir yaklaşım gerekebilir
@@ -155,7 +192,14 @@ export async function deleteContent(type: string, slug: string): Promise<any> {
       return prisma.project.delete({ where: { slug } });
     case 'popups':
         return prisma.popup.delete({ where: { slug } });
-    // Diğer "type" türleri için de benzer yapıları ekleyebilirsiniz.
+    case 'skills':
+        return prisma.skill.delete({ where: { id: slug } });
+    case 'experiences':
+        return prisma.experience.delete({ where: { id: slug } });
+    case 'testimonials':
+        return prisma.testimonial.delete({ where: { id: slug } });
+    case 'messages':
+        return prisma.message.delete({ where: { id: slug } });
     default:
       throw new Error(`'${type}' için silme işlemi desteklenmiyor.`);
   }

@@ -1,4 +1,4 @@
-import "@/lib/env";
+import { env } from "@/lib/env";
 /**
  * @file İletişim formundan gelen verileri işlemek için API rotası.
  * @description Bu rota, iletişim formundan gönderilen mesajları alır ve
@@ -21,7 +21,7 @@ const contactSchema = z.object({
 // Turnstile doğrulama fonksiyonu
 async function verifyTurnstile(token: string): Promise<boolean> {
   try {
-    const secretKey = process.env.CLOUDFLARE_TURNSTILE_SECRET_KEY;
+    const secretKey = env.CLOUDFLARE_TURNSTILE_SECRET_KEY;
     if (!secretKey) {
       console.error('Turnstile secret key bulunamadı');
       return false;

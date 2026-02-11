@@ -27,6 +27,7 @@ services:
         - EMAIL_USER=${EMAIL_USER}
         - EMAIL_PASSWORD=${EMAIL_PASSWORD}
         - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL}
+        - NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY}
     container_name: noktanyus-portfolio
     restart: unless-stopped
     ports:

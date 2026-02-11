@@ -1,4 +1,4 @@
-import "@/lib/env";
+import { env } from "@/lib/env";
 /**
  * @file NextAuth için kimlik doğrulama yapılandırması.
  * @description Bu dosya, Next.js projesi için kimlik doğrulama stratejilerini,
@@ -32,8 +32,8 @@ const authOptions: NextAuthOptions = {
        */
       async authorize(credentials) {
         // .env dosyasından yönetici bilgilerini güvenli bir şekilde al
-        const adminEmail = process.env.ADMIN_EMAIL;
-        const adminPassword = process.env.ADMIN_PASSWORD;
+        const adminEmail = env.ADMIN_EMAIL;
+        const adminPassword = env.ADMIN_PASSWORD;
 
         // Gelen bilgilerle .env'deki bilgileri karşılaştır
         const isValid =
@@ -104,7 +104,7 @@ const authOptions: NextAuthOptions = {
   // --- Gizli Anahtar (Secret) ---
   // JWT'leri imzalamak ve şifrelemek için kullanılan gizli anahtar.
   // .env dosyasından alınmalıdır.
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: env.NEXTAUTH_SECRET,
 };
 
 // NextAuth'u yapılandırma seçenekleriyle başlat

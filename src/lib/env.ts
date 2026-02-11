@@ -15,6 +15,8 @@ const envSchema = z.object({
   EMAIL_PASSWORD: z.string().min(1),
   EMAIL_FROM: z.string().email().optional(),
   EMAIL_FROM_NAME: z.string().optional(),
+  CLOUDFLARE_TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
+  NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_BASE_URL: z.string().min(1),
   NEXT_PUBLIC_YANDEX_METRICA_ID: z.string().optional(),
 });
