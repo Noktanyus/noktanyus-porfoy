@@ -67,9 +67,12 @@ const Footer = ({ aboutData }: FooterProps) => {
           </div>
 
           {/* Copyright Metni */}
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
               &copy; {new Date().getFullYear()} {aboutData.name || "Portföyüm"}. Tüm Hakları Saklıdır.
+            </p>
+            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500 font-medium tracking-widest uppercase">
+              Powered by <span className="text-orange-500 font-black">Noktanyus</span>
             </p>
           </div>
           
