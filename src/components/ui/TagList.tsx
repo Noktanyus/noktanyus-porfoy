@@ -1,14 +1,13 @@
 interface TagListProps {
-  tags: any; // Veritabanından string veya string[] gelebilir
+  tags: string | string[] | null | undefined;
   limit?: number;
   className?: string;
   tagClassName?: string;
 }
 
 const TagList = ({ tags, limit = 4, className = '', tagClassName = '' }: TagListProps) => {
-  // tags bir string (JSON) ise parse etmeye çalış, değilse dizi olarak devam et
   let normalizedTags: string[] = [];
-  
+
   if (Array.isArray(tags)) {
     normalizedTags = tags.filter((t): t is string => typeof t === 'string' && t.trim() !== '');
   } else if (typeof tags === 'string' && tags.trim() !== '') {
@@ -37,9 +36,9 @@ const TagList = ({ tags, limit = 4, className = '', tagClassName = '' }: TagList
 
   return (
     <div className={`flex flex-wrap gap-2 mb-4 ${className}`}>
-      {visibleTags.map((tag: string, index: number) => (
+      {visibleTags.map((tag: string) => (
         <span
-          key={index}
+          key={tag}
           className={`px-3 py-1 bg-gray-100 dark:bg-gray-700 text-xs sm:text-sm rounded-full text-gray-600 dark:text-gray-300 whitespace-nowrap ${tagClassName}`}
         >
           {tag}

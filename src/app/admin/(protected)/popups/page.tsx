@@ -44,7 +44,7 @@ export default function PopupsAdminPage() {
    * @param slug - Silinecek popup'ın kimliği.
    */
   const handleDelete = async (slug: string) => {
-    if (!confirm(`&apos;${slug}&apos; kodlu popup&apos;ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
+    if (!confirm(`'${slug}' kodlu popup'ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
 
     const loadingToast = toast.loading("Popup siliniyor...");
     try {
@@ -55,7 +55,7 @@ export default function PopupsAdminPage() {
         throw new Error(errorData.error || "Silme işlemi başarısız oldu.");
       }
       toast.success("Popup başarıyla silindi!", { id: loadingToast });
-      fetchPopups(); // Listeyi yenile
+      setPopups(prev => prev.filter(p => p.slug !== slug));
     } catch (error) {
       toast.error((error as Error).message, { id: loadingToast });
     }

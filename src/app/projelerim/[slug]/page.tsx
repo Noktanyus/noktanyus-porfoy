@@ -97,8 +97,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
           alt={project.title}
           fill
           sizes="(max-width: 768px) 100vw, 1024px"
-          style={{objectFit: 'cover'}}
-          className="rounded-lg"
+          className="rounded-lg object-cover"
           priority
         />
       </div>
@@ -120,11 +119,18 @@ async function ProjectPageContent({ slug }: { slug: string }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 mr-2">Teknolojiler:</span>
-          {typeof project.technologies === 'string' && project.technologies.split(',').filter(tech => tech.trim()).map((tech: string) => (
-            <span key={tech} className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
-              {tech.trim()}
-            </span>
-          ))}
+          {(() => {
+            const techs = Array.isArray(project.technologies)
+              ? project.technologies.filter((t): t is string => typeof t === 'string')
+              : typeof project.technologies === 'string'
+                ? project.technologies.split(',').map(t => t.trim()).filter(Boolean)
+                : [];
+            return techs.map((tech: string) => (
+              <span key={tech} className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
+                {tech}
+              </span>
+            ));
+          })()}
         </div>
       </div>
       

@@ -29,7 +29,7 @@ const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: fal
  */
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getSeoSettings();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
   if (!seo) {
     return {

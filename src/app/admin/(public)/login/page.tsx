@@ -14,7 +14,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
-import Head from "next/head";
 import Spinner from "@/components/ui/Spinner";
 import CloudflareTurnstile from "@/components/CloudflareTurnstile";
 
@@ -111,13 +110,7 @@ export default function LoginPage() {
   }
 
   return (
-    <>
-      <Head>
-        <title>Yönetim Paneli Girişi | Admin</title>
-        <meta name="description" content="Yönetim paneline giriş yapın" />
-        <meta name="robots" content="noindex, nofollow" />
-      </Head>
-      <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg animate-fade-in">
+    <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg animate-fade-in">
         <h1 className="text-2xl font-bold text-center text-light-text dark:text-dark-text">
           Yönetim Paneli Girişi
         </h1>
@@ -151,6 +144,5 @@ export default function LoginPage() {
           </button>
         </form>
       </div>
-    </>
   );
 }

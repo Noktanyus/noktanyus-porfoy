@@ -89,8 +89,7 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
             alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, 1024px"
-            style={{objectFit: 'cover'}}
-            className="rounded-lg"
+            className="rounded-lg object-cover"
             priority
           />
         </div>

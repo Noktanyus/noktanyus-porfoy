@@ -8,7 +8,6 @@
  */
 
 import { useState, useEffect } from "react";
-import Head from "next/head";
 import IletisimForm from "./IletisimForm";
 import { About } from "@/types/content";
 
@@ -58,30 +57,24 @@ export default function IletisimPage() {
   }
 
   return (
-    <>
-      <Head>
-        <title>İletişim | Portfolyo</title>
-        <meta name="description" content="Benimle iletişime geçin. Projeleriniz, sorularınız veya iş birliği teklifleriniz için formu doldurun." />
-      </Head>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-        <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white leading-tight px-2">
-            İletişime Geçin
-          </h1>
-          <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-2 sm:px-4 leading-relaxed">
-            Bir sorunuz mu var, bir proje teklifiniz mi var, yoksa sadece merhaba mı demek istiyorsunuz? Aşağıdaki formu doldurmaktan çekinmeyin.
-          </p>
-        </div>
-
-        <div className="max-w-7xl mx-auto">
-          <IletisimForm 
-            contactEmail={aboutData?.contactEmail}
-            socialGithub={aboutData?.socialGithub}
-            socialLinkedin={aboutData?.socialLinkedin}
-            socialInstagram={aboutData?.socialInstagram}
-          />
-        </div>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
+      <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white leading-tight px-2">
+          İletişime Geçin
+        </h1>
+        <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-2 sm:px-4 leading-relaxed">
+          Bir sorunuz mu var, bir proje teklifiniz mi var, yoksa sadece merhaba mı demek istiyorsunuz? Aşağıdaki formu doldurmaktan çekinmeyin.
+        </p>
       </div>
-    </>
+
+      <div className="max-w-7xl mx-auto">
+        <IletisimForm
+          contactEmail={aboutData?.contactEmail}
+          socialGithub={aboutData?.socialGithub}
+          socialLinkedin={aboutData?.socialLinkedin}
+          socialInstagram={aboutData?.socialInstagram}
+        />
+      </div>
+    </div>
   );
 }

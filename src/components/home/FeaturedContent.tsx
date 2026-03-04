@@ -1,7 +1,9 @@
 "use client";
 
-import ClientOnlyHtml from "@/components/ClientOnlyHtml";
 import { HomeSettings } from "@/types/content";
+import dynamic from "next/dynamic";
+
+const ClientOnlyHtml = dynamic(() => import("@/components/ClientOnlyHtml"), { ssr: false });
 
 interface FeaturedContentProps {
   homeSettings: HomeSettings | null;

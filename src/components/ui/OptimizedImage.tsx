@@ -87,7 +87,7 @@ const OptimizedImage = ({
   };
 
   const handleLoad = () => {
-    // setIsLoaded(true);
+    setIsLoaded(true);
     onLoad?.();
   };
 
@@ -147,7 +147,7 @@ const OptimizedImage = ({
       loading={imageLoading}
       unoptimized={unoptimized}
       placeholder={placeholder}
-      blurDataURL={blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL() : undefined)}
+      blurDataURL={blurDataURL || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwIiBoZWlnaHQ9IjEwIiBmaWxsPSIjZjNmNGY2Ii8+PC9zdmc+"}
       className={className}
       style={style}
       onLoad={handleLoad}

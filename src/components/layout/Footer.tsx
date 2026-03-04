@@ -37,7 +37,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="GitHub profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaGithub size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -48,7 +48,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="LinkedIn profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaLinkedin size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -59,7 +59,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="Instagram profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaInstagram size={20} className="sm:w-6 sm:h-6" />
               </a>

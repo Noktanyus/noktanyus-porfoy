@@ -3,33 +3,15 @@ import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 import TagList from './ui/TagList';
-// import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
-  // const { trackProjectDemo, trackProjectGithub, trackLinkClick } = useAnalytics();
-  
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
-
-  const handleDemoClick = () => {
-    // trackProjectDemo(project.slug);
-    console.log('Demo click:', project.slug);
-  };
-
-  const handleGithubClick = () => {
-    // trackProjectGithub(project.slug);
-    console.log('GitHub click:', project.slug);
-  };
-
-  const handleProjectClick = () => {
-    // trackLinkClick(`/projelerim/${project.slug}`, project.title);
-    console.log('Project click:', project.slug);
-  };
 
   return (
     <article className="group card-professional stagger-item overflow-hidden flex flex-col lg:flex-row">

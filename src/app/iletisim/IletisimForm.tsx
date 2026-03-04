@@ -34,7 +34,8 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
     resolver: zodResolver(schema),
   });
   
-  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const isProduction = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? true : false;
+  const [turnstileToken, setTurnstileToken] = useState<string>(isProduction ? "" : "dev-mode-bypass");
 
   // Cleanup effect - component unmount olduğunda tüm toast'ları temizle
   useEffect(() => {
