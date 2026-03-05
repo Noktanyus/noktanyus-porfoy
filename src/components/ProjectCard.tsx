@@ -48,7 +48,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </p>
         
         {/* Footer */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-auto pt-4 border-t border-white/40 dark:border-white/10">
           <Link 
             href={`/projelerim/${project.slug}`} 
             className="inline-flex items-center font-semibold text-brand-primary text-sm sm:text-base"

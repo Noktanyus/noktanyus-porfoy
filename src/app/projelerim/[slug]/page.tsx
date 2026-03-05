@@ -47,10 +47,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function ProjectPageSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto animate-pulse">
+    <div className="max-w-4xl mx-auto glass-section animate-pulse">
       <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-6"></div>
       <div className="relative h-96 mb-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-white/40 dark:border-white/10">
         <div className="flex flex-wrap gap-3">
           <div className="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
           <div className="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -85,7 +85,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
     : project.mainImage || "/images/placeholder.webp";
 
   return (
-    <article className="max-w-4xl mx-auto">
+    <article className="max-w-4xl mx-auto glass-section">
       <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
         {project.title}
       </h1>
@@ -102,7 +102,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-white/40 dark:border-white/10">
         <div className="flex flex-wrap gap-3">
           {project.liveDemo && (
             <a href={project.liveDemo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg">

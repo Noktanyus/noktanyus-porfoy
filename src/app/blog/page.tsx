@@ -14,7 +14,7 @@ const BlogList = dynamicImport(() => import('@/components/BlogList'), {
   loading: () => (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="bg-white dark:bg-dark-card rounded-xl shadow-lg overflow-hidden">
+        <div key={i} className="glass-card overflow-hidden">
           <div className="h-52 bg-gray-200 dark:bg-gray-700"></div>
           <div className="p-6">
             <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4"></div>
@@ -35,9 +35,9 @@ export default async function BlogPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-light-text dark:text-dark-text">Blog</h1>
-        <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">Teknoloji, yazılım ve diğer konulardaki yazılarım.</p>
+      <div className="section-header">
+        <h1 className="section-title">Blog</h1>
+        <p className="section-subtitle">Teknoloji, yazılım ve diğer konulardaki yazılarım.</p>
       </div>
       
       <Suspense fallback={<div className="text-center py-16">Yazılar yükleniyor...</div>}>

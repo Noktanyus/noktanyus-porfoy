@@ -110,7 +110,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-dark-card rounded-lg shadow-lg animate-fade-in">
+    <div className="w-full max-w-md p-8 space-y-6 glass-card animate-fade-in">
         <h1 className="text-2xl font-bold text-center text-light-text dark:text-dark-text">
           Yönetim Paneli Girişi
         </h1>
@@ -119,14 +119,14 @@ export default function LoginPage() {
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               E-posta Adresi
             </label>
-            <input {...register("email")} id="email" type="email" disabled={isSubmitting} className="w-full p-3 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-brand-primary" />
+            <input {...register("email")} id="email" type="email" disabled={isSubmitting} className="w-full p-3 rounded glass-input" />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Şifre
             </label>
-            <input {...register("password")} id="password" type="password" disabled={isSubmitting} className="w-full p-3 rounded bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-brand-primary" />
+            <input {...register("password")} id="password" type="password" disabled={isSubmitting} className="w-full p-3 rounded glass-input" />
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
           </div>
           

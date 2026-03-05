@@ -39,13 +39,13 @@ const TagList = ({ tags, limit = 4, className = '', tagClassName = '' }: TagList
       {visibleTags.map((tag: string) => (
         <span
           key={tag}
-          className={`px-3 py-1 bg-gray-100 dark:bg-gray-700 text-xs sm:text-sm rounded-full text-gray-600 dark:text-gray-300 whitespace-nowrap ${tagClassName}`}
+          className={`glass-badge text-gray-600 dark:text-gray-300 whitespace-nowrap ${tagClassName}`}
         >
           {tag}
         </span>
       ))}
       {hiddenTagsCount > 0 && (
-        <span className={`px-3 py-1 bg-gray-200 dark:bg-gray-800 text-xs sm:text-sm rounded-full text-gray-500 dark:text-gray-400 ${tagClassName}`}>
+        <span className={`glass-badge text-gray-500 dark:text-gray-400 ${tagClassName}`}>
           +{hiddenTagsCount}
         </span>
       )}

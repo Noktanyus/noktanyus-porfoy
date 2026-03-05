@@ -38,9 +38,11 @@ export default function IletisimPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Yükleniyor...</p>
+        <div className="flex justify-center">
+          <div className="glass-card p-10 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"></div>
+            <p className="text-gray-600 dark:text-gray-400 font-medium">Yükleniyor...</p>
+          </div>
         </div>
       </div>
     );
@@ -58,11 +60,9 @@ export default function IletisimPage() {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-      <div className="text-center mb-4 sm:mb-6 md:mb-8 lg:mb-12">
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white leading-tight px-2">
-          İletişime Geçin
-        </h1>
-        <p className="mt-2 sm:mt-3 md:mt-4 text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-2 sm:px-4 leading-relaxed">
+      <div className="section-header">
+        <h1 className="section-title">İletişime Geçin</h1>
+        <p className="section-subtitle">
           Bir sorunuz mu var, bir proje teklifiniz mi var, yoksa sadece merhaba mı demek istiyorsunuz? Aşağıdaki formu doldurmaktan çekinmeyin.
         </p>
       </div>

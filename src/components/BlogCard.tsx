@@ -34,7 +34,7 @@ const BlogCard = ({ blog }: BlogCardProps) => {
         
         <div className="flex flex-wrap items-center gap-4 mb-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
           <span className="font-medium">{blog.author}</span>
-          <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
+          <span className="glass-badge">
             {blog.category}
           </span>
         </div>

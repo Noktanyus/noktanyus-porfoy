@@ -19,7 +19,7 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
             alt={`${aboutData.name} - Profil Fotoğrafı`}
             fill
             sizes="(max-width: 768px) 160px, 192px"
-            className="rounded-full border-4 border-blue-200 dark:border-blue-700 shadow-lg hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105"
+            className="rounded-full border-4 border-white/50 dark:border-white/20 shadow-lg hover:shadow-xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-105"
             priority
           />
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
