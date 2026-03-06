@@ -27,11 +27,6 @@ const nextConfig = {
     minimumCacheTTL: 31536000, // 1 year
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com;",
-    // Enable experimental features for better performance
-    unoptimized: false,
-    loader: 'default',
-    path: '/_next/image',
-    domains: [],
   },
   // Bu satır, belirtilen paketlerin Next.js tarafından (ve dolayısıyla next/jest tarafından)
   // dönüştürülmesini (transpile) sağlar.

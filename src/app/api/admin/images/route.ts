@@ -12,7 +12,7 @@ async function getImages() {
     const imageFiles = files.filter(file => /\.(webp|png|jpg|jpeg|gif)$/i.test(file));
     return imageFiles.map(file => ({
       name: file,
-      url: `/images/${file}`,
+      url: `/api/static/images/${file}`,
     }));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
