@@ -18,7 +18,7 @@ const CardImage = ({ src, alt, children }: CardImageProps) => {
         priority={false}
         quality={80}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent group-hover:from-black/60 group-hover:via-black/20 transition-all duration-500" />
       {children && (
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 transform group-hover:translate-y-[-4px] transition-transform duration-300">
           {children}

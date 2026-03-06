@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function BlogPostPageSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto animate-pulse">
+    <div className="max-w-4xl mx-auto glass-section animate-pulse">
       <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
       <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-8"></div>
       <div className="relative h-96 mb-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -75,7 +75,7 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
   const cleanHtml = DOMPurify.sanitize(dirtyHtml);
 
   return (
-    <article className="max-w-4xl mx-auto">
+    <article className="max-w-4xl mx-auto glass-section">
       <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
         {post.title}
       </h1>
@@ -89,8 +89,7 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
             alt={post.title}
             fill
             sizes="(max-width: 768px) 100vw, 1024px"
-            style={{objectFit: 'cover'}}
-            className="rounded-lg"
+            className="rounded-lg object-cover"
             priority
           />
         </div>

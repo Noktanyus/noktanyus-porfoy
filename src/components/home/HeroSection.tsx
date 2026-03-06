@@ -1,22 +1,14 @@
 "use client";
 import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
-import { About, HomeSettings } from "@/types/content";
+import { About } from "@/types/content";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 import { cn } from "@/lib/utils";
-// import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface HeroSectionProps {
   aboutData: About;
-  homeSettings: HomeSettings | null;
 }
 
 export default function HeroSection({ aboutData }: HeroSectionProps) {
-  // const { trackSocialClick } = useAnalytics();
-
-  const handleSocialClick = (platform: string) => {
-    // trackSocialClick(platform, 'hero_section');
-    console.log('Social click:', platform);
-  };
   return (
     <div className={cn("text-center md:text-left")}>
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
@@ -27,7 +19,7 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
             alt={`${aboutData.name} - Profil Fotoğrafı`}
             fill
             sizes="(max-width: 768px) 160px, 192px"
-            className="rounded-full border-4 border-blue-200 dark:border-blue-700 shadow-lg hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 hover:scale-105"
+            className="rounded-full border-4 border-white/50 dark:border-white/20 shadow-lg hover:shadow-xl hover:shadow-brand-primary/20 transition-all duration-500 hover:scale-105"
             priority
           />
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
@@ -51,7 +43,6 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
-              onClick={() => handleSocialClick('github')}
             >
               <FaGithub size={28} />
             </a>
@@ -61,7 +52,6 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
-              onClick={() => handleSocialClick('linkedin')}
             >
               <FaLinkedin size={28} />
             </a>
@@ -71,7 +61,6 @@ export default function HeroSection({ aboutData }: HeroSectionProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="touch-target text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/20 rounded-full focus-ring"
-              onClick={() => handleSocialClick('instagram')}
             >
               <FaInstagram size={28} />
             </a>

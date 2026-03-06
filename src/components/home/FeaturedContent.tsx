@@ -1,7 +1,9 @@
 "use client";
 
-import ClientOnlyHtml from "@/components/ClientOnlyHtml";
 import { HomeSettings } from "@/types/content";
+import dynamic from "next/dynamic";
+
+const ClientOnlyHtml = dynamic(() => import("@/components/ClientOnlyHtml"), { ssr: false });
 
 interface FeaturedContentProps {
   homeSettings: HomeSettings | null;
@@ -48,7 +50,7 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
 
       {/* Text Content */}
       {homeSettings?.featuredContentType === "text" && homeSettings?.textTitle && (
-        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
+        <div className="w-full max-w-lg glass-card p-6 relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             {homeSettings.textTitle}
           </h3>
@@ -63,7 +65,7 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       {/* HTML Content */}
       {homeSettings?.featuredContentType === "html" && homeSettings?.customHtml && (
         <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{ animationDelay: '0.2s' }}>
-          <div className="admin-card">
+          <div className="glass-card p-6">
             <ClientOnlyHtml html={homeSettings.customHtml} />
           </div>
         </div>
@@ -71,7 +73,7 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
 
       {/* Default Content - Always show if no specific content type */}
       {(!homeSettings?.featuredContentType || homeSettings?.featuredContentType === "") && (
-        <div className="w-full max-w-lg admin-card relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
+        <div className="w-full max-w-lg glass-card p-6 relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
           <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Hoş Geldiniz!
           </h3>
@@ -79,10 +81,10 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
             Portföyümde projelerimi, blog yazılarımı ve deneyimlerimi keşfedebilirsiniz.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <a href="/projelerim" className="admin-btn admin-btn-primary">
+            <a href="/projelerim" className="inline-flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-xl hover:bg-brand-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
               Projelerimi İncele
             </a>
-            <a href="/blog" className="admin-btn admin-btn-secondary">
+            <a href="/blog" className="inline-flex items-center justify-center px-6 py-3 glass-badge font-semibold text-gray-700 dark:text-gray-200 hover:border-brand-primary/30 transition-all duration-300 hover:-translate-y-0.5">
               Blog Yazılarım
             </a>
           </div>

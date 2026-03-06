@@ -47,10 +47,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function ProjectPageSkeleton() {
   return (
-    <div className="max-w-4xl mx-auto animate-pulse">
+    <div className="max-w-4xl mx-auto glass-section animate-pulse">
       <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-6"></div>
       <div className="relative h-96 mb-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-white/40 dark:border-white/10">
         <div className="flex flex-wrap gap-3">
           <div className="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
           <div className="h-10 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -85,7 +85,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
     : project.mainImage || "/images/placeholder.webp";
 
   return (
-    <article className="max-w-4xl mx-auto">
+    <article className="max-w-4xl mx-auto glass-section">
       <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
         {project.title}
       </h1>
@@ -97,13 +97,12 @@ async function ProjectPageContent({ slug }: { slug: string }) {
           alt={project.title}
           fill
           sizes="(max-width: 768px) 100vw, 1024px"
-          style={{objectFit: 'cover'}}
-          className="rounded-lg"
+          className="rounded-lg object-cover"
           priority
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 pb-4 border-b border-white/40 dark:border-white/10">
         <div className="flex flex-wrap gap-3">
           {project.liveDemo && (
             <a href={project.liveDemo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md hover:shadow-lg">
@@ -120,11 +119,18 @@ async function ProjectPageContent({ slug }: { slug: string }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 mr-2">Teknolojiler:</span>
-          {typeof project.technologies === 'string' && project.technologies.split(',').filter(tech => tech.trim()).map((tech: string) => (
-            <span key={tech} className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
-              {tech.trim()}
-            </span>
-          ))}
+          {(() => {
+            const techs = Array.isArray(project.technologies)
+              ? project.technologies.filter((t): t is string => typeof t === 'string')
+              : typeof project.technologies === 'string'
+                ? project.technologies.split(',').map(t => t.trim()).filter(Boolean)
+                : [];
+            return techs.map((tech: string) => (
+              <span key={tech} className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-xs font-semibold">
+                {tech}
+              </span>
+            ));
+          })()}
         </div>
       </div>
       

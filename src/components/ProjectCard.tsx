@@ -3,33 +3,15 @@ import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 import TagList from './ui/TagList';
-// import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface ProjectCardProps {
   project: Project;
 }
 
 const ProjectCard = ({ project }: ProjectCardProps) => {
-  // const { trackProjectDemo, trackProjectGithub, trackLinkClick } = useAnalytics();
-  
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
-
-  const handleDemoClick = () => {
-    // trackProjectDemo(project.slug);
-    console.log('Demo click:', project.slug);
-  };
-
-  const handleGithubClick = () => {
-    // trackProjectGithub(project.slug);
-    console.log('GitHub click:', project.slug);
-  };
-
-  const handleProjectClick = () => {
-    // trackLinkClick(`/projelerim/${project.slug}`, project.title);
-    console.log('Project click:', project.slug);
-  };
 
   return (
     <article className="group card-professional stagger-item overflow-hidden flex flex-col lg:flex-row">
@@ -66,7 +48,7 @@ const ProjectCard = ({ project }: ProjectCardProps) => {
         </p>
         
         {/* Footer */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-auto pt-4 border-t border-white/40 dark:border-white/10">
           <Link 
             href={`/projelerim/${project.slug}`} 
             className="inline-flex items-center font-semibold text-brand-primary text-sm sm:text-base"

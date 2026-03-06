@@ -9,8 +9,6 @@
 
 "use client";
 
-export const dynamic = 'force-dynamic';
-
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Toaster } from "react-hot-toast";
 import { useState, useEffect } from "react";

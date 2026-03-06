@@ -13,7 +13,7 @@ const Footer = ({ aboutData }: FooterProps) => {
 
   if (!aboutData) {
     return (
-      <footer className="bg-light-bg dark:bg-dark-card border-t border-gray-200 dark:border-dark-border mt-8 sm:mt-12">
+      <footer className="glass-footer mt-8 sm:mt-12">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
           <div className="text-center">
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
@@ -26,7 +26,7 @@ const Footer = ({ aboutData }: FooterProps) => {
   }
 
   return (
-    <footer className="bg-light-bg dark:bg-dark-card border-t border-gray-200 dark:border-dark-border mt-8 sm:mt-12">
+    <footer className="glass-footer mt-8 sm:mt-12">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
         <div className="flex flex-col items-center space-y-4 sm:space-y-6">
           {/* Sosyal Medya İkonları */}
@@ -37,7 +37,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="GitHub profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaGithub size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -48,7 +48,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="LinkedIn profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaLinkedin size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -59,7 +59,7 @@ const Footer = ({ aboutData }: FooterProps) => {
                 aria-label="Instagram profilim" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:text-brand-primary hover:scale-110 transition-all duration-300"
               >
                 <FaInstagram size={20} className="sm:w-6 sm:h-6" />
               </a>
@@ -78,7 +78,7 @@ const Footer = ({ aboutData }: FooterProps) => {
           
           {/* Made by bilgisi - sadece ana sayfada */}
           {pathname === '/' && (
-            <div className="text-center border-t border-gray-200 dark:border-gray-700 pt-4 w-full max-w-md">
+            <div className="text-center border-t border-white/30 dark:border-white/10 pt-4 w-full max-w-md">
               <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2 text-xs sm:text-sm text-gray-400 dark:text-gray-500">
                 <span>Made by:</span>
                 <div className="flex items-center space-x-2">

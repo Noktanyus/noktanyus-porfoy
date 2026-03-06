@@ -48,7 +48,7 @@ const ProjectList = dynamicImport(() => import('@/components/ProjectList'), {
       {/* Enhanced Project Cards Loading Skeleton */}
       <div className="grid grid-cols-1 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-14 animate-pulse">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-dark-card rounded-xl sm:rounded-2xl shadow-card-light dark:shadow-card-dark overflow-hidden flex flex-col lg:flex-row">
+          <div key={i} className="glass-card overflow-hidden flex flex-col lg:flex-row">
             <div className="lg:w-2/5 xl:w-1/3 h-48 sm:h-56 md:h-64 lg:h-auto lg:min-h-[280px] bg-gray-200 dark:bg-gray-700"></div>
             <div className="lg:w-3/5 xl:w-2/3 p-4 sm:p-6 lg:p-8 flex flex-col">
               <div className="h-6 sm:h-8 lg:h-9 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3 sm:mb-4"></div>
@@ -83,9 +83,9 @@ export default async function ProjelerimPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl sm:text-4xl font-bold text-light-text dark:text-dark-text">Projelerim</h1>
-        <p className="mt-2 text-base sm:text-lg text-gray-600 dark:text-gray-400">Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.</p>
+      <div className="section-header">
+        <h1 className="section-title">Projelerim</h1>
+        <p className="section-subtitle">Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.</p>
       </div>
       
       {/* Suspense, istemci bileşeni yüklenirken bir fallback göstermeyi sağlar */}

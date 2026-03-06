@@ -5,7 +5,7 @@ interface CardFooterProps {
 
 const CardFooter = ({ children, className = '' }: CardFooterProps) => {
   return (
-    <div className={`p-4 sm:p-6 mt-auto border-t border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={`p-4 sm:p-6 mt-auto border-t border-white/40 dark:border-white/10 ${className}`}>
       {children}
     </div>
   );

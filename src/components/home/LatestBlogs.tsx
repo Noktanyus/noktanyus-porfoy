@@ -13,11 +13,9 @@ export default function LatestBlogs({ blogs }: LatestBlogsProps) {
   return (
     <section className="py-6 sm:py-8 md:py-10">
       <div className="container-responsive">
-        <div className="text-center mb-4 sm:mb-6 md:mb-8 fade-in">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-light-text dark:text-dark-text mb-3 sm:mb-4 bg-gradient-to-r from-gray-900 to-blue-600 dark:from-gray-100 dark:to-blue-400 bg-clip-text text-transparent">
-            Son Blog Yazıları
-          </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+        <div className="section-header fade-in">
+          <h2 className="section-title">Son Blog Yazıları</h2>
+          <p className="section-subtitle">
             Teknoloji, geliştirme süreçleri ve deneyimlerim hakkında yazdığım son yazılar.
           </p>
         </div>
@@ -33,7 +31,7 @@ export default function LatestBlogs({ blogs }: LatestBlogsProps) {
         <div className="text-center mt-8 fade-in" style={{animationDelay: '0.6s'}}>
           <a 
             href="/blog" 
-            className="btn-animated admin-btn admin-btn-primary inline-flex items-center group"
+            className="btn-animated inline-flex items-center group bg-brand-primary text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Tüm Blog Yazılarını Oku
             <svg className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

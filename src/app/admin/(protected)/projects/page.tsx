@@ -48,7 +48,7 @@ export default function ProjectsAdminPage() {
    * @param {string} slug - Silinecek projenin kimliği.
    */
   const handleDelete = async (slug: string) => {
-    if (confirm(`&quot;Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.&quot;`)) {
+    if (confirm(`Bu projeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
       const toastId = toast.loading('Proje siliniyor, lütfen bekleyin...');
       try {
         const response = await fetch(`/api/admin/content?type=projects&slug=${slug}`, {

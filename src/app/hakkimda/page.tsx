@@ -104,7 +104,7 @@ export default async function HakkimdaPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-x-12 gap-y-16">
           
           <main className="lg:col-span-8 space-y-16">
-            <section className="bg-white dark:bg-dark-card p-8 rounded-xl shadow-subtle transition-shadow duration-300 hover:shadow-lg">
+            <section className="glass-card p-8 transition-all duration-500 hover:shadow-xl">
               <h2 className="text-3xl font-bold mb-6 text-light-text dark:text-dark-text border-b-2 border-gray-100 dark:border-gray-700 pb-4">
                 Hakkımda
               </h2>
@@ -118,7 +118,7 @@ export default async function HakkimdaPage() {
               <div className="relative border-l-3 border-brand-primary/20 dark:border-brand-primary/30 ml-5">
                 {experiences.map((exp, index) => (
                   <div key={exp.id} className="relative pl-12 pb-12 last:pb-0">
-                    <div className="absolute -left-[1.45rem] top-0 flex items-center justify-center w-12 h-12 bg-white dark:bg-dark-card rounded-full border-4 border-brand-primary/30">
+                    <div className="absolute -left-[1.45rem] top-0 flex items-center justify-center w-12 h-12 bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm rounded-full border-4 border-brand-primary/30">
                       <FaBriefcase className="text-brand-primary text-2xl" />
                     </div>
                     <p className="text-sm font-semibold text-brand-primary uppercase tracking-wider">{exp.date}</p>
@@ -132,7 +132,7 @@ export default async function HakkimdaPage() {
           </main>
 
           <aside className="lg:col-span-4 lg:sticky lg:top-24 h-fit">
-            <div className="bg-white dark:bg-dark-card p-8 rounded-xl shadow-subtle transition-shadow duration-300 hover:shadow-lg">
+            <div className="glass-card p-8 transition-all duration-500 hover:shadow-xl">
               <h3 className="text-2xl font-bold mb-6 text-light-text dark:text-dark-text border-b-2 border-gray-100 dark:border-gray-700 pb-4">
                 Teknik Yetkinliklerim
               </h3>
@@ -147,7 +147,7 @@ export default async function HakkimdaPage() {
                   }
 
                   return (
-                    <div key={skill.id} title={skill.name} className="bg-gray-100/80 dark:bg-gray-700/50 text-gray-800 dark:text-gray-200 text-base font-medium pl-3 pr-4 py-2 rounded-full flex items-center gap-2.5 transition-transform hover:scale-105 cursor-default">
+                    <div key={skill.id} title={skill.name} className="glass-badge text-gray-800 dark:text-gray-200 text-base font-medium pl-3 pr-4 py-2 flex items-center gap-2.5 transition-all duration-300 hover:scale-105 hover:border-brand-primary/30 cursor-default">
                       {isUrl ? (
                         <Image src={skillIconUrl!} alt={skill.name} width={24} height={24} className="rounded-full object-contain" />
                       ) : IconComponent ? (

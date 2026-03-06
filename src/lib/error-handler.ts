@@ -47,7 +47,7 @@ export function handleApiError(error: unknown): { message: string; statusCode: n
     }
 
     // Zod validation hataları
-    if (error.name === 'ZodError') {
+    if (error.name === 'ZodError' || error.constructor?.name === 'ZodError') {
       return {
         message: 'Geçersiz veri formatı.',
         statusCode: 400,

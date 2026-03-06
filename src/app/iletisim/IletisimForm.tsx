@@ -34,7 +34,8 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
     resolver: zodResolver(schema),
   });
   
-  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const isProduction = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? true : false;
+  const [turnstileToken, setTurnstileToken] = useState<string>(isProduction ? "" : "dev-mode-bypass");
 
   // Cleanup effect - component unmount olduğunda tüm toast'ları temizle
   useEffect(() => {
@@ -105,7 +106,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
   };
 
   return (
-    <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12 bg-white dark:bg-dark-card shadow-2xl rounded-2xl p-4 sm:p-6 md:p-8">
+    <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12 glass-card p-4 sm:p-6 md:p-8">
       {/* Contact Information Section */}
       <div className="lg:col-span-1 order-2 lg:order-1 space-y-4 md:space-y-6">
         <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-light-text dark:text-dark-text">İletişim Bilgileri</h2>
@@ -120,7 +121,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
             </a>
           )}
         </div>
-        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="pt-4 border-t border-white/30 dark:border-white/10">
           <h3 className="text-base md:text-lg font-semibold mb-4">Sosyal Medya</h3>
           <div className="flex flex-wrap gap-3">
             {socialGithub && (
@@ -172,7 +173,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
               <input 
                 {...register("name")} 
                 id="name" 
-                className="w-full px-4 py-3 sm:py-4 text-base rounded-lg bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all duration-200 min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
+                className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
                 placeholder="Adınızı ve soyadınızı girin"
               />
               {errors.name && (
@@ -192,7 +193,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
                 {...register("email")} 
                 id="email" 
                 type="email" 
-                className="w-full px-4 py-3 sm:py-4 text-base rounded-lg bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all duration-200 min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
+                className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
                 placeholder="ornek@email.com"
               />
               {errors.email && (
@@ -214,7 +215,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
             <input 
               {...register("subject")} 
               id="subject" 
-              className="w-full px-4 py-3 sm:py-4 text-base rounded-lg bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all duration-200 min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
+              className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
               placeholder="Mesajınızın konusunu belirtin"
             />
             {errors.subject && (
@@ -236,7 +237,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
               {...register("message")} 
               id="message" 
               rows={5} 
-              className="w-full px-4 py-3 sm:py-4 text-base rounded-lg bg-gray-100 dark:bg-dark-bg border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-brand-primary focus:border-transparent transition-all duration-200 min-h-[120px] sm:min-h-[140px] resize-y touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
+              className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[120px] sm:min-h-[140px] resize-y touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
               placeholder="Mesajınızı buraya yazın..."
             />
             {errors.message && (
