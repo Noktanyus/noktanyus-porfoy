@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate --schema=./prisma/schema.prisma && next build",
+    "build": "prisma generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint --fix",
     "db:seed": "prisma db seed"
@@ -52,6 +52,7 @@
     "remark-html": "^16.0.1",
     "remark-rehype": "^11.1.2",
     "sharp": "^0.34.2",
+    "uuid": "^8.3.2",
     "simple-git": "^3.28.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
