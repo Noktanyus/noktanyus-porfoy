@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useLazyLoading } from '@/hooks/useLazyLoading';
 
 interface OptimizedImageProps {
   src: string;
@@ -23,6 +22,10 @@ interface OptimizedImageProps {
   unoptimized?: boolean;
 }
 
+// Basit gri blur placeholder (SSR-uyumlu, sabit değer)
+const DEFAULT_BLUR_DATA_URL =
+  'data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
+
 const OptimizedImage = ({
   src,
   alt,
@@ -41,71 +44,42 @@ const OptimizedImage = ({
   loading = 'lazy',
   unoptimized = false,
 }: OptimizedImageProps) => {
-  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setSrc] = useState(src);
 
-  // priority true ise loading'i 'eager' yap, değilse varsayılan değeri kullan
+  // priority true ise loading'i 'eager' yap
   const imageLoading = priority ? 'eager' : loading;
 
   // src prop'u değiştiğinde currentSrc'yi güncelle
   useEffect(() => {
     if (src !== currentSrc) {
       setSrc(src);
-      setIsLoaded(false);
       setHasError(false);
     }
   }, [src, currentSrc]);
-  
-  // Use optimized lazy loading hook (currently disabled)
-  // const { ref: imgRef, hasIntersected } = useLazyLoading({
-  //   rootMargin: '50px',
-  //   threshold: 0.1,
-  //   skip: priority,
-  // });
 
-  // Generate responsive sizes with mobile-first approach
+  // Responsive sizes - fill veya boyut bilgisine göre
   const responsiveSizes = sizes || (
-    fill 
+    fill
       ? "(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 1024px) 50vw, 33vw"
       : width && height
         ? `(max-width: 320px) 320px, (max-width: 640px) ${Math.min(width, 640)}px, (max-width: 1024px) ${Math.min(width, 1024)}px, ${width}px`
         : "(max-width: 320px) 320px, (max-width: 640px) 640px, 100vw"
   );
 
-  // Generate blur placeholder for better loading experience
-  const generateBlurDataURL = (w: number = 10, h: number = 10) => {
-    const canvas = document.createElement('canvas');
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = '#f3f4f6';
-      ctx.fillRect(0, 0, w, h);
-    }
-    return canvas.toDataURL();
-  };
-
   const handleLoad = () => {
-    // setIsLoaded(true);
     onLoad?.();
   };
 
   const handleError = () => {
-    // Eğer currentSrc zaten profile.webp değilse, fallback olarak profile.webp'yi dene
     if (currentSrc !== "/images/profile.webp") {
       setSrc("/images/profile.webp");
-      // setIsLoaded(false); // Yeni görsel yüklenecek
     } else {
-      // Zaten fallback görseliyse, error state'ini göster
       setHasError(true);
     }
     onError?.();
   };
 
-  // Lazy loading tamamen devre dışı
-
-  // Error state
   if (hasError) {
     return (
       <div
@@ -147,7 +121,7 @@ const OptimizedImage = ({
       loading={imageLoading}
       unoptimized={unoptimized}
       placeholder={placeholder}
-      blurDataURL={blurDataURL || (typeof window !== 'undefined' ? generateBlurDataURL() : undefined)}
+      blurDataURL={blurDataURL || DEFAULT_BLUR_DATA_URL}
       className={className}
       style={style}
       onLoad={handleLoad}
