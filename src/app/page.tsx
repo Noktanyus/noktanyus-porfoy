@@ -50,8 +50,8 @@ export default async function Home() {
   if (!aboutData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="glass-card p-10 flex flex-col items-center max-w-md">
-          <div className="w-16 h-16 mb-6 rounded-full bg-yellow-100/80 dark:bg-yellow-900/30 backdrop-blur-sm flex items-center justify-center">
+        <div className="glass-card-premium p-10 flex flex-col items-center max-w-md">
+          <div className="w-16 h-16 mb-6 rounded-2xl bg-yellow-100/50 dark:bg-yellow-900/20 backdrop-blur-sm flex items-center justify-center">
             <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
@@ -67,8 +67,8 @@ export default async function Home() {
   const latestPosts = allBlogs.slice(0, 3);
 
   return (
-    <div className="container-responsive">
-      <div className="space-responsive">
+    <div className="container-responsive bg-blob-decoration">
+      <div className="relative z-10 space-responsive">
         {/* Hero Section */}
         <section className="relative min-h-[60vh] flex items-center">
           <div className="w-full">
@@ -82,16 +82,12 @@ export default async function Home() {
             </div>
           </div>
         </section>
-        
+
         {/* Featured Projects */}
-        <section className="animate-fade-in" style={{animationDelay: '0.8s'}}>
-          <FeaturedProjects projects={featuredProjects} />
-        </section>
-        
+        <FeaturedProjects projects={featuredProjects} />
+
         {/* Latest Blogs */}
-        <section className="animate-fade-in" style={{animationDelay: '1.2s'}}>
-          <LatestBlogs blogs={latestPosts} />
-        </section>
+        <LatestBlogs blogs={latestPosts} />
       </div>
     </div>
   );

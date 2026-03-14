@@ -1,5 +1,8 @@
+'use client';
+
 import BlogCard from "@/components/BlogCard";
 import { Blog } from "@/types/content";
+import { motion } from "framer-motion";
 
 interface LatestBlogsProps {
   blogs: Blog[];
@@ -13,32 +16,45 @@ export default function LatestBlogs({ blogs }: LatestBlogsProps) {
   return (
     <section className="py-6 sm:py-8 md:py-10">
       <div className="container-responsive">
-        <div className="section-header fade-in">
-          <h2 className="section-title">Son Blog Yazıları</h2>
-          <p className="section-subtitle">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="text-center mb-8 sm:mb-12"
+        >
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 sm:mb-4 text-gradient-animated">
+            Son Blog Yazıları
+          </h2>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
             Teknoloji, geliştirme süreçleri ve deneyimlerim hakkında yazdığım son yazılar.
           </p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        </motion.div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {blogs.map((blog, index) => (
-            <div key={blog.id}>
-              <BlogCard blog={blog} />
-            </div>
+            <BlogCard key={blog.id} blog={blog} index={index} />
           ))}
         </div>
-        
-        {/* Tüm blog yazılarını görme linki */}
-        <div className="text-center mt-8 fade-in" style={{animationDelay: '0.6s'}}>
-          <a 
-            href="/blog" 
-            className="btn-animated inline-flex items-center group bg-brand-primary text-white font-semibold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+
+        {/* CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-10"
+        >
+          <a
+            href="/blog"
+            className="inline-flex items-center group gap-2 px-8 py-3.5 rounded-2xl font-bold text-white bg-gradient-to-r from-brand-primary to-blue-600 hover:from-blue-600 hover:to-brand-primary shadow-lg shadow-brand-primary/20 hover:shadow-xl hover:shadow-brand-primary/30 transition-all duration-500 hover:-translate-y-1"
           >
             Tüm Blog Yazılarını Oku
-            <svg className="ml-2 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
           </a>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

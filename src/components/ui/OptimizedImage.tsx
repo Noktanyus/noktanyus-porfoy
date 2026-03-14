@@ -46,6 +46,7 @@ const OptimizedImage = ({
 }: OptimizedImageProps) => {
   const [hasError, setHasError] = useState(false);
   const [currentSrc, setSrc] = useState(src);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // priority true ise loading'i 'eager' yap
   const imageLoading = priority ? 'eager' : loading;

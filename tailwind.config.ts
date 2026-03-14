@@ -49,8 +49,37 @@ const config: Config = {
           '0%, 100%': { boxShadow: '0 0 5px rgba(59, 130, 246, 0.3)' },
           '50%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4)' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        'gradient-shift': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
+        },
+        'border-glow': {
+          '0%, 100%': { borderColor: 'rgba(59, 130, 246, 0.2)' },
+          '50%': { borderColor: 'rgba(59, 130, 246, 0.6)' },
+        },
+        'blur-in': {
+          from: { opacity: '0', filter: 'blur(12px)', transform: 'scale(0.95)' },
+          to: { opacity: '1', filter: 'blur(0)', transform: 'scale(1)' },
+        },
+        'slide-up-fade': {
+          from: { opacity: '0', transform: 'translateY(30px) scale(0.98)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        'morph-blob': {
+          '0%': { borderRadius: '60% 40% 30% 70%/60% 30% 70% 40%' },
+          '50%': { borderRadius: '30% 60% 70% 40%/50% 60% 30% 60%' },
+          '100%': { borderRadius: '60% 40% 30% 70%/60% 30% 70% 40%' },
+        },
       },
-      
+
       animation: {
         'float': 'float 4s ease-in-out infinite',
         'fade-in': 'fadeIn 0.6s ease-out forwards',
@@ -58,6 +87,13 @@ const config: Config = {
         'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
         'slide-in-right': 'slideInRight 0.6s ease-out forwards',
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'shimmer': 'shimmer 2s ease-in-out infinite',
+        'gradient-shift': 'gradient-shift 6s ease infinite',
+        'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
+        'border-glow': 'border-glow 3s ease-in-out infinite',
+        'blur-in': 'blur-in 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+        'slide-up-fade': 'slide-up-fade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+        'morph-blob': 'morph-blob 8s ease-in-out infinite',
       },
     },
   },
