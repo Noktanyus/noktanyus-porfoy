@@ -6,6 +6,9 @@
  *              bir form sunan `SeoForm` bileşenine prop olarak geçirir.
  */
 
+// Force dynamic rendering to prevent build-time database errors
+export const dynamic = 'force-dynamic';
+
 import SeoForm from "@/components/admin/SeoForm";
 import { getSeoSettings } from "@/services/contentService";
 import fs from "fs/promises";

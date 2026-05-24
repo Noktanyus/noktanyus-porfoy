@@ -171,8 +171,13 @@ export default function BlogPostPage({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-  const posts = await listBlogs();
-  return posts.map(post => ({
-    slug: post.slug,
-  }));
+  try {
+    const posts = await listBlogs();
+    return posts.map(post => ({
+      slug: post.slug,
+    }));
+  } catch (error) {
+    console.warn('generateStaticParams: Could not fetch blogs, returning empty array. Build will use dynamic rendering.');
+    return [];
+  }
 }

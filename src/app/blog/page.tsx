@@ -1,3 +1,6 @@
+// Force dynamic rendering to prevent build-time database errors
+export const dynamic = 'force-dynamic';
+
 import { listBlogs } from '@/services/contentService';
 import { Suspense } from 'react';
 import dynamicImport from 'next/dynamic';

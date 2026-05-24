@@ -4,6 +4,10 @@
  *              SSG (Statik Site Oluşturma) ile oluşturarak modern ve temiz bir arayüzde sunar.
  *              İçerik güvenliği için DOMPurify kullanılmıştır.
  */
+
+// Force dynamic rendering to prevent build-time database errors
+export const dynamic = 'force-dynamic';
+
 import { getAbout, getSeoSettings } from '@/services/contentService';
 import Image from 'next/image';
 import { FaBriefcase, FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';

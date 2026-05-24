@@ -11,6 +11,8 @@ import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
 
+// Force dynamic rendering to prevent build-time database errors
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const seoSettings = await getSeoSettings();

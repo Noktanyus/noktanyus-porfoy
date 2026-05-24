@@ -9,6 +9,9 @@ import "@/lib/env";
 
 import Image from "next/image";
 import type { Metadata } from "next";
+// Force dynamic rendering globally to prevent build-time Prisma errors
+export const dynamicMode = 'force-dynamic';
+
 import "./globals.css"; // Font importu artık bu dosyanın içinde
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -28,7 +31,12 @@ const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: fal
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const seo = await getSeoSettings();
+  let seo = null;
+  try {
+    seo = await getSeoSettings();
+  } catch (e) {
+    // SEO settings table may be empty — return safe defaults
+  }
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
   if (!seo) {
@@ -80,7 +88,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const aboutData = await getAbout();
+  let aboutData = null;
+  try {
+    aboutData = await getAbout();
+  } catch (e) {
+    // About data may not exist yet
+  }
   const headerTitle = aboutData?.headerTitle || "Portföyüm";
   const yandexMetricaId = process.env.NEXT_PUBLIC_YANDEX_METRICA_ID;
 

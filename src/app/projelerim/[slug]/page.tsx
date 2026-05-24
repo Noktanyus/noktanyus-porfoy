@@ -182,8 +182,13 @@ export default function ProjectPage({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-  const projects = await listProjects();
-  return projects.map(project => ({
-    slug: project.slug,
-  }));
+  try {
+    const projects = await listProjects();
+    return projects.map(project => ({
+      slug: project.slug,
+    }));
+  } catch (error) {
+    console.warn('generateStaticParams: Could not fetch projects, returning empty array. Build will use dynamic rendering.');
+    return [];
+  }
 }

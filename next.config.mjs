@@ -50,6 +50,9 @@ const nextConfig = {
     'property-information', 'space-separated-tokens', 'comma-separated-tokens', 
     'trough', 'bail', 'is-plain-obj', 'zwitch', 'longest-streak'
   ],
+  // Build-time DB errors prevention: disable static pre-rendering globally.
+  // All pages that need live data use 'export const dynamic = force-dynamic' in their files.
+  // This makes Next.js render all pages on-demand (SSR) instead of at build time.
   eslint: {
     ignoreDuringBuilds: true,
   },
