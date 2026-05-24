@@ -10,6 +10,8 @@
 import { useState, useEffect } from "react";
 import IletisimForm from "./IletisimForm";
 import { About } from "@/types/content";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { SpinnerLoading } from "@/components/ui/LoadingSkeleton";
 
 export default function IletisimPage() {
   const [aboutData, setAboutData] = useState<About | null>(null);
@@ -38,12 +40,7 @@ export default function IletisimPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-        <div className="flex justify-center">
-          <div className="glass-card p-10 flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"></div>
-            <p className="text-gray-600 dark:text-gray-400 font-medium">Yükleniyor...</p>
-          </div>
-        </div>
+        <SpinnerLoading text="İletişim bilgileri yükleniyor..." />
       </div>
     );
   }
@@ -51,9 +48,12 @@ export default function IletisimPage() {
   if (error) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400">Hata: {error}</p>
-        </div>
+        <ErrorDisplay
+          title="İletişim Bilgileri Yüklenemedi"
+          message="Veritabanına bağlanılamıyor veya içerik bulunamadı. Lütfen daha sonra tekrar deneyin."
+          showHomeLink={true}
+          onRetry={() => window.location.reload()}
+        />
       </div>
     );
   }

@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation';
 import { FaGithub, FaExternalLinkAlt, FaArrowLeft } from 'react-icons/fa';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 const md = new MarkdownIt({ html: true });
 
@@ -46,16 +48,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 function ProjectPageSkeleton() {
   return (
     <div className="max-w-4xl mx-auto animate-pulse space-y-6">
-      <div className="glass-card-premium p-8 space-y-4">
-        <div className="h-10 bg-gray-200/50 dark:bg-gray-700/30 rounded-lg w-3/4" />
-        <div className="h-5 bg-gray-200/50 dark:bg-gray-700/30 rounded w-1/2" />
-      </div>
-      <div className="h-96 glass-card-premium rounded-2xl" />
-      <div className="glass-card-premium p-8 space-y-4">
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-full" />
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-full" />
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-5/6" />
-      </div>
+      <LoadingSkeleton variant="detail" />
     </div>
   );
 }

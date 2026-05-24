@@ -7,6 +7,8 @@ import { notFound } from 'next/navigation';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
 import { FaArrowLeft, FaClock, FaUser, FaTag } from 'react-icons/fa';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 const md = new MarkdownIt({ html: true });
 
@@ -50,19 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 function BlogPostPageSkeleton() {
   return (
     <div className="max-w-4xl mx-auto animate-pulse space-y-6">
-      <div className="glass-card-premium p-8 space-y-4">
-        <div className="h-10 bg-gray-200/50 dark:bg-gray-700/30 rounded-lg w-3/4" />
-        <div className="flex gap-4">
-          <div className="h-5 w-32 bg-gray-200/50 dark:bg-gray-700/30 rounded-full" />
-          <div className="h-5 w-24 bg-gray-200/50 dark:bg-gray-700/30 rounded-full" />
-        </div>
-      </div>
-      <div className="h-96 glass-card-premium rounded-2xl" />
-      <div className="glass-card-premium p-8 space-y-4">
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-full" />
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-full" />
-        <div className="h-4 bg-gray-200/50 dark:bg-gray-700/30 rounded w-5/6" />
-      </div>
+      <LoadingSkeleton variant="detail" />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import HeroSection from "@/components/home/HeroSection";
 import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 
 // Force dynamic rendering to prevent build-time database errors
 export const dynamic = 'force-dynamic';
@@ -51,17 +52,10 @@ export default async function Home() {
 
   if (!aboutData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-        <div className="glass-card-premium p-10 flex flex-col items-center max-w-md">
-          <div className="w-16 h-16 mb-6 rounded-2xl bg-yellow-100/50 dark:bg-yellow-900/20 backdrop-blur-sm flex items-center justify-center">
-            <svg className="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">İçerik Yüklenemedi</h2>
-          <p className="text-gray-600 dark:text-gray-400">Lütfen daha sonra tekrar deneyin.</p>
-        </div>
-      </div>
+      <ErrorDisplay
+        title="İçerik Yüklenemedi"
+        message="Veritabanına bağlanılamıyor veya içerik bulunamadı. Lütfen daha sonra tekrar deneyin."
+      />
     );
   }
 
