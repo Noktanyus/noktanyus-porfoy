@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
-import { motion } from 'framer-motion';
 
 interface ProjectCardProps {
   project: Project;
@@ -21,15 +20,9 @@ const ProjectCard = ({ project, index = 0 }: ProjectCardProps) => {
     : [];
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{
-        duration: 0.7,
-        delay: index * 0.15,
-        ease: [0.16, 1, 0.3, 1]
-      }}
-      className="group glass-card-premium overflow-hidden flex flex-col lg:flex-row"
+    <article
+      className="group glass-card-premium overflow-hidden flex flex-col lg:flex-row animate-fade-in"
+      style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Image Section */}
       <div className="lg:w-2/5 xl:w-1/3 relative h-56 lg:h-auto min-h-[220px] overflow-hidden">
@@ -122,7 +115,7 @@ const ProjectCard = ({ project, index = 0 }: ProjectCardProps) => {
           </div>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 };
 

@@ -100,13 +100,20 @@ export default async function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning>
       <head>
+        {/*
+          Browser extension polyfill + dev-only error filter.
+          Production'da console.error bastırma YAPILMAZ — gerçek hataların
+          görünür kalması gerekir. window.onerror filtresi yalnızca
+          geliştirme ortamında aktiftir.
+        */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
                 if (typeof window === 'undefined') return;
 
-                // 1. Define a mock 'browser' object to prevent ReferenceError.
+                // 1. Define a mock 'browser' object to prevent ReferenceError
+                //    when browser extensions inject 'chrome.browser' API bekçileri.
                 if (typeof window.browser === 'undefined') {
                   window.browser = {
                     runtime: {
@@ -116,24 +123,18 @@ export default async function RootLayout({
                   };
                 }
 
-                // 2. Catch unhandled errors globally.
-                const problematicScripts = ['myContent.js', 'pagehelper.js'];
-                window.onerror = function(message, source) {
-                  if (typeof source === 'string' && problematicScripts.some(script => source.includes(script))) {
-                    return true; // Prevents the default browser error handling (and logging).
-                  }
-                  return false;
-                };
-
-                // 3. Suppress specific console.error messages as a fallback.
-                const originalConsoleError = console.error;
-                const filteredMessages = ['YOUTUBEJS', 'Turnstile', 'Permissions-Policy'];
-                console.error = (...args) => {
-                  const msg = args.join(' ');
-                  if (!filteredMessages.some(f => msg.includes(f))) {
-                    originalConsoleError(...args);
-                  }
-                };
+                // 2. Yalnızca development'ta belirli browser-extension scriptlerinin
+                //    (myContent.js, pagehelper.js) sebep olduğu hataları bastır.
+                //    Production'da tüm hatalar normal akışa bırakılır.
+                if (process.env.NODE_ENV !== 'production') {
+                  var problematicScripts = ['myContent.js', 'pagehelper.js'];
+                  window.onerror = function(message, source) {
+                    if (typeof source === 'string' && problematicScripts.some(function(script) { return source.indexOf(script) !== -1; })) {
+                      return true;
+                    }
+                    return false;
+                  };
+                }
               })();
             `,
           }}
@@ -149,7 +150,7 @@ export default async function RootLayout({
             attribute="class"
             defaultTheme="system"
             enableSystem
-            disableTransitionOnChange
+            disableTransitionOnChange={false}
           >
             <div className="relative flex flex-col min-h-screen">
               <Header headerTitle={headerTitle} />

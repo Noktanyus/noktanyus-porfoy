@@ -13,10 +13,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
-import { 
-  FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower, 
-  FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt, 
-  FaEye, FaHome, FaHistory, FaImages, FaBars, FaTimes
+import {
+  FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower,
+  FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt,
+  FaEye, FaHome, FaHistory, FaImages, FaBars, FaTimes,
+  FaShieldAlt, FaStore, FaTags, FaUsersCog
 } from "react-icons/fa";
 
 interface AdminSidebarProps {
@@ -39,12 +40,16 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
     { href: "/admin/home-settings", text: "Ana Sayfa Ayarları", icon: <FaHome /> },
     { href: "/admin/hakkimda", text: "Hakkımda Sayfası", icon: <FaUserEdit /> },
     { href: "/admin/projects", text: "Proje Yönetimi", icon: <FaProjectDiagram /> },
+    { href: "/admin/products", text: "Ürün Yönetimi", icon: <FaStore /> },
+    { href: "/admin/coupons", text: "Kuponlar", icon: <FaTags /> },
+    { href: "/admin/workspaces", text: "Workspace'ler", icon: <FaUsersCog /> },
     { href: "/admin/popups", text: "Popup Yönetimi", icon: <FaBroadcastTower /> },
     { href: "/admin/gallery", text: "Galeri", icon: <FaImages /> },
     { href: "/admin/blog", text: "Blog Yönetimi", icon: <FaBlog /> },
     { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
     { href: "/admin/seo", text: "SEO Ayarları", icon: <FaCog /> },
     { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
+    { href: "/admin/audit", text: "Denetim Kayıtları", icon: <FaShieldAlt /> },
   ];
 
   // Mobil menü açıkken body scroll'unu engelle ve keyboard navigation ekle

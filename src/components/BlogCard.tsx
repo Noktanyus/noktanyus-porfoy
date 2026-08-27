@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { Blog } from '@/types/content';
 import { FaArrowRight, FaClock } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
-import { motion } from 'framer-motion';
 
 interface BlogCardProps {
   blog: Blog;
@@ -25,15 +24,9 @@ const BlogCard = ({ blog, index = 0 }: BlogCardProps) => {
     : [];
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: [0.16, 1, 0.3, 1]
-      }}
-      className="group glass-card-premium h-full flex flex-col"
+    <article
+      className="group glass-card-premium h-full flex flex-col animate-fade-in relative"
+      style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Image Section */}
       <div className="relative h-52 sm:h-56 overflow-hidden">
@@ -109,7 +102,7 @@ const BlogCard = ({ blog, index = 0 }: BlogCardProps) => {
       <Link href={`/blog/${blog.slug}`} className="absolute inset-0 z-20" aria-label={blog.title}>
         <span className="sr-only">Devamını oku</span>
       </Link>
-    </motion.article>
+    </article>
   );
 };
 

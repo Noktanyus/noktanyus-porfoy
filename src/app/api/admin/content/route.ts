@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { z, ZodError } from "zod";
 import { env } from "@/lib/env";
 import * as contentService from "@/services/contentService";
+import { logAudit } from "@/lib/audit";
 
 /**
  * API için standart bir hata yanıtı oluşturur ve loglar.
@@ -42,9 +43,8 @@ const contentPostSchema = z.object({
  * @param slug Değiştirilen içeriğin slug'ı.
  */
 function revalidateContentPaths(type: (typeof ALLOWED_TYPES)[number], slug?: string) {
-    console.log(`Önbellek temizleniyor: tip=${type}, slug=${slug}`);
     const pathsToRevalidate = ['/', '/layout'];
-    
+
     switch (type) {
         case 'about':
         case 'skills':
@@ -60,8 +60,24 @@ function revalidateContentPaths(type: (typeof ALLOWED_TYPES)[number], slug?: str
             if (slug) pathsToRevalidate.push(`/blog/${slug}`);
             break;
     }
-    
+
     pathsToRevalidate.forEach(path => revalidatePath(path));
+}
+
+/**
+ * Request'ten audit bilgilerini (IP, UA) çeker.
+ */
+function getAuditContext(request: NextRequest) {
+  const ipAddress =
+    request.headers.get('x-audit-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    undefined;
+  const userAgent =
+    request.headers.get('x-audit-ua') ||
+    request.headers.get('user-agent') ||
+    undefined;
+  return { ipAddress, userAgent };
 }
 
 import { withAdminAuth } from '@/lib/auth-utils';
@@ -78,7 +94,7 @@ async function getContentHandler(request: NextRequest) {
     }
 
     try {
-        const result = slug 
+        const result = slug
             ? await contentService.getContent(type, slug)
             : await contentService.listContent(type);
         return NextResponse.json(result);
@@ -91,6 +107,7 @@ async function getContentHandler(request: NextRequest) {
 }
 
 async function postContentHandler(request: NextRequest) {
+    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
     let body;
     try {
         body = await request.json();
@@ -105,7 +122,7 @@ async function postContentHandler(request: NextRequest) {
             const errorMessage = zodError.errors.map(err => `${err.path.join('.')}: ${err.message}`).join('; ');
             return apiError(`Veri doğrulama hatası: ${errorMessage}`, 400);
         }
-        
+
         const { type, slug, originalSlug, data, content } = validation.data;
 
         if (originalSlug && slug !== originalSlug) {
@@ -116,6 +133,24 @@ async function postContentHandler(request: NextRequest) {
         await contentService.saveContent(type, slug, data, content);
         revalidateContentPaths(type, slug);
 
+        // Audit log: kayıt işlemi (CREATE veya UPDATE — slug değiştiyse aslında UPDATE)
+        const action = originalSlug && slug === originalSlug ? 'UPDATE' : (originalSlug ? 'UPDATE' : 'CREATE');
+        const auditCtx = getAuditContext(request);
+        await logAudit({
+          userId: token?.sub,
+          userEmail: token?.email as string | undefined,
+          action,
+          resource: type,
+          resourceId: slug,
+          details: {
+            hadContent: Boolean(content),
+            dataKeys: data && typeof data === 'object' ? Object.keys(data) : [],
+            slugChanged: Boolean(originalSlug && originalSlug !== slug),
+          },
+          ipAddress: auditCtx.ipAddress,
+          userAgent: auditCtx.userAgent,
+        });
+
         return NextResponse.json({ message: "İçerik başarıyla kaydedildi." });
     } catch (error: any) {
         return apiError(error.message || "İçerik kaydedilirken beklenmedik bir hata oluştu.", 500, error);
@@ -123,6 +158,7 @@ async function postContentHandler(request: NextRequest) {
 }
 
 async function deleteContentHandler(request: NextRequest) {
+    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const slug = searchParams.get("slug");
@@ -134,6 +170,18 @@ async function deleteContentHandler(request: NextRequest) {
     try {
         await contentService.deleteContent(type, slug);
         revalidateContentPaths(type as any, slug);
+
+        const auditCtx = getAuditContext(request);
+        await logAudit({
+          userId: token?.sub,
+          userEmail: token?.email as string | undefined,
+          action: 'DELETE',
+          resource: type,
+          resourceId: slug,
+          ipAddress: auditCtx.ipAddress,
+          userAgent: auditCtx.userAgent,
+        });
+
         return NextResponse.json({ message: "İçerik başarıyla silindi." });
     } catch (error: any) {
         return apiError("İçerik silinirken bir hata oluştu.", 500, error);

@@ -9,20 +9,17 @@ export async function GET(
 ) {
   // URL'den dosya yolunu al ve birleştir
   const filePath = params.file.join('/');
-  console.log(`[API/STATIC] Gelen istek: ${filePath}`);
-  
+
   // Güvenlik için: Path traversal saldırılarını önle
   const safeFilePath = path.normalize(filePath).replace(/^(\.\.["\\\\])+/, '');
 
   // Sunucudaki public klasörünün mutlak yolunu oluştur
   const publicDir = path.join(process.cwd(), 'public');
   const absolutePath = path.join(publicDir, safeFilePath);
-  console.log(`[API/STATIC] Dosyanın mutlak yolu: ${absolutePath}`);
 
   try {
     // Dosyanın varlığını ve erişilebilirliğini kontrol et
     await fs.promises.access(absolutePath);
-    console.log(`[API/STATIC] Dosya bulundu: ${absolutePath}`);
 
     // Dosyayı oku
     const fileBuffer = await fs.promises.readFile(absolutePath);

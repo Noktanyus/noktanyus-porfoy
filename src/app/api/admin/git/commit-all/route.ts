@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { commitAllChanges } from "@/lib/git-utils";
 import { env } from "@/lib/env";
+import { logAudit } from "@/lib/audit";
 
 export async function POST(request: NextRequest) {
   // İstek yapan kullanıcının token'ını ve oturum bilgilerini al
@@ -19,6 +20,15 @@ export async function POST(request: NextRequest) {
   if (!token || token.role !== 'admin') {
     return NextResponse.json({ error: "Bu işlemi yapmak için yetkiniz yok." }, { status: 403 });
   }
+
+  const ipAddress =
+    request.headers.get('x-audit-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    undefined;
+  const userAgent =
+    request.headers.get('x-audit-ua') ||
+    request.headers.get('user-agent') ||
+    undefined;
 
   try {
     const body = await request.json();
@@ -31,7 +41,18 @@ export async function POST(request: NextRequest) {
 
     // Git işlemini gerçekleştiren yardımcı fonksiyonu çağır
     const result = await commitAllChanges(message, token.email || "Bilinmeyen Kullanıcı");
-    
+
+    // Audit log — git commit
+    await logAudit({
+      userId: token.sub,
+      userEmail: token.email as string | undefined,
+      action: 'GIT_COMMIT',
+      resource: 'Git',
+      details: { message },
+      ipAddress,
+      userAgent,
+    });
+
     // Başarılı sonuç dönerse, istemciye başarı mesajı gönder
     return NextResponse.json(result);
 

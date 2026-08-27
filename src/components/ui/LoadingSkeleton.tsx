@@ -98,7 +98,7 @@ export function LoadingSkeleton({ variant = "list", count = 1, className = "" }:
 /**
  * Sayfa yüklenirken gösterilen ana skeleton
  */
-export function PageSkeleton({ variant = "list" }: { variant?: "blog" | "project" | "detail" }) {
+export function PageSkeleton({ variant = "list" }: { variant?: "blog" | "project" | "detail" | "list" }) {
   return (
     <div className="section-glass-hero bg-blob-decoration">
       <div className="relative z-10 space-y-8">

@@ -8,8 +8,9 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import { FaSun, FaMoon, FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { CartButton } from '@/components/commerce/CartButton';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface HeaderProps {
   /** Header'da gösterilecek site başlığı. */
@@ -20,19 +21,13 @@ const navLinks = [
   { href: "/hakkimda", label: "Hakkımda" },
   { href: "/projelerim", label: "Projelerim" },
   { href: "/blog", label: "Blog" },
+  { href: "/magaza", label: "Mağaza" },
+  { href: "/fiyatlandirma", label: "Fiyatlandırma" },
   { href: "/iletisim", label: "İletişim" },
 ];
 
 const Header = ({ headerTitle }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Bileşen mount edildikten sonra state'i güncelle.
-  // Bu, sunucu tarafı ile istemci tarafı arasında tema uyuşmazlığını önler.
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   // Mobil menü açıkken body scroll'unu engelle
   useEffect(() => {
@@ -48,29 +43,8 @@ const Header = ({ headerTitle }: HeaderProps) => {
     };
   }, [isMobileMenuOpen]);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   const handleMobileLinkClick = () => {
     setIsMobileMenuOpen(false);
-  };
-
-  /**
-   * Tema değiştirici ikonu. Bileşen mount edilene kadar null döner.
-   */
-  const ThemeChangerIcon = () => {
-    if (!isMounted) return null;
-
-    return theme === 'dark' ? (
-      <FaSun
-        className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400"
-      />
-    ) : (
-      <FaMoon
-        className="w-5 h-5 sm:w-6 sm:h-6 text-gray-800 dark:text-gray-300"
-      />
-    );
   };
 
   return (
@@ -92,13 +66,8 @@ const Header = ({ headerTitle }: HeaderProps) => {
             </nav>
 
             <div className="flex items-center space-x-1 flex-shrink-0">
-              <button
-                onClick={toggleTheme}
-                aria-label={theme === 'dark' ? 'Açık moda geç' : 'Koyu moda geç'}
-                className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 hover:scale-110 focus-ring"
-              >
-                <ThemeChangerIcon />
-              </button>
+              <CartButton />
+              <ThemeToggle className="touch-target focus-ring" />
               {/* Mobil Menü Butonu */}
               <div className="md:hidden">
                 <button 

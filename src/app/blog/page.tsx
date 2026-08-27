@@ -2,15 +2,8 @@
 export const dynamic = 'force-dynamic';
 
 import { listBlogs } from '@/services/contentService';
-import { Suspense } from 'react';
-import dynamicImport from 'next/dynamic';
-import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
+import BlogList from '@/components/BlogList';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
-
-const BlogList = dynamicImport(() => import('@/components/BlogList'), {
-  ssr: false,
-  loading: () => <PageSkeleton variant="blog" />,
-});
 
 export default async function BlogPage() {
   let allPosts;
@@ -46,9 +39,7 @@ export default async function BlogPage() {
           </p>
         </div>
 
-        <Suspense fallback={<PageSkeleton variant="blog" />}>
-          <BlogList allPosts={allPosts} />
-        </Suspense>
+        <BlogList allPosts={allPosts} />
       </div>
     </div>
   );

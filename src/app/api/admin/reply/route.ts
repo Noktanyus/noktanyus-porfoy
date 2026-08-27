@@ -10,6 +10,7 @@ import { getToken } from 'next-auth/jwt';
 import nodemailer from 'nodemailer';
 import { env } from '@/lib/env';
 import { z, ZodError } from 'zod';
+import { logAudit } from '@/lib/audit';
 
 // Gelen isteğin gövdesini doğrulamak için Zod şeması
 const replySchema = z.object({
@@ -59,6 +60,26 @@ export async function POST(req: NextRequest) {
       to,
       subject,
       html,
+    });
+
+    // Audit log — email reply
+    const ipAddress =
+      req.headers.get('x-audit-ip') ||
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      undefined;
+    const userAgent =
+      req.headers.get('x-audit-ua') ||
+      req.headers.get('user-agent') ||
+      undefined;
+
+    await logAudit({
+      userId: token.sub,
+      userEmail: token.email as string | undefined,
+      action: 'EXPORT',
+      resource: 'Message',
+      details: { to, subject, replyType: 'email' },
+      ipAddress,
+      userAgent,
     });
 
     return NextResponse.json({ success: true, message: 'E-posta başarıyla gönderildi.' });

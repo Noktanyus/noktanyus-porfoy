@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/env';
 import { revalidatePath } from 'next/cache';
 import { z, ZodError } from 'zod';
+import { logAudit } from '@/lib/audit';
 
 // Zod şemaları ile veri doğrulama
 const skillSchema = z.object({
@@ -105,6 +106,30 @@ export async function POST(request: NextRequest) {
     revalidatePath('/hakkimda');
     revalidatePath('/');
     revalidatePath('/admin/hakkimda');
+
+    // 5. Audit log
+    const ipAddress =
+      request.headers.get('x-audit-ip') ||
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      undefined;
+    const userAgent =
+      request.headers.get('x-audit-ua') ||
+      request.headers.get('user-agent') ||
+      undefined;
+
+    await logAudit({
+      userId: token.sub,
+      userEmail: token.email as string | undefined,
+      action: 'UPDATE',
+      resource: 'About',
+      resourceId: result.id,
+      details: {
+        skillsCount: skills.length,
+        experiencesCount: experiences.length,
+      },
+      ipAddress,
+      userAgent,
+    });
 
     return NextResponse.json({ success: true, message: "Hakkımda sayfası bilgileri başarıyla güncellendi." });
   } catch (error: any) {

@@ -90,7 +90,7 @@ const BlogList = () => {
           <h1 className="admin-title">📝 Blog Yönetimi</h1>
           <p className="admin-subtitle">Blog yazılarınızı oluşturun, düzenleyin ve yönetin</p>
         </div>
-        <Link href="/admin/blog/yeni" className="admin-btn admin-btn-primary">
+        <Link href="/admin/blog/new" className="admin-btn admin-btn-primary">
           <FaPlus className="mr-2" />
           Yeni Yazı Ekle
         </Link>

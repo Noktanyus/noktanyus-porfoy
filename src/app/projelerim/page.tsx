@@ -2,15 +2,9 @@
 export const dynamic = 'force-dynamic';
 
 import { listProjects } from '@/services/contentService';
-import { Suspense } from 'react';
-import dynamicImport from 'next/dynamic';
+import ProjectList from '@/components/ProjectList';
 import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
-
-const ProjectList = dynamicImport(() => import('@/components/ProjectList'), {
-  ssr: false,
-  loading: () => <PageSkeleton variant="project" />,
-});
 
 export default async function ProjelerimPage() {
   let allProjects;
@@ -46,9 +40,7 @@ export default async function ProjelerimPage() {
           </p>
         </div>
 
-        <Suspense fallback={<PageSkeleton variant="project" />}>
-          <ProjectList allProjects={allProjects} />
-        </Suspense>
+        <ProjectList allProjects={allProjects} />
       </div>
     </div>
   );

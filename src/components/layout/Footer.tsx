@@ -15,7 +15,21 @@ const Footer = ({ aboutData }: FooterProps) => {
     return (
       <footer className="glass-footer mt-8 sm:mt-12">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
-          <div className="text-center">
+          <div className="text-center space-y-3">
+            <nav
+              aria-label="Yasal bilgilendirme bağlantıları"
+              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
+            >
+              <a href="/yasal/kvkk" className="hover:text-brand-primary transition-colors">KVKK</a>
+              <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">·</span>
+              <a href="/yasal/mesafeli-satis" className="hover:text-brand-primary transition-colors">Mesafeli Satış</a>
+              <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">·</span>
+              <a href="/yasal/cerez-politikasi" className="hover:text-brand-primary transition-colors">Çerez Politikası</a>
+              <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">·</span>
+              <a href="/yasal/cayma-hakki" className="hover:text-brand-primary transition-colors">Cayma Hakkı</a>
+              <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">·</span>
+              <a href="/yasal/gizlilik" className="hover:text-brand-primary transition-colors">Gizlilik</a>
+            </nav>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
               &copy; {new Date().getFullYear()} Portföyüm. Tüm Hakları Saklıdır.
             </p>
@@ -65,6 +79,55 @@ const Footer = ({ aboutData }: FooterProps) => {
               </a>
             )}
           </div>
+
+          {/* Yasal Linkler */}
+          <nav
+            aria-label="Yasal bilgilendirme bağlantıları"
+            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
+          >
+            <a
+              href="/yasal/kvkk"
+              className="hover:text-brand-primary transition-colors"
+            >
+              KVKK
+            </a>
+            <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">
+              ·
+            </span>
+            <a
+              href="/yasal/mesafeli-satis"
+              className="hover:text-brand-primary transition-colors"
+            >
+              Mesafeli Satış
+            </a>
+            <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">
+              ·
+            </span>
+            <a
+              href="/yasal/cerez-politikasi"
+              className="hover:text-brand-primary transition-colors"
+            >
+              Çerez Politikası
+            </a>
+            <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">
+              ·
+            </span>
+            <a
+              href="/yasal/cayma-hakki"
+              className="hover:text-brand-primary transition-colors"
+            >
+              Cayma Hakkı
+            </a>
+            <span aria-hidden="true" className="text-gray-300 dark:text-gray-600">
+              ·
+            </span>
+            <a
+              href="/yasal/gizlilik"
+              className="hover:text-brand-primary transition-colors"
+            >
+              Gizlilik
+            </a>
+          </nav>
 
           {/* Copyright Metni */}
           <div className="text-center space-y-2">

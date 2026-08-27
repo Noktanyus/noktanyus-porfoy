@@ -67,13 +67,11 @@ async function pushChanges(): Promise<void> {
       // Use SSH if configured
       const currentBranch = await git.branch();
       await git.push('origin', currentBranch.current);
-      console.log(`pushChanges -> Success: Changes pushed to '${currentBranch.current}' via SSH.`);
     } else {
       // Use HTTPS with tokens if SSH is not used
       const authenticatedUrl = await getAuthenticatedRepoUrl();
       const currentBranch = await git.branch();
-      await git.push(authenticatedUrl, currentBranch.current); 
-      console.log(`pushChanges -> Success: Changes pushed to '${currentBranch.current}' via HTTPS.`);
+      await git.push(authenticatedUrl, currentBranch.current);
     }
   } catch (error: any) {
     console.error(`pushChanges -> Kritik Hata: GitHub'a gönderme işlemi sırasında bir hata oluştu. Hata: ${error.message}`);
@@ -143,7 +141,6 @@ export async function commitContentChange({ action, fileType, slug, user, paths 
 
     const stagedStatus = await git.status();
     if (stagedStatus.staged.length === 0) {
-      console.log("commitContentChange -> Bilgi: Belirtilen dosyalarda commit atılacak bir değişiklik bulunamadı.");
       return;
     }
     
@@ -185,7 +182,6 @@ export async function commitAllChanges(message: string, user: string): Promise<{
   try {
     const status = await git.status();
     if (status.files.length === 0) {
-      console.log("commitAllChanges -> Bilgi: Commit atılacak bir değişiklik bulunamadı, işlem atlanıyor.");
       return { success: true, message: "Commit atılacak yeni bir değişiklik bulunmadığı için işlem atlandı." };
     }
     

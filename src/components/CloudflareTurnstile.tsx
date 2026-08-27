@@ -39,7 +39,6 @@ export default function CloudflareTurnstile({
   useEffect(() => {
     // Geliştirme modunda Turnstile'ı atla
     if (process.env.NODE_ENV === 'development') {
-      console.log('Geliştirme modu: Turnstile atlandı.');
       onVerify('dev-mode-token'); // Sahte token ile doğrula
       return;
     }

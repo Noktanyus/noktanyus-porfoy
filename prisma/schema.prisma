@@ -133,3 +133,386 @@ model SeoSettings {
   twitterDescription String?
   twitterImage       String?
 }
+
+/// Admin Audit Log
+/// Admin panelinden yapılan tüm kritik işlemleri kayıt altına alır.
+/// Phase 2E kapsamında eklendi.
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  userEmail    String?
+  action       String
+  resource     String
+  resourceId   String?
+  details      Json?
+  ipAddress    String?
+  userAgent    String?
+  status       String   @default("success")
+  errorMessage String?
+  timestamp    DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// =================== COMMERCE / SAAS ===================
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  UNPAID
+  PAUSED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  FULFILLED
+  CANCELED
+}
+
+enum PlanInterval {
+  MONTH
+  YEAR
+  WEEK
+  DAY
+}
+
+enum LicenseType {
+  PERPETUAL
+  SUBSCRIPTION
+  TRIAL
+  ONE_TIME
+}
+
+model Plan {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  name            String
+  description     String?
+  stripePriceId   String        @unique
+  stripeProductId String
+  interval        PlanInterval  @default(MONTH)
+  priceCents      Int
+  currency        String        @default("try")
+  features        Json          @default("[]")
+  active          Boolean       @default(true)
+  isFeatured      Boolean       @default(false)
+  order           Int           @default(0)
+
+  subscriptions   Subscription[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([active, order])
+}
+
+model Customer {
+  id                  String   @id @default(cuid())
+  userId              String?  @unique
+  email               String   @unique
+  name                String?
+  stripeCustomerId    String?  @unique
+  phone               String?
+  billingAddress      Json?
+
+  subscriptions       Subscription[]
+  orders              Order[]
+  licenses            License[]
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Subscription {
+  id                    String              @id @default(cuid())
+  customerId            String
+  customer              Customer            @relation(fields: [customerId], references: [id])
+  planId                String
+  plan                  Plan                @relation(fields: [planId], references: [id])
+
+  stripeSubscriptionId  String              @unique
+  stripeStatus          String
+  status                SubscriptionStatus  @default(INCOMPLETE)
+  currentPeriodStart    DateTime
+  currentPeriodEnd      DateTime
+  cancelAtPeriodEnd     Boolean             @default(false)
+  canceledAt            DateTime?
+
+  trialStart            DateTime?
+  trialEnd              DateTime?
+
+  metadata              Json?
+
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([currentPeriodEnd])
+}
+
+model DigitalProduct {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  shortDescription String
+  description      String
+  thumbnail        String?
+  images           Json     @default("[]")
+  fileUrl          String
+  fileName         String
+  fileSize         Int
+  priceCents       Int
+  currency         String   @default("try")
+
+  // Delivery
+  downloadCountMax Int      @default(5)
+  ttlHours         Int      @default(72)
+
+  // Metadata
+  technologies     Json     @default("[]")
+  category         String   @default("general")
+  version          String?
+  requirements     Json?
+
+  active           Boolean  @default(true)
+  featured         Boolean  @default(false)
+  order            Int      @default(0)
+
+  orderItems       OrderItem[]
+  licenses         License[]
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([active, order])
+  @@index([category])
+}
+
+model Order {
+  id                  String      @id @default(cuid())
+  orderNumber         String      @unique
+  customerId          String?
+  customer            Customer?   @relation(fields: [customerId], references: [id])
+
+  // Stripe
+  stripeSessionId     String      @unique
+  stripePaymentIntent String?     @unique
+
+  status              OrderStatus @default(PENDING)
+
+  // Money
+  subtotalCents       Int
+  taxCents            Int         @default(0)
+  totalCents          Int
+  currency            String      @default("try")
+
+  // Customer info snapshot
+  customerEmail       String
+  customerName        String?
+
+  // Fulfillment
+  deliveredAt         DateTime?
+  refundedAt          DateTime?
+  refundReason        String?
+
+  // Coupon / Discount
+  couponId            String?
+  coupon              Coupon?     @relation(fields: [couponId], references: [id])
+  discountCents       Int         @default(0)
+
+  metadata            Json?
+  notes               String?
+
+  items               OrderItem[]
+  licenses            License[]
+
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([couponId])
+}
+
+model Coupon {
+  id                String      @id @default(cuid())
+  code              String      @unique
+  description       String?
+  discountType      DiscountType @default(PERCENTAGE)
+  discountValue     Int
+  minOrderCents     Int         @default(0)
+  maxDiscountCents  Int?
+  maxUses           Int?
+  currentUses       Int         @default(0)
+  maxUsesPerUser    Int         @default(1)
+  startsAt          DateTime?
+  expiresAt         DateTime?
+  applicableProducts Json?
+  applicablePlans    Json?
+  active            Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  redemptions       CouponRedemption[]
+  orders            Order[]
+
+  @@index([code, active])
+  @@index([active])
+  @@index([expiresAt])
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model CouponRedemption {
+  id            String   @id @default(cuid())
+  couponId      String
+  coupon        Coupon   @relation(fields: [couponId], references: [id])
+  orderId       String?
+  customerEmail String
+  discountCents Int
+  redeemedAt    DateTime @default(now())
+
+  @@index([couponId])
+  @@index([customerEmail])
+  @@index([couponId, customerEmail])
+}
+
+model OrderItem {
+  id              String         @id @default(cuid())
+  orderId         String
+  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         DigitalProduct @relation(fields: [productId], references: [id])
+
+  quantity        Int            @default(1)
+  unitPriceCents  Int
+  totalCents      Int
+
+  // Snapshot
+  productTitle    String
+  productSlug     String
+
+  createdAt       DateTime       @default(now())
+
+  @@index([orderId])
+}
+
+model License {
+  id              String         @id @default(cuid())
+  key             String         @unique
+  customerId      String
+  customer        Customer       @relation(fields: [customerId], references: [id])
+  productId       String
+  product         DigitalProduct @relation(fields: [productId], references: [id])
+  orderId         String?
+  order           Order?         @relation(fields: [orderId], references: [id])
+
+  type            LicenseType    @default(ONE_TIME)
+  status          String         @default("active")
+  maxActivations  Int            @default(1)
+  currentActivations Int         @default(0)
+
+  expiresAt       DateTime?
+  revokedAt       DateTime?
+  revokeReason    String?
+
+  activations     Json           @default("[]")
+  metadata        Json?
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([customerId])
+  @@index([productId])
+  @@index([status])
+}
+
+model WebhookEvent {
+  id              String   @id @default(cuid())
+  stripeEventId   String   @unique
+  type            String
+  processedAt     DateTime @default(now())
+  payload         Json
+  success         Boolean  @default(true)
+  error           String?
+
+  @@index([type])
+  @@index([processedAt])
+}
+
+// =================== TEAM / WORKSPACE / RBAC ===================
+// Phase 3 kapsamında eklendi. Multi-tenant workspace sistemi + rol bazlı erişim kontrolü.
+
+model Workspace {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  ownerId     String
+  members     WorkspaceMember[]
+  invitations WorkspaceInvitation[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([ownerId])
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  workspaceId String
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId      String
+  userEmail   String
+  userName    String?
+  role        WorkspaceRole @default(VIEWER)
+  joinedAt    DateTime      @default(now())
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@index([workspaceId, role])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+model WorkspaceInvitation {
+  id          String          @id @default(cuid())
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email       String
+  role        WorkspaceRole   @default(VIEWER)
+  token       String          @unique
+  status      InvitationStatus @default(PENDING)
+  invitedBy   String
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  @@index([workspaceId])
+  @@index([email, status])
+}

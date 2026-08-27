@@ -101,12 +101,15 @@ function ProtectedAdminLayoutInner({
       '/admin/home-settings': 'Ana Sayfa Ayarları',
       '/admin/hakkimda': 'Hakkımda Sayfası',
       '/admin/projects': 'Proje Yönetimi',
+      '/admin/coupons': 'Kuponlar',
       '/admin/popups': 'Popup Yönetimi',
       '/admin/gallery': 'Galeri',
       '/admin/blog': 'Blog Yönetimi',
       '/admin/messages': 'Gelen Mesajlar',
       '/admin/seo': 'SEO Ayarları',
       '/admin/history': 'Değişiklik Geçmişi',
+      '/admin/audit': 'Denetim Kayıtları',
+      '/admin/workspaces': "Workspace'ler",
     };
 
     // Check for exact matches first

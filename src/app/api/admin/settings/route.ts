@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { z, ZodError } from 'zod';
 import fs from 'fs/promises';
 import path from 'path';
+import { logAudit } from '@/lib/audit';
 
 // Zod şemaları ile veri doğrulama
 const homeSettingsSchema = z.object({
@@ -92,6 +93,16 @@ async function postSettingsHandler(request: NextRequest) {
 
   const { type, data } = validation.data;
 
+  // Audit context
+  const ipAddress =
+    request.headers.get('x-audit-ip') ||
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    undefined;
+  const userAgent =
+    request.headers.get('x-audit-ua') ||
+    request.headers.get('user-agent') ||
+    undefined;
+
   try {
     if (type === 'home') {
       const homeData = {
@@ -137,6 +148,19 @@ async function postSettingsHandler(request: NextRequest) {
       revalidatePath('/', 'layout');
       revalidatePath('/hakkimda');
     }
+
+    // Audit log — settings update
+    const token = await getToken({ req: request, secret: env.NEXTAUTH_SECRET });
+    await logAudit({
+      userId: token?.sub,
+      userEmail: token?.email as string | undefined,
+      action: 'SETTINGS_UPDATE',
+      resource: type === 'home' ? 'HomeSettings' : 'SeoSettings',
+      ipAddress,
+      userAgent,
+      details: { type },
+    });
+
     return NextResponse.json({ message: `${type === 'home' ? 'Ana sayfa' : 'SEO'} ayarları başarıyla kaydedildi.` });
   } catch (error: any) {
     return apiError(`Ayarlar kaydedilirken bir hata oluştu: ${error.message}`, 500, error);
