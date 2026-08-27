@@ -13,7 +13,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FaUpload, FaEye, FaTrash } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
+import { ImageUpload } from '@/components/ui/ImageUpload';
 import { formatCurrency } from '@/lib/utils';
 
 const CATEGORIES = [
@@ -251,21 +252,18 @@ export function NewProductForm() {
         </div>
       </div>
 
-      {/* Thumbnail */}
+      {/* Thumbnail — drag & drop, URL fallback veya R2 upload */}
       <div>
-        <label className="block text-sm font-medium mb-2">Thumbnail URL</label>
-        <input
-          type="url"
+        <label className="block text-sm font-medium mb-2">
+          Ürün Thumbnail Görseli
+        </label>
+        <ImageUpload
+          type="product"
           value={form.thumbnail}
-          onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
-          className="admin-input"
-          placeholder="https://example.com/image.png"
+          onChange={(url) => setForm({ ...form, thumbnail: url })}
+          aspectRatio="16/9"
+          placeholder="Ürün görselini sürükle veya tıkla"
         />
-        {form.thumbnail && (
-          <div className="mt-2 p-2 border rounded-lg inline-block">
-            <img src={form.thumbnail} alt="preview" className="max-w-xs max-h-32" />
-          </div>
-        )}
       </div>
 
       {/* File */}
