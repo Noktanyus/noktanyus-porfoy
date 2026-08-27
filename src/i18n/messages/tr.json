@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Yükleniyor...",
+    "error": "Bir hata oluştu",
+    "retry": "Tekrar Dene",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "search": "Ara",
+    "menu": "Menü",
+    "close": "Kapat",
+    "submit": "Gönder",
+    "back": "Geri",
+    "next": "İleri",
+    "previous": "Önceki",
+    "home": "Anasayfa"
+  },
+  "nav": {
+    "home": "Anasayfa",
+    "about": "Hakkımda",
+    "projects": "Projelerim",
+    "blog": "Blog",
+    "contact": "İletişim",
+    "store": "Mağaza",
+    "pricing": "Fiyatlandırma",
+    "login": "Giriş Yap",
+    "dashboard": "Kontrol Paneli",
+    "settings": "Ayarlar",
+    "logout": "Çıkış Yap"
+  },
+  "home": {
+    "greeting": "Merhaba, Ben Yunus Tuğhan",
+    "subtitle": "Software Developer",
+    "cta_contact": "İletişime Geç",
+    "cta_projects": "Projelerimi Gör"
+  },
+  "about": {
+    "title": "Hakkımda",
+    "experiences": "Deneyimler",
+    "skills": "Yetenekler"
+  },
+  "blog": {
+    "title": "Blog",
+    "read_more": "Devamını Oku",
+    "min_read": " dakika okuma",
+    "all_posts": "Tüm Yazılar",
+    "back_to_blog": "Blog'a Dön",
+    "post_not_found": "Yazı Bulunamadı",
+    "post_not_found_description": "Aradığınız blog yazısı mevcut değil."
+  },
+  "projects": {
+    "title": "Projelerim",
+    "live_demo": "Canlı Demo",
+    "source_code": "Kaynak Kod"
+  },
+  "contact": {
+    "title": "İletişim",
+    "name": "İsim",
+    "email": "E-posta",
+    "subject": "Konu",
+    "message": "Mesaj",
+    "send": "Gönder",
+    "sending": "Gönderiliyor...",
+    "success": "Mesajınız başarıyla gönderildi."
+  },
+  "store": {
+    "title": "Mağaza",
+    "add_to_cart": "Sepete Ekle",
+    "view_details": "Detayları Gör"
+  },
+  "pricing": {
+    "title": "Fiyatlandırma",
+    "per_month": "/ay",
+    "choose_plan": "Planı Seç"
+  },
+  "footer": {
+    "copyright": "© 2026 Yunus Tuğhan. Tüm Hakları Saklıdır.",
+    "legal": {
+      "kvkk": "KVKK Aydınlatma Metni",
+      "distance_sale": "Mesafeli Satış Sözleşmesi",
+      "cookies": "Çerez Politikası"
+    }
+  },
+  "locale": {
+    "switch_label": "Dil seçimi",
+    "current_language": "Mevcut dil"
+  }
+}

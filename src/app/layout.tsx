@@ -24,6 +24,8 @@ import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
 import dynamic from "next/dynamic";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 
 // next/font/google: build-time download & self-host Inter. Eliminates the
 // runtime Google Fonts CSS request and removes a render-blocking resource.
@@ -114,9 +116,11 @@ export default async function RootLayout({
   }
   const headerTitle = aboutData?.headerTitle || "Portföyüm";
   const yandexMetricaId = process.env.NEXT_PUBLIC_YANDEX_METRICA_ID;
+  const activeLocale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang="tr" suppressHydrationWarning>
+    <html lang={activeLocale} suppressHydrationWarning>
       <head>
         {/*
           Browser extension polyfill + dev-only error filter.
@@ -164,27 +168,29 @@ export default async function RootLayout({
       <body
         className={`${inter.variable} bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}
       >
-        <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange={false}
-          >
-            <div className="relative flex flex-col min-h-screen">
-              <Header headerTitle={headerTitle} />
-              <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
-                <div className="w-full">
-                  {children}
-                </div>
-              </main>
-              <Footer aboutData={aboutData} />
-            </div>
-            <Suspense fallback={<Spinner />}>
-              <PopupViewer />
-            </Suspense>
-          </ThemeProvider>
-        </AuthProvider>
+        <NextIntlClientProvider locale={activeLocale} messages={messages}>
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange={false}
+            >
+              <div className="relative flex flex-col min-h-screen">
+                <Header headerTitle={headerTitle} />
+                <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
+                  <div className="w-full">
+                    {children}
+                  </div>
+                </main>
+                <Footer aboutData={aboutData} />
+              </div>
+              <Suspense fallback={<Spinner />}>
+                <PopupViewer />
+              </Suspense>
+            </ThemeProvider>
+          </AuthProvider>
+        </NextIntlClientProvider>
         
         {yandexMetricaId && (
           <Suspense fallback={null}>

@@ -57,6 +57,9 @@ export default async function AdminDashboardPage() {
     recentUsers,
     recentOrders,
     recentMessages,
+    // Blog analytics (Phase 6)
+    blogViewsAgg,
+    topBlog,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { createdAt: { gte: todayStart } } }),
@@ -113,10 +116,17 @@ export default async function AdminDashboardPage() {
         timestamp: true,
       },
     }),
+    // Blog analytics
+    prisma.blog.aggregate({ _sum: { viewCount: true } }),
+    prisma.blog.findFirst({
+      orderBy: { viewCount: 'desc' },
+      select: { title: true, viewCount: true, slug: true },
+    }),
   ]);
 
   const totalRevenueCents = revenueAgg._sum.totalCents ?? 0;
   const monthRevenueCents = monthRevenueAgg._sum.totalCents ?? 0;
+  const totalBlogViews = blogViewsAgg._sum.viewCount ?? 0;
 
   return (
     <div className="admin-content-spacing">
@@ -129,7 +139,13 @@ export default async function AdminDashboardPage() {
 
       <AdminStats
         users={{ total: totalUsers, newToday: newUsersToday, active: activeUsers }}
-        content={{ blogs: totalBlogs, projects: totalProjects, products: totalProducts }}
+        content={{
+          blogs: totalBlogs,
+          projects: totalProjects,
+          products: totalProducts,
+          blogViews: totalBlogViews,
+          topPost: topBlog ? { title: topBlog.title, views: topBlog.viewCount, slug: topBlog.slug } : null,
+        }}
         commerce={{
           orders: totalOrders,
           pending: pendingOrders,

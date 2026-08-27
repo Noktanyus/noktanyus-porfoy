@@ -24,6 +24,7 @@ import {
   incidentRepository,
   alertChannelRepository,
 } from './repository';
+import { webhookService } from '@/modules/webhooks';
 import type { CreateMonitorInput, UpdateMonitorInput, CreateAlertChannelInput, UpdateAlertChannelInput } from './schemas';
 
 // ---------------------------------------------------------------------------
@@ -368,6 +369,18 @@ export const monitoringService = {
         } catch (e) {
           logger.warn('Uptime stats update failed', { monitorId, error: e });
         }
+        // Dispatch webhook event (monitor.up)
+        try {
+          await webhookService.dispatchEvent('monitor.up', {
+            monitorId: monitor.id,
+            name: monitor.name,
+            url: monitor.url,
+            incidentId: openIncident.id,
+            durationSec: Math.floor((Date.now() - new Date(openIncident.startedAt).getTime()) / 1000),
+          });
+        } catch (e) {
+          logger.warn('Webhook dispatch (monitor.up) failed', { monitorId: monitor.id, error: e });
+        }
       }
       return true;
     }
@@ -380,6 +393,19 @@ export const monitoringService = {
         'HIGH'
       );
       await this.sendAlert(monitor, 'down', incident);
+      // Dispatch webhook event (monitor.down)
+      try {
+        await webhookService.dispatchEvent('monitor.down', {
+          monitorId: monitor.id,
+          name: monitor.name,
+          url: monitor.url,
+          incidentId: incident.id,
+          reason: incident.reason,
+          severity: incident.severity,
+        });
+      } catch (e) {
+        logger.warn('Webhook dispatch (monitor.down) failed', { monitorId: monitor.id, error: e });
+      }
     } else {
       await incidentRepository.incrementAffected(openIncident.id);
     }

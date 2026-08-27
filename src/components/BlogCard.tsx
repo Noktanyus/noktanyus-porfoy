@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import Link from 'next/link';
 import { Blog } from '@/types/content';
-import { FaArrowRight, FaClock } from 'react-icons/fa';
+import { FaArrowRight, FaClock, FaEye } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
 
 interface BlogCardProps {
@@ -81,15 +81,29 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
 
         {/* Footer */}
         <div className="mt-auto pt-4 border-t border-white/10 dark:border-white/5 flex justify-between items-center">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <FaClock className="w-3 h-3" />
-            <time>
-              {new Date(blog.date).toLocaleDateString('tr-TR', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })}
-            </time>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+            <span className="inline-flex items-center gap-1.5">
+              <FaClock className="w-3 h-3" />
+              <time>
+                {new Date(blog.date).toLocaleDateString('tr-TR', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                })}
+              </time>
+            </span>
+            {blog.viewCount > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <FaEye className="w-3 h-3" />
+                {blog.viewCount.toLocaleString('tr-TR')}
+              </span>
+            )}
+            {blog.readTimeMinutes > 0 && (
+              <span className="inline-flex items-center gap-1.5">
+                <FaClock className="w-3 h-3" />
+                {blog.readTimeMinutes} dk
+              </span>
+            )}
           </div>
 
           <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary group-hover:gap-2.5 transition-all duration-300">

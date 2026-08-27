@@ -22,6 +22,9 @@ import {
   FaCertificate,
   FaArrowUp,
   FaArrowDown,
+  FaEye,
+  FaFire,
+  FaTrophy,
 } from 'react-icons/fa';
 import { formatCurrency } from '@/lib/utils';
 import Link from 'next/link';
@@ -105,6 +108,8 @@ export interface AdminStatsProps {
     blogs: number;
     projects: number;
     products: number;
+    blogViews: number;
+    topPost: { title: string; views: number; slug: string } | null;
   };
   commerce: {
     orders: number;
@@ -185,6 +190,40 @@ export function AdminStats({
           color="text-pink-500"
           href="/admin/products"
         />
+      </Section>
+
+      {/* BLOG ANALYTICS (Phase 6) */}
+      <Section title="Blog Analytics" icon="📊">
+        <StatCard
+          label="Toplam Görüntülenme"
+          value={content.blogViews.toLocaleString('tr-TR')}
+          icon={FaEye}
+          color="text-indigo-500"
+          href="/admin/blog"
+        />
+        <StatCard
+          label="Blog Yazısı"
+          value={content.blogs}
+          icon={FaBlog}
+          color="text-orange-500"
+          href="/admin/blog"
+        />
+        <StatCard
+          label="En Popüler Yazı"
+          value={content.topPost ? content.topPost.views.toLocaleString('tr-TR') : '—'}
+          icon={FaFire}
+          color="text-red-500"
+          href={content.topPost ? `/admin/blog/edit/${content.topPost.slug}` : '/admin/blog'}
+        />
+        {content.topPost && (
+          <div className="admin-card h-full flex flex-col justify-center">
+            <FaTrophy className="w-5 h-5 text-amber-500 mb-2" aria-hidden="true" />
+            <p className="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">
+              {content.topPost.title}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">En çok okunan yazı</p>
+          </div>
+        )}
       </Section>
 
       {/* TİCARET */}

@@ -64,7 +64,14 @@ model Blog {
   tags        Json     @default("[]")
   content     String
 
-  comments    Comment[]
+  // Analytics alanlari (Phase 6 blog analytics kapsaminda eklendi).
+  viewCount       Int @default(0)
+  readTimeMinutes Int @default(1)
+  likeCount       Int @default(0)
+
+  comments Comment[]
+
+  @@index([viewCount])
 }
 
 model Project {
@@ -199,68 +206,68 @@ enum LicenseType {
 }
 
 model Plan {
-  id              String        @id @default(cuid())
-  slug            String        @unique
+  id              String       @id @default(cuid())
+  slug            String       @unique
   name            String
   description     String?
-  stripePriceId   String        @unique
+  stripePriceId   String       @unique
   stripeProductId String
-  interval        PlanInterval  @default(MONTH)
+  interval        PlanInterval @default(MONTH)
   priceCents      Int
-  currency        String        @default("try")
-  features        Json          @default("[]")
-  active          Boolean       @default(true)
-  isFeatured      Boolean       @default(false)
-  order           Int           @default(0)
+  currency        String       @default("try")
+  features        Json         @default("[]")
+  active          Boolean      @default(true)
+  isFeatured      Boolean      @default(false)
+  order           Int          @default(0)
 
-  subscriptions   Subscription[]
+  subscriptions Subscription[]
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([active, order])
 }
 
 model Customer {
-  id                  String   @id @default(cuid())
-  userId              String?  @unique
-  user                User?    @relation(fields: [userId], references: [id])
-  email               String   @unique
-  name                String?
-  stripeCustomerId    String?  @unique
-  phone               String?
-  billingAddress      Json?
+  id               String  @id @default(cuid())
+  userId           String? @unique
+  user             User?   @relation(fields: [userId], references: [id])
+  email            String  @unique
+  name             String?
+  stripeCustomerId String? @unique
+  phone            String?
+  billingAddress   Json?
 
-  subscriptions       Subscription[]
-  orders              Order[]
-  licenses            License[]
+  subscriptions Subscription[]
+  orders        Order[]
+  licenses      License[]
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Subscription {
-  id                    String              @id @default(cuid())
-  customerId            String
-  customer              Customer            @relation(fields: [customerId], references: [id])
-  planId                String
-  plan                  Plan                @relation(fields: [planId], references: [id])
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  planId     String
+  plan       Plan     @relation(fields: [planId], references: [id])
 
-  stripeSubscriptionId  String              @unique
-  stripeStatus          String
-  status                SubscriptionStatus  @default(INCOMPLETE)
-  currentPeriodStart    DateTime
-  currentPeriodEnd      DateTime
-  cancelAtPeriodEnd     Boolean             @default(false)
-  canceledAt            DateTime?
+  stripeSubscriptionId String             @unique
+  stripeStatus         String
+  status               SubscriptionStatus @default(INCOMPLETE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  canceledAt           DateTime?
 
-  trialStart            DateTime?
-  trialEnd              DateTime?
+  trialStart DateTime?
+  trialEnd   DateTime?
 
-  metadata              Json?
+  metadata Json?
 
-  createdAt             DateTime            @default(now())
-  updatedAt             DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([customerId])
   @@index([status])
@@ -268,42 +275,42 @@ model Subscription {
 }
 
 model DigitalProduct {
-  id               String   @id @default(cuid())
-  slug             String   @unique
+  id               String  @id @default(cuid())
+  slug             String  @unique
   title            String
   shortDescription String
   description      String
   thumbnail        String?
-  images           Json     @default("[]")
+  images           Json    @default("[]")
   fileUrl          String
   fileName         String
   fileSize         Int
   priceCents       Int
-  currency         String   @default("try")
+  currency         String  @default("try")
 
   // Delivery
-  downloadCountMax Int      @default(5)
-  ttlHours         Int      @default(72)
+  downloadCountMax Int @default(5)
+  ttlHours         Int @default(72)
 
   // Metadata
-  technologies     Json     @default("[]")
-  category         String   @default("general")
-  version          String?
-  requirements     Json?
+  technologies Json    @default("[]")
+  category     String  @default("general")
+  version      String?
+  requirements Json?
 
-  active           Boolean  @default(true)
-  featured         Boolean  @default(false)
-  order            Int      @default(0)
+  active   Boolean @default(true)
+  featured Boolean @default(false)
+  order    Int     @default(0)
 
   // Owner (SaaS)
-  ownerId          String?
-  owner            User?    @relation("ProductOwner", fields: [ownerId], references: [id])
+  ownerId String?
+  owner   User?   @relation("ProductOwner", fields: [ownerId], references: [id])
 
-  orderItems       OrderItem[]
-  licenses         License[]
+  orderItems OrderItem[]
+  licenses   License[]
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([active, order])
   @@index([category])
@@ -311,49 +318,49 @@ model DigitalProduct {
 }
 
 model Order {
-  id                  String      @id @default(cuid())
-  orderNumber         String      @unique
-  customerId          String?
-  customer            Customer?   @relation(fields: [customerId], references: [id])
+  id          String    @id @default(cuid())
+  orderNumber String    @unique
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id])
 
   // SaaS user link
-  userId              String?
-  user                User?       @relation(fields: [userId], references: [id])
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
 
   // Stripe
-  stripeSessionId     String      @unique
-  stripePaymentIntent String?     @unique
+  stripeSessionId     String  @unique
+  stripePaymentIntent String? @unique
 
-  status              OrderStatus @default(PENDING)
+  status OrderStatus @default(PENDING)
 
   // Money
-  subtotalCents       Int
-  taxCents            Int         @default(0)
-  totalCents          Int
-  currency            String      @default("try")
+  subtotalCents Int
+  taxCents      Int    @default(0)
+  totalCents    Int
+  currency      String @default("try")
 
   // Customer info snapshot
-  customerEmail       String
-  customerName        String?
+  customerEmail String
+  customerName  String?
 
   // Fulfillment
-  deliveredAt         DateTime?
-  refundedAt          DateTime?
-  refundReason        String?
+  deliveredAt  DateTime?
+  refundedAt   DateTime?
+  refundReason String?
 
   // Coupon / Discount
-  couponId            String?
-  coupon              Coupon?     @relation(fields: [couponId], references: [id])
-  discountCents       Int         @default(0)
+  couponId      String?
+  coupon        Coupon? @relation(fields: [couponId], references: [id])
+  discountCents Int     @default(0)
 
-  metadata            Json?
-  notes               String?
+  metadata Json?
+  notes    String?
 
-  items               OrderItem[]
-  licenses            License[]
+  items    OrderItem[]
+  licenses License[]
 
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([customerId])
   @@index([status])
@@ -363,26 +370,26 @@ model Order {
 }
 
 model Coupon {
-  id                String      @id @default(cuid())
-  code              String      @unique
-  description       String?
-  discountType      DiscountType @default(PERCENTAGE)
-  discountValue     Int
-  minOrderCents     Int         @default(0)
-  maxDiscountCents  Int?
-  maxUses           Int?
-  currentUses       Int         @default(0)
-  maxUsesPerUser    Int         @default(1)
-  startsAt          DateTime?
-  expiresAt         DateTime?
+  id                 String       @id @default(cuid())
+  code               String       @unique
+  description        String?
+  discountType       DiscountType @default(PERCENTAGE)
+  discountValue      Int
+  minOrderCents      Int          @default(0)
+  maxDiscountCents   Int?
+  maxUses            Int?
+  currentUses        Int          @default(0)
+  maxUsesPerUser     Int          @default(1)
+  startsAt           DateTime?
+  expiresAt          DateTime?
   applicableProducts Json?
   applicablePlans    Json?
-  active            Boolean     @default(true)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  active             Boolean      @default(true)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
-  redemptions       CouponRedemption[]
-  orders            Order[]
+  redemptions CouponRedemption[]
+  orders      Order[]
 
   @@index([code, active])
   @@index([active])
@@ -409,53 +416,53 @@ model CouponRedemption {
 }
 
 model OrderItem {
-  id              String         @id @default(cuid())
-  orderId         String
-  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId       String
-  product         DigitalProduct @relation(fields: [productId], references: [id])
+  id        String         @id @default(cuid())
+  orderId   String
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   DigitalProduct @relation(fields: [productId], references: [id])
 
-  quantity        Int            @default(1)
-  unitPriceCents  Int
-  totalCents      Int
+  quantity       Int @default(1)
+  unitPriceCents Int
+  totalCents     Int
 
   // Snapshot
-  productTitle    String
-  productSlug     String
+  productTitle String
+  productSlug  String
 
-  createdAt       DateTime       @default(now())
+  createdAt DateTime @default(now())
 
   @@index([orderId])
 }
 
 model License {
-  id              String         @id @default(cuid())
-  key             String         @unique
-  customerId      String
-  customer        Customer       @relation(fields: [customerId], references: [id])
-  productId       String
-  product         DigitalProduct @relation(fields: [productId], references: [id])
-  orderId         String?
-  order           Order?         @relation(fields: [orderId], references: [id])
+  id         String         @id @default(cuid())
+  key        String         @unique
+  customerId String
+  customer   Customer       @relation(fields: [customerId], references: [id])
+  productId  String
+  product    DigitalProduct @relation(fields: [productId], references: [id])
+  orderId    String?
+  order      Order?         @relation(fields: [orderId], references: [id])
 
   // SaaS user link
-  userId          String?
-  user            User?          @relation(fields: [userId], references: [id])
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
 
-  type            LicenseType    @default(ONE_TIME)
-  status          String         @default("active")
-  maxActivations  Int            @default(1)
+  type               LicenseType @default(ONE_TIME)
+  status             String      @default("active")
+  maxActivations     Int         @default(1)
   currentActivations Int         @default(0)
 
-  expiresAt       DateTime?
-  revokedAt       DateTime?
-  revokeReason    String?
+  expiresAt    DateTime?
+  revokedAt    DateTime?
+  revokeReason String?
 
-  activations     Json           @default("[]")
-  metadata        Json?
+  activations Json  @default("[]")
+  metadata    Json?
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([customerId])
   @@index([productId])
@@ -464,13 +471,13 @@ model License {
 }
 
 model WebhookEvent {
-  id              String   @id @default(cuid())
-  stripeEventId   String   @unique
-  type            String
-  processedAt     DateTime @default(now())
-  payload         Json
-  success         Boolean  @default(true)
-  error           String?
+  id            String   @id @default(cuid())
+  stripeEventId String   @unique
+  type          String
+  processedAt   DateTime @default(now())
+  payload       Json
+  success       Boolean  @default(true)
+  error         String?
 
   @@index([type])
   @@index([processedAt])
@@ -480,16 +487,17 @@ model WebhookEvent {
 // Phase 3 kapsamında eklendi. Multi-tenant workspace sistemi + rol bazlı erişim kontrolü.
 
 model Workspace {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String                @id @default(cuid())
+  slug        String                @unique
   name        String
   description String?
   ownerId     String
-  owner       User             @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  owner       User                  @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   members     WorkspaceMember[]
   invitations WorkspaceInvitation[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
   @@index([ownerId])
 }
 
@@ -510,6 +518,7 @@ model WorkspaceMember {
   userName    String?
   role        WorkspaceRole @default(VIEWER)
   joinedAt    DateTime      @default(now())
+
   @@unique([workspaceId, userId])
   @@index([userId])
   @@index([workspaceId, role])
@@ -523,17 +532,18 @@ enum InvitationStatus {
 }
 
 model WorkspaceInvitation {
-  id          String          @id @default(cuid())
+  id          String           @id @default(cuid())
   workspaceId String
-  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   email       String
-  role        WorkspaceRole   @default(VIEWER)
-  token       String          @unique
+  role        WorkspaceRole    @default(VIEWER)
+  token       String           @unique
   status      InvitationStatus @default(PENDING)
   invitedBy   String
   expiresAt   DateTime
   acceptedAt  DateTime?
-  createdAt   DateTime        @default(now())
+  createdAt   DateTime         @default(now())
+
   @@index([workspaceId])
   @@index([email, status])
 }
@@ -545,26 +555,33 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
-  password      String?   // bcrypt hash, NextAuth credential provider
+  password      String? // bcrypt hash, NextAuth credential provider
   image         String?
   emailVerified DateTime?
 
+  // 2FA (TOTP) alanlari - Phase 5 auth genisletme kapsaminda eklendi.
+  twoFactorEnabled     Boolean   @default(false)
+  twoFactorSecret      String?
+  twoFactorBackupCodes Json?
+  twoFactorVerifiedAt  DateTime?
+
   // Relations
-  accounts          Account[]
-  sessions          Session[]
-  apiKeys           ApiKey[]
-  monitors          Monitor[]
-  alertChannels     AlertChannel[]
-  subscriptions     UserSubscription[]
-  statusPages       StatusPage[]
-  customerProfile   Customer?
-  orders            Order[]
-  uploadedProducts  DigitalProduct[]    @relation("ProductOwner")
-  licenses          License[]
+  accounts             Account[]
+  sessions             Session[]
+  apiKeys              ApiKey[]
+  monitors             Monitor[]
+  alertChannels        AlertChannel[]
+  subscriptions        UserSubscription[]
+  statusPages          StatusPage[]
+  customerProfile      Customer?
+  orders               Order[]
+  uploadedProducts     DigitalProduct[]   @relation("ProductOwner")
+  licenses             License[]
   workspaceMemberships WorkspaceMember[]
-  ownedWorkspaces   Workspace[]         @relation("WorkspaceOwner")
-  auditLogs         AuditLog[]
-  comments          Comment[]
+  ownedWorkspaces      Workspace[]        @relation("WorkspaceOwner")
+  auditLogs            AuditLog[]
+  comments             Comment[]
+  webhooks             Webhook[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -606,47 +623,47 @@ model Session {
 // Phase 4 kapsamında eklendi. Public API için API key yönetimi + rate limit.
 
 model ApiKey {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name          String   // "Production Server", "Mobile App" vb.
-  key           String   @unique // nokt_live_xxxxx veya nokt_test_xxxxx
-  prefix        String   // İlk 8 karakter (UI'da gösterim için)
-  scopes        Json     @default("[]") // ["read:monitor", "write:monitor", "admin"]
+  name   String // "Production Server", "Mobile App" vb.
+  key    String @unique // nokt_live_xxxxx veya nokt_test_xxxxx
+  prefix String // İlk 8 karakter (UI'da gösterim için)
+  scopes Json   @default("[]") // ["read:monitor", "write:monitor", "admin"]
 
   // Limits
-  rateLimit     Int      @default(60) // requests per minute
-  monthlyQuota  Int?     // null = unlimited
+  rateLimit    Int  @default(60) // requests per minute
+  monthlyQuota Int? // null = unlimited
 
   // Tracking
   lastUsedAt    DateTime?
-  totalRequests Int      @default(0)
+  totalRequests Int       @default(0)
 
   // Lifecycle
   expiresAt     DateTime?
   revokedAt     DateTime?
   revokedReason String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  usages        ApiKeyUsage[]
+  usages ApiKeyUsage[]
 
   @@index([userId])
   @@index([key])
 }
 
 model ApiKeyUsage {
-  id          String   @id @default(cuid())
-  apiKeyId    String
-  apiKey      ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  id       String @id @default(cuid())
+  apiKeyId String
+  apiKey   ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
 
-  endpoint    String   // "/api/monitor/check"
-  method      String   // "GET", "POST"
-  statusCode  Int      // 200, 401, 429
-  ipAddress   String?
-  timestamp   DateTime @default(now())
+  endpoint   String // "/api/monitor/check"
+  method     String // "GET", "POST"
+  statusCode Int // 200, 401, 429
+  ipAddress  String?
+  timestamp  DateTime @default(now())
 
   @@index([apiKeyId, timestamp])
   @@index([endpoint])
@@ -672,50 +689,50 @@ enum MonitorStatus {
 }
 
 model Monitor {
-  id              String        @id @default(cuid())
-  userId          String
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name            String        // "Ana Sayfa", "API Endpoint"
-  url             String        // https://example.com
-  type            MonitorType   @default(HTTPS)
-  status          MonitorStatus @default(PENDING)
+  name   String // "Ana Sayfa", "API Endpoint"
+  url    String // https://example.com
+  type   MonitorType   @default(HTTPS)
+  status MonitorStatus @default(PENDING)
 
   // Check interval (seconds)
-  intervalSec     Int           @default(60) // 60s, 300s, 600s, 1800s, 3600s
+  intervalSec Int @default(60) // 60s, 300s, 600s, 1800s, 3600s
 
   // Expected response
-  expectedStatus  Int?          // 200
-  keywordValue    String?       // keyword search in body
-  jsonPath        String?       // $.status == "ok"
+  expectedStatus Int? // 200
+  keywordValue   String? // keyword search in body
+  jsonPath       String? // $.status == "ok"
 
   // Timeout
-  timeoutSec      Int           @default(30)
+  timeoutSec Int @default(30)
 
   // Current state
-  lastCheckedAt   DateTime?
-  lastResponseMs  Int?
-  uptimePct30d    Float         @default(100)
+  lastCheckedAt  DateTime?
+  lastResponseMs Int?
+  uptimePct30d   Float     @default(100)
 
   // Public visibility
-  isPublic        Boolean       @default(false)
-  publicSlug      String?       @unique
+  isPublic   Boolean @default(false)
+  publicSlug String? @unique
 
   // Notifications
-  alertChannelIds Json          @default("[]")
+  alertChannelIds Json @default("[]")
 
   // SSL/TLS info
-  sslExpiresAt    DateTime?
+  sslExpiresAt DateTime?
 
   // Metadata
-  region          String        @default("eu-west") // eu-west, us-east, asia
-  tags            Json          @default("[]")
+  region String @default("eu-west") // eu-west, us-east, asia
+  tags   Json   @default("[]")
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  checks          MonitorCheck[]
-  incidents       Incident[]
+  checks    MonitorCheck[]
+  incidents Incident[]
 
   @@index([userId])
   @@index([status])
@@ -724,16 +741,16 @@ model Monitor {
 }
 
 model MonitorCheck {
-  id            String        @id @default(cuid())
-  monitorId     String
-  monitor       Monitor       @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  monitorId String
+  monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
-  timestamp     DateTime      @default(now())
-  isUp          Boolean
-  responseMs    Int?
-  statusCode    Int?
-  errorMessage  String?
-  region        String        @default("eu-west")
+  timestamp    DateTime @default(now())
+  isUp         Boolean
+  responseMs   Int?
+  statusCode   Int?
+  errorMessage String?
+  region       String   @default("eu-west")
 
   @@index([monitorId, timestamp])
   @@index([isUp])
@@ -748,19 +765,19 @@ enum IncidentSeverity {
 }
 
 model Incident {
-  id              String            @id @default(cuid())
-  monitorId       String
-  monitor         Monitor           @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  id        String  @id @default(cuid())
+  monitorId String
+  monitor   Monitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
-  startedAt       DateTime          @default(now())
-  resolvedAt      DateTime?
-  durationSec     Int?
+  startedAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+  durationSec Int?
 
-  severity        IncidentSeverity  @default(MEDIUM)
-  reason          String            // "Connection timeout", "503 Service Unavailable"
+  severity IncidentSeverity @default(MEDIUM)
+  reason   String // "Connection timeout", "503 Service Unavailable"
 
-  affectedChecks  Int               @default(0) // Kaç check başarısız oldu
-  totalChecks     Int               @default(0)
+  affectedChecks Int @default(0) // Kaç check başarısız oldu
+  totalChecks    Int @default(0)
 
   @@index([monitorId])
   @@index([startedAt])
@@ -778,19 +795,19 @@ enum AlertChannelType {
 }
 
 model AlertChannel {
-  id            String           @id @default(cuid())
-  userId        String
-  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  name          String           // "Production Email", "Slack #ops"
-  type          AlertChannelType
-  config        Json             // { email: "..." } veya { webhookUrl: "..." }
+  name   String // "Production Email", "Slack #ops"
+  type   AlertChannelType
+  config Json // { email: "..." } veya { webhookUrl: "..." }
 
-  active        Boolean          @default(true)
-  events        Json             @default("[]") // ["down", "up", "ssl_expiry"]
+  active Boolean @default(true)
+  events Json    @default("[]") // ["down", "up", "ssl_expiry"]
 
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
@@ -798,22 +815,22 @@ model AlertChannel {
 // =================== STATUS PAGES (PUBLIC) ===================
 
 model StatusPage {
-  id            String    @id @default(cuid())
-  userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  slug          String    @unique
-  title         String
-  description   String?
-  brandColor    String    @default("#0078D4")
-  isPublic      Boolean   @default(true)
+  slug        String  @unique
+  title       String
+  description String?
+  brandColor  String  @default("#0078D4")
+  isPublic    Boolean @default(true)
 
-  monitorIds    Json      @default("[]") // [monitorId1, monitorId2]
+  monitorIds Json @default("[]") // [monitorId1, monitorId2]
 
-  customDomain  String?
+  customDomain String?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([slug])
@@ -823,21 +840,21 @@ model StatusPage {
 // Customer/Plan yerine User bazlı sadeleştirilmiş abonelik kaydı.
 
 model UserSubscription {
-  id                    String   @id @default(cuid())
-  userId                String
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  planSlug              String   // "starter", "pro", "enterprise" - hardcoded enum gibi davranır
-  status                String   @default("active") // active, expired, cancelled
+  planSlug String // "starter", "pro", "enterprise" - hardcoded enum gibi davranır
+  status   String @default("active") // active, expired, cancelled
 
-  startedAt             DateTime @default(now())
-  expiresAt             DateTime
-  autoRenew             Boolean  @default(true)
+  startedAt DateTime @default(now())
+  expiresAt DateTime
+  autoRenew Boolean  @default(true)
 
-  stripeSubscriptionId  String?  @unique
+  stripeSubscriptionId String? @unique
 
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([status, expiresAt])
@@ -846,28 +863,28 @@ model UserSubscription {
 /// Newsletter Subscriber
 /// Blog için email abone sistemi. Double opt-in (verification) ile GDPR uyumu.
 model NewsletterSubscriber {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String?
+  id    String  @id @default(cuid())
+  email String  @unique
+  name  String?
 
   // Preferences
-  categories  Json     @default("[]") // ["Software Development", "Frontend", ...]
-  active      Boolean  @default(true)
+  categories Json    @default("[]") // ["Software Development", "Frontend", ...]
+  active     Boolean @default(true)
 
   // Verification
   verifiedAt  DateTime?
-  verifyToken String?  @unique
+  verifyToken String?   @unique
 
   // Unsubscribe
-  unsubscribedAt DateTime?
-  unsubscribeToken String? @unique
+  unsubscribedAt   DateTime?
+  unsubscribeToken String?   @unique
 
-  source      String?  // "blog", "footer", "landing-page"
-  ipAddress   String?
-  userAgent   String?
+  source    String? // "blog", "footer", "landing-page"
+  ipAddress String?
+  userAgent String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([active])
@@ -879,31 +896,92 @@ model NewsletterSubscriber {
 /// Kullanıcıların blog yazılarına yorum yapmasını sağlar.
 /// 1-level nested replies destekler (parentId ile).
 model Comment {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  blogId      String
-  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  blogId String
+  blog   Blog   @relation(fields: [blogId], references: [id], onDelete: Cascade)
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  content     String
+  content String
 
   // Nested comments (1 level only)
-  parentId    String?
-  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies     Comment[] @relation("CommentReplies")
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
 
   // Moderation
-  approved    Boolean  @default(true)
-  flagged     Boolean  @default(false)
-  editedAt    DateTime?
+  approved Boolean   @default(true)
+  flagged  Boolean   @default(false)
+  editedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([blogId, createdAt])
   @@index([userId])
   @@index([parentId])
 }
 
+// =================== WEBHOOKS (USER-DEFINED) ===================
+// Kullanıcıların kendi endpoint'lerine gönderdiği webhook'lar.
+// HMAC imza, exponential backoff retry, dead letter queue destekli.
+
+model Webhook {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  url         String
+  description String?
+  events      Json    @default("[]")
+  secret      String
+
+  active Boolean @default(true)
+
+  totalDeliveries  Int       @default(0)
+  failedDeliveries Int       @default(0)
+  lastDeliveryAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deliveries WebhookDelivery[]
+
+  @@index([userId])
+  @@index([active])
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
+  DEAD_LETTER
+}
+
+model WebhookDelivery {
+  id        String  @id @default(cuid())
+  webhookId String
+  webhook   Webhook @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  event   String
+  payload Json
+
+  status      WebhookDeliveryStatus @default(PENDING)
+  attempts    Int                   @default(0)
+  maxAttempts Int                   @default(5)
+
+  responseStatus Int?
+  responseBody   String? @db.Text
+  errorMessage   String?
+
+  nextRetryAt DateTime?
+
+  createdAt   DateTime  @default(now())
+  deliveredAt DateTime?
+
+  @@index([webhookId, status])
+  @@index([status, nextRetryAt])
+}

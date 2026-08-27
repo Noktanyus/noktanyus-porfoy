@@ -1,0 +1,89 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try Again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "menu": "Menu",
+    "close": "Close",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "home": "Home"
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "projects": "Projects",
+    "blog": "Blog",
+    "contact": "Contact",
+    "store": "Store",
+    "pricing": "Pricing",
+    "login": "Sign In",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "logout": "Sign Out"
+  },
+  "home": {
+    "greeting": "Hello, I'm Yunus Tuğhan",
+    "subtitle": "Software Developer",
+    "cta_contact": "Get in Touch",
+    "cta_projects": "View My Projects"
+  },
+  "about": {
+    "title": "About",
+    "experiences": "Experiences",
+    "skills": "Skills"
+  },
+  "blog": {
+    "title": "Blog",
+    "read_more": "Read More",
+    "min_read": " min read",
+    "all_posts": "All Posts",
+    "back_to_blog": "Back to Blog",
+    "post_not_found": "Post Not Found",
+    "post_not_found_description": "The blog post you are looking for does not exist."
+  },
+  "projects": {
+    "title": "Projects",
+    "live_demo": "Live Demo",
+    "source_code": "Source Code"
+  },
+  "contact": {
+    "title": "Contact",
+    "name": "Name",
+    "email": "Email",
+    "subject": "Subject",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "success": "Your message has been sent successfully."
+  },
+  "store": {
+    "title": "Store",
+    "add_to_cart": "Add to Cart",
+    "view_details": "View Details"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "per_month": "/month",
+    "choose_plan": "Choose Plan"
+  },
+  "footer": {
+    "copyright": "© 2026 Yunus Tuğhan. All Rights Reserved.",
+    "legal": {
+      "kvkk": "KVKK Privacy Notice",
+      "distance_sale": "Distance Sales Agreement",
+      "cookies": "Cookie Policy"
+    }
+  },
+  "locale": {
+    "switch_label": "Language selection",
+    "current_language": "Current language"
+  }
+}

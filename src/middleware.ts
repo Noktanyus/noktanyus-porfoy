@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createIntlMiddleware from 'next-intl/middleware';
+import { locales, defaultLocale } from '@/i18n/config';
 
 /**
  * Legacy Turkish path redirects.
@@ -23,6 +25,18 @@ function isAdminWriteRequest(pathname: string, method: string): boolean {
   if (pathname.startsWith('/admin/login')) return false;
   return method === 'POST' || method === 'PUT' || method === 'PATCH' || method === 'DELETE';
 }
+
+/**
+ * next-intl middleware: locale-prefix yoksa default locale'yi ekler.
+ * Sadece statik/dinamik içerik sayfalarını kapsar; API, admin ve statik asset
+ * rotaları middleware dışında bırakılır (matcher içinde).
+ */
+const intlMiddleware = createIntlMiddleware({
+  locales: locales as unknown as string[],
+  defaultLocale,
+  localePrefix: 'as-needed',
+  localeDetection: true,
+});
 
 export function middleware(request: NextRequest) {
   // Legacy path yönlendirmesi (kalıcı 301)
@@ -61,6 +75,16 @@ export function middleware(request: NextRequest) {
     // CSP ve diğer header'lar response'a eklenecek — return response olarak çık
     attachSecurityHeaders(response);
     return response;
+  }
+
+  // next-intl locale yönetimi
+  const intlResponse = intlMiddleware(request);
+
+  // intlMiddleware NextResponse.next() döndürebilir; bu durumda header'ları
+  // doğrudan response'a ekleyerek mevcut CSP mantığını koruyoruz.
+  if (intlResponse) {
+    attachSecurityHeaders(intlResponse);
+    return intlResponse;
   }
 
   const response = NextResponse.next();
@@ -117,7 +141,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - Dosya uzantılı istekler (görsel, font, vs.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
 };

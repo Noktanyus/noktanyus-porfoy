@@ -13,6 +13,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { CartButton } from '@/components/commerce/CartButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { GlobalSearch, OPEN_EVENT } from '@/components/search/GlobalSearch';
+import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher';
 
 interface HeaderProps {
   /** Header'da gösterilecek site başlığı. */
@@ -73,6 +74,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
             <div className="flex items-center space-x-1 flex-shrink-0">
               <GlobalSearch />
               <CartButton />
+              <LocaleSwitcher />
               <ThemeToggle className="touch-target focus-ring" />
 
               {/* Kullanıcı menüsü (auth) */}

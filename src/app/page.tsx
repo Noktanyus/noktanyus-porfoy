@@ -11,6 +11,12 @@ import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import {
+  JsonLd,
+  personJsonLd,
+  websiteJsonLd,
+  getBaseUrl,
+} from "@/components/seo/JsonLd";
 
 // Force dynamic rendering to prevent build-time database errors
 export const dynamic = 'force-dynamic';
@@ -62,29 +68,57 @@ export default async function Home() {
   const featuredProjects = allProjects.filter((p) => p.featured).slice(0, 3);
   const latestPosts = allBlogs.slice(0, 3);
 
+  const baseUrl = getBaseUrl();
+
+  // Person JSON-LD (portfolyö sahibi)
+  const personLd = personJsonLd({
+    name: aboutData?.name ?? 'Yunus Tuğhan',
+    jobTitle:
+      aboutData?.title ?? 'Software Developer',
+    description:
+      aboutData?.content ??
+      'Akdeniz Üniversitesi Yazılım Geliştirici',
+    image: aboutData?.profileImage ?? '/images/profile.webp',
+    url: baseUrl,
+    sameAs: [
+      aboutData?.socialGithub || 'https://github.com/Noktanyus',
+      aboutData?.socialLinkedin || 'https://linkedin.com/in/yunus-tughan',
+      aboutData?.socialInstagram
+        ? `https://instagram.com/${aboutData.socialInstagram.replace(/^@/, '')}`
+        : undefined,
+    ].filter(Boolean) as string[],
+    email: aboutData?.contactEmail ?? undefined,
+  });
+
+  // WebSite JSON-LD (Knowledge Graph için)
+  const websiteLd = websiteJsonLd();
+
   return (
-    <div className="container-responsive bg-blob-decoration">
-      <div className="relative z-10 space-responsive">
-        {/* Hero Section */}
-        <section className="relative min-h-[60vh] flex items-center">
-          <div className="w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              <div className="order-2 lg:order-1 animate-slide-in-left">
-                <HeroSection aboutData={aboutData} />
-              </div>
-              <div className="order-1 lg:order-2 animate-slide-in-right" style={{animationDelay: '0.3s'}}>
-                <FeaturedContent homeSettings={homeSettings} />
+    <>
+      <JsonLd data={[personLd, websiteLd]} />
+      <div className="container-responsive bg-blob-decoration">
+        <div className="relative z-10 space-responsive">
+          {/* Hero Section */}
+          <section className="relative min-h-[60vh] flex items-center">
+            <div className="w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div className="order-2 lg:order-1 animate-slide-in-left">
+                  <HeroSection aboutData={aboutData} />
+                </div>
+                <div className="order-1 lg:order-2 animate-slide-in-right" style={{animationDelay: '0.3s'}}>
+                  <FeaturedContent homeSettings={homeSettings} />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Featured Projects */}
-        <FeaturedProjects projects={featuredProjects} />
+          {/* Featured Projects */}
+          <FeaturedProjects projects={featuredProjects} />
 
-        {/* Latest Blogs */}
-        <LatestBlogs blogs={latestPosts} />
+          {/* Latest Blogs */}
+          <LatestBlogs blogs={latestPosts} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }

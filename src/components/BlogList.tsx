@@ -2,16 +2,34 @@
 
 import { useState, useMemo } from 'react';
 import { Blog } from '@prisma/client';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import BlogCard from '@/components/BlogCard';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaFire } from 'react-icons/fa';
+
+type BlogSort = 'newest' | 'oldest' | 'popular';
 
 interface BlogListProps {
   allPosts: Blog[];
+  sort?: BlogSort;
 }
 
-export default function BlogList({ allPosts }: BlogListProps) {
+export default function BlogList({ allPosts, sort = 'newest' }: BlogListProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');
+
+  const setSort = (next: BlogSort) => {
+    const params = new URLSearchParams(searchParams?.toString());
+    if (next === 'newest') {
+      params.delete('sort');
+    } else {
+      params.set('sort', next);
+    }
+    const qs = params.toString();
+    router.push(qs ? `/blog?${qs}` : '/blog', { scroll: false });
+  };
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -71,10 +89,39 @@ export default function BlogList({ allPosts }: BlogListProps) {
           </div>
         )}
 
+        {/* Sort Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            onClick={() => setSort('newest')}
+            className={`glass-pill ${sort === 'newest' ? 'active' : ''}`}
+            aria-pressed={sort === 'newest'}
+          >
+            En Yeni
+          </button>
+          <button
+            onClick={() => setSort('popular')}
+            className={`glass-pill inline-flex items-center gap-1.5 ${sort === 'popular' ? 'active' : ''}`}
+            aria-pressed={sort === 'popular'}
+          >
+            <FaFire className="w-3 h-3" />
+            Popüler
+          </button>
+          <button
+            onClick={() => setSort('oldest')}
+            className={`glass-pill ${sort === 'oldest' ? 'active' : ''}`}
+            aria-pressed={sort === 'oldest'}
+          >
+            En Eski
+          </button>
+        </div>
+
         {/* Results count */}
-        {(searchTerm || activeCategory !== 'all') && (
+        {(searchTerm || activeCategory !== 'all' || sort !== 'newest') && (
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredPosts.length} yazı bulundu
+            {filteredPosts.length} yazı
+            {sort === 'popular' && (
+              <span> &mdash; <span className="font-semibold text-brand-primary">popüler sıralama</span></span>
+            )}
             {searchTerm && (
               <span> &mdash; &ldquo;<span className="font-semibold text-brand-primary">{searchTerm}</span>&rdquo;</span>
             )}

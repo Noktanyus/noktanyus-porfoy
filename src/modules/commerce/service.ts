@@ -17,6 +17,7 @@ import {
   orderRepository,
   licenseRepository,
 } from './repository';
+import { webhookService } from '@/modules/webhooks';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
@@ -472,6 +473,22 @@ export const commerceService = {
     }
 
     logger.info('Order completed', { orderId: order.id, orderNumber: order.orderNumber });
+
+    // Dispatch webhook event (best-effort, internal hata yakalanır)
+    try {
+      await webhookService.dispatchEvent('order.paid', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalCents: order.totalCents,
+        currency: order.currency,
+        customerEmail: order.customerEmail,
+      });
+    } catch (err) {
+      logger.warn('Webhook dispatch (order.paid) failed', {
+        orderId: order.id,
+        error: err,
+      });
+    }
   },
 
   async handleSubscriptionChange(sub: Record<string, unknown>) {

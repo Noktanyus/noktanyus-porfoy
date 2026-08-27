@@ -6,12 +6,49 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
-import { FaArrowLeft, FaClock, FaUser, FaTag } from 'react-icons/fa';
+import { FaArrowLeft, FaClock, FaUser, FaTag, FaEye } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { CommentsSection } from '@/components/blog/CommentsSection';
+import { locales, defaultLocale } from '@/i18n/config';
+import { JsonLd, articleJsonLd, breadcrumbJsonLd, generateOpenGraph, generateTwitterCard, getBaseUrl } from '@/components/seo/JsonLd';
+import {
+  calculateReadingTime,
+  trackBlogView,
+  getRelatedBlogs,
+} from '@/lib/blogAnalytics';
 
 const md = new MarkdownIt({ html: true });
+
+// Her istekte fresh data + view tracking (server component).
+// generateStaticParams ile birlikte calismaz; analytics guncel kalsin.
+export const dynamic = 'force-dynamic';
+
+/**
+ * Her dil için canonical + hreflang alternate URL'leri üretir.
+ * - default locale (tr): prefix yok (/blog/<slug>)
+ * - diğer locale'ler:    /<locale>/blog/<slug>
+ */
+function buildAlternates(slug: string) {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXTAUTH_URL ||
+    'http://localhost:3000';
+  const normalizedBase = baseUrl.replace(/\/$/, '');
+
+  const languages: Record<string, string> = {};
+  for (const loc of locales) {
+    const path = loc === defaultLocale
+      ? `/blog/${slug}`
+      : `/${loc}/blog/${slug}`;
+    languages[loc] = `${normalizedBase}${path}`;
+  }
+
+  return {
+    canonical: `${normalizedBase}/blog/${slug}`,
+    languages,
+  };
+}
 
 type PageProps = {
   params: {
@@ -26,27 +63,40 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: "Yazı Bulunamadı",
       description: "Aradığınız blog yazısı mevcut değil.",
+      robots: { index: false, follow: false },
     };
   }
+
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
 
   return {
     title: `${post.title} | Blog`,
     description: post.description,
-    openGraph: {
+    authors: [{ name: post.author }],
+    keywords:
+      typeof post.tags === 'string'
+        ? post.tags.split(',').map((t) => t.trim())
+        : Array.isArray(post.tags)
+          ? (post.tags.filter((t) => typeof t === 'string') as string[])
+          : undefined,
+    alternates: {
+      canonical: canonicalUrl,
+      languages: buildAlternates(post.slug).languages,
+    },
+    openGraph: generateOpenGraph({
       title: post.title,
       description: post.description,
-      images: post.thumbnail ? [{ url: post.thumbnail }] : [],
+      url: canonicalUrl,
+      image: post.thumbnail ?? undefined,
       type: 'article',
-      publishedTime: new Date(post.date).toISOString(),
-      authors: [post.author],
-      tags: typeof post.tags === 'string' ? post.tags.split(',').map(tag => tag.trim()) : [],
-    },
-    twitter: {
-      card: "summary_large_image",
+    }) as any,
+    twitter: generateTwitterCard({
       title: post.title,
       description: post.description,
-      images: post.thumbnail ? [post.thumbnail] : [],
-    },
+      image: post.thumbnail ?? undefined,
+    }) as any,
+    robots: { index: true, follow: true },
   };
 }
 
@@ -65,6 +115,13 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
     notFound();
   }
 
+  // Okuma suresi (icerikten hesaplanir) + view tracking (sunucu tarafli).
+  const readTime = calculateReadingTime(post.content);
+  await trackBlogView(post.id);
+
+  // Ayni kategorideki ilgili yazilar (varsa gosterilecek).
+  const related = await getRelatedBlogs(post.id, post.category, 3);
+
   const dirtyHtml = md.render(post.content);
   const cleanHtml = DOMPurify.sanitize(dirtyHtml);
 
@@ -78,8 +135,35 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
       ? post.tags.split(',').map(t => t.trim()).filter(Boolean)
       : [];
 
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
+  const publishedISO = new Date(post.date).toISOString();
+
+  // Article / BlogPosting JSON-LD (zengin sonuclar + Knowledge Graph icin)
+  const articleLd = articleJsonLd({
+    type: 'BlogPosting',
+    title: post.title,
+    description: post.description,
+    image: post.thumbnail ?? undefined,
+    author: { name: post.author },
+    datePublished: publishedISO,
+    url: canonicalUrl,
+    keywords: tags,
+    inLanguage: 'tr-TR',
+    articleBody: post.content?.slice(0, 1500),
+  });
+
+  // Breadcrumb (sayfa yolu) JSON-LD
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: 'Anasayfa', url: `${baseUrl}` },
+    { name: 'Blog', url: `${baseUrl}/blog` },
+    { name: post.title, url: canonicalUrl },
+  ]);
+
   return (
-    <article className="max-w-4xl mx-auto section-glass-hero bg-blob-decoration">
+    <>
+      <JsonLd data={[articleLd, breadcrumbLd]} />
+      <article className="max-w-4xl mx-auto section-glass-hero bg-blob-decoration">
       <div className="relative z-10 space-y-6">
         {/* Back button */}
         <Link
@@ -110,6 +194,14 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
             <span className="inline-flex items-center gap-1.5">
               <FaUser className="w-3.5 h-3.5" />
               {post.author}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <FaClock className="w-3.5 h-3.5" />
+              {readTime} dakika okuma
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <FaEye className="w-3.5 h-3.5" />
+              {post.viewCount.toLocaleString('tr-TR')} okunma
             </span>
           </div>
 
@@ -148,11 +240,37 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
             dangerouslySetInnerHTML={{ __html: cleanHtml }}
           />
         </div>
+
+        {/* Related Posts */}
+        {related.length > 0 && (
+          <section className="mt-4">
+            <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+              İlgili Yazılar
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {related.map((r) => (
+                <Link
+                  key={r.id}
+                  href={`/blog/${r.slug}`}
+                  className="glass-card-premium p-4 hover:shadow-lg transition-shadow block"
+                >
+                  <h4 className="font-semibold text-gray-900 dark:text-white line-clamp-2 mb-2">
+                    {r.title}
+                  </h4>
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {r.description}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* Comments Section */}
       <CommentsSection blogSlug={slug} />
     </article>
+    </>
   );
 }
 
