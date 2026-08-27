@@ -63,6 +63,8 @@ model Blog {
   category    String
   tags        Json     @default("[]")
   content     String
+
+  comments    Comment[]
 }
 
 model Project {
@@ -562,6 +564,7 @@ model User {
   workspaceMemberships WorkspaceMember[]
   ownedWorkspaces   Workspace[]         @relation("WorkspaceOwner")
   auditLogs         AuditLog[]
+  comments          Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -870,5 +873,37 @@ model NewsletterSubscriber {
   @@index([active])
   @@index([verifiedAt])
   @@map("newsletter_subscribers")
+}
+
+/// Blog Comment
+/// Kullanıcıların blog yazılarına yorum yapmasını sağlar.
+/// 1-level nested replies destekler (parentId ile).
+model Comment {
+  id          String   @id @default(cuid())
+
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  content     String
+
+  // Nested comments (1 level only)
+  parentId    String?
+  parent      Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[] @relation("CommentReplies")
+
+  // Moderation
+  approved    Boolean  @default(true)
+  flagged     Boolean  @default(false)
+  editedAt    DateTime?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([blogId, createdAt])
+  @@index([userId])
+  @@index([parentId])
 }
 

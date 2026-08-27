@@ -9,6 +9,7 @@ import DOMPurify from 'isomorphic-dompurify';
 import { FaArrowLeft, FaClock, FaUser, FaTag } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { CommentsSection } from '@/components/blog/CommentsSection';
 
 const md = new MarkdownIt({ html: true });
 
@@ -148,6 +149,9 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
           />
         </div>
       </div>
+
+      {/* Comments Section */}
+      <CommentsSection blogSlug={slug} />
     </article>
   );
 }
