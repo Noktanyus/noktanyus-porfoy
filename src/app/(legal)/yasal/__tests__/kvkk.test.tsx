@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import KvkkPage from '@/app/yasal/kvkk/page';
+import KvkkPage from '@/app/(legal)/yasal/kvkk/page';
 
 describe('KVKK Page', () => {
   it('renders the title', () => {

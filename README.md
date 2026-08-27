@@ -15,6 +15,7 @@ Modern, full-stack Next.js 14 portföy + SaaS + e-ticaret + uptime monitoring pl
   - [SaaS Altyapısı](#-saas-altyapısı)
   - [Backend](#-backend)
 - [Mimari](#-mimari)
+- [Modüler Mimari (Route Group İzolasyonu)](#-modüler-mimari-route-group-izolasyonu)
 - [Teknoloji Stack](#-teknoloji-stack)
 - [Hızlı Başlangıç](#-hızlı-başlangıç)
 - [Test](#-test)
@@ -86,11 +87,14 @@ Modern, full-stack Next.js 14 portföy + SaaS + e-ticaret + uptime monitoring pl
 noktanyus-porfoy/
 ├── src/
 │   ├── app/                    # Next.js App Router (RSC)
-│   │   ├── (public routes)     # /, /blog, /projects, /about, /contact
+│   │   ├── (content)/          # /blog, /projelerim, /hakkimda (içerik sayfaları)
+│   │   ├── (commerce)/         # /magaza, /fiyatlandirma, /odeme (e-ticaret)
+│   │   ├── (monitoring)/       # /status, /saglik (uptime + status pages)
+│   │   ├── (auth)/             # /giris, /kayit (kimlik doğrulama)
+│   │   ├── (legal)/            # /yasal/* (KVKK, çerez politikası, vb.)
 │   │   ├── admin/              # /admin/* (auth + role gerekli)
 │   │   ├── api/                # /api/* (RESTful, 60+ endpoint)
-│   │   ├── dashboard/          # /dashboard/* (user self-service)
-│   │   └── (auth)              # /login, /register
+│   │   └── dashboard/          # /dashboard/* (user self-service)
 │   ├── modules/                # Domain modülleri (vertical slice)
 │   │   ├── content/           # Blog, Project, About
 │   │   ├── messaging/         # Contact, Newsletter
@@ -133,6 +137,72 @@ noktanyus-porfoy/
 ├── Dockerfile                 # Multi-stage build
 ├── vercel.json                # Vercel cron config
 └── next.config.mjs            # Standalone output, security headers, bundle analyzer
+```
+
+---
+
+## 🏗️ Modüler Mimari (Route Group İzolasyonu)
+
+Her modül kendi `(group)` route grubunda izole çalışır. Bir modülde hata olunca sadece **o modülün** `error.tsx`'i tetiklenir — diğer modüller normal çalışmaya devam eder.
+
+```
+src/app/
+├── (content)/        # Blog, Projelerim, Hakkımda
+│   ├── error.tsx     # İçerik modülüne özel hata UI
+│   ├── loading.tsx
+│   ├── not-found.tsx
+│   ├── blog/
+│   ├── projelerim/
+│   └── hakkimda/
+├── (commerce)/       # Mağaza, Fiyatlandırma, Ödeme
+│   ├── error.tsx     # Commerce modülü hata UI
+│   └── ...
+├── (monitoring)/     # Public Status Pages, Dashboard Monitors
+│   └── error.tsx
+├── (auth)/          # Giriş, Kayıt
+│   └── error.tsx
+├── (legal)/         # KVKK, Mesafeli Satış, Çerez Politikası
+│   └── error.tsx
+├── admin/           # Admin (korumalı)
+├── dashboard/       # User self-service (korumalı)
+└── api/             # Tüm modüllerin API endpoint'leri
+```
+
+### İzolasyon Kuralları
+
+| Olay | Davranış |
+|------|----------|
+| `(content)/blog` sayfasında hata | Sadece `(content)/error.tsx` tetiklenir, `(commerce)`, `(auth)` etkilenmez |
+| `(commerce)/odeme` DB hatası | `(commerce)/error.tsx` gösterilir, diğer modüller açık kalır |
+| Root layout'ta hata | Sadece root `error.tsx` devreye girer (son savunma hattı) |
+| Modül route'una unknown URL | İlgili grubun `not-found.tsx`'i gösterilir |
+
+### Sağlık Kontrolleri
+
+| Endpoint | Açıklama |
+|----------|----------|
+| `GET /api/health` | Genel sistem durumu (DB bağlantısı + uptime) |
+| `GET /api/health/modules` | Modül-bazlı durum (content, commerce, monitoring, messaging) |
+| `GET /saglik` | Public görüntüleme sayfası (UI) |
+
+`/api/health/modules` her modül için DB sorgusu yaparak `up` / `down` / `degraded` döndürür. 4 modülden biri bile down ise HTTP 503 döner.
+
+```json
+{
+  "status": "all-up",
+  "timestamp": "2026-08-27T10:00:00.000Z",
+  "totalLatency": 42,
+  "modules": [
+    { "name": "content", "status": "up", "latency": 12, "details": { "description": "Blog + Projects + About" } },
+    { "name": "commerce", "status": "up", "latency": 8, "details": { "description": "Plans + Products + Orders + Subscriptions" } }
+  ]
+}
+```
+
+### Test
+
+```bash
+npm test -- src/app/api/health
 ```
 
 ---

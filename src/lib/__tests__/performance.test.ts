@@ -60,7 +60,7 @@ describe('Performance checks', () => {
       const { readFile } = await import('fs/promises');
       const path = await import('path');
       const page = await readFile(
-        path.resolve(process.cwd(), 'src/app/blog/page.tsx'),
+        path.resolve(process.cwd(), 'src/app/(content)/blog/page.tsx'),
         'utf8'
       );
       // The pages alias next/dynamic as `nextDynamic` to avoid clashing with
@@ -72,7 +72,7 @@ describe('Performance checks', () => {
       const { readFile } = await import('fs/promises');
       const path = await import('path');
       const page = await readFile(
-        path.resolve(process.cwd(), 'src/app/projelerim/page.tsx'),
+        path.resolve(process.cwd(), 'src/app/(content)/projelerim/page.tsx'),
         'utf8'
       );
       expect(page).toMatch(
@@ -84,7 +84,7 @@ describe('Performance checks', () => {
       const { readFile } = await import('fs/promises');
       const path = await import('path');
       const page = await readFile(
-        path.resolve(process.cwd(), 'src/app/magaza/page.tsx'),
+        path.resolve(process.cwd(), 'src/app/(commerce)/magaza/page.tsx'),
         'utf8'
       );
       expect(page).toMatch(/ProductGrid/);
