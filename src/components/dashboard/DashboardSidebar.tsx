@@ -10,15 +10,21 @@ import {
   FaSatelliteDish,
   FaBell,
   FaChartLine,
-  FaUser,
+  FaUserCog,
   FaArrowLeft,
+  FaCreditCard,
+  FaBox,
+  FaShoppingCart,
 } from 'react-icons/fa';
 
 const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
   { href: '/dashboard/monitors', label: 'Monitörler', icon: FaSatelliteDish },
   { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
-  { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
-  { href: '/dashboard/profile', label: 'Profil', icon: FaUser },
+  { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
+  { href: '/dashboard/products', label: 'Ürünlerim', icon: FaBox },
+  { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
+  { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
 ];
 
 export function DashboardSidebar() {

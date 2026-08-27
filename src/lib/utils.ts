@@ -22,12 +22,32 @@ export function formatCurrency(cents: number, currency = 'TRY'): string {
   }).format(amount);
 }
 
-export function formatDate(date: Date | string, locale = 'tr-TR'): string {
+export function formatDate(
+  date: Date | string,
+  localeOrOptions: string | Intl.DateTimeFormatOptions = 'tr-TR'
+): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat(locale, {
+
+  // İkinci parametre Intl.DateTimeFormatOptions ise, esnek formatlama uygula
+  if (typeof localeOrOptions === 'object' && localeOrOptions !== null) {
+    return new Intl.DateTimeFormat('tr-TR', localeOrOptions).format(d);
+  }
+
+  return new Intl.DateTimeFormat(localeOrOptions, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+  }).format(d);
+}
+
+export function formatDateTime(date: Date | string, locale = 'tr-TR'): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(d);
 }
 
