@@ -144,16 +144,25 @@ export const newsletterService = {
 
     for (const sub of subscribers) {
       try {
-        await sendEmail({
+        const result = await sendEmail({
           to: sub.email,
           subject: opts.subject,
           html: opts.html,
           text: opts.text,
         });
-        sent++;
+
+        if (result.success) {
+          sent++;
+        } else {
+          failed++;
+          logger.error('Broadcast email returned failure', {
+            email: sub.email,
+            error: result.error ?? 'unknown',
+          });
+        }
       } catch (err) {
         failed++;
-        logger.error('Broadcast email failed', {
+        logger.error('Broadcast email threw exception', {
           email: sub.email,
           error: err instanceof Error ? err.message : 'unknown',
         });

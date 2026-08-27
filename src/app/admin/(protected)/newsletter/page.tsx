@@ -5,6 +5,8 @@
  * Server component — Prisma üzerinden doğrudan sorgu.
  */
 
+import Link from 'next/link';
+import { FaPaperPlane } from 'react-icons/fa';
 import { newsletterService } from '@/modules/newsletter';
 import { NewsletterSubscriber } from '@prisma/client';
 
@@ -24,6 +26,15 @@ export default async function AdminNewsletterPage() {
           <p className="admin-subtitle">
             Blog email abone sistemi — istatistikler ve abone listesi
           </p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Link
+            href="/admin/newsletter/broadcast"
+            className="admin-btn admin-btn-primary"
+          >
+            <FaPaperPlane className="mr-2" />
+            Broadcast Gönder
+          </Link>
         </div>
       </div>
 

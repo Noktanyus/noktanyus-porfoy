@@ -47,6 +47,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
     { href: "/admin/gallery", text: "Galeri", icon: <FaImages /> },
     { href: "/admin/blog", text: "Blog Yönetimi", icon: <FaBlog /> },
     { href: "/admin/newsletter", text: "Newsletter", icon: <FaNewspaper /> },
+    { href: "/admin/newsletter/broadcast", text: "Broadcast", icon: <FaBroadcastTower /> },
     { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
     { href: "/admin/seo", text: "SEO Ayarları", icon: <FaCog /> },
     { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
