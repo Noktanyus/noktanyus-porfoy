@@ -320,6 +320,13 @@ model DigitalProduct {
 
   orderItems OrderItem[]
   licenses   License[]
+  videoCalls VideoCall[]
+
+  // Marketplace 2.0 — vendor publishing + reviews + Q&A
+  vendorId   String?
+  vendor     VendorProfile?   @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  reviews    ProductReview[]
+  questions  ProductQuestion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -327,6 +334,7 @@ model DigitalProduct {
   @@index([active, order])
   @@index([category])
   @@index([ownerId])
+  @@index([vendorId])
 }
 
 model Order {
@@ -346,10 +354,13 @@ model Order {
   status OrderStatus @default(PENDING)
 
   // Money
-  subtotalCents Int
-  taxCents      Int    @default(0)
-  totalCents    Int
-  currency      String @default("try")
+  subtotalCents  Int
+  taxCents       Int     @default(0)
+  totalCents     Int
+  currency       String  @default("try")
+  exchangeRate   Float?  // payment currency -> TRY (1 TRY = X foreign)
+  taxRate        Float?  // applied tax rate (e.g. 0.20 for %20 VAT)
+  taxCountry     String? // ISO country code applied (e.g. "TR", "US", "DE")
 
   // Customer info snapshot
   customerEmail String
@@ -368,8 +379,10 @@ model Order {
   metadata Json?
   notes    String?
 
-  items    OrderItem[]
-  licenses License[]
+  items       OrderItem[]
+  licenses    License[]
+  videoCalls  VideoCall[]
+  affiliateCommission AffiliateCommission?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -379,6 +392,39 @@ model Order {
   @@index([createdAt])
   @@index([couponId])
   @@index([userId])
+}
+
+// =================== MULTI-CURRENCY & TAX ===================
+// Phase "Multi-currency + Tax + A/B" kapsaminda eklendi.
+// Desteklenen para birimleri: TRY, USD, EUR, GBP.
+// Kur bilgisi ExchangeRate tablosunda cache'lenir (24 saatlik TTL).
+// Vergi oranlari TaxRate tablosunda ulke bazli tutulur.
+
+model ExchangeRate {
+  id        String   @id @default(cuid())
+  fromCurr  String   // "USD"
+  toCurr    String   // "TRY"
+  rate      Float    // 1 fromCurr = X toCurr
+  source    String   @default("manual") // manual | api | fallback
+  validAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@unique([fromCurr, toCurr])
+  @@index([validAt])
+}
+
+model TaxRate {
+  id          String   @id @default(cuid())
+  country     String   @unique // ISO code: "TR", "US", "DE"
+  countryName String
+  rate        Float    // 0.20 = %20
+  type        String   @default("vat") // vat | gst | sales_tax
+  active      Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active])
 }
 
 model Coupon {
@@ -507,6 +553,7 @@ model Workspace {
   owner       User                  @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   members     WorkspaceMember[]
   invitations WorkspaceInvitation[]
+  tasks       Task[]
   createdAt   DateTime              @default(now())
   updatedAt   DateTime              @updatedAt
 
@@ -583,6 +630,14 @@ model User {
   referredBy     String?
   referralCount  Int        @default(0)
 
+  // Video Calls (Phase "Video Calls + Affiliate" kapsaminda eklendi)
+  videoCallCredits Int @default(60) // Dakika cinsinden
+
+  // Affiliate / Referral Commission (Phase "Video Calls + Affiliate" kapsaminda eklendi)
+  affiliateBalanceCents Int    @default(0)
+  affiliatePercent      Float  @default(20.0) // Default %20 komisyon
+  affiliateApproved     Boolean @default(false) // Manuel payout onayı
+
   // Relations
   accounts             Account[]
   sessions             Session[]
@@ -604,11 +659,108 @@ model User {
   notifications        Notification[]
   conversations        ChatConversation[]
 
+  // Video Call relations
+  hostedCalls         VideoCall[]            @relation("VideoCallHost")
+  callParticipations  VideoCallParticipant[]
+
+  // Affiliate relations
+  affiliateReferrals AffiliateCommission[]  @relation("AffiliateReferrer")
+  affiliateReferred  AffiliateCommission[]  @relation("AffiliateReferred")
+  affiliatePayouts   AffiliatePayout[]
+
+  // Task management relations
+  createdTasks     Task[]            @relation("TaskCreator")
+  taskAssignments  TaskAssignee[]
+  taskComments     TaskComment[]
+  taskAttachments  TaskAttachment[]
+
+  // Marketplace 2.0 relations
+  vendorProfile    VendorProfile?
+  productReviews   ProductReview[]
+  productQuestions ProductQuestion[]
+
+  // A/B Testing relations
+  abExperimentsCreated ABExperiment[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([referralCode])
+}
+
+// =================== A/B TESTING ===================
+// Phase "Multi-currency + Tax + A/B" kapsaminda eklendi.
+// Site genelinde A/B test (bucket experiment) altyapisi.
+// Sticky variant atama (sessionId bazli), weighted random, conversion tracking.
+
+model ABExperiment {
+  id          String   @id @default(cuid())
+
+  name        String   @unique
+  description String?
+  status      String   @default("draft") // draft | running | completed | paused
+
+  // Targeting
+  targetPage  String   // "/", "/magaza", "/fiyatlandirma"
+  audienceFilter Json? // { country, device, ... }
+
+  // Stats
+  startedAt   DateTime?
+  endedAt     DateTime?
+  winnerVariantId String?
+
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  variants    ABVariant[]
+  events      ABEvent[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, targetPage])
+}
+
+model ABVariant {
+  id          String   @id @default(cuid())
+  experimentId String
+  experiment  ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  name        String   // "Control", "Variant A", "Variant B"
+  weight      Int      @default(50) // %50 - toplam 100 olmali
+  config      Json     @default("{}") // { headline: "...", ctaColor: "blue" }
+
+  isControl   Boolean  @default(false)
+
+  events      ABEvent[]
+
+  @@index([experimentId])
+}
+
+enum ABEventType {
+  EXPOSURE   // Variant goruntulendi
+  CONVERSION  // Istenen aksiyon gerceklesti
+}
+
+model ABEvent {
+  id          String   @id @default(cuid())
+  experimentId String
+  experiment  ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  variantId   String
+  variant     ABVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  userId      String?
+  sessionId   String
+  eventType   ABEventType
+  value       Float?   // conversion value
+
+  metadata    Json     @default("{}")
+
+  createdAt   DateTime @default(now())
+
+  @@index([experimentId, variantId, eventType])
+  @@index([sessionId])
 }
 
 /// Chat Conversation
@@ -1154,4 +1306,298 @@ model Notification {
 
   @@index([userId, read, createdAt])
   @@index([userId, createdAt])
+}
+
+// =================== MARKETPLACE 2.0 (VENDORS + REVIEWS + Q&A) ===================
+// Marketplace 2.0 kapsamında eklendi. Kullanıcıların kendi SaaS ürünlerini
+// yayınlayabildiği, satıcı (vendor) profili, yorum/puan sistemi ve Q&A altyapısı.
+
+model VendorProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String
+  slug        String   @unique
+  bio         String?  @db.Text
+  avatar      String?
+  banner      String?
+  website     String?
+  twitter     String?
+  github      String?
+
+  // Stats
+  totalProducts Int   @default(0)
+  totalSales    Int   @default(0)
+  avgRating     Float @default(0)
+  responseTime  Int? // hours
+
+  // Status
+  verified Boolean @default(false)
+  active   Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products DigitalProduct[]
+  reviews  ProductReview[]
+
+  @@index([slug])
+  @@index([active, verified])
+  @@index([avgRating])
+}
+
+model ProductReview {
+  id        String         @id @default(cuid())
+  productId String
+  product   DigitalProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  reviewerId String
+  reviewer   User          @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  vendorId   String
+  vendor     VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  rating  Int     // 1-5
+  comment String? @db.Text
+
+  approved Boolean @default(true)
+  flagged  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([productId, reviewerId])
+  @@index([productId, approved])
+  @@index([vendorId])
+  @@index([rating])
+}
+
+model ProductQuestion {
+  id        String         @id @default(cuid())
+  productId String
+  product   DigitalProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  askerId String
+  asker   User   @relation(fields: [askerId], references: [id], onDelete: Cascade)
+
+  question   String   @db.Text
+  answer     String?  @db.Text
+  answeredAt DateTime?
+  answeredBy String?  // vendor userId
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([askerId])
+}
+
+// =================== TEAM / TASK MANAGEMENT ===================
+// Phase: Workspace Team + Task Management
+// Workspace üyeleri task oluşturabilir, atayabilir, takip edebilir.
+
+model Task {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?   @db.Text
+  status      String    @default("todo") // todo | in_progress | review | done | cancelled
+  priority    String    @default("medium") // low | medium | high | urgent
+
+  // Assignees (many-to-many)
+  assignees TaskAssignee[]
+
+  // Time tracking
+  estimatedHours Float?
+  spentHours    Float?
+
+  // Dates
+  dueDate     DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  // Hierarchy
+  parentTaskId String?
+  parentTask   Task?  @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[] @relation("Subtasks")
+
+  // Metadata
+  tags Json @default("[]")
+
+  createdById String
+  createdBy   User   @relation("TaskCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments    TaskComment[]
+  attachments TaskAttachment[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, dueDate])
+  @@index([createdById])
+  @@index([parentTaskId])
+}
+
+model TaskAssignee {
+  id         String   @id @default(cuid())
+  taskId     String
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assignedAt DateTime @default(now())
+
+  @@unique([taskId, userId])
+  @@index([userId])
+}
+
+model TaskComment {
+  id     String @id @default(cuid())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+  content  String @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([taskId, createdAt])
+}
+
+model TaskAttachment {
+  id     String @id @default(cuid())
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  fileName String
+  fileUrl  String
+  fileSize Int
+  mimeType String
+
+  uploadedBy String
+  uploader   User     @relation(fields: [uploadedBy], references: [id])
+  uploadedAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+// =================== VIDEO CALLS (WebRTC STUB) ===================
+// Phase "Video Calls + Affiliate" kapsaminda eklendi.
+// Host tabanlı meeting room. Gerçek peer connection için signaling server
+// gerekir; burada odaları/katılımcıları DB'de tutuyoruz, UI getUserMedia stub'i
+// ile çalışır.
+
+model VideoCall {
+  id          String   @id @default(cuid())
+  hostId      String
+  host        User     @relation("VideoCallHost", fields: [hostId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+
+  // Meeting config
+  scheduledAt       DateTime?
+  durationMin       Int       @default(60)
+  maxParticipants   Int       @default(10)
+  recordingEnabled  Boolean   @default(false)
+
+  // Status
+  status String @default("scheduled") // scheduled | active | ended | cancelled
+
+  // Meeting room
+  roomCode String @unique
+
+  // Participants
+  participants VideoCallParticipant[]
+
+  // Recording
+  recordingUrl          String?
+  recordingDurationSec  Int?
+
+  // Relations
+  productId String?
+  product   DigitalProduct? @relation(fields: [productId], references: [id])
+  orderId   String?
+  order     Order?          @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([hostId, status])
+  @@index([scheduledAt])
+}
+
+model VideoCallParticipant {
+  id     String    @id @default(cuid())
+  callId String
+  call   VideoCall @relation(fields: [callId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  guestName  String?
+  guestEmail String?
+
+  joinedAt    DateTime?
+  leftAt      DateTime?
+  durationSec Int?
+
+  @@index([callId])
+}
+
+// =================== AFFILIATE / REFERRAL COMMISSION ===================
+// Phase "Video Calls + Affiliate" kapsaminda eklendi.
+// Davet edilen kullanici siparis verdiginde, davet eden affiliate kazanci alir.
+// Komisyon pending -> approved -> paid lifecycle ile yonetilir.
+
+model AffiliateCommission {
+  id String @id @default(cuid())
+
+  referrerId String
+  referrer   User   @relation("AffiliateReferrer", fields: [referrerId], references: [id])
+
+  referredId String
+  referred   User   @relation("AffiliateReferred", fields: [referredId], references: [id])
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  // Commission
+  orderAmountCents  Int
+  commissionPercent Float
+  commissionCents   Int
+
+  // Status
+  status     String    @default("pending") // pending | approved | paid | cancelled
+  approvedAt DateTime?
+  paidAt     DateTime?
+  payoutId   String?
+
+  payout   AffiliatePayout? @relation(fields: [payoutId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([referrerId, status])
+  @@index([referredId])
+}
+
+model AffiliatePayout {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  amountCents Int
+  method      String // bank_transfer | paypal | stripe
+  reference   String? // transaction ID
+  notes       String?
+
+  status String @default("pending") // pending | processing | completed | failed
+
+  commissions AffiliateCommission[]
+
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

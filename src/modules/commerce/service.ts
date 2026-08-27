@@ -19,6 +19,7 @@ import {
 } from './repository';
 import { webhookService } from '@/modules/webhooks';
 import { notificationService } from '@/modules/notifications';
+import { affiliateService } from '@/modules/affiliate';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
@@ -500,6 +501,14 @@ export const commerceService = {
       relatedType: 'Order',
       relatedId: order.id,
     });
+
+    // Affiliate commission — davet eden kullanicinin komisyonunu olustur
+    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
+    try {
+      await affiliateService.trackConversion(order.id);
+    } catch (err) {
+      logger.warn('Affiliate trackConversion failed', { orderId: order.id, error: err });
+    }
   },
 
   async handleSubscriptionChange(sub: Record<string, unknown>) {

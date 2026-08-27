@@ -17,6 +17,10 @@ import {
   FaBox,
   FaBoxOpen,
   FaShoppingCart,
+  FaStore,
+  FaTasks,
+  FaGift,
+  FaVideo,
 } from 'react-icons/fa';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
 
@@ -27,6 +31,9 @@ const NAV_ITEMS = [
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Ürünlerim', icon: FaBox },
   { href: '/dashboard/bundles', label: 'Bundle Ürünler', icon: FaBoxOpen },
+  { href: '/dashboard/vendor', label: 'Vendor Mağaza', icon: FaStore },
+  { href: '/dashboard/tasks', label: 'Görevler', icon: FaTasks },
+  { href: '/dashboard/affiliate', label: 'Affiliate', icon: FaGift },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
 ];

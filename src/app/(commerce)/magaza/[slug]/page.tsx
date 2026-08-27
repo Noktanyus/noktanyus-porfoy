@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { commerceService } from '@/modules/commerce';
+import { reviewService } from '@/modules/marketplace';
 import { ProductDetail } from '@/components/commerce/ProductDetail';
 import { RelatedProducts } from '@/components/commerce/RelatedProducts';
+import { ProductReviews } from '@/components/marketplace/ProductReviews';
 import {
   JsonLd,
   productJsonLd,
@@ -57,6 +59,20 @@ export default async function ProductPage({ params }: PageProps) {
   const baseUrl = getBaseUrl();
   const canonicalUrl = `${baseUrl}/magaza/${product.slug}`;
 
+  // Marketplace 2.0 — vendor review/rating (eğer ürün bir vendor'a bağlıysa)
+  let reviews: Awaited<ReturnType<typeof reviewService.listForProduct>> = [];
+  let reviewAverage = 0;
+  let reviewCount = 0;
+  if (product.vendorId) {
+    const [list, summary] = await Promise.all([
+      reviewService.listForProduct(product.id),
+      reviewService.average(product.id),
+    ]);
+    reviews = list;
+    reviewAverage = summary.average;
+    reviewCount = summary.count;
+  }
+
   // Product JSON-LD — Google Merchant Center ve zengin ürün sonuçları için
   const productLd = productJsonLd({
     name: product.title,
@@ -84,6 +100,14 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="space-responsive">
           <ProductDetail product={product} />
           <RelatedProducts currentSlug={params.slug} category={product.category} />
+          {product.vendorId && (
+            <ProductReviews
+              productSlug={product.slug}
+              initialReviews={reviews}
+              initialAverage={reviewAverage}
+              initialCount={reviewCount}
+            />
+          )}
         </div>
       </div>
     </>
