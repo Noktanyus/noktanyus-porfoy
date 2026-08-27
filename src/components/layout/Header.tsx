@@ -8,10 +8,11 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaSearch } from 'react-icons/fa';
 import { useSession, signOut } from 'next-auth/react';
 import { CartButton } from '@/components/commerce/CartButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { GlobalSearch, OPEN_EVENT } from '@/components/search/GlobalSearch';
 
 interface HeaderProps {
   /** Header'da gösterilecek site başlığı. */
@@ -70,6 +71,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
             </nav>
 
             <div className="flex items-center space-x-1 flex-shrink-0">
+              <GlobalSearch />
               <CartButton />
               <ThemeToggle className="touch-target focus-ring" />
 
@@ -188,6 +190,29 @@ const Header = ({ headerTitle }: HeaderProps) => {
           }`}
         >
           <nav className="flex flex-col space-y-1">
+            {/* Mobil arama kısayolu */}
+            <div
+              className={`transition-all duration-500 ease-out transform ${
+                isMobileMenuOpen
+                  ? 'opacity-100 translate-x-0'
+                  : 'opacity-0 -translate-x-4'
+              }`}
+              style={{ transitionDelay: isMobileMenuOpen ? '150ms' : '0ms' }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  handleMobileLinkClick();
+                  window.dispatchEvent(new Event(OPEN_EVENT));
+                }}
+                className="w-full text-left text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring flex items-center gap-3"
+              >
+                <FaSearch className="w-4 h-4" aria-hidden="true" />
+                Ara
+                <span className="ml-auto text-xs text-muted-foreground">Ctrl+K</span>
+              </button>
+            </div>
+
             {navLinks.map((link, index) => (
               <div
                 key={link.href}
