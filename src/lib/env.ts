@@ -19,6 +19,7 @@ const envSchema = z.object({
   NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_BASE_URL: z.string().min(1),
   NEXT_PUBLIC_YANDEX_METRICA_ID: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
 });
 
 try {

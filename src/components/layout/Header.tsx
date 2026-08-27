@@ -8,7 +8,8 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import { useSession, signOut } from 'next-auth/react';
 import { CartButton } from '@/components/commerce/CartButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
@@ -28,6 +29,8 @@ const navLinks = [
 
 const Header = ({ headerTitle }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   // Mobil menü açıkken body scroll'unu engelle
   useEffect(() => {
@@ -45,6 +48,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
 
   const handleMobileLinkClick = () => {
     setIsMobileMenuOpen(false);
+    setIsUserMenuOpen(false);
   };
 
   return (
@@ -68,10 +72,77 @@ const Header = ({ headerTitle }: HeaderProps) => {
             <div className="flex items-center space-x-1 flex-shrink-0">
               <CartButton />
               <ThemeToggle className="touch-target focus-ring" />
+
+              {/* Kullanıcı menüsü (auth) */}
+              {status !== 'loading' && (
+                session?.user ? (
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                      aria-label="Kullanıcı menüsü"
+                      className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-1"
+                    >
+                      <FaUserCircle className="w-5 h-5 text-gray-900 dark:text-white" />
+                    </button>
+                    {isUserMenuOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-30"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        />
+                        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white/95 dark:bg-black/95 border border-white/40 dark:border-black/40 shadow-xl backdrop-blur-md p-2 z-40 fade-in">
+                          <div className="px-3 py-2 border-b border-border mb-1">
+                            <p className="text-sm font-semibold truncate">
+                              {session.user.name || 'Kullanıcı'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {session.user.email}
+                            </p>
+                          </div>
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                          >
+                            <FaUserCircle className="w-4 h-4" />
+                            Dashboard
+                          </Link>
+                          <Link
+                            href="/dashboard/settings"
+                            onClick={() => setIsUserMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                          >
+                            <FaUserCircle className="w-4 h-4" />
+                            Ayarlar
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setIsUserMenuOpen(false);
+                              signOut({ callbackUrl: '/' });
+                            }}
+                            className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+                          >
+                            <FaSignOutAlt className="w-4 h-4" />
+                            Çıkış Yap
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    href="/giris"
+                    className="hidden md:inline-flex items-center text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300"
+                  >
+                    Giriş Yap
+                  </Link>
+                )
+              )}
+
               {/* Mobil Menü Butonu */}
               <div className="md:hidden">
-                <button 
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   aria-label="Menüyü aç/kapat"
                   className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring relative overflow-hidden"
                 >
@@ -118,26 +189,57 @@ const Header = ({ headerTitle }: HeaderProps) => {
         >
           <nav className="flex flex-col space-y-1">
             {navLinks.map((link, index) => (
-              <div 
+              <div
                 key={link.href}
                 className={`transition-all duration-500 ease-out transform ${
-                  isMobileMenuOpen 
-                    ? 'opacity-100 translate-x-0' 
+                  isMobileMenuOpen
+                    ? 'opacity-100 translate-x-0'
                     : 'opacity-0 -translate-x-4'
                 }`}
                 style={{
                   transitionDelay: isMobileMenuOpen ? `${index * 100 + 300}ms` : '0ms'
                 }}
               >
-                <Link 
-                  href={link.href} 
-                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring block" 
+                <Link
+                  href={link.href}
+                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring block"
                   onClick={handleMobileLinkClick}
                 >
                   {link.label}
                 </Link>
               </div>
             ))}
+
+            {/* Mobil auth linkleri */}
+            {session?.user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={handleMobileLinkClick}
+                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 border-t border-border mt-2 pt-4 block"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => {
+                    handleMobileLinkClick();
+                    signOut({ callbackUrl: '/' });
+                  }}
+                  className="w-full text-left text-destructive rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-destructive/10 transition-all duration-300 flex items-center gap-3"
+                >
+                  <FaSignOutAlt className="w-4 h-4" />
+                  Çıkış Yap
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/giris"
+                onClick={handleMobileLinkClick}
+                className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 border-t border-border mt-2 pt-4 block"
+              >
+                Giriş Yap
+              </Link>
+            )}
           </nav>
         </div>
       </div>

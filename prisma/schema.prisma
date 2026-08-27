@@ -140,6 +140,7 @@ model SeoSettings {
 model AuditLog {
   id           String   @id @default(cuid())
   userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
   userEmail    String?
   action       String
   resource     String
@@ -221,6 +222,7 @@ model Plan {
 model Customer {
   id                  String   @id @default(cuid())
   userId              String?  @unique
+  user                User?    @relation(fields: [userId], references: [id])
   email               String   @unique
   name                String?
   stripeCustomerId    String?  @unique
@@ -291,6 +293,10 @@ model DigitalProduct {
   featured         Boolean  @default(false)
   order            Int      @default(0)
 
+  // Owner (SaaS)
+  ownerId          String?
+  owner            User?    @relation("ProductOwner", fields: [ownerId], references: [id])
+
   orderItems       OrderItem[]
   licenses         License[]
 
@@ -299,6 +305,7 @@ model DigitalProduct {
 
   @@index([active, order])
   @@index([category])
+  @@index([ownerId])
 }
 
 model Order {
@@ -306,6 +313,10 @@ model Order {
   orderNumber         String      @unique
   customerId          String?
   customer            Customer?   @relation(fields: [customerId], references: [id])
+
+  // SaaS user link
+  userId              String?
+  user                User?       @relation(fields: [userId], references: [id])
 
   // Stripe
   stripeSessionId     String      @unique
@@ -346,6 +357,7 @@ model Order {
   @@index([status])
   @@index([createdAt])
   @@index([couponId])
+  @@index([userId])
 }
 
 model Coupon {
@@ -424,6 +436,10 @@ model License {
   orderId         String?
   order           Order?         @relation(fields: [orderId], references: [id])
 
+  // SaaS user link
+  userId          String?
+  user            User?          @relation(fields: [userId], references: [id])
+
   type            LicenseType    @default(ONE_TIME)
   status          String         @default("active")
   maxActivations  Int            @default(1)
@@ -442,6 +458,7 @@ model License {
   @@index([customerId])
   @@index([productId])
   @@index([status])
+  @@index([userId])
 }
 
 model WebhookEvent {
@@ -466,6 +483,7 @@ model Workspace {
   name        String
   description String?
   ownerId     String
+  owner       User             @relation("WorkspaceOwner", fields: [ownerId], references: [id])
   members     WorkspaceMember[]
   invitations WorkspaceInvitation[]
   createdAt   DateTime @default(now())
@@ -485,6 +503,7 @@ model WorkspaceMember {
   workspaceId String
   workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   userId      String
+  user        User?         @relation(fields: [userId], references: [id])
   userEmail   String
   userName    String?
   role        WorkspaceRole @default(VIEWER)
@@ -516,3 +535,308 @@ model WorkspaceInvitation {
   @@index([workspaceId])
   @@index([email, status])
 }
+
+// =================== USER / AUTH (NextAuth) ===================
+// Phase 4 kapsamında eklendi. Centralized user account for SaaS features.
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?   // bcrypt hash, NextAuth credential provider
+  image         String?
+  emailVerified DateTime?
+
+  // Relations
+  accounts          Account[]
+  sessions          Session[]
+  apiKeys           ApiKey[]
+  monitors          Monitor[]
+  alertChannels     AlertChannel[]
+  subscriptions     UserSubscription[]
+  statusPages       StatusPage[]
+  customerProfile   Customer?
+  orders            Order[]
+  uploadedProducts  DigitalProduct[]    @relation("ProductOwner")
+  licenses          License[]
+  workspaceMemberships WorkspaceMember[]
+  ownedWorkspaces   Workspace[]         @relation("WorkspaceOwner")
+  auditLogs         AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+// NextAuth OAuth (opsiyonel - ileride Google/GitHub login için)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+
+  @@index([userId])
+}
+
+// =================== API KEYS / RATE LIMITING ===================
+// Phase 4 kapsamında eklendi. Public API için API key yönetimi + rate limit.
+
+model ApiKey {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String   // "Production Server", "Mobile App" vb.
+  key           String   @unique // nokt_live_xxxxx veya nokt_test_xxxxx
+  prefix        String   // İlk 8 karakter (UI'da gösterim için)
+  scopes        Json     @default("[]") // ["read:monitor", "write:monitor", "admin"]
+
+  // Limits
+  rateLimit     Int      @default(60) // requests per minute
+  monthlyQuota  Int?     // null = unlimited
+
+  // Tracking
+  lastUsedAt    DateTime?
+  totalRequests Int      @default(0)
+
+  // Lifecycle
+  expiresAt     DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  usages        ApiKeyUsage[]
+
+  @@index([userId])
+  @@index([key])
+}
+
+model ApiKeyUsage {
+  id          String   @id @default(cuid())
+  apiKeyId    String
+  apiKey      ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  endpoint    String   // "/api/monitor/check"
+  method      String   // "GET", "POST"
+  statusCode  Int      // 200, 401, 429
+  ipAddress   String?
+  timestamp   DateTime @default(now())
+
+  @@index([apiKeyId, timestamp])
+  @@index([endpoint])
+}
+
+// =================== MONITORING / UPTIME ===================
+// Phase 4 kapsamında eklendi. UptimeRobot benzeri monitoring sistemi.
+
+enum MonitorType {
+  HTTP
+  HTTPS
+  PING
+  PORT
+  KEYWORD
+  JSON
+}
+
+enum MonitorStatus {
+  UP
+  DOWN
+  PAUSED
+  PENDING
+}
+
+model Monitor {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name            String        // "Ana Sayfa", "API Endpoint"
+  url             String        // https://example.com
+  type            MonitorType   @default(HTTPS)
+  status          MonitorStatus @default(PENDING)
+
+  // Check interval (seconds)
+  intervalSec     Int           @default(60) // 60s, 300s, 600s, 1800s, 3600s
+
+  // Expected response
+  expectedStatus  Int?          // 200
+  keywordValue    String?       // keyword search in body
+  jsonPath        String?       // $.status == "ok"
+
+  // Timeout
+  timeoutSec      Int           @default(30)
+
+  // Current state
+  lastCheckedAt   DateTime?
+  lastResponseMs  Int?
+  uptimePct30d    Float         @default(100)
+
+  // Public visibility
+  isPublic        Boolean       @default(false)
+  publicSlug      String?       @unique
+
+  // Notifications
+  alertChannelIds Json          @default("[]")
+
+  // SSL/TLS info
+  sslExpiresAt    DateTime?
+
+  // Metadata
+  region          String        @default("eu-west") // eu-west, us-east, asia
+  tags            Json          @default("[]")
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  checks          MonitorCheck[]
+  incidents       Incident[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([isPublic])
+  @@index([lastCheckedAt])
+}
+
+model MonitorCheck {
+  id            String        @id @default(cuid())
+  monitorId     String
+  monitor       Monitor       @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  timestamp     DateTime      @default(now())
+  isUp          Boolean
+  responseMs    Int?
+  statusCode    Int?
+  errorMessage  String?
+  region        String        @default("eu-west")
+
+  @@index([monitorId, timestamp])
+  @@index([isUp])
+  @@index([timestamp])
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Incident {
+  id              String            @id @default(cuid())
+  monitorId       String
+  monitor         Monitor           @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime          @default(now())
+  resolvedAt      DateTime?
+  durationSec     Int?
+
+  severity        IncidentSeverity  @default(MEDIUM)
+  reason          String            // "Connection timeout", "503 Service Unavailable"
+
+  affectedChecks  Int               @default(0) // Kaç check başarısız oldu
+  totalChecks     Int               @default(0)
+
+  @@index([monitorId])
+  @@index([startedAt])
+  @@index([resolvedAt])
+}
+
+// =================== ALERT CHANNELS ===================
+
+enum AlertChannelType {
+  EMAIL
+  WEBHOOK
+  SLACK
+  DISCORD
+  TELEGRAM
+}
+
+model AlertChannel {
+  id            String           @id @default(cuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name          String           // "Production Email", "Slack #ops"
+  type          AlertChannelType
+  config        Json             // { email: "..." } veya { webhookUrl: "..." }
+
+  active        Boolean          @default(true)
+  events        Json             @default("[]") // ["down", "up", "ssl_expiry"]
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([userId])
+}
+
+// =================== STATUS PAGES (PUBLIC) ===================
+
+model StatusPage {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug          String    @unique
+  title         String
+  description   String?
+  brandColor    String    @default("#0078D4")
+  isPublic      Boolean   @default(true)
+
+  monitorIds    Json      @default("[]") // [monitorId1, monitorId2]
+
+  customDomain  String?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([slug])
+}
+
+// =================== USER SUBSCRIPTION (PLAN LINK) ===================
+// Customer/Plan yerine User bazlı sadeleştirilmiş abonelik kaydı.
+
+model UserSubscription {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planSlug              String   // "starter", "pro", "enterprise" - hardcoded enum gibi davranır
+  status                String   @default("active") // active, expired, cancelled
+
+  startedAt             DateTime @default(now())
+  expiresAt             DateTime
+  autoRenew             Boolean  @default(true)
+
+  stripeSubscriptionId  String?  @unique
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status, expiresAt])
+}
+
