@@ -48,21 +48,13 @@ export function RegisterForm() {
         throw new Error(message);
       }
 
-      // Auto-login after register
-      const signInResult = await signIn("credentials", {
+      // Auto-login after register (server-side redirect via NextAuth)
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        redirectTo: "/dashboard",
       });
-
-      if (!signInResult || signInResult.error) {
-        // Kayıt başarılı ama giriş başarısız — login sayfasına yönlendir
-        router.push("/giris?registered=1");
-        return;
-      }
-
-      router.push("/dashboard");
-      router.refresh();
+      // signIn redirect:true ile çalıştığında aşağıdaki kod çalışmaz (redirect yapar)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Bir hata oluştu");
     } finally {
