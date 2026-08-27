@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { isIyzicoConfigured } from '@/lib/iyzico';
 import { iyzicoService } from './iyzicoService';
+import { iyzicoSubscriptionService } from './iyzicoSubscriptionService';
 import { emailService } from '@/lib/emailService';
 import {
   planRepository,
@@ -263,46 +264,37 @@ export const commerceService = {
 
     const provider = selectPaymentProvider(options?.paymentProvider);
 
-    // --- iyzico subscription (basit tek seferlik ödeme olarak işliyoruz) ---
-    if (provider === 'iyzico') {
-      const totalPrice = centsToIyzicoString(plan.priceCents);
-      const checkout = await iyzicoService.createCheckout({
-        items: [
-          {
-            id: plan.id,
-            name: `${plan.name} (Abonelik)`,
-            category: 'subscription',
-            itemType: 'VIRTUAL',
-            price: totalPrice,
-          },
-        ],
-        totalPrice,
-        paidPrice: totalPrice,
+    // --- iyzico subscription ---
+    // Email .com.tr uzantılı ise veya explicit iyzico istendiyse iyzico subscription akışı
+    if (
+      provider === 'iyzico' ||
+      (iyzicoSubscriptionService.shouldUseIyzico(customerEmail) && isIyzicoConfigured())
+    ) {
+      const checkout = await iyzicoSubscriptionService.createSubscriptionCheckout({
+        planSlug: plan.slug,
         customerEmail,
         customerName: options?.customerName,
         customerPhone: options?.customerPhone,
         customerIp: options?.customerIp,
-        callbackUrl: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/odeme/iyzico-callback`,
-        currency: (plan.currency?.toUpperCase() as 'TRY' | 'USD' | 'EUR' | 'GBP') ?? 'TRY',
+        callbackUrl: '/odeme/iyzico-callback',
       });
 
-      if (checkout.status !== 'success') {
-        throw new Error(
-          `[iyzico] abonelik başlatılamadı: ${checkout.errorCode ?? ''} ${checkout.errorMessage ?? ''}`.trim()
-        );
-      }
-
       return {
-        url: checkout.paymentPageUrl,
+        url: checkout.url,
         sessionId: checkout.token,
         provider: 'iyzico' as PaymentProvider,
+        mock: checkout.mock,
       };
     }
 
     // --- Stripe akışı (veya mock) ---
     if (!isStripeConfigured()) {
       logger.warn('Stripe not configured, returning mock subscription URL');
-      return { url: `/odeme/basarili?mock_sub=1&plan=${planSlug}`, sessionId: 'mock', provider: 'stripe' as PaymentProvider };
+      return {
+        url: `/odeme/basarili?mock_sub=1&plan=${planSlug}`,
+        sessionId: 'mock',
+        provider: 'stripe' as PaymentProvider,
+      };
     }
 
     const session = await stripe.checkout.sessions.create({

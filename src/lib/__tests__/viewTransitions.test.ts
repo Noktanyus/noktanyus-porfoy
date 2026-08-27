@@ -9,8 +9,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 describe('View Transitions', () => {
   beforeEach(() => {
     // Her test öncesi document.startViewTransition mock'unu temizle
-    // @ts-expect-error — test amaçlı silme
-    delete (document as any).startViewTransition;
+    delete (document as Document & { startViewTransition?: unknown }).startViewTransition;
   });
 
   it('detects support correctly when API is missing', async () => {

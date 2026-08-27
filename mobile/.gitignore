@@ -1,0 +1,46 @@
+node_modules/
+.expo/
+dist/
+web-build/
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Metro
+.metro-health-check*
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# Local env
+.env*.local
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Builds
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Expo
+.expo/
+
+# EAS
+eas-build-local-builds/

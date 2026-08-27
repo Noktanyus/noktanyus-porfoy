@@ -27,7 +27,8 @@ export type AuditAction =
   | 'GIT_CHECKOUT'
   | 'IMAGE_UPLOAD'
   | 'IMAGE_DELETE'
-  | 'SETTINGS_UPDATE';
+  | 'SETTINGS_UPDATE'
+  | 'REFUND';
 
 export interface AuditEntry {
   userId?: string;
@@ -47,7 +48,7 @@ export interface AuditEntry {
 export async function logAudit(entry: AuditEntry): Promise<void> {
   try {
     const data: Prisma.AuditLogCreateInput = {
-      userId: entry.userId ?? null,
+      user: entry.userId ? { connect: { id: entry.userId } } : undefined,
       userEmail: entry.userEmail ?? null,
       action: entry.action,
       resource: entry.resource,
@@ -76,7 +77,7 @@ export async function logAuditFailure(
   try {
     await prisma.auditLog.create({
       data: {
-        userId: entry.userId ?? null,
+        user: entry.userId ? { connect: { id: entry.userId } } : undefined,
         userEmail: entry.userEmail ?? null,
         action: entry.action,
         resource: entry.resource,
