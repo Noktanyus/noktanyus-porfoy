@@ -6,12 +6,17 @@ import toast from 'react-hot-toast';
 import { useCart } from '@/stores/cartStore';
 import { formatCurrency } from '@/lib/utils';
 
+type PaymentProvider = 'stripe' | 'iyzico';
+
 export function CheckoutForm() {
   const items = useCart((s) => s.items);
   const total = useCart((s) => s.total());
   const clear = useCart((s) => s.clear);
 
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>('iyzico');
   const [loading, setLoading] = useState(false);
   const [acceptedCayma, setAcceptedCayma] = useState(false);
 
@@ -35,6 +40,9 @@ export function CheckoutForm() {
             priceCents: i.priceCents,
           })),
           customerEmail: email,
+          customerName: name || undefined,
+          customerPhone: phone || undefined,
+          paymentProvider,
         }),
       });
 
@@ -44,7 +52,7 @@ export function CheckoutForm() {
         throw new Error(result.error?.message ?? 'Ödeme başlatılamadı');
       }
 
-      // Sepeti temizle ve Stripe'a yönlendir
+      // Sepeti temizle ve ödeme sağlayıcısına yönlendir
       clear();
       window.location.href = result.data.url;
     } catch (err) {
@@ -102,7 +110,7 @@ export function CheckoutForm() {
 
       <div className="glass-card-premium p-6">
         <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
-          E-posta
+          Ödeme Bilgileri
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -124,6 +132,71 @@ export function CheckoutForm() {
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Lisans ve fatura bu adrese gönderilecek
             </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+              >
+                Ad Soyad
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="Ad Soyad"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+              >
+                Telefon
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="+90 5xx xxx xx xx"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Ödeme Yöntemi
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentProvider('iyzico')}
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                  paymentProvider === 'iyzico'
+                    ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                }`}
+              >
+                💳 iyzico (Türkiye)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentProvider('stripe')}
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                  paymentProvider === 'stripe'
+                    ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                }`}
+              >
+                🌐 Stripe (Kart)
+              </button>
+            </div>
           </div>
 
           <label className="flex items-start gap-2 cursor-pointer">
@@ -164,7 +237,7 @@ export function CheckoutForm() {
           >
             {loading
               ? 'Yönlendiriliyor...'
-              : `🔒 Stripe ile Güvenli Ödeme - ${formatCurrency(total)}`}
+              : `🔒 ${paymentProvider === 'iyzico' ? 'iyzico' : 'Stripe'} ile Güvenli Ödeme - ${formatCurrency(total)}`}
           </button>
 
           <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-3">

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { commerceService } from '@/modules/commerce';
-import { ProductGrid } from '@/components/commerce/ProductGrid';
+import nextDynamic from 'next/dynamic';
 import { EmptyState } from '@/components/ui/ErrorDisplay';
 
 export const metadata: Metadata = {
@@ -10,6 +10,24 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
+
+// Lazy-load ProductGrid (which pulls in next/image + Link + commerce utils)
+// to reduce the initial JS bundle for the /magaza entry chunk.
+const ProductGrid = nextDynamic(
+  () => import('@/components/commerce/ProductGrid').then((m) => m.ProductGrid),
+  {
+    loading: () => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-80 animate-pulse bg-gray-100/40 dark:bg-gray-800/40 rounded-2xl"
+          />
+        ))}
+      </div>
+    ),
+  }
+);
 
 export default async function MagazaPage() {
   let products: Awaited<ReturnType<typeof commerceService.listProducts>> = [];

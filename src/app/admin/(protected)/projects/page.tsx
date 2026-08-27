@@ -10,7 +10,8 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEdit } from "react-icons/fa";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 
 /** Projenin temel bilgilerini içeren tip. */
 type ProjectPost = {
@@ -105,9 +106,12 @@ export default function ProjectsAdminPage() {
                         <Link href={`/admin/projects/edit/${project.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${project.title} projesini düzenle`}>
                           <FaEdit size={16} />
                         </Link>
-                        <button onClick={() => handleDelete(project.slug)} className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20" aria-label={`${project.title} projesini sil`}>
-                          <FaTrash size={16} />
-                        </button>
+                        <DeleteButton
+                          endpoint={`/api/admin/projects/${project.slug}`}
+                          itemName={project.title}
+                          confirmMessage={`'${project.title}' projesini kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
+                          onSuccess={() => setProjects((prev) => prev.filter((p) => p.slug !== project.slug))}
+                        />
                       </div>
                     </td>
                   </tr>

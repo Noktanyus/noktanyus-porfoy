@@ -24,6 +24,11 @@ vi.mock('@/lib/email', () => ({
   sendEmail: vi.fn().mockResolvedValue({ success: true, messageId: 'mock-1' }),
 }));
 
+// Queue mock — enqueueBroadcast job üretimini doğrulamak için
+vi.mock('@/lib/queueService', () => ({
+  queueService: { sendEmail: vi.fn().mockResolvedValue(undefined), driver: 'memory' },
+}));
+
 vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
@@ -36,6 +41,7 @@ vi.mock('@/lib/logger', () => ({
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { newsletterService } from '../service';
+import { queueService } from '@/lib/queueService';
 
 const mockSubscribers = [
   {
@@ -158,5 +164,43 @@ describe('NewsletterService.sendBroadcast', () => {
     await expect(
       newsletterService.sendBroadcast({ subject: '', html: '<p>x</p>' })
     ).rejects.toThrow();
+  });
+});
+describe('NewsletterService.enqueueBroadcast', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('her abone için bir email job kuyruğa alır', async () => {
+    vi.mocked(prisma.newsletterSubscriber.findMany).mockResolvedValue(mockSubscribers as any);
+
+    const result = await newsletterService.enqueueBroadcast({
+      subject: 'Test',
+      html: '<p>Hello</p>',
+    });
+
+    expect(result.queued).toBe(3);
+    expect(result.total).toBe(3);
+    expect(queueService.sendEmail).toHaveBeenCalledTimes(3);
+    expect(queueService.sendEmail).toHaveBeenCalledWith({
+      to: 'a@b.com',
+      subject: 'Test',
+      html: '<p>Hello</p>',
+      text: undefined,
+    });
+    // Kuyruğa alınır — senkron gönderim YAPILMAZ
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('abone yoksa hiç job üretmez', async () => {
+    vi.mocked(prisma.newsletterSubscriber.findMany).mockResolvedValue([]);
+
+    const result = await newsletterService.enqueueBroadcast({
+      subject: 'Test',
+      html: '<p>Hello</p>',
+    });
+
+    expect(result.queued).toBe(0);
+    expect(queueService.sendEmail).not.toHaveBeenCalled();
   });
 });

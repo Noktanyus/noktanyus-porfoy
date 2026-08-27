@@ -8,6 +8,7 @@ import { newsletterRepository } from './repository';
 import { SubscribeSchema, type SubscribeInput, type BroadcastInput } from './schemas';
 import { logger } from '@/lib/logger';
 import { sendEmail } from '@/lib/email';
+import { queueService } from '@/lib/queueService';
 import { NotFoundError, ConflictError } from '@/modules/shared/errors';
 
 export const newsletterService = {
@@ -171,6 +172,30 @@ export const newsletterService = {
 
     logger.info('Newsletter broadcast complete', { sent, failed, total: subscribers.length });
     return { sent, failed, total: subscribers.length };
+  },
+
+  /**
+   * Broadcast'ı kuyruğa alır ve hemen döner. Her abone için ayrı bir
+   * email job'ı oluşur; böylece tek bir başarısız gönderim diğerlerini
+   * etkilemez ve retry per-abone çalışır.
+   *
+   * Büyük listeler için `sendBroadcast` yerine bunu kullan — admin
+   * request'i abone sayısı kadar beklemez.
+   */
+  async enqueueBroadcast(opts: BroadcastInput) {
+    const subscribers = await newsletterRepository.findVerifiedActive();
+
+    for (const sub of subscribers) {
+      await queueService.sendEmail({
+        to: sub.email,
+        subject: opts.subject,
+        html: opts.html,
+        text: opts.text,
+      });
+    }
+
+    logger.info('Newsletter broadcast queued', { total: subscribers.length });
+    return { queued: subscribers.length, total: subscribers.length };
   },
 
   /**

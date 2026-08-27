@@ -2,8 +2,14 @@
 export const dynamic = 'force-dynamic';
 
 import { listBlogs } from '@/services/contentService';
-import BlogList from '@/components/BlogList';
+import nextDynamic from 'next/dynamic';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+
+// Lazy-load the heavy client list component (search/filter logic) to reduce
+// initial JS bundle size. SSR is kept on so SEO and first paint are preserved.
+const BlogList = nextDynamic(() => import('@/components/BlogList'), {
+  loading: () => <div className="h-96 animate-pulse bg-gray-100/40 dark:bg-gray-800/40 rounded-2xl" />,
+});
 
 export default async function BlogPage() {
   let allPosts;

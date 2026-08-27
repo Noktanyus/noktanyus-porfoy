@@ -6,13 +6,17 @@
  * Rate limit: adminApi (60 req/min).
  *
  * Body: { subject, html, text? }
- * Response: { success: true, data: { sent, failed, total } }
+ * Response: { success: true, data: { sent, failed, total, queued } }
+ *
+ * REDIS_URL tanımlıysa gönderim kuyruğa alınır (queued > 0, sent/failed = 0).
+ * Aksi halde senkron gönderilir (sent/failed dolu, queued = 0).
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { newsletterService } from '@/modules/newsletter';
+import { queueService } from '@/lib/queueService';
 import { BroadcastSchema } from '@/modules/newsletter/schemas';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { withRateLimit } from '@/lib/rateLimitMiddleware';
@@ -53,13 +57,16 @@ export const POST = withRateLimit(RateLimits.adminApi, async (req: NextRequest) 
     logger.info('Newsletter broadcast starting', {
       subject: data.subject,
       by: sessionUser.email,
+      driver: queueService.driver,
     });
 
-    const result = await newsletterService.sendBroadcast({
-      subject: data.subject,
-      html: data.html,
-      text: data.text,
-    });
+    // BullMQ aktifse kuyruğa al ve hemen dön — admin request'i abone
+    // sayısı kadar beklemez, retry per-abone çalışır. Redis yoksa
+    // in-memory queue serverless'ta güvenilir olmadığı için senkron gönderilir.
+    const result =
+      queueService.driver === 'bullmq'
+        ? { sent: 0, failed: 0, ...(await newsletterService.enqueueBroadcast(data)) }
+        : { queued: 0, ...(await newsletterService.sendBroadcast(data)) };
 
     logger.info('Newsletter broadcast done', {
       ...result,
@@ -86,6 +93,7 @@ export const POST = withRateLimit(RateLimits.adminApi, async (req: NextRequest) 
           sent: result.sent,
           failed: result.failed,
           total: result.total,
+          queued: result.queued,
         },
         ipAddress,
         userAgent,

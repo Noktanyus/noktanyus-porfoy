@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
@@ -17,7 +18,7 @@ export function ProductGrid({ products }: ProductGridProps) {
   );
 }
 
-function ProductCard({ product }: { product: DigitalProduct }) {
+const ProductCard = memo(function ProductCard({ product }: { product: DigitalProduct }) {
   const techs = Array.isArray(product.technologies)
     ? (product.technologies as unknown[]).map((t) => String(t))
     : [];
@@ -68,4 +69,4 @@ function ProductCard({ product }: { product: DigitalProduct }) {
       </article>
     </Link>
   );
-}
+});

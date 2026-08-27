@@ -2,9 +2,15 @@
 export const dynamic = 'force-dynamic';
 
 import { listProjects } from '@/services/contentService';
-import ProjectList from '@/components/ProjectList';
+import nextDynamic from 'next/dynamic';
 import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+
+// Lazy-load the heavy client list component (search/filter logic) to reduce
+// initial JS bundle size. SSR is kept on so SEO and first paint are preserved.
+const ProjectList = nextDynamic(() => import('@/components/ProjectList'), {
+  loading: () => <PageSkeleton />,
+});
 
 export default async function ProjelerimPage() {
   let allProjects;

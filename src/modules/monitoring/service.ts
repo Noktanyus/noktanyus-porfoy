@@ -17,6 +17,7 @@ import dns from 'dns/promises';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { sendEmail } from '@/lib/email';
+import { queueService } from '@/lib/queueService';
 import { NotFoundError, ValidationError, ForbiddenError } from '@/modules/shared/errors';
 import {
   monitorRepository,
@@ -306,44 +307,26 @@ export const monitoringService = {
 
   async runScheduledChecks() {
     const dueMonitors = await monitorRepository.findDueForCheck();
+
+    // BullMQ aktifse her monitör ayrı bir job olur — cron request'i hızlı döner
+    // ve kontroller worker'larda paralel (concurrency 5) çalışır.
+    if (queueService.driver === 'bullmq') {
+      for (const monitor of dueMonitors) {
+        await queueService.scheduleMonitorCheck(monitor.id);
+      }
+      logger.info('Scheduled monitor checks queued', { total: dueMonitors.length });
+      return { successCount: 0, failCount: 0, total: dueMonitors.length, queued: dueMonitors.length };
+    }
+
+    // In-memory mode: seri olarak burada çalıştır (davranış değişmez).
     let successCount = 0;
     let failCount = 0;
 
     for (const monitor of dueMonitors) {
       try {
-        const result = await this.checkMonitor(monitor.id);
-        await monitorRepository.recordCheck(monitor.id, result);
-
-        if (result.isUp) {
-          successCount++;
-          const openIncident = await incidentRepository.findOpen(monitor.id);
-          if (openIncident) {
-            await incidentRepository.resolve(
-              openIncident.id,
-              Math.floor((Date.now() - new Date(openIncident.startedAt).getTime()) / 1000)
-            );
-            await this.sendAlert(monitor, 'up', openIncident);
-            // Up olunca uptime istatistiğini güncelle
-            try {
-              await monitorRepository.updateUptimeStats(monitor.id);
-            } catch (e) {
-              logger.warn('Uptime stats update failed', { monitorId: monitor.id, error: e });
-            }
-          }
-        } else {
-          failCount++;
-          const openIncident = await incidentRepository.findOpen(monitor.id);
-          if (!openIncident) {
-            const incident = await incidentRepository.open(
-              monitor.id,
-              result.errorMessage || `HTTP ${result.statusCode ?? 'unknown'}`,
-              'HIGH'
-            );
-            await this.sendAlert(monitor, 'down', incident);
-          } else {
-            await incidentRepository.incrementAffected(openIncident.id);
-          }
-        }
+        const isUp = await this.processMonitorCheck(monitor.id, monitor);
+        if (isUp) successCount++;
+        else failCount++;
       } catch (err) {
         logger.error('Scheduled monitor check failed', { monitorId: monitor.id, error: err });
       }
@@ -355,6 +338,52 @@ export const monitoringService = {
       failCount,
     });
     return { successCount, failCount, total: dueMonitors.length };
+  },
+
+  /**
+   * Tek bir monitörün tam kontrol akışı: check → kaydet → incident aç/kapat → alert.
+   * Hem scheduled runner hem de queue worker bunu çağırır.
+   *
+   * @param preloaded Alert dispatch için monitör kaydı; verilmezse DB'den çekilir.
+   * @returns Monitör ayakta mı
+   */
+  async processMonitorCheck(monitorId: string, preloaded?: any): Promise<boolean> {
+    const monitor = preloaded ?? (await monitorRepository.findById(monitorId));
+    if (!monitor) throw new NotFoundError('Monitör');
+
+    const result = await this.checkMonitor(monitorId);
+    await monitorRepository.recordCheck(monitorId, result);
+
+    if (result.isUp) {
+      const openIncident = await incidentRepository.findOpen(monitorId);
+      if (openIncident) {
+        await incidentRepository.resolve(
+          openIncident.id,
+          Math.floor((Date.now() - new Date(openIncident.startedAt).getTime()) / 1000)
+        );
+        await this.sendAlert(monitor, 'up', openIncident);
+        // Up olunca uptime istatistiğini güncelle
+        try {
+          await monitorRepository.updateUptimeStats(monitorId);
+        } catch (e) {
+          logger.warn('Uptime stats update failed', { monitorId, error: e });
+        }
+      }
+      return true;
+    }
+
+    const openIncident = await incidentRepository.findOpen(monitorId);
+    if (!openIncident) {
+      const incident = await incidentRepository.open(
+        monitorId,
+        result.errorMessage || `HTTP ${result.statusCode ?? 'unknown'}`,
+        'HIGH'
+      );
+      await this.sendAlert(monitor, 'down', incident);
+    } else {
+      await incidentRepository.incrementAffected(openIncident.id);
+    }
+    return false;
   },
 
   // --- Alert Dispatch -----------------------------------------------------

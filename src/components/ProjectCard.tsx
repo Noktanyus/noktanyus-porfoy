@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
@@ -10,7 +11,7 @@ interface ProjectCardProps {
   index?: number;
 }
 
-const ProjectCard = ({ project, index = 0 }: ProjectCardProps) => {
+const ProjectCard = memo(function ProjectCard({ project, index = 0 }: ProjectCardProps) {
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
@@ -117,6 +118,6 @@ const ProjectCard = ({ project, index = 0 }: ProjectCardProps) => {
       </div>
     </article>
   );
-};
+});
 
 export default ProjectCard;

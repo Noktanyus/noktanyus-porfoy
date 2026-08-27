@@ -9,6 +9,7 @@ import "@/lib/env";
 
 import Image from "next/image";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 // Force dynamic rendering globally to prevent build-time Prisma errors
 export const dynamicMode = 'force-dynamic';
 
@@ -23,6 +24,23 @@ import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
 import dynamic from "next/dynamic";
+
+// next/font/google: build-time download & self-host Inter. Eliminates the
+// runtime Google Fonts CSS request and removes a render-blocking resource.
+// 'swap' avoids invisible text during font load (FOIT).
+const inter = Inter({
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
+  variable: '--font-inter',
+  preload: true,
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'sans-serif',
+  ],
+});
 
 // Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
 const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
@@ -139,12 +157,13 @@ export default async function RootLayout({
             `,
           }}
         />
-        {/* Google Fonts preconnect for better performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Inter font is self-hosted via next/font/google — no external preconnects needed */}
       </head>
-      {/* Font sınıfı artık doğrudan body'ye uygulanmıyor, CSS'den geliyor */}
-      <body className={'bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text'}>
+      {/* Apply next/font CSS variable + Tailwind classes. The `inter.variable`
+          class wires the generated --font-inter custom property onto <html>. */}
+      <body
+        className={`${inter.variable} bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}
+      >
         <AuthProvider>
           <ThemeProvider
             attribute="class"

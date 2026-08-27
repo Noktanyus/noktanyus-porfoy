@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import Link from 'next/link';
 import { Blog } from '@/types/content';
 import { FaArrowRight, FaClock } from 'react-icons/fa';
@@ -10,7 +11,7 @@ interface BlogCardProps {
   index?: number;
 }
 
-const BlogCard = ({ blog, index = 0 }: BlogCardProps) => {
+const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
   if (!blog) {
     return null;
   }
@@ -104,6 +105,6 @@ const BlogCard = ({ blog, index = 0 }: BlogCardProps) => {
       </Link>
     </article>
   );
-};
+});
 
 export default BlogCard;

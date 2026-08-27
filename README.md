@@ -19,6 +19,7 @@ Bu proje [MIT Lisansı](./LICENSE) ile lisanslanmıştır. Kullanımda kaynak be
   - [Veritabanı Yönetimi (Prisma)](#veritabanı-yönetimi-prisma)
 - [Ortam Değişkenleri (.env)](#-ortam-değişkenleri-env)
 - [Testler](#-testler)
+- [Performans](#-performans)
 - [Docker ile Çalıştırma](#-docker-ile-çalıştırma)
 - [CI/CD Pipeline](#-cicd-pipeline)
 
@@ -148,6 +149,67 @@ Projedeki testleri çalıştırmak için aşağıdaki komutu kullanın:
 ```bash
 pnpm test
 ```
+
+## ⚡ Performans
+
+Bu proje performans için optimize edilmiştir. Yapılan başlıca iyileştirmeler:
+
+### Bundle Optimizasyonu
+
+- **`@next/bundle-analyzer`** entegrasyonu ile her an bundle analizi yapılabilir:
+  ```bash
+  ANALYZE=true npm run build
+  ```
+  Raporlar `.next/analyze/client.html` ve `.next/analyze/server.html` altında oluşur.
+- **`experimental.optimizePackageImports`** — `react-icons`, `framer-motion`, `date-fns`, `lucide-react` için tree-shaking optimize edildi (icon kütüphaneleri binlerce icon içerdiğinden ciddi boyut tasarrufu sağlar).
+- **`compiler.removeConsole`** — Production build'inde `console.log` / `console.debug` / `console.info` çağrıları kaldırılır (`error` ve `warn` korunur).
+
+### Code-Splitting / Lazy Loading
+
+- **`BlogList`, `ProjectList`, `ProductGrid`** sayfaları `next/dynamic` ile lazy-load edilir; ilk boyuta yüklenmez, sadece ilgili sayfada devreye girer.
+- **`PopupViewer`** layout seviyesinde `ssr: false` ile dinamik yüklenir.
+- **React.memo** ile `BlogCard`, `ProjectCard` ve `ProductCard` gereksiz re-render'lardan kaçınır.
+
+### Image Optimizasyonu
+
+- Tüm görseller özel `OptimizedImage` bileşeni üzerinden `next/image` ile servis edilir.
+- **AVIF + WebP** formatları otomatik dönüştürülür.
+- Varsayılan `loading="lazy"`, üst katlama (above-the-fold) görselleri için `priority` desteği mevcut.
+- 1 yıllık (`minimumCacheTTL: 31536000`) image cache.
+
+### Font Optimizasyonu
+
+- **Inter** fontu `next/font/google` ile build-time indirilip **self-host** edilir — runtime'da Google Fonts'a istek gitmez, CLS/FOIT azalır.
+- `display: 'swap'` ile font yüklenene kadar sistem fontu gösterilir.
+
+### Cache Header'ları
+
+`next.config.mjs` içinde aşağıdaki yollar için **1 yıllık + immutable** cache tanımlıdır:
+
+- `/uploads/:path*` — yüklenen kullanıcı görselleri
+- `/_next/static/:path*` — Next.js build çıktıları (JS, CSS, vs.)
+- `/images/:path*` — public klasöründeki görseller
+
+### Monitoring
+
+- **Sentry** performans izleme örnekleme oranı **`tracesSampleRate: 0.1`** ve **`profilesSampleRate: 0.1`** olarak ayarlandı (eski `%100`'den düşürüldü — maliyet & gürültü azaltma).
+- Session replay oranları korundu: `%10` normal, `%100` hata anında.
+
+### Performance Testleri
+
+Kontrat-tabanlı performans testleri `src/lib/__tests__/performance.test.ts` altında bulunur. Bundle analyzer, memoization, lazy loading, font ve image optimizasyonu için yapılandırma kontrolleri yapılır:
+
+```bash
+npx vitest run src/lib/__tests__/performance.test.ts
+```
+
+### Ölçüm Önerileri
+
+Değişiklik sonrası gerçek etkiyi görmek için:
+
+1. **Bundle analizi:** `ANALYZE=true npm run build`
+2. **Lighthouse CI:** `npx @lhci/cli@0.13.x autorun` (Chrome gerekir)
+3. **Sentry Performance:** İlk gerçek kullanıcı verisi için 24 saat bekleyin.
 
 ## 🐳 Docker ile Çalıştırma
 

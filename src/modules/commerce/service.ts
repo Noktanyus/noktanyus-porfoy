@@ -1,11 +1,13 @@
 /**
  * Commerce Module — Service Layer
  *
- * Stripe checkout, webhook işleme, lisans aktivasyonu ve commerce iş kuralları.
+ * Stripe + iyzico checkout, webhook işleme, lisans aktivasyonu ve commerce iş kuralları.
  */
 
 import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
+import { isIyzicoConfigured } from '@/lib/iyzico';
+import { iyzicoService } from './iyzicoService';
 import { emailService } from '@/lib/emailService';
 import {
   planRepository,
@@ -17,6 +19,30 @@ import {
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
+
+export type PaymentProvider = 'stripe' | 'iyzico';
+
+/**
+ * Ödeme sağlayıcısı seçimi.
+ * Öncelik: explicit istek > iyzico (TR için) > Stripe > fallback (ilk yapılandırılmış olan).
+ */
+export function selectPaymentProvider(requested?: string | null): PaymentProvider {
+  const req = (requested ?? '').toLowerCase();
+
+  if (req === 'iyzico' && isIyzicoConfigured()) return 'iyzico';
+  if (req === 'stripe' && isStripeConfigured()) return 'stripe';
+
+  // Default: iyzico tercih edilir (TR pazarı), Stripe yoksa
+  if (isIyzicoConfigured()) return 'iyzico';
+  if (isStripeConfigured()) return 'stripe';
+
+  // Hiçbiri yapılandırılmamışsa stripe default kalsın (mock mode)
+  return 'stripe';
+}
+
+function centsToIyzicoString(cents: number): string {
+  return (cents / 100).toFixed(2);
+}
 
 interface OrderWithItems {
   id: string;
@@ -50,7 +76,11 @@ export const commerceService = {
   },
 
   // --- Checkout: one-time product ---
-  async createProductCheckout(items: CartItem[], customerEmail: string) {
+  async createProductCheckout(
+    items: CartItem[],
+    customerEmail: string,
+    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+  ) {
     if (!items.length) throw new ValidationError('Sepet boş');
 
     // Validate products
@@ -62,9 +92,10 @@ export const commerceService = {
     }
 
     const subtotal = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
+    const provider = selectPaymentProvider(options?.paymentProvider);
 
-    if (!isStripeConfigured()) {
-      // Mock mode for development
+    // --- Mock mode (hiçbir provider yapılandırılmamışsa) ---
+    if (provider === 'stripe' && !isStripeConfigured()) {
       logger.warn('Stripe not configured, returning mock checkout URL');
       const order = await prisma.order.create({
         data: {
@@ -94,10 +125,73 @@ export const commerceService = {
       return {
         url: `/odeme/basarili?session_id=mock_${order.id}&order=${order.orderNumber}`,
         sessionId: order.stripeSessionId,
+        provider: 'stripe' as PaymentProvider,
       };
     }
 
-    // Real Stripe checkout
+    // --- iyzico akışı ---
+    if (provider === 'iyzico') {
+      const totalPrice = centsToIyzicoString(subtotal);
+      const checkout = await iyzicoService.createCheckout({
+        items: items.map((item) => {
+          const product = validProducts.find((p) => p.id === item.productId)!;
+          return {
+            id: item.productId,
+            name: product.title,
+            category: product.category ?? 'general',
+            itemType: 'VIRTUAL',
+            price: centsToIyzicoString(item.priceCents),
+          };
+        }),
+        totalPrice,
+        paidPrice: totalPrice,
+        customerEmail,
+        customerName: options?.customerName,
+        customerPhone: options?.customerPhone,
+        customerIp: options?.customerIp,
+        callbackUrl: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/odeme/iyzico-callback`,
+        currency: 'TRY',
+      });
+
+      if (checkout.status !== 'success') {
+        throw new Error(
+          `[iyzico] checkout başlatılamadı: ${checkout.errorCode ?? ''} ${checkout.errorMessage ?? ''}`.trim()
+        );
+      }
+
+      await prisma.order.create({
+        data: {
+          orderNumber: await orderRepository.generateOrderNumber(),
+          customerEmail,
+          stripeSessionId: checkout.token, // token'ı bu alanda tutuyoruz
+          status: 'PENDING',
+          subtotalCents: subtotal,
+          totalCents: subtotal,
+          currency: 'try',
+          items: {
+            create: items.map((item) => {
+              const product = validProducts.find((p) => p.id === item.productId)!;
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPriceCents: item.priceCents,
+                totalCents: item.priceCents * item.quantity,
+                productTitle: product.title,
+                productSlug: product.slug,
+              };
+            }),
+          },
+        },
+      });
+
+      return {
+        url: checkout.paymentPageUrl,
+        sessionId: checkout.token,
+        provider: 'iyzico' as PaymentProvider,
+      };
+    }
+
+    // --- Stripe akışı ---
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -154,17 +248,61 @@ export const commerceService = {
     return {
       url: session.url!,
       sessionId: session.id,
+      provider: 'stripe' as PaymentProvider,
     };
   },
 
   // --- Checkout: subscription plan ---
-  async createSubscriptionCheckout(planSlug: string, customerEmail: string) {
+  async createSubscriptionCheckout(
+    planSlug: string,
+    customerEmail: string,
+    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+  ) {
     const plan = await planRepository.findBySlug(planSlug);
     if (!plan) throw new NotFoundError('Plan');
 
+    const provider = selectPaymentProvider(options?.paymentProvider);
+
+    // --- iyzico subscription (basit tek seferlik ödeme olarak işliyoruz) ---
+    if (provider === 'iyzico') {
+      const totalPrice = centsToIyzicoString(plan.priceCents);
+      const checkout = await iyzicoService.createCheckout({
+        items: [
+          {
+            id: plan.id,
+            name: `${plan.name} (Abonelik)`,
+            category: 'subscription',
+            itemType: 'VIRTUAL',
+            price: totalPrice,
+          },
+        ],
+        totalPrice,
+        paidPrice: totalPrice,
+        customerEmail,
+        customerName: options?.customerName,
+        customerPhone: options?.customerPhone,
+        customerIp: options?.customerIp,
+        callbackUrl: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/odeme/iyzico-callback`,
+        currency: (plan.currency?.toUpperCase() as 'TRY' | 'USD' | 'EUR' | 'GBP') ?? 'TRY',
+      });
+
+      if (checkout.status !== 'success') {
+        throw new Error(
+          `[iyzico] abonelik başlatılamadı: ${checkout.errorCode ?? ''} ${checkout.errorMessage ?? ''}`.trim()
+        );
+      }
+
+      return {
+        url: checkout.paymentPageUrl,
+        sessionId: checkout.token,
+        provider: 'iyzico' as PaymentProvider,
+      };
+    }
+
+    // --- Stripe akışı (veya mock) ---
     if (!isStripeConfigured()) {
       logger.warn('Stripe not configured, returning mock subscription URL');
-      return { url: `/odeme/basarili?mock_sub=1&plan=${planSlug}`, sessionId: 'mock' };
+      return { url: `/odeme/basarili?mock_sub=1&plan=${planSlug}`, sessionId: 'mock', provider: 'stripe' as PaymentProvider };
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -177,7 +315,7 @@ export const commerceService = {
       metadata: { planSlug, customerEmail },
     });
 
-    return { url: session.url!, sessionId: session.id };
+    return { url: session.url!, sessionId: session.id, provider: 'stripe' as PaymentProvider };
   },
 
   // --- Customer portal ---

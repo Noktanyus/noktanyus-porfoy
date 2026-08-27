@@ -118,13 +118,17 @@ export function BroadcastForm() {
         return;
       }
 
-      const { sent, failed, total } = data.data as {
+      const { sent, failed, total, queued } = data.data as {
         sent: number;
         failed: number;
         total: number;
+        queued?: number;
       };
 
-      if (failed === 0) {
+      if (queued && queued > 0) {
+        // Queue mode: gönderim arka planda sürüyor
+        toast.success(`${queued} abone gönderim kuyruğuna alındı`, { id: toastId });
+      } else if (failed === 0) {
         toast.success(`${sent} / ${total} aboneye başarıyla gönderildi`, { id: toastId });
       } else {
         toast.error(`${sent} başarılı, ${failed} başarısız (toplam ${total})`, { id: toastId });

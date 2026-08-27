@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { productRepository } from '@/modules/commerce';
 import { formatCurrency } from '@/lib/utils';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { ProductRowActions } from '@/components/admin/ProductRowActions';
 
 // Her istekte yeniden render — DB'den canlı veri çekmek için
 export const dynamic = 'force-dynamic';
@@ -75,6 +76,9 @@ export default async function AdminProductsPage() {
                   <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
                     Durum
                   </th>
+                  <th className="text-right p-4 font-semibold text-gray-700 dark:text-gray-300">
+                    İşlemler
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -117,6 +121,14 @@ export default async function AdminProductsPage() {
                           ⭐ Öne Çıkan
                         </span>
                       )}
+                    </td>
+                    <td className="p-4">
+                      <ProductRowActions
+                        productId={p.id}
+                        productSlug={p.slug}
+                        productTitle={p.title}
+                        isActive={p.active}
+                      />
                     </td>
                   </tr>
                 ))}
