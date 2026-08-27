@@ -6,9 +6,20 @@
  * - Licenses: dijital ürün lisans anahtarları
  */
 
+/**
+ * Dashboard — Kullanıcının satın aldığı dijital ürünler ve lisansları.
+ * Auth zorunlu, oturum yoksa /giris'e yönlendir.
+ *
+ * - Orders: sipariş geçmişi (status, tutar, item detayları)
+ * - Licenses: dijital ürün lisans anahtarları
+ * - SaaS marketplace: kullanıcı kendi dijital ürününü ekleyebilir
+ */
+
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { getServerSession } from 'next-auth';
+import { FaPlus, FaStore } from 'react-icons/fa';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProductList } from '@/components/dashboard/ProductList';
@@ -47,9 +58,22 @@ export default async function ProductsPage() {
             Satın aldığın dijital ürünler ve lisans anahtarların
           </p>
         </div>
-        <a href="/magaza" className="admin-btn admin-btn-primary self-start sm:self-auto">
-          Mağazaya Git
-        </a>
+        <div className="flex gap-2 self-start sm:self-auto">
+          <Link
+            href="/dashboard/products/new"
+            className="admin-btn admin-btn-primary inline-flex items-center gap-2"
+          >
+            <FaPlus className="w-3 h-3" />
+            Ürün Ekle
+          </Link>
+          <Link
+            href="/magaza"
+            className="admin-btn admin-btn-secondary inline-flex items-center gap-2"
+          >
+            <FaStore className="w-3 h-3" />
+            Mağaza
+          </Link>
+        </div>
       </div>
       <ProductList orders={orders} licenses={licenses} />
     </div>
