@@ -69,9 +69,21 @@ model Blog {
   readTimeMinutes Int @default(1)
   likeCount       Int @default(0)
 
+  // Scheduling & Drafts (Phase Blog Scheduling kapsaminda eklendi).
+  status           String    @default("published") // draft | scheduled | published
+  publishedAt      DateTime?
+  scheduledAt      DateTime?
+  draftSavedAt     DateTime?
+  version          Int       @default(1)
+  parentVersionId  String?
+
   comments Comment[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([viewCount])
+  @@index([status, scheduledAt])
 }
 
 model Project {
@@ -565,6 +577,12 @@ model User {
   twoFactorBackupCodes Json?
   twoFactorVerifiedAt  DateTime?
 
+  // Profile + Referral alanlari (Phase Chat + Coupon Advanced kapsaminda eklendi).
+  birthDate      DateTime?
+  referralCode   String?   @unique
+  referredBy     String?
+  referralCount  Int        @default(0)
+
   // Relations
   accounts             Account[]
   sessions             Session[]
@@ -576,17 +594,134 @@ model User {
   customerProfile      Customer?
   orders               Order[]
   uploadedProducts     DigitalProduct[]   @relation("ProductOwner")
+  bundles              Bundle[]           @relation("BundleOwner")
   licenses             License[]
   workspaceMemberships WorkspaceMember[]
   ownedWorkspaces      Workspace[]        @relation("WorkspaceOwner")
   auditLogs            AuditLog[]
   comments             Comment[]
   webhooks             Webhook[]
+  notifications        Notification[]
+  conversations        ChatConversation[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
+  @@index([referralCode])
+}
+
+/// Chat Conversation
+/// In-app canli destek sistemi. Kullanici <-> Admin mesajlasma akisi.
+/// Phase Chat + Coupon Advanced kapsaminda eklendi.
+model ChatConversation {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subject      String
+  status       String   @default("open") // open | waiting | closed
+
+  assignedTo   String? // admin user id
+
+  lastMessageAt  DateTime?
+  unreadByUser   Int       @default(0)
+  unreadByAdmin  Int       @default(0)
+
+  messages ChatMessage[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  @@index([userId, lastMessageAt])
+  @@index([status, lastMessageAt])
+  @@index([assignedTo, status])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  senderId   String
+  senderRole String // "user" | "admin"
+  senderName String
+
+  content     String @db.Text
+  attachments Json   @default("[]")
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// =================== DIGITAL PRODUCT BUNDLES ===================
+// Phase "Subscription + Bundles" kapsaminda eklendi.
+// Birden fazla dijital urunu paketleyip indirimli satma imkani saglar.
+
+model Bundle {
+  id               String  @id @default(cuid())
+  slug             String  @unique
+  name             String
+  description      String
+  shortDescription String
+  thumbnail        String?
+
+  // Pricing
+  priceCents         Int // Bundle discounted price
+  originalPriceCents Int // Sum of individual product prices
+  currency           String @default("try")
+
+  // Products (JSON array of product ids)
+  productIds Json @default("[]")
+
+  // Metadata
+  features Json    @default("[]")
+  category String  @default("bundle")
+  version  String?
+
+  // Status
+  active   Boolean @default(true)
+  featured Boolean @default(false)
+  order    Int     @default(0)
+
+  // Sales counter
+  totalSales Int @default(0)
+
+  // Owner (SaaS)
+  ownerId String?
+  owner   User?   @relation("BundleOwner", fields: [ownerId], references: [id])
+
+  purchases BundlePurchase[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, order])
+  @@index([ownerId])
+}
+
+model BundlePurchase {
+  id     String @id @default(cuid())
+  bundleId String
+  bundle   Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  buyerEmail String
+  buyerId    String?
+
+  priceCents Int
+  currency   String
+
+  status String @default("completed") // completed | refunded
+
+  createdAt DateTime @default(now())
+
+  @@index([bundleId])
+  @@index([buyerId])
 }
 
 // NextAuth OAuth (opsiyonel - ileride Google/GitHub login için)
@@ -845,13 +980,21 @@ model UserSubscription {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   planSlug String // "starter", "pro", "enterprise" - hardcoded enum gibi davranır
-  status   String @default("active") // active, expired, cancelled
+  status   String @default("active") // active, expired, cancelled, paused
 
   startedAt DateTime @default(now())
   expiresAt DateTime
   autoRenew Boolean  @default(true)
 
   stripeSubscriptionId String? @unique
+
+  // Pause/Resume alanlari (Phase Subscription Pause kapsaminda eklendi).
+  pausedAt    DateTime?
+  pauseEndsAt DateTime?
+  pauseReason String?
+
+  // Pause history JSON: [{ pausedAt, resumedAt, reason, durationDays }]
+  pauseHistory Json @default("[]")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -984,4 +1127,31 @@ model WebhookDelivery {
 
   @@index([webhookId, status])
   @@index([status, nextRetryAt])
+}
+
+// =================== NOTIFICATIONS (IN-APP) ===================
+// Phase 8 kapsamında eklendi. Kullanıcıya gerçek zamanlı bildirimler (SSE + polling).
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    String  // order.created, order.paid, monitor.down, monitor.up, comment.reply, vb.
+  title   String
+  message String
+  link    String?
+  icon    String?
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  // Optional related entity
+  relatedType String? // "Order" | "Monitor" | "Comment" | "Blog"
+  relatedId   String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+  @@index([userId, createdAt])
 }

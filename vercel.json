@@ -1,6 +1,14 @@
 {
   "crons": [
     {
+      "path": "/api/cron/publish-scheduled",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/webhook-retry",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/monitors/check-all",
       "schedule": "*/5 * * * *"
     }

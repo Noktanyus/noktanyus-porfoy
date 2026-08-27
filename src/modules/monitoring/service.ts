@@ -25,6 +25,7 @@ import {
   alertChannelRepository,
 } from './repository';
 import { webhookService } from '@/modules/webhooks';
+import { notificationService } from '@/modules/notifications';
 import type { CreateMonitorInput, UpdateMonitorInput, CreateAlertChannelInput, UpdateAlertChannelInput } from './schemas';
 
 // ---------------------------------------------------------------------------
@@ -381,6 +382,15 @@ export const monitoringService = {
         } catch (e) {
           logger.warn('Webhook dispatch (monitor.up) failed', { monitorId: monitor.id, error: e });
         }
+        // In-app notification (Phase 8)
+        await notificationService.dispatch(monitor.userId, 'monitor.up', {
+          title: `${monitor.name} Tekrar Çalışıyor`,
+          message: `Downtime süresi: ${Math.floor((Date.now() - new Date(openIncident.startedAt).getTime()) / 1000)} saniye`,
+          link: `/dashboard/monitors/${monitor.id}`,
+          icon: '🟢',
+          relatedType: 'Monitor',
+          relatedId: monitor.id,
+        });
       }
       return true;
     }
@@ -406,6 +416,15 @@ export const monitoringService = {
       } catch (e) {
         logger.warn('Webhook dispatch (monitor.down) failed', { monitorId: monitor.id, error: e });
       }
+      // In-app notification (Phase 8) — sadece yeni incident'larda bildirim gönder
+      await notificationService.dispatch(monitor.userId, 'monitor.down', {
+        title: `${monitor.name} Çalışmıyor!`,
+        message: `Hata: ${incident.reason}`,
+        link: `/dashboard/monitors/${monitor.id}`,
+        icon: '🔴',
+        relatedType: 'Monitor',
+        relatedId: monitor.id,
+      });
     } else {
       await incidentRepository.incrementAffected(openIncident.id);
     }

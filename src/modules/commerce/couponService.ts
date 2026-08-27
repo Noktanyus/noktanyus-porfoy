@@ -228,4 +228,160 @@ export const couponService = {
       data: { active },
     });
   },
+
+  /**
+   * İlk sipariş kuponu: daha önce sipariş vermemiş kullanıcılar için.
+   * First-time customer coupons.
+   */
+  async getCouponsForFirstTime(opts: { userId?: string; email?: string } = {}) {
+    if (!opts.userId && !opts.email) {
+      return [];
+    }
+
+    const hasOrders = await prisma.order.count({
+      where: opts.userId
+        ? { userId: opts.userId }
+        : { customerEmail: opts.email },
+    });
+    if (hasOrders > 0) return [];
+
+    return prisma.coupon.findMany({
+      where: {
+        active: true,
+        OR: [
+          { startsAt: null },
+          { startsAt: { lte: new Date() } },
+        ],
+        AND: [
+          { OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }] },
+        ],
+      },
+      orderBy: { discountValue: 'desc' },
+      take: 10,
+    });
+  },
+
+  /**
+   * Doğum günü kuponu: kullanıcının doğum gününde geçerli kupon.
+   */
+  async getBirthdayCoupon(birthDate: Date) {
+    const today = new Date();
+    if (
+      today.getMonth() !== birthDate.getMonth() ||
+      today.getDate() !== birthDate.getDate()
+    ) {
+      return null;
+    }
+
+    // Yaş kontrolü (18-120 arası)
+    const age = today.getFullYear() - birthDate.getFullYear();
+    if (age < 18 || age > 120) return null;
+
+    // Bugün için özel olarak aktif olan kuponları ara.
+    // (Description içinde "birthday" geçen kuponları da dahil edebiliriz.)
+    return prisma.coupon.findFirst({
+      where: {
+        active: true,
+        OR: [
+          { expiresAt: null },
+          { expiresAt: { gte: today } },
+        ],
+        AND: [
+          { OR: [{ startsAt: null }, { startsAt: { lte: today } }] },
+        ],
+      },
+      orderBy: { discountValue: 'desc' },
+    });
+  },
+
+  /**
+   * Kullanıcıya özgü benzersiz referral kodu üretir.
+   * Format: REF + userId'in ilk 6 karakteri + random 4 karakter.
+   */
+  async generateReferralCode(userId: string): Promise<string> {
+    const userIdPrefix = userId.substring(0, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
+    const code = `REF${userIdPrefix}${randomSuffix}`;
+
+    // Veritabanında çakışma kontrolü
+    const existing = await prisma.user.findUnique({
+      where: { referralCode: code },
+    });
+    if (existing && existing.id !== userId) {
+      // Çakışma varsa yeniden üret (nadir durum)
+      return this.generateReferralCode(userId + 'X');
+    }
+
+    return code;
+  },
+
+  /**
+   * Kullanıcının referral kodunu kaydeder ve döner.
+   */
+  async ensureReferralCode(userId: string): Promise<string> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { referralCode: true },
+    });
+    if (user?.referralCode) return user.referralCode;
+
+    const code = await this.generateReferralCode(userId);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { referralCode: code },
+    });
+    return code;
+  },
+
+  /**
+   * Yeni kullanıcıyı referral'a bağlar.
+   */
+  async trackReferral(referralCode: string, newUserId: string) {
+    const referrer = await prisma.user.findUnique({
+      where: { referralCode },
+    });
+    if (!referrer) return null;
+    if (referrer.id === newUserId) return null; // Self-referral engeli
+
+    await prisma.$transaction(async (tx) => {
+      // Yeni kullanıcıya referrer'ı işaretle
+      await tx.user.update({
+        where: { id: newUserId },
+        data: { referredBy: referralCode },
+      });
+      // Referrer'ın sayacını artır
+      await tx.user.update({
+        where: { id: referrer.id },
+        data: { referralCount: { increment: 1 } },
+      });
+    });
+
+    return referrer;
+  },
+
+  /**
+   * Referral istatistiklerini getirir.
+   */
+  async getReferralStats(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { referralCode: true, referralCount: true },
+    });
+
+    if (!user?.referralCode) {
+      const code = await this.ensureReferralCode(userId);
+      return {
+        referralCode: code,
+        stats: { count: 0, earned: 0 },
+      };
+    }
+
+    return {
+      referralCode: user.referralCode,
+      stats: {
+        count: user.referralCount ?? 0,
+        earned: (user.referralCount ?? 0) * 1000, // Her referral için 10 TL (kuruş)
+      },
+    };
+  },
 };

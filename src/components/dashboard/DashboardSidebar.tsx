@@ -2,6 +2,7 @@
 
 /**
  * Dashboard Sidebar — kullanıcı dashboard'u için yan navigasyon.
+ * Üst kısımda NotificationBell ile bildirim çanı yer alır.
  */
 
 import Link from 'next/link';
@@ -14,8 +15,10 @@ import {
   FaArrowLeft,
   FaCreditCard,
   FaBox,
+  FaBoxOpen,
   FaShoppingCart,
 } from 'react-icons/fa';
+import { NotificationBell } from '@/components/dashboard/NotificationBell';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
@@ -23,6 +26,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Ürünlerim', icon: FaBox },
+  { href: '/dashboard/bundles', label: 'Bundle Ürünler', icon: FaBoxOpen },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
 ];
@@ -32,7 +36,7 @@ export function DashboardSidebar() {
 
   return (
     <aside className="glass-card-premium w-full lg:w-64 p-5 lg:sticky lg:top-24 self-start">
-      <div className="mb-6">
+      <div className="flex items-center justify-between mb-6">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -40,6 +44,7 @@ export function DashboardSidebar() {
           <FaArrowLeft className="w-3 h-3" />
           Siteye Dön
         </Link>
+        <NotificationBell />
       </div>
       <h2 className="text-lg font-semibold mb-4">Dashboard</h2>
       <nav className="space-y-1">

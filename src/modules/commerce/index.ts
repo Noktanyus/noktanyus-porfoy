@@ -8,3 +8,5 @@ export * from './service';
 export * from './iyzicoService';
 export * from './iyzicoSubscriptionService';
 export * from './refundService';
+export * from './subscriptionPause';
+export * from './bundleService';

@@ -80,6 +80,92 @@ export const contentService = {
   },
 
   // ============================================================
+  // Blog Drafts & Scheduling
+  // ============================================================
+
+  /**
+   * Yeni bir taslak oluştur. status="draft" set edilir.
+   */
+  async createDraft(input: unknown) {
+    const validated = BlogCreateSchema.parse(input);
+    return blogRepository.create({
+      ...validated,
+      tags: validated.tags,
+      status: 'draft',
+      draftSavedAt: new Date(),
+      date: new Date(), // taslak için placeholder; yayınlanınca değişir
+    });
+  },
+
+  /**
+   * Taslağı güncelle. status otomatik olarak "draft" yapılır ve draftSavedAt set edilir.
+   */
+  async updateDraft(id: string, input: unknown) {
+    const validated = BlogUpdateSchema.parse(input);
+    return blogRepository.update(id, {
+      ...validated,
+      status: 'draft',
+      draftSavedAt: new Date(),
+    });
+  },
+
+  /**
+   * Blog yazısını ileri bir tarihe zamanla (status="scheduled").
+   */
+  async schedulePost(id: string, scheduledAt: Date) {
+    return blogRepository.update(id, {
+      status: 'scheduled',
+      scheduledAt,
+      draftSavedAt: null,
+    });
+  },
+
+  /**
+   * Yazıyı hemen yayınla (status="published").
+   */
+  async publishNow(id: string) {
+    return blogRepository.update(id, {
+      status: 'published',
+      publishedAt: new Date(),
+      scheduledAt: null,
+    });
+  },
+
+  /**
+   * Zamanı gelmiş ve status="scheduled" olan yazıları getir.
+   */
+  async getScheduledPosts(now: Date = new Date()) {
+    return blogRepository.findDueScheduled(now);
+  },
+
+  /**
+   * Taslak ve zamanlanmış yazıları admin panel için getir.
+   */
+  async getDrafts() {
+    return blogRepository.findDrafts();
+  },
+
+  async getAllScheduled() {
+    return blogRepository.findScheduled();
+  },
+
+  /**
+   * Cron tarafından çağrılır: zamanı gelmiş tüm scheduled yazıları yayınla.
+   * Dönüş: yayınlanan yazı sayısı.
+   */
+  async autoPublishDue(now: Date = new Date()): Promise<number> {
+    const due = await blogRepository.findDueScheduled(now);
+    for (const post of due) {
+      await blogRepository.update(post.id, {
+        status: 'published',
+        publishedAt: now,
+        scheduledAt: null,
+      });
+    }
+    return due.length;
+  },
+
+  // ============================================================
   // Project
   // ============================================================
   async getFeaturedProjects() {
@@ -294,4 +380,19 @@ export const listContent = async (type: string) => {
     default:
       throw new Error(`'${type}' listeleme desteklenmiyor`);
   }
+};
+
+/**
+ * Blog-specific service namespace — Drafts & Scheduling feature
+ * için sugar API. Implementation contentService üzerinden delegate eder.
+ */
+export const blogService = {
+  createDraft: (input: unknown) => contentService.createDraft(input),
+  updateDraft: (id: string, input: unknown) => contentService.updateDraft(id, input),
+  schedulePost: (id: string, scheduledAt: Date) => contentService.schedulePost(id, scheduledAt),
+  publishNow: (id: string) => contentService.publishNow(id),
+  getScheduledPosts: (now?: Date) => contentService.getScheduledPosts(now),
+  getDrafts: () => contentService.getDrafts(),
+  getAllScheduled: () => contentService.getAllScheduled(),
+  autoPublishDue: (now?: Date) => contentService.autoPublishDue(now),
 };

@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { monitoringService } from '@/modules/monitoring';
 import { prisma } from '@/lib/prisma';
+import { ReferralCard } from '@/components/dashboard/ReferralCard';
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaPause, FaChartLine } from 'react-icons/fa';
 
 export const dynamic = 'force-dynamic';
@@ -58,38 +59,46 @@ export default async function DashboardOverviewPage() {
         })}
       </div>
 
-      <div className="glass-card-premium p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold">Ortalama Uptime (30 gün)</h2>
-          <span className="text-2xl font-bold text-brand-primary">{stats.avgUptime}%</span>
-        </div>
-        <div className="h-3 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-brand-primary to-green-500 transition-all"
-            style={{ width: `${stats.avgUptime}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="glass-card-premium p-5">
-        <h2 className="font-semibold mb-4">Son Monitörler</h2>
-        {recentMonitors.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">
-            Henüz monitör yok. <a href="/dashboard/monitors/new" className="text-brand-primary underline">Yeni monitör oluştur</a>.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {recentMonitors.map((m) => (
-              <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0 border-border/30">
-                <div>
-                  <p className="font-medium text-sm">{m.name}</p>
-                  <p className="text-xs text-muted-foreground truncate max-w-md">{m.url}</p>
-                </div>
-                <span className="text-xs text-muted-foreground">{m.uptimePct30d.toFixed(2)}%</span>
-              </div>
-            ))}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 space-y-5">
+          <div className="glass-card-premium p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold">Ortalama Uptime (30 gün)</h2>
+              <span className="text-2xl font-bold text-brand-primary">{stats.avgUptime}%</span>
+            </div>
+            <div className="h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-brand-primary to-green-500 transition-all"
+                style={{ width: `${stats.avgUptime}%` }}
+              />
+            </div>
           </div>
-        )}
+
+          <div className="glass-card-premium p-5">
+            <h2 className="font-semibold mb-4">Son Monitörler</h2>
+            {recentMonitors.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                Henüz monitör yok. <a href="/dashboard/monitors/new" className="text-brand-primary underline">Yeni monitör oluştur</a>.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {recentMonitors.map((m) => (
+                  <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0 border-border/30">
+                    <div>
+                      <p className="font-medium text-sm">{m.name}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-md">{m.url}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground">{m.uptimePct30d.toFixed(2)}%</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="lg:col-span-1">
+          <ReferralCard />
+        </div>
       </div>
     </div>
   );

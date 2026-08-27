@@ -18,6 +18,7 @@ import {
   licenseRepository,
 } from './repository';
 import { webhookService } from '@/modules/webhooks';
+import { notificationService } from '@/modules/notifications';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
@@ -489,6 +490,16 @@ export const commerceService = {
         error: err,
       });
     }
+
+    // In-app notification (Phase 8) — kullanıcıya bildirim gönder
+    await notificationService.dispatch(order.userId, 'order.paid', {
+      title: 'Siparişiniz Tamamlandı',
+      message: `#${order.orderNumber} numaralı siparişiniz başarıyla tamamlandı.`,
+      link: `/dashboard/orders`,
+      icon: '🛒',
+      relatedType: 'Order',
+      relatedId: order.id,
+    });
   },
 
   async handleSubscriptionChange(sub: Record<string, unknown>) {

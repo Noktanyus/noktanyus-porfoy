@@ -23,10 +23,37 @@ export class BlogRepository extends BaseRepository<Blog> {
 
   async findPublished(opts?: { skip?: number; take?: number; category?: string }) {
     return this.prisma.blog.findMany({
-      where: opts?.category ? { category: opts.category } : {},
+      // Yayınlanmış yazıları filtrele (draft/scheduled gizli)
+      where: {
+        ...(opts?.category ? { category: opts.category } : {}),
+        status: 'published',
+      },
       orderBy: { date: 'desc' },
       skip: opts?.skip,
       take: opts?.take ?? 20,
+    });
+  }
+
+  async findDrafts(): Promise<Blog[]> {
+    return this.prisma.blog.findMany({
+      where: { status: 'draft' },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
+  async findScheduled(): Promise<Blog[]> {
+    return this.prisma.blog.findMany({
+      where: { status: 'scheduled' },
+      orderBy: { scheduledAt: 'asc' },
+    });
+  }
+
+  async findDueScheduled(now: Date = new Date()): Promise<Blog[]> {
+    return this.prisma.blog.findMany({
+      where: {
+        status: 'scheduled',
+        scheduledAt: { lte: now },
+      },
     });
   }
 }
