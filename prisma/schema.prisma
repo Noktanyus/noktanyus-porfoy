@@ -840,3 +840,35 @@ model UserSubscription {
   @@index([status, expiresAt])
 }
 
+/// Newsletter Subscriber
+/// Blog için email abone sistemi. Double opt-in (verification) ile GDPR uyumu.
+model NewsletterSubscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+
+  // Preferences
+  categories  Json     @default("[]") // ["Software Development", "Frontend", ...]
+  active      Boolean  @default(true)
+
+  // Verification
+  verifiedAt  DateTime?
+  verifyToken String?  @unique
+
+  // Unsubscribe
+  unsubscribedAt DateTime?
+  unsubscribeToken String? @unique
+
+  source      String?  // "blog", "footer", "landing-page"
+  ipAddress   String?
+  userAgent   String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([email])
+  @@index([active])
+  @@index([verifiedAt])
+  @@map("newsletter_subscribers")
+}
+

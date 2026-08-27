@@ -3,6 +3,7 @@
 import { FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
 import { usePathname } from 'next/navigation';
 import { About } from '@prisma/client';
+import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
 
 interface FooterProps {
   aboutData: About | null;
@@ -43,6 +44,11 @@ const Footer = ({ aboutData }: FooterProps) => {
     <footer className="glass-footer mt-8 sm:mt-12">
       <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8">
         <div className="flex flex-col items-center space-y-4 sm:space-y-6">
+          {/* Newsletter - tüm ekranlarda göster */}
+          <div className="w-full max-w-md">
+            <NewsletterForm source="footer" variant="compact" />
+          </div>
+
           {/* Sosyal Medya İkonları */}
           <div className="flex items-center justify-center space-x-2 sm:space-x-4">
             {aboutData.socialGithub && (
