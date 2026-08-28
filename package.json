@@ -19,6 +19,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@apollo/server": "^5.5.1",
+    "@as-integrations/next": "^4.1.0",
     "@auth/prisma-adapter": "^2.11.3",
     "@aws-sdk/client-s3": "^3.1119.0",
     "@hookform/error-message": "^2.0.1",
@@ -43,6 +45,8 @@
     "dotenv": "^17.2.0",
     "framer-motion": "^12.19.2",
     "fuse.js": "^7.1.0",
+    "graphql": "^16.14.2",
+    "graphql-tag": "^2.12.7",
     "gray-matter": "^4.0.3",
     "isomorphic-dompurify": "^2.26.0",
     "iyzipay": "^2.0.69",

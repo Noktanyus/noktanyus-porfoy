@@ -17,7 +17,8 @@ import {
   FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower,
   FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt,
   FaEye, FaHome, FaHistory, FaImages, FaBars, FaTimes,
-  FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper, FaChartLine
+  FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper, FaChartLine,
+  FaFlask
 } from "react-icons/fa";
 
 interface AdminSidebarProps {
@@ -53,6 +54,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
     { href: "/admin/seo", text: "SEO Ayarları", icon: <FaCog /> },
     { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
     { href: "/admin/audit", text: "Denetim Kayıtları", icon: <FaShieldAlt /> },
+    { href: "/admin/settings/sandbox", text: "Sandbox Environment", icon: <FaFlask /> },
   ];
 
   // Mobil menü açıkken body scroll'unu engelle ve keyboard navigation ekle
