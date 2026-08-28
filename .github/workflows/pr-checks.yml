@@ -94,7 +94,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 🔍 Run ESLint
         run: |
@@ -141,7 +141,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 🔒 Run security audit
         run: |
@@ -194,7 +194,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 📝 Setup build environment
         run: |
@@ -274,7 +274,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 📝 Setup test environment
         run: |
@@ -329,7 +329,7 @@ jobs:
           cache: 'npm'
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 📝 Setup build environment
         run: |

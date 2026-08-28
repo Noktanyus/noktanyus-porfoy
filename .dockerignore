@@ -1,4 +1,3 @@
-
 .next/
 node_modules/
 npm-debug.log
@@ -13,3 +12,13 @@ yarn-error.log
 *.key
 .gitattributes
 .gitignore
+test-results/
+playwright-report/
+playwright/.cache/
+docs/
+.github/
+.vscode/
+.idea/
+*.log
+coverage/
+.husky/

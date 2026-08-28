@@ -99,7 +99,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 🔍 Run ESLint
         run: npm run lint
@@ -137,7 +137,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 🔒 Run security audit
         run: |
@@ -200,7 +200,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 📝 Setup build environment
         run: |
@@ -282,7 +282,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: 🔧 Install dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps --no-audit
 
       - name: 📝 Setup test environment
         run: |

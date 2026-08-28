@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Cache temizle ve bağımlılıkları yükle (npm ci yerine npm install - lock tutarsızlığını önler)
-RUN npm cache clean --force && npm install --no-audit --prefer-offline
+RUN npm cache clean --force && npm install --legacy-peer-deps --no-audit --prefer-offline
 
 # Stage 2: Uygulamayı build et
 FROM node:22 AS builder
