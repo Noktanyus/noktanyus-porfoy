@@ -174,7 +174,7 @@ export function OnboardingFlow() {
           <div className="text-center py-6 space-y-4">
             <FaCheckCircle className="w-16 h-16 mx-auto text-green-500" />
             <p className="text-sm text-muted-foreground">
-              Dashboard'a yönlendiriliyorsun...
+              Dashboard&apos;a yönlendiriliyorsun...
             </p>
             <button
               type="button"
@@ -184,7 +184,7 @@ export function OnboardingFlow() {
               }}
               className="admin-btn admin-btn-primary"
             >
-              Dashboard'a Git
+              Dashboard&apos;a Git
             </button>
           </div>
         )}

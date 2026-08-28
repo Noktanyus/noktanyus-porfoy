@@ -161,6 +161,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
     <>
       {/* Hamburger Menu Button - Only visible on mobile with improved touch target */}
       <button
+        type="button"
         onClick={toggleMobileMenu}
         aria-label={isMobileOpen ? "Menüyü kapat" : "Menüyü aç"}
         aria-expanded={isMobileOpen}

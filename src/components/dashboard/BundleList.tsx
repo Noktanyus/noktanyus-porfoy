@@ -50,7 +50,7 @@ export function BundleList({ bundles }: BundleListProps) {
           Birden fazla dijital ürünü paketleyip indirimli satışa sunabilirsiniz.
         </p>
         <Link href="/dashboard/bundles/new" className="admin-btn admin-btn-primary inline-block">
-          İlk Bundle'ı Oluştur
+          İlk Bundle&apos;ı Oluştur
         </Link>
       </div>
     );

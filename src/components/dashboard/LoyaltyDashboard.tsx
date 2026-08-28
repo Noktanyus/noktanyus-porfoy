@@ -184,7 +184,7 @@ export function LoyaltyDashboard({ stats }: Props) {
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="flex items-center gap-1.5 font-medium">
                   <FaArrowUp className="text-xs" />
-                  {stats.nextTier.label}'a yuksel
+                  {stats.nextTier.label}&apos;a yuksel
                 </span>
                 <span className="font-semibold">
                   {stats.pointsToNext?.toLocaleString('tr-TR')} puan kaldi

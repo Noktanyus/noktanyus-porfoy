@@ -103,7 +103,7 @@ export function NewsletterForm({
           Abonelik Onayı Bekleniyor
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          <span className="font-mono">{email}</span> adresine doğrulama email'i
+          <span className="font-mono">{email}</span> adresine doğrulama email&apos;i
           gönderdik. Lütfen e-postanızı kontrol edin ve onaylayın.
         </p>
       </div>

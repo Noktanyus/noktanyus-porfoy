@@ -210,7 +210,7 @@ export function NewMonitorForm({ alertChannels = [] }: { alertChannels?: AlertCh
             onChange={(e) => update('isPublic', e.target.checked)}
             className="rounded"
           />
-          <span className="text-sm font-medium">Public status page'de göster</span>
+          <span className="text-sm font-medium">Public status page&apos;de göster</span>
         </label>
         {form.isPublic && (
           <input

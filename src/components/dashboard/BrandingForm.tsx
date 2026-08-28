@@ -212,7 +212,7 @@ export function BrandingForm({ workspaceId, initial }: BrandingFormProps) {
         <label htmlFor="wl" className="text-sm flex-1 cursor-pointer">
           <strong>White-label modu</strong>
           <span className="block text-xs text-muted-foreground">
-            "Powered by Noktanyus" etiketini gizle, sadece kendi marka görünsün.
+            &quot;Powered by Noktanyus&quot; etiketini gizle, sadece kendi marka görünsün.
           </span>
         </label>
       </section>

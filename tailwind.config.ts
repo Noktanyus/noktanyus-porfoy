@@ -16,6 +16,19 @@ const config: Config = {
         ring: "oklch(var(--ring) / <alpha-value>)",
         background: "oklch(var(--background) / <alpha-value>)",
         foreground: "oklch(var(--foreground) / <alpha-value>)",
+        /* Legacy aliases — eski class isimleri (bg-light-bg, dark:bg-dark-bg vb.)
+           yeni OKLCH token sistemine yönlendirilir. Bu sayede 60+ dosyada
+           geçmişte sessizce bozulan light/dark styling geri gelir.
+           shadcn token'ları zaten .dark class'ına göre otomatik değişir,
+           dolayısıyla aynı hedefe map olmaları yeterlidir. */
+        "light-bg": "oklch(var(--background) / <alpha-value>)",
+        "light-text": "oklch(var(--foreground) / <alpha-value>)",
+        "light-card": "oklch(var(--card) / <alpha-value>)",
+        "light-border": "oklch(var(--border) / <alpha-value>)",
+        "dark-bg": "oklch(var(--background) / <alpha-value>)",
+        "dark-text": "oklch(var(--foreground) / <alpha-value>)",
+        "dark-card": "oklch(var(--card) / <alpha-value>)",
+        "dark-border": "oklch(var(--border) / <alpha-value>)",
         primary: {
           DEFAULT: "oklch(var(--primary) / <alpha-value>)",
           foreground: "oklch(var(--primary-foreground) / <alpha-value>)",

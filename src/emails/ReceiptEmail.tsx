@@ -87,7 +87,7 @@ export default function ReceiptEmail({
                 </Section>
               ))}
               <Text style={text}>
-                Lisans anahtarlarınızı güvenli bir yere kaydedin. Dashboard'unuzdan da
+                Lisans anahtarlarınızı güvenli bir yere kaydedin. Dashboard&apos;unuzdan da
                 erişebilirsiniz.
               </Text>
             </>
@@ -95,7 +95,7 @@ export default function ReceiptEmail({
 
           <Section style={buttonContainer}>
             <Button href={dashboardUrl} style={button}>
-              Dashboard'a Git
+              Dashboard&apos;a Git
             </Button>
           </Section>
 

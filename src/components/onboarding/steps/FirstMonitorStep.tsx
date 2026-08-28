@@ -57,7 +57,7 @@ export function FirstMonitorStep({ onNext, onSkip }: FirstMonitorStepProps) {
       <div className="flex items-center justify-center gap-3 text-primary">
         <FaSatelliteDish className="w-8 h-8" />
         <p className="text-sm text-muted-foreground">
-          Web siteni veya API'ni izlemeye başla
+          Web siteni veya API&apos;ni izlemeye başla
         </p>
       </div>
 

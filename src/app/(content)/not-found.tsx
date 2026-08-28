@@ -12,7 +12,7 @@ export default function ContentNotFound() {
         </p>
         <div className="flex gap-3 justify-center">
           <Link href="/blog" className="admin-btn admin-btn-primary">
-            Blog'a Dön
+            Blog&apos;a Dön
           </Link>
           <Link href="/" className="admin-btn admin-btn-secondary">
             <FaArrowLeft /> Anasayfa

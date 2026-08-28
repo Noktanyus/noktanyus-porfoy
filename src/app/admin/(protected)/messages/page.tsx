@@ -17,6 +17,9 @@ export default function MessagesAdminPage() {
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
+  // SSR-safe mobile flag — render body'de window.innerWidth'a erişmek
+  // hydration mismatch yaratır. Bu yüzden initial false, sonra useEffect'te güncellenir.
+  const [isMobile, setIsMobile] = useState(false);
 
   /**
    * API'den tüm mesajları çeker ve tarihe göre sıralar.
@@ -43,6 +46,13 @@ export default function MessagesAdminPage() {
   useEffect(() => {
     fetchMessages();
   }, [fetchMessages]);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   /**
    * Seçilen mesajı API aracılığıyla siler.
@@ -142,14 +152,16 @@ export default function MessagesAdminPage() {
               </div>
               <div className="p-3 lg:p-4 border-t dark:border-gray-700">
                 <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
-                  <button 
-                    onClick={() => setIsReplyModalOpen(true)} 
+                  <button
+                    type="button"
+                    onClick={() => setIsReplyModalOpen(true)}
                     className="admin-btn admin-btn-primary order-1 sm:order-2"
                   >
                     Cevapla
                   </button>
-                  <button 
-                    onClick={() => handleDelete(selectedMessage.id)} 
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(selectedMessage.id)}
                     className="admin-button bg-red-600 text-white hover:bg-red-700 order-2 sm:order-1"
                   >
                     Sil
@@ -160,7 +172,7 @@ export default function MessagesAdminPage() {
           ) : (
             <div className="flex items-center justify-center h-full p-4">
               <div className="text-center">
-                <p className="text-gray-500 text-sm lg:text-base">Okumak için {window.innerWidth < 1024 ? 'yukarıdaki' : 'soldaki'} listeden bir mesaj seçin.</p>
+                <p className="text-gray-500 text-sm lg:text-base">Okumak için {isMobile ? 'yukarıdaki' : 'soldaki'} listeden bir mesaj seçin.</p>
               </div>
             </div>
           )}
@@ -180,15 +192,17 @@ export default function MessagesAdminPage() {
               placeholder="Yanıtınızı buraya yazın..."
             />
             <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:justify-end">
-              <button 
-                onClick={() => setIsReplyModalOpen(false)} 
+              <button
+                type="button"
+                onClick={() => setIsReplyModalOpen(false)}
                 className="admin-btn admin-btn-secondary order-2 sm:order-1"
               >
                 İptal
               </button>
-              <button 
-                onClick={handleReply} 
-                disabled={isReplying} 
+              <button
+                type="button"
+                onClick={handleReply}
+                disabled={isReplying}
                 className="admin-btn admin-btn-primary order-1 sm:order-2"
               >
                 {isReplying ? "Gönderiliyor..." : "Gönder"}

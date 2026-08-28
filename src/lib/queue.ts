@@ -145,7 +145,8 @@ export class BullMQQueue implements Queue {
     this.connection = { url: redisUrl };
     // bullmq opsiyonel bir bağımlılık gibi ele alınır: yüklü değilse
     // constructor patlamaz, createQueue() in-memory'e düşer.
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // require() burada koşullu yükleme için kullanılır; standart bundler
+    // dynamic import yerine bunu kabul eder.
     this.bull = require('bullmq');
     this.queue = new this.bull.Queue(BULL_QUEUE_NAME, {
       connection: this.connection,
