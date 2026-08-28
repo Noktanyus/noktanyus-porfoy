@@ -17,7 +17,7 @@ import {
   FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower,
   FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt,
   FaEye, FaHome, FaHistory, FaImages, FaBars, FaTimes,
-  FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper
+  FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper, FaChartLine
 } from "react-icons/fa";
 
 interface AdminSidebarProps {
@@ -37,6 +37,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
   // Kenar çubuğunda gösterilecek navigasyon linkleri ve ikonları
   const navLinks = [
     { href: "/admin/dashboard", text: "Gösterge Paneli", icon: <FaTachometerAlt /> },
+    { href: "/admin/analytics", text: "Analytics", icon: <FaChartLine /> },
     { href: "/admin/home-settings", text: "Ana Sayfa Ayarları", icon: <FaHome /> },
     { href: "/admin/hakkimda", text: "Hakkımda Sayfası", icon: <FaUserEdit /> },
     { href: "/admin/projects", text: "Proje Yönetimi", icon: <FaProjectDiagram /> },

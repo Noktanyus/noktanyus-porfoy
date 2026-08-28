@@ -98,6 +98,7 @@ function ProtectedAdminLayoutInner({
     const pathname = window.location.pathname;
     const pageMap: Record<string, string> = {
       '/admin/dashboard': 'Gösterge Paneli',
+      '/admin/analytics': 'Analytics',
       '/admin/home-settings': 'Ana Sayfa Ayarları',
       '/admin/hakkimda': 'Hakkımda Sayfası',
       '/admin/projects': 'Proje Yönetimi',

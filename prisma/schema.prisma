@@ -707,6 +707,9 @@ model User {
   // Theme & UI preferences (Phase UI kapsaminda eklendi).
   themePreference ThemePreference?
 
+  // Custom Report Builder (Phase G3 kapsaminda eklendi)
+  customReports CustomReport[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1886,4 +1889,63 @@ model PushSubscription {
 
   @@index([userId, active])
   @@map("push_subscriptions")
+}
+
+// =================== CUSTOM REPORT BUILDER ===================
+// Phase: G3 Custom Report Builder
+// Kullanicinin kendi raporlarini tanimlayip calistirabildigi sistem.
+// Tip: orders/users/monitors/revenue. JSON config + execution history.
+
+model CustomReport {
+  id          String   @id @default(cuid())
+
+  name        String
+  description String?
+
+  // Report type
+  reportType  String   // "orders", "monitors", "users", "revenue", "custom"
+
+  // Query config (JSON)
+  config      Json     @default("{}") // { metrics: ["totalRevenue"], groupBy: "day", filters: {...} }
+
+  // Scheduling
+  schedule    String?  // "daily", "weekly", "monthly"
+  recipients  Json     @default("[]") // ["email1@...", ...]
+
+  // Format
+  format      String   @default("table") // table | bar | line | pie
+
+  // Status
+  enabled     Boolean  @default(true)
+  lastRunAt   DateTime?
+  lastRunResult Json?  // Cache for last execution
+
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  executions  ReportExecution[]
+
+  @@index([reportType])
+  @@index([createdById])
+  @@map("custom_reports")
+}
+
+model ReportExecution {
+  id          String   @id @default(cuid())
+  reportId    String
+  report      CustomReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  status      String   @default("running") // running | success | failed
+  result      Json?
+  errorMessage String?
+
+  durationMs  Int?
+
+  createdAt   DateTime @default(now())
+
+  @@index([reportId, createdAt])
+  @@map("report_executions")
 }
