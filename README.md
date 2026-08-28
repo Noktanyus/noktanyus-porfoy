@@ -13,6 +13,16 @@ Modern, full-stack Next.js 14 portföy + SaaS + e-ticaret + uptime monitoring pl
   - [UI / UX](#-uiux)
   - [E-Ticaret](#-e-ticaret)
   - [SaaS Altyapısı](#-saas-altyapısı)
+  - [Auth & Security](#-auth--security)
+  - [i18n & SEO](#-i18n--seo)
+  - [Real-time & Notifications](#-real-time--notifications)
+  - [Payments](#-payments)
+  - [E-commerce Features](#-e-commerce-features)
+  - [Monitoring & Uptime](#-monitoring--uptime)
+  - [Multi-user & Teams](#-multi-user--teams)
+  - [Advanced Features](#-advanced-features)
+  - [Commerce Advanced](#-commerce-advanced)
+  - [Developer Tools](#-developer-tools)
   - [Backend](#-backend)
 - [Mimari](#-mimari)
 - [Modüler Mimari (Route Group İzolasyonu)](#-modüler-mimari-route-group-izolasyonu)
@@ -78,6 +88,81 @@ Modern, full-stack Next.js 14 portföy + SaaS + e-ticaret + uptime monitoring pl
 - Multi-storage (Cloudflare R2 + local fallback)
 - BullMQ queue system (in-memory dev, Redis prod)
 - Git API (branch / log / commit / revert, admin UI için)
+
+### 🔐 Auth & Security
+
+- NextAuth Credentials + OAuth (Google, GitHub)
+- 2FA (TOTP) + Backup codes
+- SAML SSO stub (enterprise tier)
+- bcrypt 12-round password hashing
+
+### 🌐 i18n & SEO
+
+- next-intl (TR/EN, locale-prefix: as-needed)
+- Schema.org JSON-LD (Article, Product, Person, Breadcrumb, FAQ, Organization)
+- Sitemap.xml (dinamik), robots.txt, OG tags, Twitter Cards
+- Hreflang alternates (multi-language SEO)
+
+### 🔔 Real-time & Notifications
+
+- Server-Sent Events (SSE) notification stream
+- Web Push (VAPID keys, Service Worker)
+- Email preferences (marketing/transactional/newsletter toggles)
+- Onboarding tour (6-step wizard)
+
+### 💳 Payments
+
+- Stripe Checkout (subscription + one-time)
+- iyzico (TR provider) - auto-detect `.com.tr` emails
+- Refund (full + partial, Stripe + iyzico)
+- Webhook delivery (HMAC, retry, DLQ)
+
+### 🛍️ E-commerce Features
+
+- Digital products + Licenses
+- Bundles (multi-product, auto-discount)
+- Cart (Zustand persist)
+- Coupons: first-time / birthday / referral
+- Reviews (1-5 star, vendor stats)
+- Q&A (product questions)
+
+### 📡 Monitoring & Uptime
+
+- HTTP/HTTPS/Ping/Port/Keyword/JSON checks
+- Cron scheduling (Vercel Cron)
+- Alert channels (Email, Webhook, Slack, Discord, Telegram)
+- Public status pages
+- Incident tracking
+
+### 👥 Multi-user & Teams
+
+- Workspaces (multi-tenant)
+- RBAC (OWNER/ADMIN/EDITOR/VIEWER)
+- Task management (Kanban)
+- Comments (nested, blog + tasks)
+
+### 🎥 Advanced Features
+
+- Video calls (WebRTC stub)
+- Affiliate program (commission tracking)
+- Loyalty program (Bronze/Silver/Gold/Platinum tiers)
+- Partner program (lead submission)
+- A/B testing (weighted random, sticky session)
+
+### 💱 Commerce Advanced
+
+- Multi-currency (TRY/USD/EUR/GBP)
+- Tax (country-based VAT/GST)
+- Custom Report Builder (4 types)
+- Revenue Dashboard + Funnel Analysis
+- CLV tracking
+
+### 🔌 Developer Tools
+
+- GraphQL API (Apollo Server)
+- Sandbox environment
+- API Keys (scoped, rate-limited, usage tracking)
+- Webhooks (user-defined)
 
 ---
 

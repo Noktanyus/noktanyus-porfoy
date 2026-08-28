@@ -101,9 +101,7 @@ export const emailMarketingService = {
           sentAt: new Date(),
         });
 
-        await emailCampaignRepository.update(campaignId, {
-          totalSent: { increment: 1 },
-        });
+        await emailCampaignRepository.incrementCounter(campaignId, 'totalSent');
       } catch (err) {
         logger.error('Campaign email failed', { userId: user.id, error: err });
       }
@@ -139,9 +137,7 @@ export const emailMarketingService = {
       data: { status: 'opened', openedAt: new Date() },
     });
 
-    await emailCampaignRepository.update(updated.campaignId, {
-      totalOpened: { increment: 1 },
-    });
+    await emailCampaignRepository.incrementCounter(updated.campaignId, 'totalOpened');
 
     return updated;
   },
@@ -155,9 +151,7 @@ export const emailMarketingService = {
       data: { status: 'clicked', clickedAt: new Date() },
     });
 
-    await emailCampaignRepository.update(updated.campaignId, {
-      totalClicked: { increment: 1 },
-    });
+    await emailCampaignRepository.incrementCounter(updated.campaignId, 'totalClicked');
 
     return updated;
   },

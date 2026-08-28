@@ -5,7 +5,7 @@
  * DELETE /api/comments/[id]  — Yorum sil (sahibi veya admin)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -33,7 +33,7 @@ export async function PATCH(
         code: 'UNAUTHORIZED',
         message: 'Giriş gerekli',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
     const userId = (session.user as { id?: string }).id;
     if (!userId) {
@@ -41,7 +41,7 @@ export async function PATCH(
         code: 'UNAUTHORIZED',
         message: 'Geçersiz oturum',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
 
     const body = await req.json();
@@ -66,7 +66,7 @@ export async function DELETE(
         code: 'UNAUTHORIZED',
         message: 'Giriş gerekli',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
     const userId = (session.user as { id?: string }).id;
     const isAdmin = (session.user as { role?: string }).role === 'admin';
@@ -75,7 +75,7 @@ export async function DELETE(
         code: 'UNAUTHORIZED',
         message: 'Geçersiz oturum',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
 
     await commentService.deleteComment(userId, isAdmin, params.id);

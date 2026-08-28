@@ -65,6 +65,8 @@ describe('EmailMarketingService', () => {
 
     const campaign = await emailMarketingService.createCampaign({
       name: 'Welcome Drip',
+      campaignType: 'drip',
+      fromName: 'Noktanyus',
       subject: 'Hosgeldin!',
       template: '<p>Hello {{name}}</p>',
     });
@@ -80,6 +82,8 @@ describe('EmailMarketingService', () => {
     const future = new Date(Date.now() + 1000 * 60 * 60);
     const campaign = await emailMarketingService.createCampaign({
       name: 'Scheduled',
+      campaignType: 'broadcast',
+      fromName: 'Noktanyus',
       subject: 'Test',
       template: '<p>Scheduled template</p>',
       scheduledAt: future,
@@ -100,5 +104,29 @@ describe('EmailMarketingSchemas', () => {
   it('CampaignTypeSchema rejects unknown types', async () => {
     const { CampaignTypeSchema } = await import('../schemas');
     expect(() => CampaignTypeSchema.parse('unknown')).toThrow();
+  });
+});
+
+describe('EmailCampaignRepository.incrementCounter', () => {
+  it('uses prisma update with increment operator', async () => {
+    const { emailCampaignRepository } = await import('../repository');
+    const { prisma } = await import('@/lib/prisma');
+
+    await emailCampaignRepository.incrementCounter('c1', 'totalSent');
+    await emailCampaignRepository.incrementCounter('c1', 'totalOpened');
+    await emailCampaignRepository.incrementCounter('c1', 'totalClicked', 2);
+
+    expect(prisma.emailCampaign.update).toHaveBeenCalledWith({
+      where: { id: 'c1' },
+      data: { totalSent: { increment: 1 } },
+    });
+    expect(prisma.emailCampaign.update).toHaveBeenCalledWith({
+      where: { id: 'c1' },
+      data: { totalOpened: { increment: 1 } },
+    });
+    expect(prisma.emailCampaign.update).toHaveBeenCalledWith({
+      where: { id: 'c1' },
+      data: { totalClicked: { increment: 2 } },
+    });
   });
 });

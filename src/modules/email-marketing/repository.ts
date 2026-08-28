@@ -14,6 +14,22 @@ export class EmailCampaignRepository extends BaseRepository<EmailCampaign> {
     return this.prisma.emailCampaign;
   }
 
+  /**
+   * Atomic counter updates (Prisma increment operators).
+   * BaseRepository's update signature only accepts Partial<T>, so we widen the
+   * data type here to allow { totalSent: { increment: 1 } }-style updates.
+   */
+  async incrementCounter(
+    id: string,
+    field: 'totalSent' | 'totalOpened' | 'totalClicked',
+    by = 1,
+  ): Promise<EmailCampaign> {
+    return this.prisma.emailCampaign.update({
+      where: { id },
+      data: { [field]: { increment: by } },
+    });
+  }
+
   async findActive() {
     return this.prisma.emailCampaign.findMany({
       where: { status: { in: ['running', 'scheduled'] } },

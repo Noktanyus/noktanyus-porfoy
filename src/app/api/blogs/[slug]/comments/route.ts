@@ -5,7 +5,7 @@
  * POST /api/blogs/[slug]/comments  — Yeni yorum ekle (auth gerekli)
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { commentService } from '@/modules/comments';
@@ -32,7 +32,7 @@ export async function GET(
         code: 'NOT_FOUND',
         message: 'Blog bulunamadı',
         statusCode: 404,
-      } as any) as NextResponse;
+      });
     }
 
     const [comments, count] = await Promise.all([
@@ -58,7 +58,7 @@ async function postHandler(
         code: 'UNAUTHORIZED',
         message: 'Giriş gerekli',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
     const userId = (session.user as { id?: string }).id;
     if (!userId) {
@@ -66,7 +66,7 @@ async function postHandler(
         code: 'UNAUTHORIZED',
         message: 'Geçersiz oturum',
         statusCode: 401,
-      } as any) as NextResponse;
+      });
     }
 
     const blog = await prisma.blog.findUnique({
@@ -78,7 +78,7 @@ async function postHandler(
         code: 'NOT_FOUND',
         message: 'Blog bulunamadı',
         statusCode: 404,
-      } as any) as NextResponse;
+      });
     }
 
     const body = await req.json();

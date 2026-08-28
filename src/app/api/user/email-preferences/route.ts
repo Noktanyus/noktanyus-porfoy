@@ -23,7 +23,7 @@ export async function GET(_req: NextRequest) {
     if (!session?.user) {
       return ok({ preferences: DEFAULT_PREFS });
     }
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
     const prefs = await emailMarketingService.getPreferences(userId);
     return ok({ preferences: prefs ?? DEFAULT_PREFS });
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest) {
     if (!session?.user) {
       return fail({ code: 'UNAUTHORIZED', message: 'Giriş gerekli', statusCode: 401 });
     }
-    const userId = (session.user as any).id;
+    const userId = session.user.id;
 
     const body = await req.json();
     const preferences = await emailMarketingService.updatePreferences(userId, body);

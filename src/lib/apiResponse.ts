@@ -111,9 +111,18 @@ export function fail(error: unknown): NextResponse<ApiError> {
   );
 }
 
-export async function withErrorHandling<T>(
-  handler: () => Promise<NextResponse<T>>
-): Promise<NextResponse<T> | NextResponse<ApiError>> {
+// Generic overload — preserves route handler return type info.
+// Without it, callers using `withErrorHandling<T>(...)` would not type-check.
+// Accepts union because handlers commonly call both `ok()` and `fail()`.
+export async function withErrorHandling<T = unknown>(
+  handler: () => Promise<NextResponse<ApiSuccess<T>> | NextResponse<ApiError>>
+): Promise<NextResponse<ApiSuccess<T>> | NextResponse<ApiError>>;
+export async function withErrorHandling(
+  handler: () => Promise<NextResponse<unknown>>
+): Promise<NextResponse<unknown>>;
+export async function withErrorHandling(
+  handler: () => Promise<NextResponse<unknown>>
+): Promise<NextResponse<unknown>> {
   try {
     return await handler();
   } catch (error) {
