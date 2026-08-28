@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
-import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="flex-1 min-w-0">{children}</div>
         </div>
       </div>
-      <OnboardingTour />
+      <OnboardingFlow />
     </main>
   );
 }

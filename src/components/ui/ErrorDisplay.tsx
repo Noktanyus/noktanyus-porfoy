@@ -1,5 +1,8 @@
 /**
  * @file ErrorDisplay - Tüm sayfalar için tutarlı hata mesajı
+ *
+ * a11y: `role="alert"` + `aria-live="assertive"` ile kritik hata mesajlari
+ *       ekran okuyucu tarafindan HEMEN duyurulur (polite yerine assertive).
  */
 
 import { FaExclamationTriangle, FaSyncAlt, FaHome } from "react-icons/fa";
@@ -26,7 +29,7 @@ export function ErrorDisplay({
   const content = (
     <>
       {/* Icon */}
-      <div className="w-16 h-16 mb-6 rounded-2xl bg-red-100/50 dark:bg-red-900/20 backdrop-blur-sm flex items-center justify-center">
+      <div className="w-16 h-16 mb-6 rounded-2xl bg-red-100/50 dark:bg-red-900/20 backdrop-blur-sm flex items-center justify-center" aria-hidden="true">
         <FaExclamationTriangle className="w-8 h-8 text-red-500" />
       </div>
 
@@ -45,18 +48,18 @@ export function ErrorDisplay({
         {onRetry && (
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/20 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/20 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            <FaSyncAlt size={14} />
+            <FaSyncAlt size={14} aria-hidden="true" />
             Tekrar Dene
           </button>
         )}
         {showHomeLink && (
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold glass-card hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold glass-card hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
-            <FaHome size={14} />
+            <FaHome size={14} aria-hidden="true" />
             Ana Sayfa
           </Link>
         )}
@@ -66,11 +69,15 @@ export function ErrorDisplay({
 
   if (variant === "inline") {
     return (
-      <div className={`flex items-center justify-center gap-2 text-red-500 dark:text-red-400 ${className}`}>
-        <FaExclamationTriangle size={14} />
+      <div
+        role="alert"
+        aria-live="assertive"
+        className={`flex items-center justify-center gap-2 text-red-500 dark:text-red-400 ${className}`}
+      >
+        <FaExclamationTriangle size={14} aria-hidden="true" />
         <span className="text-sm font-medium">{message}</span>
         {onRetry && (
-          <button onClick={onRetry} className="ml-2 text-sm underline hover:no-underline">
+          <button onClick={onRetry} className="ml-2 text-sm underline hover:no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500">
             Tekrar dene
           </button>
         )}
@@ -80,7 +87,11 @@ export function ErrorDisplay({
 
   if (variant === "card") {
     return (
-      <div className={`glass-card p-8 flex flex-col items-center text-center ${className}`}>
+      <div
+        role="alert"
+        aria-live="assertive"
+        className={`glass-card p-8 flex flex-col items-center text-center ${className}`}
+      >
         {content}
       </div>
     );
@@ -88,7 +99,11 @@ export function ErrorDisplay({
 
   // Page variant (default)
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4"
+    >
       <div className="glass-card-premium p-10 max-w-md flex flex-col items-center">
         {content}
       </div>
@@ -99,28 +114,32 @@ export function ErrorDisplay({
 /**
  * Küçük hata gösterimi (inline banner)
  */
-export function ErrorBanner({ 
-  message, 
-  onDismiss 
-}: { 
-  message: string; 
+export function ErrorBanner({
+  message,
+  onDismiss
+}: {
+  message: string;
   onDismiss?: () => void;
 }) {
   return (
-    <div className="glass-card-premium p-4 flex items-center justify-between gap-4 animate-fade-in">
+    <div
+      role="alert"
+      aria-live="assertive"
+      className="glass-card-premium p-4 flex items-center justify-between gap-4 animate-fade-in"
+    >
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-red-100/50 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-red-100/50 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0" aria-hidden="true">
           <FaExclamationTriangle className="w-4 h-4 text-red-500" />
         </div>
         <p className="text-sm text-gray-700 dark:text-gray-300">{message}</p>
       </div>
       {onDismiss && (
-        <button 
+        <button
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
           aria-label="Kapat"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -149,7 +168,7 @@ export function EmptyState({
     <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4 py-16">
       <div className="glass-card-premium p-10 max-w-md flex flex-col items-center">
         {icon && (
-          <div className="w-16 h-16 mb-6 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
+          <div className="w-16 h-16 mb-6 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center" aria-hidden="true">
             {icon}
           </div>
         )}
@@ -162,7 +181,7 @@ export function EmptyState({
         {action && actionLabel && (
           <button
             onClick={action}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
           >
             {actionLabel}
           </button>

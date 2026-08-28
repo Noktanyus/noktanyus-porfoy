@@ -554,10 +554,19 @@ model Workspace {
   members     WorkspaceMember[]
   invitations WorkspaceInvitation[]
   tasks       Task[]
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
+
+  // F4 Custom Branding — workspace seviyesinde marka/white-label ayarlari.
+  brandColor        String  @default("blue")
+  brandLogo         String?
+  brandFavicon      String?
+  customDomain      String?
+  whiteLabelEnabled Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([ownerId])
+  @@index([customDomain])
 }
 
 enum WorkspaceRole {
@@ -695,11 +704,31 @@ model User {
   // Loyalty relations
   loyaltyAccount LoyaltyAccount?
 
+  // Theme & UI preferences (Phase UI kapsaminda eklendi).
+  themePreference ThemePreference?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([referralCode])
+}
+
+/// Theme Preference
+/// Kullanicinin tema (light/dark/system) ve vurgu rengi (accent) tercihleri.
+/// Sayfa yuklenirken ThemeProvider tarafindan okunup CSS variable olarak uygulanir.
+model ThemePreference {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme       String   @default("system") // light | dark | system
+  accentColor String   @default("blue")   // blue | purple | green | orange | pink
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("theme_preferences")
 }
 
 // =================== LOYALTY PROGRAM ===================

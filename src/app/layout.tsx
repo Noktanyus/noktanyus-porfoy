@@ -19,7 +19,12 @@ import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
+import SkipLink from "@/components/ui/SkipLink";
 import { getAbout, getSeoSettings } from "@/services/contentService";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { userPreferencesService } from "@/modules/user-preferences";
+import type { AccentColor } from "@/lib/theme";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
@@ -119,6 +124,19 @@ export default async function RootLayout({
   const activeLocale = await getLocale();
   const messages = await getMessages();
 
+  // Accent color: login olan kullanici icin DB'den, yoksa "blue" default.
+  let defaultAccent: AccentColor = "blue";
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string } | undefined)?.id;
+    if (userId) {
+      const prefs = await userPreferencesService.getPreferences(userId);
+      defaultAccent = prefs.accentColor;
+    }
+  } catch {
+    // DB erisimi yoksa default accent ile devam et
+  }
+
   return (
     <html lang={activeLocale} suppressHydrationWarning>
       <head>
@@ -175,10 +193,12 @@ export default async function RootLayout({
               defaultTheme="system"
               enableSystem
               disableTransitionOnChange={false}
+              defaultAccent={defaultAccent}
             >
+              <SkipLink />
               <div className="relative flex flex-col min-h-screen">
                 <Header headerTitle={headerTitle} />
-                <main className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8">
+                <main id="main-content" tabIndex={-1} className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8 focus:outline-none">
                   <div className="w-full">
                     {children}
                   </div>

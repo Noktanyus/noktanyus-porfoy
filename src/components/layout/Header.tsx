@@ -12,8 +12,10 @@ import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaSearch } from 'react-ico
 import { useSession, signOut } from 'next-auth/react';
 import { CartButton } from '@/components/commerce/CartButton';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ThemeCustomizer } from '@/components/ui/ThemeCustomizer';
 import { GlobalSearch, OPEN_EVENT } from '@/components/search/GlobalSearch';
 import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher';
+import { Tooltip } from '@/components/ui/Tooltip';
 
 interface HeaderProps {
   /** Header'da gösterilecek site başlığı. */
@@ -58,9 +60,11 @@ const Header = ({ headerTitle }: HeaderProps) => {
       <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 fade-in">
         <div className="w-full max-w-5xl">
           <div className="flex items-center justify-between h-14 sm:h-16 bg-white/80 dark:bg-black/80 border border-white/40 dark:border-black/40 rounded-full shadow-lg backdrop-blur-sm backdrop-saturate-110 px-3 sm:px-6 hover:shadow-xl hover:shadow-blue-500/10 hover:backdrop-blur-md hover:backdrop-saturate-125 hover:bg-white/85 hover:dark:bg-black/85 transition-all duration-700 ease-out">
-            <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" aria-label="Ana Sayfa">
-              <span className="block truncate max-w-[120px] sm:max-w-none">{headerTitle}</span>
-            </Link>
+            <Tooltip content="Ana sayfaya dön" side="bottom">
+              <Link href="/" className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" aria-label="Ana Sayfa">
+                <span className="block truncate max-w-[120px] sm:max-w-none">{headerTitle}</span>
+              </Link>
+            </Tooltip>
             
             {/* Masaüstü Navigasyonu */}
             <nav className="hidden md:flex items-center space-x-2 lg:space-x-4 xl:space-x-6 flex-shrink-0">
@@ -72,22 +76,29 @@ const Header = ({ headerTitle }: HeaderProps) => {
             </nav>
 
             <div className="flex items-center space-x-1 flex-shrink-0">
-              <GlobalSearch />
+              <Tooltip content="Arama (⌘K)" side="bottom">
+                <span><GlobalSearch /></span>
+              </Tooltip>
               <CartButton />
               <LocaleSwitcher />
-              <ThemeToggle className="touch-target focus-ring" />
+              <Tooltip content="Tema değiştir" side="bottom">
+                <span><ThemeToggle className="touch-target focus-ring" /></span>
+              </Tooltip>
+              <ThemeCustomizer className="touch-target" />
 
               {/* Kullanıcı menüsü (auth) */}
               {status !== 'loading' && (
                 session?.user ? (
                   <div className="relative">
-                    <button
-                      onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      aria-label="Kullanıcı menüsü"
-                      className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-1"
-                    >
-                      <FaUserCircle className="w-5 h-5 text-gray-900 dark:text-white" />
-                    </button>
+                    <Tooltip content="Hesap menüsü" side="bottom">
+                      <button
+                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                        aria-label="Kullanıcı menüsü"
+                        className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-1"
+                      >
+                        <FaUserCircle className="w-5 h-5 text-gray-900 dark:text-white" />
+                      </button>
+                    </Tooltip>
                     {isUserMenuOpen && (
                       <>
                         <div
