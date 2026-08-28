@@ -70,12 +70,12 @@ model Blog {
   likeCount       Int @default(0)
 
   // Scheduling & Drafts (Phase Blog Scheduling kapsaminda eklendi).
-  status           String    @default("published") // draft | scheduled | published
-  publishedAt      DateTime?
-  scheduledAt      DateTime?
-  draftSavedAt     DateTime?
-  version          Int       @default(1)
-  parentVersionId  String?
+  status          String    @default("published") // draft | scheduled | published
+  publishedAt     DateTime?
+  scheduledAt     DateTime?
+  draftSavedAt    DateTime?
+  version         Int       @default(1)
+  parentVersionId String?
 
   comments Comment[]
 
@@ -323,10 +323,10 @@ model DigitalProduct {
   videoCalls VideoCall[]
 
   // Marketplace 2.0 — vendor publishing + reviews + Q&A
-  vendorId   String?
-  vendor     VendorProfile?   @relation(fields: [vendorId], references: [id], onDelete: SetNull)
-  reviews    ProductReview[]
-  questions  ProductQuestion[]
+  vendorId  String?
+  vendor    VendorProfile?    @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  reviews   ProductReview[]
+  questions ProductQuestion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -354,13 +354,13 @@ model Order {
   status OrderStatus @default(PENDING)
 
   // Money
-  subtotalCents  Int
-  taxCents       Int     @default(0)
-  totalCents     Int
-  currency       String  @default("try")
-  exchangeRate   Float?  // payment currency -> TRY (1 TRY = X foreign)
-  taxRate        Float?  // applied tax rate (e.g. 0.20 for %20 VAT)
-  taxCountry     String? // ISO country code applied (e.g. "TR", "US", "DE")
+  subtotalCents Int
+  taxCents      Int     @default(0)
+  totalCents    Int
+  currency      String  @default("try")
+  exchangeRate  Float? // payment currency -> TRY (1 TRY = X foreign)
+  taxRate       Float? // applied tax rate (e.g. 0.20 for %20 VAT)
+  taxCountry    String? // ISO country code applied (e.g. "TR", "US", "DE")
 
   // Customer info snapshot
   customerEmail String
@@ -379,9 +379,9 @@ model Order {
   metadata Json?
   notes    String?
 
-  items       OrderItem[]
-  licenses    License[]
-  videoCalls  VideoCall[]
+  items               OrderItem[]
+  licenses            License[]
+  videoCalls          VideoCall[]
   affiliateCommission AffiliateCommission?
 
   createdAt DateTime @default(now())
@@ -402,9 +402,9 @@ model Order {
 
 model ExchangeRate {
   id        String   @id @default(cuid())
-  fromCurr  String   // "USD"
-  toCurr    String   // "TRY"
-  rate      Float    // 1 fromCurr = X toCurr
+  fromCurr  String // "USD"
+  toCurr    String // "TRY"
+  rate      Float // 1 fromCurr = X toCurr
   source    String   @default("manual") // manual | api | fallback
   validAt   DateTime @default(now())
   createdAt DateTime @default(now())
@@ -414,15 +414,15 @@ model ExchangeRate {
 }
 
 model TaxRate {
-  id          String   @id @default(cuid())
-  country     String   @unique // ISO code: "TR", "US", "DE"
+  id          String  @id @default(cuid())
+  country     String  @unique // ISO code: "TR", "US", "DE"
   countryName String
-  rate        Float    // 0.20 = %20
-  type        String   @default("vat") // vat | gst | sales_tax
-  active      Boolean  @default(true)
+  rate        Float // 0.20 = %20
+  type        String  @default("vat") // vat | gst | sales_tax
+  active      Boolean @default(true)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([active])
 }
@@ -625,17 +625,17 @@ model User {
   twoFactorVerifiedAt  DateTime?
 
   // Profile + Referral alanlari (Phase Chat + Coupon Advanced kapsaminda eklendi).
-  birthDate      DateTime?
-  referralCode   String?   @unique
-  referredBy     String?
-  referralCount  Int        @default(0)
+  birthDate     DateTime?
+  referralCode  String?   @unique
+  referredBy    String?
+  referralCount Int       @default(0)
 
   // Video Calls (Phase "Video Calls + Affiliate" kapsaminda eklendi)
   videoCallCredits Int @default(60) // Dakika cinsinden
 
   // Affiliate / Referral Commission (Phase "Video Calls + Affiliate" kapsaminda eklendi)
-  affiliateBalanceCents Int    @default(0)
-  affiliatePercent      Float  @default(20.0) // Default %20 komisyon
+  affiliateBalanceCents Int     @default(0)
+  affiliatePercent      Float   @default(20.0) // Default %20 komisyon
   affiliateApproved     Boolean @default(false) // Manuel payout onayı
 
   // Relations
@@ -660,19 +660,22 @@ model User {
   conversations        ChatConversation[]
 
   // Video Call relations
-  hostedCalls         VideoCall[]            @relation("VideoCallHost")
-  callParticipations  VideoCallParticipant[]
+  hostedCalls        VideoCall[]            @relation("VideoCallHost")
+  callParticipations VideoCallParticipant[]
 
   // Affiliate relations
-  affiliateReferrals AffiliateCommission[]  @relation("AffiliateReferrer")
-  affiliateReferred  AffiliateCommission[]  @relation("AffiliateReferred")
+  affiliateReferrals AffiliateCommission[] @relation("AffiliateReferrer")
+  affiliateReferred  AffiliateCommission[] @relation("AffiliateReferred")
   affiliatePayouts   AffiliatePayout[]
 
+  // Partner Program relations (Phase "Partner Program" kapsaminda eklendi)
+  partner Partner?
+
   // Task management relations
-  createdTasks     Task[]            @relation("TaskCreator")
-  taskAssignments  TaskAssignee[]
-  taskComments     TaskComment[]
-  taskAttachments  TaskAttachment[]
+  createdTasks    Task[]           @relation("TaskCreator")
+  taskAssignments TaskAssignee[]
+  taskComments    TaskComment[]
+  taskAttachments TaskAttachment[]
 
   // Marketplace 2.0 relations
   vendorProfile    VendorProfile?
@@ -682,11 +685,172 @@ model User {
   // A/B Testing relations
   abExperimentsCreated ABExperiment[]
 
+  // Email Marketing relations
+  emailPreference    EmailPreference?
+  campaignExecutions CampaignExecution[]
+
+  // Push Notifications (Web Push)
+  pushSubscriptions PushSubscription[]
+
+  // Loyalty relations
+  loyaltyAccount LoyaltyAccount?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([referralCode])
+}
+
+// =================== LOYALTY PROGRAM ===================
+// Kullanicinin puan, tier ve odul islemlerini yonetir.
+// Bronze/Silver/Gold/Platinum tier sistemi + redeem odulleri.
+
+model LoyaltyAccount {
+  id             String               @id @default(cuid())
+  userId         String               @unique
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  points         Int                  @default(0)
+  lifetimePoints Int                  @default(0)
+  tier           String               @default("bronze")
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  transactions   LoyaltyTransaction[]
+
+  @@index([tier])
+  @@map("loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id        String         @id @default(cuid())
+  accountId String
+  account   LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  type      String // earn | redeem | bonus | adjustment
+  points    Int // Pozitif: kazanilan, Negatif: harcanan
+  balance   Int // Islem sonrasi bakiye
+  reason    String
+  reference String?
+  createdAt DateTime       @default(now())
+
+  @@index([accountId, createdAt])
+  @@map("loyalty_transactions")
+}
+
+model LoyaltyReward {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  type            String   @default("discount") // discount | freebie | shipping
+  pointsCost      Int
+  discountPercent Int?
+  discountCents   Int?
+  active          Boolean  @default(true)
+  tier            String   @default("bronze") // Minimum tier required
+  stock           Int? // null = sinirsiz
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([active, tier])
+  @@map("loyalty_rewards")
+}
+
+/// Email Marketing Campaigns
+/// Drip / broadcast / behavioral email campaigns.
+/// Phase: Email Marketing Automation
+model EmailCampaign {
+  id   String @id @default(cuid())
+  name String
+
+  // Type
+  campaignType String @default("drip") // drip | broadcast | behavioral
+
+  // Targeting
+  triggerEvent   String? // "user.created", "cart.abandoned", "subscription.expiring"
+  filterAudience Json? // { country: "TR", age: 25-35 }
+
+  // Content
+  subject   String
+  template  String  @db.Text // HTML
+  fromName  String  @default("Noktanyus")
+  fromEmail String?
+
+  // Schedule
+  status      String    @default("draft") // draft | scheduled | running | completed | paused
+  scheduledAt DateTime?
+
+  // Stats
+  totalSent    Int @default(0)
+  totalOpened  Int @default(0)
+  totalClicked Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  steps      CampaignStep[]
+  executions CampaignExecution[]
+
+  @@index([status, scheduledAt])
+  @@map("email_campaigns")
+}
+
+/// Campaign Step — Drip campaign'lerin sirali adimlari.
+/// Order ile siralanir, delayHours ile bir sonraki step'e gecis suresi belirlenir.
+model CampaignStep {
+  id         String        @id @default(cuid())
+  campaignId String
+  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  order      Int
+  subject    String
+  template   String @db.Text
+  delayHours Int    @default(0) // From previous step or campaign start
+
+  @@index([campaignId, order])
+  @@map("campaign_steps")
+}
+
+/// Campaign Execution — Hangi kullanici hangi campaign'de ne durumda.
+/// Open/click tracking, gonderim zamani gibi istatistikleri tutar.
+model CampaignExecution {
+  id         String        @id @default(cuid())
+  campaignId String
+  campaign   EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stepId String?
+
+  status String @default("pending") // pending | sent | opened | clicked | bounced
+
+  sentAt    DateTime?
+  openedAt  DateTime?
+  clickedAt DateTime?
+
+  @@index([userId, campaignId])
+  @@index([status])
+  @@map("campaign_executions")
+}
+
+/// Email Preference
+/// Kullanicinin email abonelik tercihleri.
+/// Marketing, transactional ve newsletter kanallari ayri ayri yonetilir.
+/// GDPR uyumu icin unsubscribe tarihi ve sebebi tutulur.
+model EmailPreference {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  marketing     Boolean @default(true)
+  transactional Boolean @default(true)
+  newsletter    Boolean @default(true)
+
+  unsubscribedAt    DateTime?
+  unsubscribeReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_preferences")
 }
 
 // =================== A/B TESTING ===================
@@ -695,69 +859,69 @@ model User {
 // Sticky variant atama (sessionId bazli), weighted random, conversion tracking.
 
 model ABExperiment {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  name        String   @unique
+  name        String  @unique
   description String?
-  status      String   @default("draft") // draft | running | completed | paused
+  status      String  @default("draft") // draft | running | completed | paused
 
   // Targeting
-  targetPage  String   // "/", "/magaza", "/fiyatlandirma"
+  targetPage     String // "/", "/magaza", "/fiyatlandirma"
   audienceFilter Json? // { country, device, ... }
 
   // Stats
-  startedAt   DateTime?
-  endedAt     DateTime?
+  startedAt       DateTime?
+  endedAt         DateTime?
   winnerVariantId String?
 
   createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  variants    ABVariant[]
-  events      ABEvent[]
+  variants ABVariant[]
+  events   ABEvent[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status, targetPage])
 }
 
 model ABVariant {
-  id          String   @id @default(cuid())
+  id           String       @id @default(cuid())
   experimentId String
-  experiment  ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  experiment   ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
-  name        String   // "Control", "Variant A", "Variant B"
-  weight      Int      @default(50) // %50 - toplam 100 olmali
-  config      Json     @default("{}") // { headline: "...", ctaColor: "blue" }
+  name   String // "Control", "Variant A", "Variant B"
+  weight Int    @default(50) // %50 - toplam 100 olmali
+  config Json   @default("{}") // { headline: "...", ctaColor: "blue" }
 
-  isControl   Boolean  @default(false)
+  isControl Boolean @default(false)
 
-  events      ABEvent[]
+  events ABEvent[]
 
   @@index([experimentId])
 }
 
 enum ABEventType {
-  EXPOSURE   // Variant goruntulendi
-  CONVERSION  // Istenen aksiyon gerceklesti
+  EXPOSURE // Variant goruntulendi
+  CONVERSION // Istenen aksiyon gerceklesti
 }
 
 model ABEvent {
-  id          String   @id @default(cuid())
+  id           String       @id @default(cuid())
   experimentId String
-  experiment  ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
-  variantId   String
-  variant     ABVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  experiment   ABExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  variantId    String
+  variant      ABVariant    @relation(fields: [variantId], references: [id], onDelete: Cascade)
 
-  userId      String?
-  sessionId   String
-  eventType   ABEventType
-  value       Float?   // conversion value
+  userId    String?
+  sessionId String
+  eventType ABEventType
+  value     Float? // conversion value
 
-  metadata    Json     @default("{}")
+  metadata Json @default("{}")
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([experimentId, variantId, eventType])
   @@index([sessionId])
@@ -767,18 +931,18 @@ model ABEvent {
 /// In-app canli destek sistemi. Kullanici <-> Admin mesajlasma akisi.
 /// Phase Chat + Coupon Advanced kapsaminda eklendi.
 model ChatConversation {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  subject      String
-  status       String   @default("open") // open | waiting | closed
+  subject String
+  status  String @default("open") // open | waiting | closed
 
-  assignedTo   String? // admin user id
+  assignedTo String? // admin user id
 
-  lastMessageAt  DateTime?
-  unreadByUser   Int       @default(0)
-  unreadByAdmin  Int       @default(0)
+  lastMessageAt DateTime?
+  unreadByUser  Int       @default(0)
+  unreadByAdmin Int       @default(0)
 
   messages ChatMessage[]
 
@@ -858,7 +1022,7 @@ model Bundle {
 }
 
 model BundlePurchase {
-  id     String @id @default(cuid())
+  id       String @id @default(cuid())
   bundleId String
   bundle   Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
 
@@ -1289,7 +1453,7 @@ model Notification {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  type    String  // order.created, order.paid, monitor.down, monitor.up, comment.reply, vb.
+  type    String // order.created, order.paid, monitor.down, monitor.up, comment.reply, vb.
   title   String
   message String
   link    String?
@@ -1313,13 +1477,13 @@ model Notification {
 // yayınlayabildiği, satıcı (vendor) profili, yorum/puan sistemi ve Q&A altyapısı.
 
 model VendorProfile {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   displayName String
-  slug        String   @unique
-  bio         String?  @db.Text
+  slug        String  @unique
+  bio         String? @db.Text
   avatar      String?
   banner      String?
   website     String?
@@ -1357,7 +1521,7 @@ model ProductReview {
   vendorId   String
   vendor     VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
-  rating  Int     // 1-5
+  rating  Int // 1-5
   comment String? @db.Text
 
   approved Boolean @default(true)
@@ -1379,10 +1543,10 @@ model ProductQuestion {
   askerId String
   asker   User   @relation(fields: [askerId], references: [id], onDelete: Cascade)
 
-  question   String   @db.Text
-  answer     String?  @db.Text
+  question   String    @db.Text
+  answer     String?   @db.Text
   answeredAt DateTime?
-  answeredBy String?  // vendor userId
+  answeredBy String? // vendor userId
 
   createdAt DateTime @default(now())
 
@@ -1395,21 +1559,21 @@ model ProductQuestion {
 // Workspace üyeleri task oluşturabilir, atayabilir, takip edebilir.
 
 model Task {
-  id           String    @id @default(cuid())
-  workspaceId  String
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   title       String
-  description String?   @db.Text
-  status      String    @default("todo") // todo | in_progress | review | done | cancelled
-  priority    String    @default("medium") // low | medium | high | urgent
+  description String? @db.Text
+  status      String  @default("todo") // todo | in_progress | review | done | cancelled
+  priority    String  @default("medium") // low | medium | high | urgent
 
   // Assignees (many-to-many)
   assignees TaskAssignee[]
 
   // Time tracking
   estimatedHours Float?
-  spentHours    Float?
+  spentHours     Float?
 
   // Dates
   dueDate     DateTime?
@@ -1418,8 +1582,8 @@ model Task {
 
   // Hierarchy
   parentTaskId String?
-  parentTask   Task?  @relation("Subtasks", fields: [parentTaskId], references: [id])
-  subtasks     Task[] @relation("Subtasks")
+  parentTask   Task?   @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks     Task[]  @relation("Subtasks")
 
   // Metadata
   tags Json @default("[]")
@@ -1489,18 +1653,18 @@ model TaskAttachment {
 // ile çalışır.
 
 model VideoCall {
-  id          String   @id @default(cuid())
-  hostId      String
-  host        User     @relation("VideoCallHost", fields: [hostId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  hostId String
+  host   User   @relation("VideoCallHost", fields: [hostId], references: [id], onDelete: Cascade)
 
   title       String
   description String?
 
   // Meeting config
-  scheduledAt       DateTime?
-  durationMin       Int       @default(60)
-  maxParticipants   Int       @default(10)
-  recordingEnabled  Boolean   @default(false)
+  scheduledAt      DateTime?
+  durationMin      Int       @default(60)
+  maxParticipants  Int       @default(10)
+  recordingEnabled Boolean   @default(false)
 
   // Status
   status String @default("scheduled") // scheduled | active | ended | cancelled
@@ -1512,8 +1676,8 @@ model VideoCall {
   participants VideoCallParticipant[]
 
   // Recording
-  recordingUrl          String?
-  recordingDurationSec  Int?
+  recordingUrl         String?
+  recordingDurationSec Int?
 
   // Relations
   productId String?
@@ -1574,7 +1738,7 @@ model AffiliateCommission {
   paidAt     DateTime?
   payoutId   String?
 
-  payout   AffiliatePayout? @relation(fields: [payoutId], references: [id])
+  payout AffiliatePayout? @relation(fields: [payoutId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1600,4 +1764,97 @@ model AffiliatePayout {
   processedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+// =================== PARTNER PROGRAM (B2B RESELLERS) ===================
+// Phase "Partner Program" kapsaminda eklendi.
+// Is ortaklari (firmalar) kendi landing page'leri uzerinden lead toplar,
+// lead'in conversion'i halinde komisyon kazanir. Affiliate'dan farki: B2B
+// firma bazli, slug ile public landing page, webhook notification.
+
+model Partner {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  companyName  String
+  slug         String  @unique
+  contactEmail String
+  website      String?
+  description  String?
+
+  // Status
+  verified Boolean @default(false)
+  active   Boolean @default(true)
+
+  // Commission
+  commissionPercent Float @default(15.0)
+
+  // Stats (denormalized)
+  totalLeads       Int @default(0)
+  totalConversions Int @default(0)
+
+  // Webhook integration (partner kendi sistemine bildirim almak isterse)
+  webhookUrl    String?
+  webhookSecret String?
+
+  leads PartnerLead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug, active])
+  @@index([active, verified])
+  @@map("partners")
+}
+
+/// Partner Lead — partner landing page'den gelen potansiyel musteri.
+/// Status lifecycle: pending -> qualified -> converted | rejected
+model PartnerLead {
+  id        String  @id @default(cuid())
+  partnerId String
+  partner   Partner @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+
+  customerEmail String
+  customerName  String?
+
+  source   String @default("api") // api | landing_page | manual
+  metadata Json   @default("{}")
+
+  // Status: pending | qualified | converted | rejected
+  status String @default("pending")
+
+  // Conversion attribution
+  orderId          String? @unique
+  orderAmountCents Int?
+  commissionCents  Int?
+
+  createdAt   DateTime  @default(now())
+  convertedAt DateTime?
+
+  @@index([partnerId, status])
+  @@index([customerEmail])
+  @@index([createdAt])
+  @@map("partner_leads")
+}
+
+// =================== PUSH NOTIFICATIONS (WEB PUSH) ===================
+// Kullanici tarayicilarina Web Push ile bildirim gondermek icin
+// push subscription'lari DB'de saklanir. web-push SDK ile birlikte calisir.
+
+model PushSubscription {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  endpoint String @unique
+  p256dh   String
+  auth     String
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, active])
+  @@map("push_subscriptions")
 }

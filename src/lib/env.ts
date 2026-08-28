@@ -20,6 +20,11 @@ const envSchema = z.object({
   NEXT_PUBLIC_BASE_URL: z.string().min(1),
   NEXT_PUBLIC_YANDEX_METRICA_ID: z.string().optional(),
   CRON_SECRET: z.string().optional(),
+
+  // Web Push (VAPID) — opsiyonel; yoksa push endpoint'leri no-op olur
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  VAPID_SUBJECT: z.string().optional(),
 });
 
 try {

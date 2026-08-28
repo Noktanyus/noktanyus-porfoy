@@ -20,6 +20,8 @@ import {
 import { webhookService } from '@/modules/webhooks';
 import { notificationService } from '@/modules/notifications';
 import { affiliateService } from '@/modules/affiliate';
+import { partnerService } from '@/modules/partners';
+import { loyaltyService } from '@/modules/loyalty';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
@@ -508,6 +510,28 @@ export const commerceService = {
       await affiliateService.trackConversion(order.id);
     } catch (err) {
       logger.warn('Affiliate trackConversion failed', { orderId: order.id, error: err });
+    }
+
+    // Loyalty puan — siparis tutarina gore puan kazandir
+    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
+    if (order.userId) {
+      try {
+        await loyaltyService.onPurchase(order.id, order.userId, order.totalCents);
+      } catch (err) {
+        logger.warn('Loyalty onPurchase failed', { orderId: order.id, error: err });
+      }
+    }
+
+    // Partner Program — musteri email'i eslesen partner lead'i converted isaretle
+    // (Phase "Partner Program" kapsaminda eklendi, best-effort)
+    try {
+      await partnerService.markLeadConverted({
+        customerEmail: order.customerEmail,
+        orderId: order.id,
+        orderAmountCents: order.totalCents,
+      });
+    } catch (err) {
+      logger.warn('Partner markLeadConverted failed', { orderId: order.id, error: err });
     }
   },
 

@@ -21,6 +21,7 @@ import {
   FaTasks,
   FaGift,
   FaVideo,
+  FaCrown,
 } from 'react-icons/fa';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
 
@@ -34,6 +35,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/vendor', label: 'Vendor Mağaza', icon: FaStore },
   { href: '/dashboard/tasks', label: 'Görevler', icon: FaTasks },
   { href: '/dashboard/affiliate', label: 'Affiliate', icon: FaGift },
+  { href: '/dashboard/loyalty', label: 'Sadakat', icon: FaCrown },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
 ];
