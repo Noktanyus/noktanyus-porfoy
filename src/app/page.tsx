@@ -6,7 +6,7 @@ import {
   listBlogs,
 } from "@/services/contentService";
 import { Metadata } from "next";
-import HeroSection from "@/components/home/HeroSection";
+import { AnimatedHero } from "@/components/landing/AnimatedHero";
 import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
@@ -93,23 +93,35 @@ export default async function Home() {
   // WebSite JSON-LD (Knowledge Graph için)
   const websiteLd = websiteJsonLd();
 
+  const githubUrl = aboutData?.socialGithub || 'https://github.com/Noktanyus';
+  const linkedinUrl =
+    aboutData?.socialLinkedin || 'https://linkedin.com/in/yunus-tughan';
+  const instagramUrl = aboutData?.socialInstagram
+    ? `https://instagram.com/${aboutData.socialInstagram.replace(/^@/, '')}`
+    : undefined;
+
   return (
     <>
       <JsonLd data={[personLd, websiteLd]} />
       <div className="container-responsive bg-blob-decoration">
         <div className="relative z-10 space-responsive">
-          {/* Hero Section */}
-          <section className="relative min-h-[60vh] flex items-center">
-            <div className="w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-                <div className="order-2 lg:order-1 animate-slide-in-left">
-                  <HeroSection aboutData={aboutData} />
-                </div>
-                <div className="order-1 lg:order-2 animate-slide-in-right" style={{animationDelay: '0.3s'}}>
-                  <FeaturedContent homeSettings={homeSettings} />
-                </div>
-              </div>
-            </div>
+          {/* Animated Hero Section */}
+          <AnimatedHero
+            name={aboutData?.name ?? 'Yunus Tuğhan'}
+            title={aboutData?.title ?? 'Software Developer'}
+            subtitle={`// ${aboutData?.title ?? 'Yazılım Geliştirici'}`}
+            description={
+              aboutData?.content ?? 'Akdeniz Üniversitesi Yazılım Geliştirici'
+            }
+            githubUrl={githubUrl}
+            linkedinUrl={linkedinUrl}
+            instagramUrl={instagramUrl}
+            email={aboutData?.contactEmail ?? undefined}
+          />
+
+          {/* Featured Content (sağ kolon) */}
+          <section className="relative">
+            <FeaturedContent homeSettings={homeSettings} />
           </section>
 
           {/* Featured Projects */}

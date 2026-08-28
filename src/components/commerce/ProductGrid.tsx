@@ -2,6 +2,7 @@ import { memo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
+import { AnimatedGrid } from '@/components/ui/AnimatedCard';
 import type { DigitalProduct } from '@prisma/client';
 
 interface ProductGridProps {
@@ -10,11 +11,15 @@ interface ProductGridProps {
 
 export function ProductGrid({ products }: ProductGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <AnimatedGrid
+      staggerMs={80}
+      delayMs={50}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}
-    </div>
+    </AnimatedGrid>
   );
 }
 

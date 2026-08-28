@@ -405,3 +405,89 @@
     animation: none !important;
   }
 }
+
+/* ===== UI POLISH ANIMATIONS =====
+   Shimmer, float, pulse, spin, scroll-smooth, focus ring, selection.
+   Tailwind utility class'ları (.shimmer, .animate-float-slow, vb.)
+   sayesinde component seviyesinde de kullanılır. */
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 2.5s ease-in-out infinite;
+}
+
+/* Smooth scroll for anchor nav */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus visible enhancement — oklch primary token'a göre */
+*:focus-visible {
+  outline: 2px solid var(--brand-primary, #0078D4);
+  outline-offset: 2px;
+  transition: outline-offset 0.15s ease;
+}
+
+::selection {
+  background: rgba(0, 120, 212, 0.2);
+  color: inherit;
+}
+
+/* Reduced motion kullanıcıları için yeni animasyonları da devre dışı bırak */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer,
+  .animate-float-slow,
+  .animate-pulse-slow,
+  .animate-spin-slow,
+  .animate-bounce-slow {
+    animation: none !important;
+  }
+  html { scroll-behavior: auto; }
+}

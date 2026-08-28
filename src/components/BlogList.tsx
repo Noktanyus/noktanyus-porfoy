@@ -5,6 +5,7 @@ import { Blog } from '@prisma/client';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BlogCard from '@/components/BlogCard';
+import { AnimatedGrid } from '@/components/ui/AnimatedCard';
 import { FaSearch, FaFire } from 'react-icons/fa';
 
 type BlogSort = 'newest' | 'oldest' | 'popular';
@@ -131,11 +132,15 @@ export default function BlogList({ allPosts, sort = 'newest' }: BlogListProps) {
 
       {/* Blog Grid */}
       {filteredPosts.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <AnimatedGrid
+          staggerMs={80}
+          delayMs={50}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
+        >
           {filteredPosts.map((post, idx) => (
             <BlogCard key={post.id} blog={post} index={idx} />
           ))}
-        </div>
+        </AnimatedGrid>
       ) : (
         <div className="glass-card-premium text-center py-16 px-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
