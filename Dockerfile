@@ -5,8 +5,8 @@ WORKDIR /app
 # Paket dosyalarını kopyala
 COPY package.json package-lock.json ./
 
-# Bağımlılıkları yükle
-RUN npm ci
+# Cache temizle ve bağımlılıkları yükle (npm ci yerine npm install - lock tutarsızlığını önler)
+RUN npm cache clean --force && npm install --no-audit --prefer-offline
 
 # Stage 2: Uygulamayı build et
 FROM node:22 AS builder
@@ -25,7 +25,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=true
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
 ENV NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY=${NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY:-dummy}
-ENV DATABASE_URL="postgresql://user:password@localhost:5432/db"
+ENV DATABASE_URL="postgresql://noktanyus:password@db:5432/noktanyus_porfoy?schema=public"
 ENV NEXTAUTH_URL="http://localhost:3000"
 ENV NEXTAUTH_SECRET="f6578a9c2b4d1e3f8a9c2b4d1e3f8a9c"
 ENV ADMIN_EMAIL="admin@noktanyus.com"

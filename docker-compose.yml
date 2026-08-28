@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - DATABASE_URL=${DATABASE_URL}
+        - DATABASE_URL=postgresql://noktanyus:password@db:5432/noktanyus_porfoy?schema=public
         - NEXTAUTH_URL=${NEXTAUTH_URL}
         - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
         - ADMIN_EMAIL=${ADMIN_EMAIL}
@@ -32,6 +32,12 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://noktanyus:password@db:5432/noktanyus_porfoy?schema=public
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     env_file:
       - .env
     depends_on:
