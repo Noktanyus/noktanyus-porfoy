@@ -155,7 +155,7 @@ export function GlobalSearch() {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4 bg-black/50 backdrop-blur-sm fade-in"
+      className="modal-overlay fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4 fade-in"
       role="dialog"
       aria-modal="true"
       aria-label="Global arama"

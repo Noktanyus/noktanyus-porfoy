@@ -4,15 +4,28 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { commerceService } from '@/modules/commerce';
-import type { Plan } from '@prisma/client';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getButtonClass, cn } from '@/lib/utils';
+
+// Public-safe plan shape — backend response shape mirror.
+// Plan modelindeki tüm alanlari frontend'e tasimak yerine sadece
+// formun ihtiyac duyduklari yeterli. Stripe customer id gibi backend
+// alanlari response'a dahil edilmez.
+interface PublicPlan {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  priceCents: number;
+  currency: string;
+  interval: string;
+  features: string[] | unknown;
+}
 
 export function PlanCheckoutForm() {
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug');
 
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [plan, setPlan] = useState<PublicPlan | null>(null);
   const [email, setEmail] = useState('');
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -26,8 +39,19 @@ export function PlanCheckoutForm() {
     let cancelled = false;
     (async () => {
       try {
-        const p = await commerceService.getPlan(slug);
-        if (!cancelled) setPlan(p);
+        // Server-side Prisma kullanimi yerine public API uzerinden plan cekiyoruz.
+        // Boylece bu 'use client' component tarayicida calistiginda
+        // "PrismaClient is unable to run in this browser environment" hatasi olusmuyor.
+        const res = await fetch(`/api/plans/${encodeURIComponent(slug)}`, {
+          cache: 'no-store',
+        });
+        const result = await res.json();
+        if (cancelled) return;
+
+        if (!res.ok || !result.success) {
+          throw new Error(result.error?.message ?? 'Plan yüklenemedi');
+        }
+        setPlan(result.data as PublicPlan);
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : 'Plan yüklenemedi');
@@ -57,7 +81,7 @@ export function PlanCheckoutForm() {
       });
 
       const result = await response.json();
-      if (!result.success) {
+      if (!response.ok || !result.success) {
         throw new Error(result.error?.message ?? 'Ödeme başlatılamadı');
       }
 
@@ -74,12 +98,11 @@ export function PlanCheckoutForm() {
         <p className="text-5xl mb-4" aria-hidden="true">
           ⚠️
         </p>
-        <p className="text-lg mb-6 text-red-600 dark:text-red-400">{error}</p>
-        <Link
-          href="/fiyatlandirma"
-          className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
-        >
-          Planlara Dön
+        <p className="text-lg mb-6 text-red-600 dark:text-red-400" role="alert">
+          {error}
+        </p>
+        <Link href="/fiyatlandirma" className={getButtonClass('primary', 'lg')}>
+          <span aria-hidden="true">←</span> Planlara Dön
         </Link>
       </div>
     );
@@ -95,6 +118,17 @@ export function PlanCheckoutForm() {
 
   return (
     <div className="max-w-md mx-auto">
+      {/* "Planlara Dön" her durumda erişilebilir olmalı — daha önce yalnızca
+          hata ekranında render ediliyordu, bu yüzden normal akışta kullanıcı
+          geri dönemiyordu. <button onClick> yerine <Link>: gerçek navigasyon,
+          klavye/orta tık/yeni sekme desteği ve JS olmadan da çalışır. */}
+      <Link
+        href="/fiyatlandirma"
+        className={cn(getButtonClass('ghost', 'sm'), 'mb-4 -ml-2')}
+      >
+        <span aria-hidden="true">←</span> Planlara Dön
+      </Link>
+
       <div className="glass-card-premium p-6 mb-6">
         <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
           {plan.name}

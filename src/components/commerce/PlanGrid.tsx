@@ -17,7 +17,7 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
       {plans.map((plan) => {
         const features = Array.isArray(plan.features)
           ? (plan.features as unknown[]).map((f) => String(f))
@@ -25,7 +25,9 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
         return (
           <div
             key={plan.id}
-            className={`glass-card-premium p-6 flex flex-col ${
+            /* min-w-0: grid item'ın varsayılan `min-width:auto` değeri uzun
+               kelimelerin kolonu genişletip yatay taşma yapmasını engeller */
+            className={`glass-card-premium p-6 flex flex-col min-w-0 ${
               plan.isFeatured ? 'ring-2 ring-brand-primary' : ''
             }`}
           >
@@ -34,18 +36,18 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
                 ÖNERİLEN
               </span>
             )}
-            <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+            <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white break-words">
               {plan.name}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 min-h-[40px]">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 sm:min-h-[40px] break-words">
               {plan.description}
             </p>
 
-            <div className="mb-6">
-              <span className="text-4xl font-bold text-brand-primary">
+            <div className="mb-6 flex flex-wrap items-baseline gap-x-2">
+              <span className="text-3xl sm:text-4xl font-bold text-brand-primary break-words">
                 {formatCurrency(plan.priceCents, plan.currency)}
               </span>
-              <span className="text-gray-500 dark:text-gray-400 ml-2">
+              <span className="text-gray-500 dark:text-gray-400">
                 /{plan.interval.toLowerCase()}
               </span>
             </div>
@@ -54,10 +56,10 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
               <ul className="space-y-2 mb-6 text-sm flex-1">
                 {features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-gray-700 dark:text-gray-300">
-                    <span className="text-brand-primary mt-0.5" aria-hidden="true">
+                    <span className="text-brand-primary mt-0.5 shrink-0" aria-hidden="true">
                       ✓
                     </span>
-                    <span>{feature}</span>
+                    <span className="min-w-0 break-words">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -65,7 +67,8 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
 
             <Link
               href={`/odeme/plan?slug=${plan.slug}`}
-              className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
+              aria-label={`${plan.name} planını seç`}
+              className="w-full inline-flex items-center justify-center min-h-[44px] px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
             >
               Planı Seç
             </Link>

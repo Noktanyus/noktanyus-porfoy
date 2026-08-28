@@ -317,9 +317,15 @@
 }
 
 @layer utilities {
-  /* Decorative blob background */
+  /* Decorative blob background.
+     `overflow-x: clip` ZORUNLU: ::before/::after blob'ları `right: -50px` /
+     `left: -40px` ile konteynerin dışına taşıyor. Clip olmazsa mobilde
+     document.scrollWidth büyür ve yatay scroll oluşur.
+     `clip` (hidden değil) seçildi çünkü scroll container yaratmaz —
+     ata elemanlardaki position:sticky çalışmaya devam eder. */
   .bg-blob-decoration {
     position: relative;
+    overflow-x: clip;
   }
 
   .bg-blob-decoration::before,
@@ -470,7 +476,7 @@ html {
 
 /* Focus visible enhancement — oklch primary token'a göre */
 *:focus-visible {
-  outline: 2px solid var(--brand-primary, #0078D4);
+  outline: 2px solid oklch(var(--brand-primary, 0.55 0.18 255));
   outline-offset: 2px;
   transition: outline-offset 0.15s ease;
 }
@@ -490,4 +496,171 @@ html {
     animation: none !important;
   }
   html { scroll-behavior: auto; }
+}
+
+/* ===== MODAL OVERLAY & BODY SCROLL LOCK =====
+   GlobalSearch, login ve diğer modal'larda kullanılır.
+   - body-scroll-lock: Modal açıkken sayfa scroll'unu kilitler
+   - modal-overlay: Arka planı güçlü blur + koyu overlay ile kapatır
+   - backdrop-blur-strong: Daha agresif blur (20px + saturate)
+*/
+body.body-scroll-lock {
+  overflow: hidden !important;
+  /* iOS Safari için: scroll'u tamamen kilitle */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overscroll-behavior: contain;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  animation: modal-overlay-fade-in 0.2s ease-out;
+  will-change: backdrop-filter, background-color;
+}
+
+@keyframes modal-overlay-fade-in {
+  from {
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px) saturate(100%);
+    -webkit-backdrop-filter: blur(0px) saturate(100%);
+  }
+  to {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+  }
+}
+
+.backdrop-blur-strong {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* Firefox fallback: backdrop-filter desteklemeyen tarayıcılar için */
+@supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+/* Reduced motion: animasyonları kapat */
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay {
+    animation: none;
+  }
+}
+
+/* ===== BUTTON CONTRAST & VISIBILITY =====
+   Sorun: butonlar beyaz arka planda kayboluyordu (yetersiz kontrast).
+
+   ÖNEMLİ — token formatı: src/styles/tokens.css değişkenleri BARE CHANNEL
+   tutar (`--primary: 0.55 0.18 255`), tam renk değil (shadcn standardı).
+   Bu yüzden her kullanımda `oklch(var(--primary))` şeklinde sarmalanmalı.
+   Opaklık için `oklch(var(--primary) / 0.9)` veya `color-mix(in oklch, ...)`.
+*/
+
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  /* Dokunmatik erişilebilirlik: min 44px hedef (WCAG 2.2 AA - 2.5.8) */
+  min-height: 44px;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+/* Primary — beyaz arka planda net görünürlük için dolu zemin + gölge */
+button.bg-primary,
+.admin-btn-primary {
+  background: oklch(var(--primary));
+  color: oklch(var(--primary-foreground));
+  font-weight: 600;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12);
+}
+
+button.bg-primary:hover:not(:disabled),
+.admin-btn-primary:hover:not(:disabled) {
+  background: color-mix(in oklch, oklch(var(--primary)) 88%, black);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.16);
+}
+
+/* Secondary — muted zemin + görünür kenarlık */
+.admin-btn-secondary {
+  background: oklch(var(--muted));
+  color: oklch(var(--foreground));
+  border: 1px solid oklch(var(--border));
+}
+
+.admin-btn-secondary:hover:not(:disabled) {
+  background: color-mix(in oklch, oklch(var(--muted)) 85%, oklch(var(--foreground)) 15%);
+  border-color: color-mix(in oklch, oklch(var(--border)) 60%, oklch(var(--foreground)) 40%);
+}
+
+/* Outline — şeffaf zemin, kalın primary kenarlık (beyazda kaybolmaz) */
+.admin-btn-outline {
+  background: transparent;
+  color: oklch(var(--primary));
+  border: 1.5px solid oklch(var(--primary));
+}
+
+.admin-btn-outline:hover:not(:disabled) {
+  background: color-mix(in oklch, oklch(var(--primary)) 12%, transparent);
+  color: color-mix(in oklch, oklch(var(--primary)) 85%, black);
+}
+
+/* Ghost */
+.admin-btn-ghost {
+  background: transparent;
+  color: oklch(var(--foreground));
+  border: 1px solid transparent;
+}
+
+.admin-btn-ghost:hover:not(:disabled) {
+  background: oklch(var(--muted));
+}
+
+/* Danger */
+.admin-btn-danger {
+  background: oklch(var(--destructive, 0.55 0.2 25));
+  color: oklch(var(--destructive-foreground, 0.99 0 0));
+  border: 1px solid transparent;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12);
+}
+
+/* Disabled state — tüm buton varyantları için ortak */
+.admin-btn:disabled,
+.admin-btn[aria-disabled='true'],
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Klavye erişilebilirliği: focus ring her varyantta görünür kalsın */
+.admin-btn:focus-visible {
+  outline: 2px solid oklch(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Yüksek kontrast tercihi olan kullanıcılar için kenarlıkları güçlendir */
+@media (prefers-contrast: more) {
+  .admin-btn-secondary,
+  .admin-btn-outline {
+    border-width: 2px;
+  }
 }

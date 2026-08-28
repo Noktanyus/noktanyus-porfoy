@@ -10,6 +10,13 @@ import DOMPurify from 'isomorphic-dompurify';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
+// Prisma-backed page: server-side dynamic data fetch.
+// force-dynamic prevents Next.js from trying to statically render
+// during build (which would fail with DYNAMIC_SERVER_USAGE because
+// generateStaticParams returns [] when DB is unreachable).
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
 const md = new MarkdownIt({ html: true });
 
 type PageProps = {
