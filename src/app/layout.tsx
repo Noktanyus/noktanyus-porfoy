@@ -137,6 +137,8 @@ export default async function RootLayout({
     // DB erisimi yoksa default accent ile devam et
   }
 
+  const isDev = process.env.NODE_ENV !== 'production';
+
   return (
     <html lang={activeLocale} suppressHydrationWarning>
       <head>
@@ -145,6 +147,7 @@ export default async function RootLayout({
           Production'da console.error bastırma YAPILMAZ — gerçek hataların
           görünür kalması gerekir. window.onerror filtresi yalnızca
           geliştirme ortamında aktiftir.
+          isDev server-side'da değerlendirilir (process.env browser'da yok).
         */}
         <script
           dangerouslySetInnerHTML={{
@@ -157,8 +160,8 @@ export default async function RootLayout({
                 if (typeof window.browser === 'undefined') {
                   window.browser = {
                     runtime: {
-                      onMessage: { addListener: () => {}, removeListener: () => {} },
-                      sendMessage: () => Promise.resolve(),
+                      onMessage: { addListener: function() {}, removeListener: function() {} },
+                      sendMessage: function() { return Promise.resolve(); }
                     }
                   };
                 }
@@ -166,7 +169,8 @@ export default async function RootLayout({
                 // 2. Yalnızca development'ta belirli browser-extension scriptlerinin
                 //    (myContent.js, pagehelper.js) sebep olduğu hataları bastır.
                 //    Production'da tüm hatalar normal akışa bırakılır.
-                if (process.env.NODE_ENV !== 'production') {
+                ${isDev ? `
+                (function() {
                   var problematicScripts = ['myContent.js', 'pagehelper.js'];
                   window.onerror = function(message, source) {
                     if (typeof source === 'string' && problematicScripts.some(function(script) { return source.indexOf(script) !== -1; })) {
@@ -174,7 +178,8 @@ export default async function RootLayout({
                     }
                     return false;
                   };
-                }
+                })();
+                ` : '/* production: no error filter */'}
               })();
             `,
           }}
