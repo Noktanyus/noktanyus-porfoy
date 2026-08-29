@@ -3,8 +3,14 @@
  * @description G1: SaaS için temel finansal metrikler — MRR, ARR, Churn, LTV, ARPU.
  *              Prisma'dan subscription + order verilerini çekerek hesaplar.
  *
- *              Not: Gerçek hesaplama `service.ts`'te. Bu dosya sadece
- *              pure-function formülleri içerir (test edilebilir).
+ *              Not: Hesaplama `service.ts`'te. Bu dosya pure-function formülleri
+ *              içerir (test edilebilir).
+ *
+ *              LTV hesaplama — 2 metod:
+ *              1. Historical: ARPU × Average customer lifetime months
+ *              2. Conventional (SaaS standard): ARPU / Monthly churn rate
+ *              Kural: Churn > 0 ise conventional, aksi halde historical.
+ *              Hem değerleri hem de hangi metodun kullanıldığını döndürürüz.
  */
 
 export interface RevenueInputs {
@@ -16,8 +22,21 @@ export interface RevenueInputs {
   activeAtStartOfMonth: number;
   /** Toplam müşteri sayısı */
   totalCustomers: number;
-  /** Ortalama abonelik süresi (ay) */
+  /** Ortalama abonelik süresi (ay) — historical LTV için */
   averageLifetimeMonths: number;
+}
+
+export type LTVMethod = "conventional" | "historical" | "fallback";
+
+export interface LTVBreakdown {
+  value: number;
+  method: LTVMethod;
+  /** Hesaplamada kullanılan input'lar (debug için) */
+  inputs: {
+    arpu: number;
+    monthlyChurnRate: number;
+    averageLifetimeMonths: number;
+  };
 }
 
 export interface RevenueMetrics {
@@ -26,6 +45,8 @@ export interface RevenueMetrics {
   churnRate: number; // %
   ltv: number;
   arpu: number; // Average Revenue Per User
+  /** LTV breakdown — hangi metod kullanıldı + bileşenleri */
+  ltvBreakdown: LTVBreakdown;
 }
 
 /**
@@ -60,32 +81,65 @@ export function calcARPU(input: RevenueInputs): number {
 }
 
 /**
- * LTV (Lifetime Value) — ARPU × Ortalama ömür (ay).
+ * LTV (Lifetime Value) — SaaS standardına uygun 3-yollu hesaplama:
  *
- * Alternatif: ARPU / Monthly churn rate (eğer churn > 0 ise).
- * Burada basitleştirilmiş LTV kullanıyoruz.
+ *   1. Conventional (tercih edilen): ARPU / (Monthly Churn Rate / 100)
+ *      — Recurring revenue iş modeli için doğru tahmin.
+ *
+ *   2. Historical: ARPU × Average customer lifetime months
+ *      — Churn verisi yetersizse (early-stage SaaS).
+ *
+ *   3. Fallback: 0 — Ne churn ne de lifetime verisi yoksa.
+ *      — Ürün henüz launch edilmemiş.
+ *
+ * Not: Negatif veya anlamsız değerler (örn. %100+ churn) fallback'e düşer.
  */
-export function calcLTV(input: RevenueInputs): number {
-  const churn = calcChurnRate(input);
-  if (churn > 0) {
-    // LTV = ARPU / (Churn Rate / 100)
-    const arpu = calcARPU(input);
-    return arpu / (churn / 100);
+export function calcLTV(input: RevenueInputs): LTVBreakdown {
+  const arpu = calcARPU(input);
+  const monthlyChurnRate = calcChurnRate(input);
+
+  // Conventional path: 0 < churn < 100
+  if (monthlyChurnRate > 0 && monthlyChurnRate < 100) {
+    const value = arpu / (monthlyChurnRate / 100);
+    if (Number.isFinite(value) && value > 0) {
+      return {
+        value,
+        method: "conventional",
+        inputs: { arpu, monthlyChurnRate, averageLifetimeMonths: input.averageLifetimeMonths },
+      };
+    }
   }
-  // Churn 0 ise averageLifetimeMonths kullan
-  return calcARPU(input) * input.averageLifetimeMonths;
+
+  // Historical path: churn 0 veya invalid, ama lifetime var
+  if (input.averageLifetimeMonths > 0 && arpu > 0) {
+    const value = arpu * input.averageLifetimeMonths;
+    return {
+      value,
+      method: "historical",
+      inputs: { arpu, monthlyChurnRate, averageLifetimeMonths: input.averageLifetimeMonths },
+    };
+  }
+
+  // Fallback — veri yetersiz
+  return {
+    value: 0,
+    method: "fallback",
+    inputs: { arpu, monthlyChurnRate, averageLifetimeMonths: input.averageLifetimeMonths },
+  };
 }
 
 /**
  * Tüm metrikleri tek seferde hesapla.
  */
 export function computeMetrics(input: RevenueInputs): RevenueMetrics {
+  const ltvBreakdown = calcLTV(input);
   return {
     mrr: calcMRR(input),
     arr: calcARR(input),
     churnRate: calcChurnRate(input),
-    ltv: calcLTV(input),
+    ltv: ltvBreakdown.value,
     arpu: calcARPU(input),
+    ltvBreakdown,
   };
 }
 

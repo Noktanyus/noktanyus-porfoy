@@ -1,114 +1,41 @@
 /**
  * @file GraphQL API Endpoint
- * @description /api/graphql route — POST/GET ile GraphQL sorgularını kabul eder.
+ * @description /api/graphql route — Apollo Server v4 ile çalışır.
+ *              POST/GET ile GraphQL sorgularını kabul eder.
  *              Authentication: NextAuth session context'ten inject edilir.
- *              Rate limiting: validation.checkRateLimit ile.
+ *              Rate limiting: IP bazlı (Apollo context'inden önce).
+ *
+ *              Apollo Server start-up maliyeti yüksek olduğu için
+ *              singleton pattern kullanılır (src/lib/apollo.ts).
  */
 
 import { NextResponse } from "next/server";
-import { typeDefs } from "@/modules/graphql/schema";
-import { resolvers, createGraphQLContext } from "@/modules/graphql/resolvers";
 import {
-  validateQuery,
-  checkRateLimit,
-  isMutation,
-} from "@/modules/graphql/validation";
+  getApolloServer,
+  checkRateLimitForRequest,
+  isCacheableQuery,
+  cacheBackend,
+} from "@/lib/apollo";
+import { createGraphQLContext } from "@/modules/graphql/resolvers";
 import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-// Basit GraphQL executor — production'da graphql-yoga veya apollo-server
-// kullanılmalı. Burada learning/demo için custom minimal executor.
-async function executeGraphQL(
-  query: string,
-  variables: Record<string, unknown> | undefined,
-  context: Awaited<ReturnType<typeof createGraphQLContext>>
-) {
-  // Operation tipini belirle (query/mutation)
-  const operation = isMutation(query) ? "mutation" : "query";
-
-  // Field resolver routing
-  const errors: Array<{ message: string }> = [];
-  let data: Record<string, unknown> = {};
-
-  try {
-    // Her top-level field için resolver çalıştır
-    const fieldMatches = query.match(/(?:query|mutation)\s*(?:\([^)]*\))?\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/);
-
-    if (!fieldMatches) {
-      return { data: null, errors: [{ message: "Invalid GraphQL syntax" }] };
-    }
-
-    // En basit implementasyon: typeDefs'tan field listesini çıkar ve resolver'lara yönlendir
-    const fieldPattern = /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:\([^)]*\))?\s*\{/g;
-    let match: RegExpExecArray | null;
-
-    while ((match = fieldPattern.exec(query)) !== null) {
-      const fieldName = match[1];
-      if (["query", "mutation"].includes(fieldName.toLowerCase())) continue;
-
-      // Resolver'ı çağır
-      const resolver =
-        operation === "mutation"
-          ? (resolvers.Mutation as Record<string, unknown>)[fieldName]
-          : (resolvers.Query as Record<string, unknown>)[fieldName];
-
-      if (typeof resolver !== "function") {
-        errors.push({ message: `Unknown field: ${fieldName}` });
-        continue;
-      }
-
-      // Argument'ları parse et (basit regex ile)
-      const args = parseArgs(query, fieldName);
-
-      try {
-        const result = await (
-          resolver as (parent: unknown, args: Record<string, unknown>, ctx: unknown) => Promise<unknown>
-        )(null, args, context);
-        data[fieldName] = result;
-      } catch (err) {
-        errors.push({ message: (err as Error).message ?? "Resolver error" });
-      }
-    }
-
-    return { data, errors };
-  } catch (err) {
-    logger.error("[graphql] executor error:", err);
-    return { data: null, errors: [{ message: (err as Error).message }] };
-  }
-}
-
 /**
- * Basit argument parser — `fieldName(arg1: "value", arg2: 123)`.
+ * Cache key — query + variables hash'i.
+ * Aynı sorgu + aynı değişkenler için aynı cache entry'si.
  */
-function parseArgs(query: string, fieldName: string): Record<string, unknown> {
-  const args: Record<string, unknown> = {};
-  const regex = new RegExp(`${fieldName}\\s*\\(([^)]*)\\)`);
-  const match = regex.exec(query);
-  if (!match) return args;
-
-  const pairs = match[1].split(",");
-  for (const pair of pairs) {
-    const [key, rawValue] = pair.split(":").map((s) => s.trim());
-    if (!key || !rawValue) continue;
-    args[key] = parseValue(rawValue);
+function buildCacheKey(query: string, variables?: Record<string, unknown>): string {
+  const varStr = variables ? JSON.stringify(variables) : "";
+  // Basit hash — collision production'da SHA-256 kullanılabilir
+  let hash = 0;
+  const combined = query + varStr;
+  for (let i = 0; i < combined.length; i++) {
+    hash = (hash << 5) - hash + combined.charCodeAt(i);
+    hash |= 0;
   }
-  return args;
-}
-
-function parseValue(raw: string): unknown {
-  const trimmed = raw.trim();
-  // String literal
-  if (/^["'].*["']$/.test(trimmed)) return trimmed.slice(1, -1);
-  // Number
-  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
-  // Boolean
-  if (trimmed === "true") return true;
-  if (trimmed === "false") return false;
-  if (trimmed === "null") return null;
-  // Enum
-  return trimmed;
+  return `gql:${hash.toString(36)}`;
 }
 
 export async function POST(req: Request) {
@@ -116,38 +43,68 @@ export async function POST(req: Request) {
     const body = await req.json();
     const query = body?.query as string | undefined;
     const variables = body?.variables as Record<string, unknown> | undefined;
+    const operationName = body?.operationName as string | undefined;
 
     if (!query) {
       return NextResponse.json(
-        { errors: [{ message: "Missing query" }] },
+        { errors: [{ message: "Missing query in request body" }] },
         { status: 400 }
       );
     }
 
-    // Query validation
-    const validation = validateQuery(query);
-    if (!validation.valid) {
-      return NextResponse.json(
-        { errors: [{ message: validation.reason ?? "Invalid query" }] },
-        { status: 400 }
-      );
-    }
-
-    // Rate limiting — IP bazlı (basit)
+    // Rate limit — IP bazlı
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    const rateCheck = checkRateLimit(ip);
-    if (!rateCheck.valid) {
+    const rateCheck = checkRateLimitForRequest(ip);
+    if (!rateCheck.ok) {
       return NextResponse.json(
-        { errors: [{ message: rateCheck.reason ?? "Rate limit exceeded" }] },
+        { errors: [{ message: rateCheck.message ?? "Rate limit exceeded" }] },
         { status: 429 }
       );
     }
 
-    const context = await createGraphQLContext();
-    const result = await executeGraphQL(query, variables, context);
+    // Cache — sadece GET-cacheable queries için
+    const cacheKey = buildCacheKey(query, variables);
+    if (isCacheableQuery(query)) {
+      const cached = await cacheBackend.get<unknown>(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached, {
+          headers: { "x-graphql-cache": "HIT" },
+        });
+      }
+    }
 
-    return NextResponse.json(result);
+    // Apollo Server üzerinden execute
+    const server = await getApolloServer();
+    const context = await createGraphQLContext();
+
+    const result = await server.executeOperation(
+      { query, variables, operationName },
+      { contextValue: context }
+    );
+
+    // result.body tek bir kind: 'single' | 'incremental' (subscription)
+    if (result.body.kind === "single") {
+      const response = {
+        data: result.body.singleResult.data,
+        errors: result.body.singleResult.errors,
+      };
+
+      // Cacheable query ise sonucu sakla
+      if (isCacheableQuery(query) && !response.errors) {
+        await cacheBackend.set(cacheKey, response, 10);
+      }
+
+      return NextResponse.json(response, {
+        headers: { "x-graphql-cache": "MISS" },
+      });
+    }
+
+    // Incremental delivery (subscription/streaming) — şu an desteklenmiyor
+    return NextResponse.json(
+      { errors: [{ message: "Incremental delivery not supported on this endpoint" }] },
+      { status: 400 }
+    );
   } catch (err) {
     logger.error("[graphql] POST error:", err);
     return NextResponse.json(
@@ -157,11 +114,64 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
-  // GET sadece introspection/schema döndürür
-  return NextResponse.json({
-    message: "GraphQL endpoint. POST a JSON body with { query, variables }.",
-    schema: typeDefs,
-    playground: "/api/graphql (POST only)",
-  });
+export async function GET(req: Request) {
+  // Apollo Sandbox/Playground introspection — sadece non-production'da
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { message: "GraphQL endpoint. POST a JSON body with { query, variables }." },
+      { status: 200 }
+    );
+  }
+
+  const url = new URL(req.url);
+  const query = url.searchParams.get("query");
+  const variablesParam = url.searchParams.get("variables");
+  const operationName = url.searchParams.get("operationName") ?? undefined;
+
+  if (!query) {
+    // Sandbox UI HTML — Apollo Sandbox CDN'den yüklenir
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>GraphQL Sandbox</title>
+  <link rel="stylesheet" href="https://apollo-server-cdn.example.com/sandbox.css" />
+</head>
+<body>
+  <div id="sandbox" style="height:100vh"></div>
+  <script src="https://apollo-server-cdn.example.com/sandbox.js"></script>
+  <script>
+    window.addEventListener('load', function() {
+      if (window.EmbeddedSandbox) {
+        new window.EmbeddedSandbox({
+          target: '#sandbox',
+          endpoint: '/api/graphql',
+        });
+      }
+    });
+  </script>
+  <noscript>Sandbox requires JavaScript.</noscript>
+</body>
+</html>`;
+    return new NextResponse(html, {
+      headers: { "content-type": "text/html; charset=utf-8" },
+    });
+  }
+
+  // GET query — POST'a forward et
+  try {
+    const variables = variablesParam ? JSON.parse(variablesParam) : undefined;
+    const body = JSON.stringify({ query, variables, operationName });
+    const newReq = new Request(req.url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+    });
+    return await POST(newReq);
+  } catch (err) {
+    return NextResponse.json(
+      { errors: [{ message: `Invalid variables JSON: ${(err as Error).message}` }] },
+      { status: 400 }
+    );
+  }
 }

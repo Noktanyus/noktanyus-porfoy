@@ -90,10 +90,21 @@ export function isSubscription(query: string): boolean {
 }
 
 /**
- * Introspection query tespiti (production'da kapatılabilir).
+ * Introspection query tespiti.
+ * Apollo Server introspection flag ile entegre (src/lib/apollo.ts):
+ * production'da `introspection: false`, dev/staging'de `true`.
+ * Ek runtime guard olarak bu fonksiyon introspection denemelerini loglar.
  */
 export function isIntrospection(query: string): boolean {
   return /__schema|__type/i.test(query);
+}
+
+/**
+ * Production ortamında introspection'a izin verilip verilmediğini kontrol et.
+ * Apollo Server introspection flag ile senkronize.
+ */
+export function isIntrospectionAllowed(): boolean {
+  return process.env.NODE_ENV !== "production" || process.env.ENABLE_INTROSPECTION === "true";
 }
 
 /**

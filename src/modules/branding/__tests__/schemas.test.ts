@@ -99,7 +99,34 @@ describe("Branding Schemas", () => {
     expect(isValidHexColor("")).toBe(false);
   });
 
-  it("hexToOklch hex'i oldugu gibi doner (fallback)", () => {
-    expect(hexToOklch("#3b82f6")).toBe("#3b82f6");
+  it("hexToOklch blue-500 → oklch formatinda doner", () => {
+    const result = hexToOklch("#3b82f6");
+    expect(result).toMatch(/^oklch\(/);
+    expect(result).toContain("0."); // L 0-1 arasi
+    // Üç değer: L C H
+    const match = result.match(/oklch\(([0-9.]+) ([0-9.]+) ([0-9.]+)\)/);
+    expect(match).not.toBeNull();
+  });
+
+  it("hexToOklch gecersiz hex → throw", () => {
+    expect(() => hexToOklch("invalid")).toThrow();
+    expect(() => hexToOklch("#xyz")).toThrow();
+  });
+
+  it("hexToOklch beyaz → oklch L=1", () => {
+    const result = hexToOklch("#ffffff");
+    const match = result.match(/oklch\(([0-9.]+) /);
+    expect(parseFloat(match![1])).toBeCloseTo(1, 1);
+  });
+
+  it("hexToOklch siyah → oklch L=0", () => {
+    const result = hexToOklch("#000000");
+    const match = result.match(/oklch\(([0-9.]+) /);
+    expect(parseFloat(match![1])).toBeCloseTo(0, 1);
+  });
+
+  it("hexToOklch 3-char shorthand destekler", () => {
+    const result = hexToOklch("#f00");
+    expect(result).toMatch(/^oklch\(/);
   });
 });

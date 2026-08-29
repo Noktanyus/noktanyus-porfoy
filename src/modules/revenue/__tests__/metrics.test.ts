@@ -52,14 +52,16 @@ describe("Revenue Metrics", () => {
   });
 
   it("LTV churn varsa = ARPU / (churn/100)", () => {
-    // 100 / 0.05 = 2000
-    expect(calcLTV(sampleInput)).toBe(2000);
+    const result = calcLTV(sampleInput);
+    expect(result.value).toBe(2000);
+    expect(result.method).toBe("conventional");
   });
 
   it("LTV churn 0 ise = ARPU × averageLifetime", () => {
     const noChurn = { ...sampleInput, churnedThisMonth: 0 };
-    // 100 × 12 = 1200
-    expect(calcLTV(noChurn)).toBe(1200);
+    const result = calcLTV(noChurn);
+    expect(result.value).toBe(1200);
+    expect(result.method).toBe("historical");
   });
 
   it("computeMetrics tum alanlari doner", () => {
@@ -127,7 +129,38 @@ describe("Revenue Metrics", () => {
       churnedThisMonth: 1,
       activeAtStartOfMonth: 100,
     };
-    // 100 / 0.01 = 10000
-    expect(calcLTV(sticky)).toBe(10000);
+    const result = calcLTV(sticky);
+    expect(result.value).toBe(10000); // 100 / 0.01 = 10000
+    expect(result.method).toBe("conventional");
+  });
+
+  it("LTV %100 churn → historical fallback", () => {
+    const fullChurn = {
+      ...sampleInput,
+      churnedThisMonth: 100,
+      activeAtStartOfMonth: 100,
+    };
+    const result = calcLTV(fullChurn);
+    expect(result.method).toBe("historical");
+    expect(result.value).toBe(1200); // 100 * 12
+  });
+
+  it("LTV hiç veri yok → fallback 0", () => {
+    const empty = {
+      monthlyRecurringRevenue: 0,
+      churnedThisMonth: 0,
+      activeAtStartOfMonth: 0,
+      totalCustomers: 0,
+      averageLifetimeMonths: 0,
+    };
+    const result = calcLTV(empty);
+    expect(result.method).toBe("fallback");
+    expect(result.value).toBe(0);
+  });
+
+  it("LTV breakdown inputs metadata icerir", () => {
+    const result = calcLTV(sampleInput);
+    expect(result.inputs.arpu).toBe(100);
+    expect(result.inputs.monthlyChurnRate).toBe(5);
   });
 });
