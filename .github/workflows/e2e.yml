@@ -27,8 +27,15 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:password@localhost:5432/portfolio_test
-      NEXTAUTH_SECRET: test-secret
+      NEXTAUTH_SECRET: test-secret-key-at-least-32-chars-long
       NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_BASE_URL: http://localhost:3000
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: adminpassword123
+      EMAIL_SERVER: smtp.example.com
+      EMAIL_PORT: '587'
+      EMAIL_USER: test@example.com
+      EMAIL_PASSWORD: testpassword
       PLAYWRIGHT_BASE_URL: http://localhost:3000
       CI: 'true'
 
@@ -39,7 +46,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies

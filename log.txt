@@ -1,0 +1,44 @@
+19s
+Run npm run test:e2e
+
+> portfolio@0.1.0 test:e2e
+> playwright test
+
+[WebServer] 
+[WebServer] > portfolio@0.1.0 dev
+[WebServer] > next dev
+[WebServer] 
+[WebServer]   ▲ Next.js 14.2.35
+[WebServer]   - Local:        http://localhost:3000
+[WebServer]   - Experiments (use with caution):
+[WebServer]     · instrumentationHook
+[WebServer] 
+[WebServer]  ✓ Starting...
+[WebServer] Attention: Next.js now collects completely anonymous telemetry regarding usage.
+[WebServer] This information is used to shape Next.js' roadmap and prioritize features.
+[WebServer] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+[WebServer] https://nextjs.org/telemetry
+[WebServer] 
+[WebServer] [@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
+[WebServer] [@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+[WebServer] [@sentry/nextjs] It appears you've configured a `sentry.edge.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.edge.config.ts` file afterward.
+[WebServer] [@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+[WebServer]  ✓ Ready in 1422ms
+[WebServer]  ○ Compiling /src/middleware ...
+[WebServer]  ✓ Compiled /src/middleware in 1416ms (474 modules)
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
+[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+[WebServer]  ○ Compiling / ...
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
+[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
+[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+[WebServer]  ✓ Compiled / in 13.4s (3136 modules)
+[WebServer] Missing or invalid environment variables: ADMIN_EMAIL, ADMIN_PASSWORD, EMAIL_SERVER, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, NEXT_PUBLIC_BASE_URL
+[WebServer] [WebServer] 
+
+Error: Process from config.webServer exited early.
+Error: Error: Process from config.webServer exited early.
+
+
+Error: Process completed with exit code 1.
