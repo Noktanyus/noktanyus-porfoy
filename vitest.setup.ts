@@ -21,24 +21,20 @@ vi.mock('iyzico', () => ({
   },
 }));
 
-// webidl.util polyfill (jsdom'da eksik olabiliyor, WebCrypto API için gerekli)
-if (typeof globalThis !== 'undefined' && !(globalThis as any).webidl) {
-  (globalThis as any).webidl = {};
-}
-if (typeof (globalThis as any).webidl !== 'undefined' && !(globalThis as any).webidl.util) {
-  (globalThis as any).webidl.util = {};
-}
-// markAsUncloneable polyfill (Node.js 22+'da WebCrypto için gerekli, jsdom eksik olabilir)
-if (typeof (globalThis as any).webidl?.util !== 'undefined' && typeof (globalThis as any).webidl.util.markAsUncloneable !== 'function') {
-  (globalThis as any).webidl.util.markAsUncloneable = () => {};
-}
-// Diğer webidl.util metotları için de minimal polyfill
-if (typeof (globalThis as any).webidl?.util !== 'undefined') {
-  const webidlUtil = (globalThis as any).webidl.util;
-  if (typeof webidlUtil.markAsUncloneable !== 'function') webidlUtil.markAsUncloneable = () => {};
-  if (typeof webidlUtil.toString !== 'function') webidlUtil.toString = () => '';
-  if (typeof webidlUtil.Transferable !== 'function') webidlUtil.Transferable = function() {};
-}
+// isomorphic-dompurify root-cause fix:
+// Production'da isomorphic-dompurify → jsdom@28 → undici@7 kullanır.
+// Vitest ise jsdom@30 → undici@8 kullanır. Bu versiyon çakışması
+// Node.js'in internal `webidl.util.markAsUncloneable`'ını override edip
+// undici'nin WebCrypto API'sini bozuyordu.
+//
+// Çözüm: Test ortamında isomorphic-dompurify'i no-op mock ile bypass et.
+// Production build'de normal çalışır (Next.js serverComponentsExternalPackages).
+vi.mock('isomorphic-dompurify', () => ({
+  default: {
+    sanitize: (html: string) => html,
+    setConfig: () => undefined,
+  },
+}));
 
 // Her testten sonra DOM temizliği
 afterEach(() => {
