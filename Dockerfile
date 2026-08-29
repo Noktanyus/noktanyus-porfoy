@@ -1,5 +1,5 @@
 # Stage 1: Bağımlılıkları yükle
-FROM node:22 AS deps
+FROM node:24 AS deps
 WORKDIR /app
 
 # Paket dosyalarını kopyala
@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 RUN npm cache clean --force && npm install --legacy-peer-deps --no-audit --prefer-offline
 
 # Stage 2: Uygulamayı build et
-FROM node:22 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 
 # Bağımlılıkları ve kaynak kodu kopyala
@@ -40,7 +40,7 @@ ENV EMAIL_PASSWORD="password"
 RUN npx prisma generate --schema=./prisma/schema.prisma && npx next build
 
 # Stage 3: Çalışma zamanı imajı
-FROM node:22-slim AS runner
+FROM node:24-slim AS runner
 WORKDIR /app
 
 # Slim imajda gerekli olabilecek kütüphaneler
