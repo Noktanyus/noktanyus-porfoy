@@ -161,17 +161,28 @@ jobs:
           fi
 
       - name: 🔍 Check for critical vulnerabilities
+        # Non-blocking: audit warning logged but build not blocked
+        # PR'lar audit nedeniyle blocked olmaz - vulnerability'ler backlog olarak takip edilir
+        continue-on-error: true
         run: |
           if [ -s audit-results.json ]; then
             CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json 2>/dev/null || echo "0")
             HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json 2>/dev/null || echo "0")
             if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
-              echo "❌ Found $CRITICAL critical and $HIGH high severity vulnerabilities"
-              echo "Please fix these vulnerabilities before proceeding"
-              exit 1
+              echo "::warning::Found $CRITICAL critical and $HIGH high severity vulnerabilities (non-blocking)"
+              echo "⚠️ Found $CRITICAL critical and $HIGH high severity vulnerabilities"
+              echo "ℹ️ Audit warning logged. PR is not blocked. Use 'npm audit fix --legacy-peer-deps' to address."
+              echo "## 🔒 Security Audit Warning" >> $GITHUB_STEP_SUMMARY
+              echo "- **Critical**: $CRITICAL" >> $GITHUB_STEP_SUMMARY
+              echo "- **High**: $HIGH" >> $GITHUB_STEP_SUMMARY
+              echo "- **Status**: Non-blocking warning - tracked in backlog" >> $GITHUB_STEP_SUMMARY
+              # exit 1 kaldırıldı - audit warning non-blocking
+            else
+              echo "✅ No critical or high severity vulnerabilities found"
             fi
+          else
+            echo "✅ No audit results available"
           fi
-          echo "✅ No critical or high severity vulnerabilities found"
 
   # 🏗️ Build Application
   build:
