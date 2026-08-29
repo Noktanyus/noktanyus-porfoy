@@ -17,36 +17,42 @@ import { createElement } from 'react';
 import { iconComponents } from '@/lib/icon-map';
 import { Metadata } from 'next';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { safeMetadata } from '@/lib/pageMetadata';
 
 /**
  * Hakkımda sayfası için dinamik metadata oluşturur.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  try {
-    const [about, seo] = await Promise.all([
-      getAbout().catch(() => null),
-      getSeoSettings().catch(() => null),
-    ]);
-    const title = `Hakkımda | ${about?.name || seo?.siteTitle || 'Portfolyo'}`;
-    const description = about?.subTitle || 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.';
+  return safeMetadata(
+    async () => {
+      const [about, seo] = await Promise.all([
+        getAbout().catch(() => null),
+        getSeoSettings().catch(() => null),
+      ]);
+      const title = `Hakkımda | ${about?.name || seo?.siteTitle || 'Portfolyo'}`;
+      const description = about?.subTitle || 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.';
 
-    return {
-      title,
-      description,
-      openGraph: {
+      return {
         title,
         description,
-        images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
-      },
-      twitter: {
-        title,
-        description,
-        images: about?.aboutImage ? [about.aboutImage] : [],
-      },
-    };
-  } catch {
-    return { title: 'Hakkımda', description: 'Portfolyo' };
-  }
+        openGraph: {
+          title,
+          description,
+          images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
+        },
+        twitter: {
+          title,
+          description,
+          images: about?.aboutImage ? [about.aboutImage] : [],
+        },
+      };
+    },
+    {
+      title: 'Hakkımda | Noktanyus',
+      description: 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.',
+      path: '/hakkimda',
+    }
+  );
 }
 
 // Markdown-it ve DOMPurify'ı yapılandır

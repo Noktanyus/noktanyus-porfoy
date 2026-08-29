@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation';
 import { vendorService } from '@/modules/marketplace';
 import { prisma } from '@/lib/prisma';
 import { VendorProfile } from '@/components/marketplace/VendorProfile';
+import { safeMetadata } from '@/lib/pageMetadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,13 +18,22 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const vendor = await vendorService.getBySlugSafe(params.slug);
-  if (!vendor) return { title: 'Mağaza bulunamadı' };
+  return safeMetadata(
+    async () => {
+      const vendor = await vendorService.getBySlugSafe(params.slug);
+      if (!vendor) return null;
 
-  return {
-    title: `${vendor.displayName} | Mağaza`,
-    description: vendor.bio?.slice(0, 160) ?? `${vendor.displayName} mağazası`,
-  };
+      return {
+        title: `${vendor.displayName} | Mağaza`,
+        description: vendor.bio?.slice(0, 160) ?? `${vendor.displayName} mağazası`,
+      };
+    },
+    {
+      title: 'Satıcı Mağazası | Noktanyus',
+      description: 'Satıcı profili ve ürünleri.',
+      path: `/satici/${params.slug}`,
+    }
+  );
 }
 
 export default async function PublicVendorPage({ params }: PageProps) {

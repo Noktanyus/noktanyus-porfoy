@@ -9,6 +9,7 @@ import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import { safeMetadata } from '@/lib/pageMetadata';
 
 // Prisma-backed page: server-side dynamic data fetch.
 // force-dynamic prevents Next.js from trying to statically render
@@ -26,30 +27,33 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const project = await getProject(params.slug);
+  return safeMetadata(
+    async () => {
+      const project = await getProject(params.slug);
+      if (!project) return null;
 
-  if (!project) {
-    return {
-      title: "Proje Bulunamadı",
-      description: "Aradığınız proje mevcut değil.",
-    };
-  }
-
-  return {
-    title: `${project.title} | Projelerim`,
-    description: project.description,
-    openGraph: {
-      title: project.title,
-      description: project.description,
-      images: project.mainImage ? [{ url: project.mainImage }] : [],
+      return {
+        title: `${project.title} | Projelerim`,
+        description: project.description,
+        openGraph: {
+          title: project.title,
+          description: project.description,
+          images: project.mainImage ? [{ url: project.mainImage }] : [],
+        },
+        twitter: {
+          card: "summary_large_image",
+          title: project.title,
+          description: project.description,
+          images: project.mainImage ? [project.mainImage] : [],
+        },
+      };
     },
-    twitter: {
-      card: "summary_large_image",
-      title: project.title,
-      description: project.description,
-      images: project.mainImage ? [project.mainImage] : [],
-    },
-  };
+    {
+      title: 'Proje | Noktanyus',
+      description: 'Kişisel projeler ve portfolyo çalışmaları',
+      path: `/projelerim/${params.slug}`,
+    }
+  );
 }
 
 function ProjectPageSkeleton() {

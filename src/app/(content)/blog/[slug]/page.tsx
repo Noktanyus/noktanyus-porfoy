@@ -12,6 +12,7 @@ import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { CommentsSection } from '@/components/blog/CommentsSection';
 import { locales, defaultLocale } from '@/i18n/config';
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, generateOpenGraph, generateTwitterCard, getBaseUrl } from '@/components/seo/JsonLd';
+import { safeMetadata } from '@/lib/pageMetadata';
 import {
   calculateReadingTime,
   trackBlogView,
@@ -57,47 +58,49 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const post = await getBlog(params.slug);
+  return safeMetadata(
+    async () => {
+      const post = await getBlog(params.slug);
+      if (!post) return null;
 
-  if (!post) {
-    return {
-      title: "Yazı Bulunamadı",
-      description: "Aradığınız blog yazısı mevcut değil.",
-      robots: { index: false, follow: false },
-    };
-  }
+      const baseUrl = getBaseUrl();
+      const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
 
-  const baseUrl = getBaseUrl();
-  const canonicalUrl = `${baseUrl}/blog/${post.slug}`;
-
-  return {
-    title: `${post.title} | Blog`,
-    description: post.description,
-    authors: [{ name: post.author }],
-    keywords:
-      typeof post.tags === 'string'
-        ? post.tags.split(',').map((t) => t.trim())
-        : Array.isArray(post.tags)
-          ? (post.tags.filter((t) => typeof t === 'string') as string[])
-          : undefined,
-    alternates: {
-      canonical: canonicalUrl,
-      languages: buildAlternates(post.slug).languages,
+      return {
+        title: `${post.title} | Blog`,
+        description: post.description,
+        authors: [{ name: post.author }],
+        keywords:
+          typeof post.tags === 'string'
+            ? post.tags.split(',').map((t) => t.trim())
+            : Array.isArray(post.tags)
+              ? (post.tags.filter((t) => typeof t === 'string') as string[])
+              : undefined,
+        alternates: {
+          canonical: canonicalUrl,
+          languages: buildAlternates(post.slug).languages,
+        },
+        openGraph: generateOpenGraph({
+          title: post.title,
+          description: post.description,
+          url: canonicalUrl,
+          image: post.thumbnail ?? undefined,
+          type: 'article',
+        }) as any,
+        twitter: generateTwitterCard({
+          title: post.title,
+          description: post.description,
+          image: post.thumbnail ?? undefined,
+        }) as any,
+        robots: { index: true, follow: true },
+      };
     },
-    openGraph: generateOpenGraph({
-      title: post.title,
-      description: post.description,
-      url: canonicalUrl,
-      image: post.thumbnail ?? undefined,
-      type: 'article',
-    }) as any,
-    twitter: generateTwitterCard({
-      title: post.title,
-      description: post.description,
-      image: post.thumbnail ?? undefined,
-    }) as any,
-    robots: { index: true, follow: true },
-  };
+    {
+      title: 'Blog Yazısı | Noktanyus',
+      description: 'Blog yazıları ve makaleler',
+      path: `/blog/${params.slug}`,
+    }
+  );
 }
 
 function BlogPostPageSkeleton() {
@@ -109,18 +112,32 @@ function BlogPostPageSkeleton() {
 }
 
 async function BlogPostPageContent({ slug }: { slug: string }) {
-  const post = await getBlog(slug);
+  let post;
+  try {
+    post = await getBlog(slug);
+  } catch (e) {
+    console.warn('BlogPostPageContent: getBlog failed', e);
+  }
 
   if (!post) {
     notFound();
   }
 
-  // Okuma suresi (icerikten hesaplanir) + view tracking (sunucu tarafli).
+  // Okuma suresi (icerikten hesaplanir) + view tracking (sunucu tarafli, hata yutulur).
   const readTime = calculateReadingTime(post.content);
-  await trackBlogView(post.id);
+  try {
+    await trackBlogView(post.id);
+  } catch (e) {
+    console.warn('trackBlogView failed', e);
+  }
 
-  // Ayni kategorideki ilgili yazilar (varsa gosterilecek).
-  const related = await getRelatedBlogs(post.id, post.category, 3);
+  // Ayni kategorideki ilgili yazilar (hata durumunda bos dizi).
+  let related = [];
+  try {
+    related = await getRelatedBlogs(post.id, post.category, 3);
+  } catch (e) {
+    console.warn('getRelatedBlogs failed', e);
+  }
 
   const dirtyHtml = md.render(post.content);
   const cleanHtml = DOMPurify.sanitize(dirtyHtml);

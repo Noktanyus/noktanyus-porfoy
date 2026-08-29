@@ -17,35 +17,41 @@ import {
   websiteJsonLd,
   getBaseUrl,
 } from "@/components/seo/JsonLd";
+import { safeMetadata } from "@/lib/pageMetadata";
 
 // Force dynamic rendering to prevent build-time database errors
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const seoSettings = await getSeoSettings();
-  if (!seoSettings) {
-    return {
-      title: "Ana Sayfa",
-      description: "Kişisel portfolyo sitesi.",
-    };
-  }
-  return {
-    title: seoSettings.siteTitle,
-    description: seoSettings.siteDescription,
-    keywords: seoSettings.siteKeywords,
-    openGraph: {
-      title: seoSettings.ogTitle || seoSettings.siteTitle,
-      description: seoSettings.ogDescription || seoSettings.siteDescription,
-      url: seoSettings.ogUrl || undefined,
-      images: seoSettings.ogImage ? [{ url: seoSettings.ogImage }] : [],
+  return safeMetadata(
+    async () => {
+      const seoSettings = await getSeoSettings();
+      if (!seoSettings) return null;
+
+      return {
+        title: seoSettings.siteTitle,
+        description: seoSettings.siteDescription,
+        keywords: seoSettings.siteKeywords,
+        openGraph: {
+          title: seoSettings.ogTitle || seoSettings.siteTitle,
+          description: seoSettings.ogDescription || seoSettings.siteDescription,
+          url: seoSettings.ogUrl || undefined,
+          images: seoSettings.ogImage ? [{ url: seoSettings.ogImage }] : [],
+        },
+        twitter: {
+          card: "summary_large_image",
+          title: seoSettings.twitterTitle || seoSettings.siteTitle,
+          description: seoSettings.twitterDescription || seoSettings.siteDescription,
+          images: seoSettings.twitterImage ? [seoSettings.twitterImage] : [],
+        },
+      };
     },
-    twitter: {
-      card: "summary_large_image",
-      title: seoSettings.twitterTitle || seoSettings.siteTitle,
-      description: seoSettings.twitterDescription || seoSettings.siteDescription,
-      images: seoSettings.twitterImage ? [seoSettings.twitterImage] : [],
-    },
-  };
+    {
+      title: 'Noktanyus | Kişisel Portfolyo',
+      description: 'Kişisel portfolyo sitesi — projeler, blog ve daha fazlası.',
+      path: '/',
+    }
+  );
 }
 
 export default async function Home() {

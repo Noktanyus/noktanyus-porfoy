@@ -13,6 +13,7 @@ import {
   generateTwitterCard,
   getBaseUrl,
 } from '@/components/seo/JsonLd';
+import { safeMetadata } from '@/lib/pageMetadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,31 +22,39 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  try {
-    const product = await commerceService.getProduct(params.slug);
-    const baseUrl = getBaseUrl();
-    const canonicalUrl = `${baseUrl}/magaza/${product.slug}`;
-    return {
-      title: `${product.title} | Mağaza`,
-      description: product.shortDescription,
-      alternates: { canonical: canonicalUrl },
-      openGraph: generateOpenGraph({
-        title: product.title,
+  return safeMetadata(
+    async () => {
+      const product = await commerceService.getProduct(params.slug);
+      if (!product) return null;
+
+      const baseUrl = getBaseUrl();
+      const canonicalUrl = `${baseUrl}/magaza/${product.slug}`;
+
+      return {
+        title: `${product.title} | Mağaza`,
         description: product.shortDescription,
-        url: canonicalUrl,
-        image: product.thumbnail ?? undefined,
-        type: 'product',
-      }) as any,
-      twitter: generateTwitterCard({
-        title: product.title,
-        description: product.shortDescription,
-        image: product.thumbnail ?? undefined,
-      }) as any,
-      robots: { index: true, follow: true },
-    };
-  } catch {
-    return { title: 'Ürün Bulunamadı', robots: { index: false, follow: false } };
-  }
+        alternates: { canonical: canonicalUrl },
+        openGraph: generateOpenGraph({
+          title: product.title,
+          description: product.shortDescription,
+          url: canonicalUrl,
+          image: product.thumbnail ?? undefined,
+          type: 'product',
+        }) as any,
+        twitter: generateTwitterCard({
+          title: product.title,
+          description: product.shortDescription,
+          image: product.thumbnail ?? undefined,
+        }) as any,
+        robots: { index: true, follow: true },
+      };
+    },
+    {
+      title: 'Ürün | Mağaza',
+      description: 'Dijital ürünler ve satın alma seçenekleri.',
+      path: `/magaza/${params.slug}`,
+    }
+  );
 }
 
 export default async function ProductPage({ params }: PageProps) {

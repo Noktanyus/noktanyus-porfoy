@@ -25,6 +25,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { userPreferencesService } from "@/modules/user-preferences";
 import type { AccentColor } from "@/lib/theme";
+import { safeMetadata } from "@/lib/pageMetadata";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
@@ -54,58 +55,57 @@ const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: fal
 
 /**
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
+ * DB erişimi başarısız olursa safeMetadata fallback'i devreye girer.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  let seo = null;
-  try {
-    seo = await getSeoSettings();
-  } catch (e) {
-    // SEO settings table may be empty — return safe defaults
-  }
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  return safeMetadata(
+    async () => {
+      const seo = await getSeoSettings();
+      if (!seo) return null;
 
-  if (!seo) {
-    return {
-      title: "Portföy",
-      description: "Kişisel portföy web sitesi.",
-    };
-  }
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const ogImageUrl = seo.ogImage && seo.ogImage.startsWith('http') ? seo.ogImage : `${baseUrl}${seo.ogImage}`;
+      const twitterImageUrl = seo.twitterImage && seo.twitterImage.startsWith('http') ? seo.twitterImage : `${baseUrl}${seo.twitterImage}`;
 
-  const ogImageUrl = seo.ogImage && seo.ogImage.startsWith('http') ? seo.ogImage : `${baseUrl}${seo.ogImage}`;
-  const twitterImageUrl = seo.twitterImage && seo.twitterImage.startsWith('http') ? seo.twitterImage : `${baseUrl}${seo.twitterImage}`;
-
-  return {
-    metadataBase: new URL(baseUrl),
-    title: {
-      default: seo.siteTitle,
-      template: `%s | ${seo.siteTitle}`,
+      return {
+        metadataBase: new URL(baseUrl),
+        title: {
+          default: seo.siteTitle,
+          template: `%s | ${seo.siteTitle}`,
+        },
+        description: seo.siteDescription,
+        keywords: seo.siteKeywords,
+        robots: seo.robots,
+        alternates: {
+          canonical: seo.canonicalUrl,
+        },
+        openGraph: {
+          title: seo.ogTitle || seo.siteTitle,
+          description: seo.ogDescription || seo.siteDescription,
+          url: seo.ogUrl || seo.canonicalUrl,
+          siteName: seo.ogSiteName || seo.siteTitle,
+          images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
+          locale: 'tr_TR',
+          type: 'website',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: seo.twitterTitle || seo.siteTitle,
+          description: seo.twitterDescription || seo.siteDescription,
+          creator: seo.twitterCreator || undefined,
+          images: twitterImageUrl ? [twitterImageUrl] : [],
+        },
+        icons: {
+          icon: seo.favicon || "/favicon.ico",
+        },
+      };
     },
-    description: seo.siteDescription,
-    keywords: seo.siteKeywords,
-    robots: seo.robots,
-    alternates: {
-      canonical: seo.canonicalUrl,
-    },
-    openGraph: {
-      title: seo.ogTitle || seo.siteTitle,
-      description: seo.ogDescription || seo.siteDescription,
-      url: seo.ogUrl || seo.canonicalUrl,
-      siteName: seo.ogSiteName || seo.siteTitle,
-      images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
-      locale: 'tr_TR',
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: seo.twitterTitle || seo.siteTitle,
-      description: seo.twitterDescription || seo.siteDescription,
-      creator: seo.twitterCreator || undefined,
-      images: twitterImageUrl ? [twitterImageUrl] : [],
-    },
-    icons: {
-      icon: seo.favicon || "/favicon.ico",
-    },
-  };
+    {
+      title: 'Noktanyus | Kişisel Portfolyo',
+      description: 'Kişisel portföy web sitesi — projeler, blog ve daha fazlası.',
+      path: '/',
+    }
+  );
 }
 
 export default async function RootLayout({

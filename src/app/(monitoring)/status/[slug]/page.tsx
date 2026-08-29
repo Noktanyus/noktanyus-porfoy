@@ -8,6 +8,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { safeMetadata } from '@/lib/pageMetadata';
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaPause } from 'react-icons/fa';
 
 export const dynamic = 'force-dynamic';
@@ -17,18 +18,26 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const first = await prisma.monitor.findFirst({
-    where: { publicSlug: params.slug, isPublic: true },
-    select: { name: true },
-  });
-  if (!first) {
-    return { title: 'Status bulunamadı' };
-  }
-  return {
-    title: `${first.name} — Sistem Durumu`,
-    description: 'Gerçek zamanlı servis durumu ve uptime istatistikleri',
-    robots: { index: true, follow: true },
-  };
+  return safeMetadata(
+    async () => {
+      const first = await prisma.monitor.findFirst({
+        where: { publicSlug: params.slug, isPublic: true },
+        select: { name: true },
+      });
+      if (!first) return null;
+
+      return {
+        title: `${first.name} — Sistem Durumu`,
+        description: 'Gerçek zamanlı servis durumu ve uptime istatistikleri',
+        robots: { index: true, follow: true },
+      };
+    },
+    {
+      title: 'Sistem Durumu | Noktanyus',
+      description: 'Gerçek zamanlı servis durumu ve uptime istatistikleri.',
+      path: `/status/${params.slug}`,
+    }
+  );
 }
 
 const STATUS_ICON: Record<string, any> = {

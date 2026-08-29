@@ -11,6 +11,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { PartnerLanding } from '@/components/partners/PartnerLanding';
+import { safeMetadata } from '@/lib/pageMetadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,15 +34,23 @@ async function fetchPartner(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const partner = await fetchPartner(params.slug);
-  if (!partner || !partner.active) {
-    return { title: 'İş Ortağı Bulunamadı' };
-  }
-  return {
-    title: `${partner.companyName} | İş Ortağı`,
-    description: partner.description ?? `${partner.companyName} aracılığıyla Noktanyus çözümleri`,
-    robots: { index: partner.verified, follow: true },
-  };
+  return safeMetadata(
+    async () => {
+      const partner = await fetchPartner(params.slug);
+      if (!partner || !partner.active) return null;
+
+      return {
+        title: `${partner.companyName} | İş Ortağı`,
+        description: partner.description ?? `${partner.companyName} aracılığıyla Noktanyus çözümleri`,
+        robots: { index: partner.verified, follow: true },
+      };
+    },
+    {
+      title: 'İş Ortağı | Noktanyus',
+      description: 'Noktanyus iş ortakları ve çözümleri.',
+      path: `/is-ortak/${params.slug}`,
+    }
+  );
 }
 
 export default async function PartnerLandingPage({ params }: PageProps) {
