@@ -2,6 +2,25 @@ import '@testing-library/jest-dom';
 import { vi, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
+// iyzico + bazı Node-only paketler jsdom ortamında URL scheme hatası verir.
+// Test ortamında bu paketleri minimal mock ile bypass ediyoruz.
+vi.mock('iyzico', () => ({
+  default: class MockIyzipay {
+    checkoutFormInitialize(req: unknown, cb: (err: unknown, res: unknown) => void) {
+      cb(null, {
+        status: 'success',
+        token: 'mock-token-' + Date.now(),
+        paymentPageUrl: 'https://mock.iyzipay.com/checkout',
+      });
+    }
+    checkoutForm = {
+      retrieve(req: unknown, cb: (err: unknown, res: unknown) => void) {
+        cb(null, { status: 'success', paymentStatus: 'SUCCESS', basketId: 'mock' });
+      },
+    };
+  },
+}));
+
 // webidl.util polyfill (jsdom'da eksik olabiliyor, WebCrypto API için gerekli)
 if (typeof globalThis !== 'undefined' && !(globalThis as any).webidl) {
   (globalThis as any).webidl = {};
