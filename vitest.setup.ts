@@ -96,6 +96,31 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   thresholds: [],
 }));
 
+// Sentry bundler plugin polyfill — @apm-js-collab/code-transformer-bundler-plugins
+// modülü test ortamında webpack dosyalarını yükleyemiyor (ESM/CJS uyumsuz).
+// Sentry'yi testlerde tamamen devre dışı bırakıyoruz — production build'inde zaten
+// Next.js tarafından farklı bir path'ten yükleniyor.
+vi.mock('@sentry/nextjs', () => ({
+  withSentryConfig: (config: unknown) => config,
+  init: () => {},
+  captureException: () => {},
+  captureMessage: () => {},
+  setUser: () => {},
+  startTransaction: () => ({}),
+  getCurrentHub: () => ({ getClient: () => null }),
+  getClient: () => null,
+  close: () => Promise.resolve(true),
+  flush: () => Promise.resolve(true),
+  browserTracingIntegration: () => ({}),
+  replayIntegration: () => ({}),
+  httpIntegration: () => ({}),
+}));
+
+vi.mock('@apm-js-collab/code-transformer-bundler-plugins', () => ({
+  default: {},
+  createSentryBuildTimeInjector: () => ({ name: 'mock' }),
+}));
+
 // matchMedia mock
 Object.defineProperty(window, 'matchMedia', {
   writable: true,

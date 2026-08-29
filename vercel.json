@@ -1,16 +1,115 @@
+/**
+ * @file Vercel Deployment Config
+ * @description Noktanyus Portfolio — Vercel production deployment.
+ *              Build, runtime, env, security headers ve cron jobs.
+ *
+ *              Deploy:
+ *              1. vercel link --yes
+ *              2. vercel env add <KEY> <VALUE>
+ *              3. vercel --prod
+ *
+ *              Database: Vercel Postgres (Neon) veya harici PG.
+ *              Vercel Postgres kullanılıyorsa DATABASE_URL otomatik set edilir.
+ */
+
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "nextjs",
+  "buildCommand": "prisma generate && next build",
+  "installCommand": "npm install --legacy-peer-deps --no-audit",
+  "outputDirectory": ".next",
+  "regions": ["fra1"],
+  "github": {
+    "silent": true,
+    "autoAlias": true
+  },
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1",
+      "PRISMA_GENERATE_DATAPROXY": "false",
+      "NODE_ENV": "production"
+    }
+  },
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "src/app/api/graphql/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "src/app/api/webhooks/**/*.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
   "crons": [
     {
-      "path": "/api/cron/publish-scheduled",
-      "schedule": "* * * * *"
+      "path": "/api/cron/cleanup-funnel-events",
+      "schedule": "0 3 * * *"
     },
     {
-      "path": "/api/cron/webhook-retry",
-      "schedule": "*/5 * * * *"
+      "path": "/api/cron/refresh-exchange-rates",
+      "schedule": "0 */6 * * *"
     },
     {
-      "path": "/api/monitors/check-all",
-      "schedule": "*/5 * * * *"
+      "path": "/api/cron/subscription-renewal-check",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), browsing-topics=()"
+        }
+      ]
+    },
+    {
+      "source": "/_next/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/uploads/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/admin",
+      "destination": "/admin/(protected)/dashboard",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/health",
+      "destination": "/api/health/route"
     }
   ]
 }
