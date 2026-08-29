@@ -11,7 +11,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 // Force dynamic rendering globally to prevent build-time Prisma errors
-export const dynamicMode = 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 import "./globals.css"; // Font importu artık bu dosyanın içinde
 import Header from "@/components/layout/Header";
