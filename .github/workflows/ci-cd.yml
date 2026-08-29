@@ -298,9 +298,10 @@ jobs:
       - name: 📝 Setup test environment
         run: |
           cat > .env.test << EOF
-          NEXTAUTH_SECRET=test-secret-key-for-ci
+          NEXTAUTH_SECRET=test-secret-key-for-ci-at-least-32-chars
           DATABASE_URL=file:./test.db
           NEXTAUTH_URL=http://localhost:3000
+          NEXT_PUBLIC_BASE_URL=http://localhost:3000
           ADMIN_EMAIL=test@example.com
           ADMIN_PASSWORD=testpassword
           EMAIL_SERVER=smtp.example.com
@@ -310,6 +311,7 @@ jobs:
           TURNSTILE_SECRET_KEY=test-turnstile-secret
           NEXT_PUBLIC_TURNSTILE_SITE_KEY=test-turnstile-site-key
           EOF
+          cp .env.test .env
 
       - name: 🧪 Check for test files
         id: check-tests

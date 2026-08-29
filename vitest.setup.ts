@@ -1,3 +1,16 @@
+// Test ortamı için standart mock environment değişkenleri
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'file:./test.db';
+process.env.NEXTAUTH_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+process.env.NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'test-secret-key-for-vitest-32-chars-long';
+process.env.ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
+process.env.ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'testpassword123';
+process.env.EMAIL_SERVER = process.env.EMAIL_SERVER || 'smtp.example.com';
+process.env.EMAIL_PORT = process.env.EMAIL_PORT || '587';
+process.env.EMAIL_USER = process.env.EMAIL_USER || 'test@example.com';
+process.env.EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || 'testpassword';
+process.env.NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+process.env.SKIP_ENV_VALIDATION = 'true';
+
 import '@testing-library/jest-dom';
 import { vi, afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';

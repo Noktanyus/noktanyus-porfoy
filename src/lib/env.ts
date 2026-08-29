@@ -27,17 +27,20 @@ const envSchema = z.object({
   VAPID_SUBJECT: z.string().optional(),
 });
 
-const isSkipValidation = process.env.SKIP_ENV_VALIDATION === 'true' || process.env.SKIP_ENV_VALIDATION === '1';
+const isTestOrSkip =
+  process.env.NODE_ENV === 'test' ||
+  !!process.env.VITEST ||
+  process.env.SKIP_ENV_VALIDATION === 'true' ||
+  process.env.SKIP_ENV_VALIDATION === '1';
 
 let parsedEnv: z.infer<typeof envSchema>;
 
 try {
   parsedEnv = envSchema.parse(process.env);
 } catch (error) {
-  if (isSkipValidation) {
-    console.warn('⚠️ SKIP_ENV_VALIDATION is active, using fallback environment values.');
+  if (isTestOrSkip) {
     parsedEnv = {
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy',
+      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://test:test@localhost:5432/testdb',
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'dummy-secret-key-at-least-32-chars-long',
       ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@example.com',

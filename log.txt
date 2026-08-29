@@ -1,44 +1,235 @@
-19s
-Run npm run test:e2e
+Run if npm run test --if-present; then
 
-> portfolio@0.1.0 test:e2e
-> playwright test
+> portfolio@0.1.0 test
+> vitest run
 
-[WebServer] 
-[WebServer] > portfolio@0.1.0 dev
-[WebServer] > next dev
-[WebServer] 
-[WebServer]   ▲ Next.js 14.2.35
-[WebServer]   - Local:        http://localhost:3000
-[WebServer]   - Experiments (use with caution):
-[WebServer]     · instrumentationHook
-[WebServer] 
-[WebServer]  ✓ Starting...
-[WebServer] Attention: Next.js now collects completely anonymous telemetry regarding usage.
-[WebServer] This information is used to shape Next.js' roadmap and prioritize features.
-[WebServer] You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-[WebServer] https://nextjs.org/telemetry
-[WebServer] 
-[WebServer] [@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
-[WebServer] [@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
-[WebServer] [@sentry/nextjs] It appears you've configured a `sentry.edge.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.edge.config.ts` file afterward.
-[WebServer] [@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
-[WebServer]  ✓ Ready in 1422ms
-[WebServer]  ○ Compiling /src/middleware ...
-[WebServer]  ✓ Compiled /src/middleware in 1416ms (474 modules)
-[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
-[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
-[WebServer]  ○ Compiling / ...
-[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
-[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
-[WebServer] <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of /home/runner/work/noktanyus-porfoy/noktanyus-porfoy/node_modules/next-intl/dist/esm/production/extractor/format/index.js for build dependencies failed at 'import(t(c).href)'.
-[WebServer] <w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
-[WebServer]  ✓ Compiled / in 13.4s (3136 modules)
-[WebServer] Missing or invalid environment variables: ADMIN_EMAIL, ADMIN_PASSWORD, EMAIL_SERVER, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, NEXT_PUBLIC_BASE_URL
-[WebServer] [WebServer] 
 
-Error: Process from config.webServer exited early.
-Error: Error: Process from config.webServer exited early.
+ RUN  v2.1.9 /home/runner/work/noktanyus-porfoy/noktanyus-porfoy
+
+ ✓ src/modules/ab-testing/__tests__/service.test.ts (19 tests) 53ms
+ ✓ src/modules/reports/__tests__/service.test.ts (16 tests) 24ms
+ ✓ src/modules/saml/__tests__/parser.test.ts (34 tests) 17ms
+ ✓ src/modules/commerce/__tests__/refundService.test.ts (15 tests) 19ms
+ ✓ src/lib/__tests__/seo.test.ts (17 tests) 15ms
+ ✓ src/modules/commerce/__tests__/currency.test.ts (29 tests) 48ms
+ ✓ src/modules/analytics/__tests__/service.test.ts (10 tests) 26ms
+ ✓ src/modules/reports/builder/__tests__/schemas.test.ts (32 tests) 16ms
+ ✓ src/modules/api-keys/__tests__/service.test.ts (13 tests) 21ms
+ ✓ src/modules/commerce/__tests__/couponService.test.ts (13 tests) 28ms
+ ✓ src/modules/comments/__tests__/service.test.ts (11 tests) 18ms
+ ✓ src/modules/sandbox/__tests__/detector.test.ts (30 tests) 673ms
+ ✓ src/hooks/__tests__/useInView.test.tsx (10 tests) 50ms
+ ✓ src/modules/monitoring/__tests__/service.test.ts (15 tests) 24ms
+ ✓ src/lib/__tests__/performance.test.ts (15 tests) 121ms
+ ✓ src/modules/video-calls/__tests__/service.test.ts (12 tests) 20ms
+stderr | src/components/search/__tests__/GlobalSearch.test.tsx > GlobalSearch > opens modal when OPEN_EVENT is dispatched
+Warning: An update to GlobalSearch inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at GlobalSearch (/home/runner/work/noktanyus-porfoy/noktanyus-porfoy/src/components/search/GlobalSearch.tsx:15:49)
+
+ ✓ src/modules/funnel/__tests__/analyzer.test.ts (14 tests) 11ms
+ ✓ src/modules/newsletter/__tests__/service.test.ts (11 tests) 14ms
+ ✓ src/modules/accessibility/__tests__/contrast.test.ts (27 tests) 70ms
+ ✓ src/components/search/__tests__/GlobalSearch.test.tsx (12 tests) 1936ms
+   ✓ GlobalSearch > fetches results with debounce when at least 2 chars entered 331ms
+   ✓ GlobalSearch > shows no-results message when API returns empty 358ms
+   ✓ GlobalSearch > renders results grouped by section when API returns data 376ms
+   ✓ GlobalSearch > navigates to result URL when clicked 338ms
+ ✓ src/lib/__tests__/a11y.test.ts (23 tests) 16ms
+ ✓ src/lib/__tests__/twoFactor.test.ts (22 tests) 99ms
+ ✓ src/modules/affiliate/__tests__/service.test.ts (12 tests) 30ms
+ ✓ src/modules/partners/__tests__/service.test.ts (14 tests) 9ms
+stderr | src/modules/push-notifications/__tests__/pushService.test.ts
+Missing or invalid environment variables: DATABASE_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD, EMAIL_SERVER, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, NEXT_PUBLIC_BASE_URL
+ ❯ src/modules/push-notifications/__tests__/pushService.test.ts (0 test)
+
+ ✓ src/lib/__tests__/audit.test.ts (11 tests) 19ms
+ ✓ src/modules/newsletter/__tests__/broadcast.test.ts (9 tests) 19ms
+ ✓ src/modules/loyalty/__tests__/loyalty.test.ts (18 tests) 24ms
+ ✓ src/modules/admin/__tests__/audit.test.ts (13 tests) 18ms
+ ✓ src/modules/marketplace/__tests__/vendor.test.ts (12 tests) 36ms
+ ✓ src/modules/content/__tests__/service.test.ts (10 tests) 20ms
+ ✓ src/modules/content/__tests__/blog-scheduling.test.ts (9 tests) 13ms
+ ✓ src/modules/marketplace/__tests__/review.test.ts (11 tests) 11ms
+stderr | src/modules/webhooks/__tests__/service.test.ts > WebhookService > moves delivery to DEAD_LETTER after max attempts
+{"timestamp":"2026-08-29T19:10:47.313Z","level":"warn","message":"Webhook delivery moved to dead letter queue","deliveryId":"d1","webhookId":"w1","attempts":5,"errorMessage":"HTTP 500"}
+ ✓ src/modules/webhooks/__tests__/service.test.ts (8 tests) 14ms
+
+ ✓ src/modules/email-marketing/__tests__/service.test.ts (6 tests) 59ms
+ ✓ src/lib/__tests__/theme.test.ts (12 tests) 17ms
+ ✓ src/modules/revenue/__tests__/metrics.test.ts (21 tests) 21ms
+ ✓ src/lib/__tests__/queue.test.ts (12 tests) 1613ms
+   ✓ InMemoryQueue > attempts > 1 ise başarısız job.ı yeniden dener 1201ms
+stderr | src/lib/__tests__/iyzico.test.ts > iyzico lib > iyzicoService.createCheckout returns mock token when not configured
+{"timestamp":"2026-08-29T19:10:50.351Z","level":"warn","message":"[iyzico] Not configured, returning mock checkout"}
+
+stderr | src/lib/__tests__/iyzico.test.ts > iyzico lib > iyzicoService.retrieveCheckout returns success in mock mode
+{"timestamp":"2026-08-29T19:10:50.355Z","level":"warn","message":"[iyzico] Not configured, mock retrieve returns success"}
+
+ ✓ src/modules/workspaces/__tests__/task.test.ts (8 tests) 55ms
+stderr | src/lib/__tests__/iyzico.test.ts > selectPaymentProvider > returns stripe default when nothing configured
+{"timestamp":"2026-08-29T19:10:50.509Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+
+stderr | src/lib/__tests__/iyzico.test.ts > selectPaymentProvider > returns iyzico when configured and no explicit request
+{"timestamp":"2026-08-29T19:10:51.318Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+
+stderr | src/lib/__tests__/iyzico.test.ts > selectPaymentProvider > honors explicit iyzico request even when stripe also configured
+{"timestamp":"2026-08-29T19:10:51.342Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+
+stderr | src/lib/__tests__/iyzico.test.ts > selectPaymentProvider > falls back when explicit provider not configured
+{"timestamp":"2026-08-29T19:10:51.361Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+
+ ✓ src/lib/__tests__/iyzico.test.ts (9 tests) 1078ms
+   ✓ selectPaymentProvider > returns stripe default when nothing configured 955ms
+ ✓ src/modules/branding/__tests__/schemas.test.ts (20 tests) 14ms
+ ✓ src/lib/__tests__/pageMetadata.test.ts (9 tests) 20ms
+ ✓ src/components/dashboard/__tests__/BillingOverview.test.tsx (7 tests) 414ms
+ ✓ src/hooks/__tests__/useOnboardingState.test.ts (9 tests) 92ms
+ ✓ src/modules/user-preferences/__tests__/service.test.ts (6 tests) 10ms
+ ✓ src/modules/workspaces/__tests__/brandingService.test.ts (14 tests) 15ms
+ ✓ src/modules/commerce/__tests__/subscription.test.ts (21 tests) 9ms
+ ✓ src/lib/__tests__/email.test.ts (7 tests) 31ms
+ ✓ src/modules/graphql/__tests__/validation.test.ts (18 tests) 12ms
+ ✓ src/modules/messaging/__tests__/service.test.ts (8 tests) 14ms
+ ✓ src/modules/commerce/__tests__/service.test.ts (5 tests) 690ms
+   ✓ commerceService > listProducts calls productRepository.findActive 684ms
+ ✓ src/lib/__tests__/sandbox.test.ts (10 tests) 8ms
+ ✓ src/stores/__tests__/cartStore.test.ts (10 tests) 13ms
+ ✓ src/lib/__tests__/rbac.test.ts (8 tests) 9ms
+ ✓ src/modules/marketplace/__tests__/question.test.ts (7 tests) 14ms
+ ✓ src/modules/onboarding/__tests__/schemas.test.ts (13 tests) 11ms
+ ✓ src/modules/commerce/__tests__/coupon-advanced.test.ts (5 tests) 49ms
+ ✓ src/modules/themes/__tests__/presets.test.ts (11 tests) 6ms
+ ✓ src/components/ui/__tests__/AnimatedCard.test.tsx (7 tests) 110ms
+ ✓ src/lib/__tests__/viewTransitions.test.ts (5 tests) 34ms
+stderr | src/lib/__tests__/apiResponse.test.ts > apiResponse.withErrorHandling > catches thrown errors and returns fail envelope
+ ✓ src/lib/__tests__/apiResponse.test.ts (5 tests) 11ms
+{"timestamp":"2026-08-29T19:11:03.442Z","level":"error","message":"Unhandled API error","error":{}}
+
+stderr | src/lib/__tests__/apiResponse.test.ts > apiResponse.withErrorHandling > handles thrown unknown errors with INTERNAL_ERROR envelope
+{"timestamp":"2026-08-29T19:11:03.445Z","level":"error","message":"Unhandled API error","error":{"code":"FORBIDDEN","statusCode":403,"details":null}}
+
+stderr | src/components/admin/__tests__/DeleteButton.test.tsx > DeleteButton > calls confirm before delete
+Warning: An update to DeleteButton inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at DeleteButton (/home/runner/work/noktanyus-porfoy/noktanyus-porfoy/src/components/admin/DeleteButton.tsx:13:3)
+
+ ✓ src/components/admin/__tests__/DeleteButton.test.tsx (5 tests) 329ms
+ ✓ src/components/ui/__tests__/Tooltip.test.tsx (6 tests) 318ms
+ ✓ src/components/ui/__tests__/AnimatedButton.test.tsx (7 tests) 317ms
+ ✓ src/components/ui/__tests__/EmptyState.test.tsx (9 tests) 231ms
+ ✓ src/i18n/__tests__/messages.test.ts (4 tests) 7ms
+ ✓ src/modules/commerce/__tests__/user-products.test.ts (4 tests) 7ms
+ ✓ src/modules/shared/__tests__/repository.test.ts (9 tests) 7ms
+ ✓ src/components/ui/__tests__/ImageUpload.test.tsx (6 tests) 112ms
+ ✓ src/lib/graphql/__tests__/schema.test.ts (4 tests) 37ms
+ ✓ src/modules/chat/__tests__/service.test.ts (3 tests) 33ms
+ ✓ src/lib/schemas/__tests__/message.test.ts (5 tests) 12ms
+ ✓ src/modules/blog/__tests__/analytics.test.ts (6 tests) 9ms
+ ✓ src/app/(legal)/yasal/__tests__/kvkk.test.tsx (5 tests) 501ms
+   ✓ KVKK Page > renders the title 311ms
+ ✓ src/modules/push-notifications/__tests__/schemas.test.ts (5 tests) 7ms
+ ✓ src/lib/schemas/__tests__/blog.test.ts (7 tests) 9ms
+ ✓ src/lib/schemas/__tests__/project.test.ts (5 tests) 8ms
+ ✓ src/lib/schemas/__tests__/popup.test.ts (5 tests) 11ms
+ ✓ src/i18n/__tests__/config.test.ts (6 tests) 8ms
+stdout | src/modules/notifications/__tests__/service.test.ts > NotificationService > dispatch skips when userId is missing
+{"timestamp":"2026-08-29T19:11:15.054Z","level":"debug","message":"Notification dispatch skipped: no userId","type":"test.event"}
+
+ ✓ src/modules/notifications/__tests__/service.test.ts (2 tests) 10ms
+ ✓ src/lib/__tests__/auth.test.ts (4 tests) 4022ms
+   ✓ Auth utilities > hashes and verifies passwords correctly 1258ms
+   ✓ Auth utilities > generates different hashes for the same password (salt) 1562ms
+   ✓ Auth utilities > rejects empty passwords 785ms
+   ✓ Auth utilities > password hashing is reasonably fast (security vs perf) 415ms
+stderr | src/app/api/upload/__tests__/route.test.ts > Upload API > exports POST handler
+Missing or invalid environment variables: DATABASE_URL, NEXTAUTH_URL, NEXTAUTH_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD, EMAIL_SERVER, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD, NEXT_PUBLIC_BASE_URL
+
+ ❯ src/app/api/upload/__tests__/route.test.ts (3 tests | 3 failed) 61ms
+   × Upload API > exports POST handler 59ms
+     → process.exit unexpectedly called with "1"
+   × Upload API > exports runtime nodejs for buffer support 1ms
+     → process.exit unexpectedly called with "1"
+   × Upload API > exports dynamic = force-dynamic 0ms
+     → process.exit unexpectedly called with "1"
+ ✓ src/app/api/health/__tests__/route.test.ts (2 tests) 32ms
+ ✓ src/components/ui/__tests__/SkipLink.test.tsx (2 tests) 141ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/modules/push-notifications/__tests__/pushService.test.ts [ src/modules/push-notifications/__tests__/pushService.test.ts ]
+Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+     61|     const missingVariables = error.issues.map(issue => issue.path[0]).…
+     62|     console.error(`Missing or invalid environment variables: ${missing…
+     63|     process.exit(1);
+       |             ^
+     64|   } else {
+     65|     throw error;
+ ❯ src/modules/push-notifications/pushService.ts:4:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/api/upload/__tests__/route.test.ts > Upload API > exports POST handler
+ FAIL  src/app/api/upload/__tests__/route.test.ts > Upload API > exports runtime nodejs for buffer support
+ FAIL  src/app/api/upload/__tests__/route.test.ts > Upload API > exports dynamic = force-dynamic
+Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+     61|     const missingVariables = error.issues.map(issue => issue.path[0]).…
+     62|     console.error(`Missing or invalid environment variables: ${missing…
+     63|     process.exit(1);
+       |             ^
+     64|   } else {
+     65|     throw error;
+ ❯ src/lib/auth.ts:8:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ Test Files  2 failed | 82 passed (84)
+      Tests  3 failed | 911 passed (914)
+   Start at  19:10:25
+   Duration  51.14s (transform 3.21s, setup 17.80s, collect 5.79s, tests 14.19s, environment 86.10s, prepare 9.15s)
+
+
+Error: Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+ ❯ src/modules/push-notifications/pushService.ts:4:31
+
+
+
+Error: Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+ ❯ src/lib/auth.ts:8:31
+
+
+
+Error: Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+ ❯ src/lib/auth.ts:8:31
+
+
+
+Error: Error: process.exit unexpectedly called with "1"
+ ❯ src/lib/env.ts:63:13
+ ❯ src/lib/auth.ts:8:31
 
 
 Error: Process completed with exit code 1.
