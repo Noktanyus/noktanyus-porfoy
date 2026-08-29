@@ -29,7 +29,7 @@ import { safeMetadata } from "@/lib/pageMetadata";
 import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
-import dynamic from "next/dynamic";
+import PopupViewerClient from "@/components/layout/PopupViewerClient";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
@@ -50,8 +50,8 @@ const inter = Inter({
   ],
 });
 
-// Popup görüntüleyiciyi sadece istemci tarafında ve ihtiyaç anında yükle
-const PopupViewer = dynamic(() => import('@/components/PopupViewer'), { ssr: false });
+// Popup görüntüleyici client-side lazy-loaded (ssr:false için Client wrapper gerekli)
+const PopupViewer = PopupViewerClient;
 
 /**
  * Dinamik olarak sayfa metadata'sını (başlık, açıklama, SEO etiketleri) oluşturur.
