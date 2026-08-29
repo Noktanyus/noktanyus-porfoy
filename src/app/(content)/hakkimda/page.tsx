@@ -22,25 +22,31 @@ import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
  * Hakkımda sayfası için dinamik metadata oluşturur.
  */
 export async function generateMetadata(): Promise<Metadata> {
-  const about = await getAbout();
-  const seo = await getSeoSettings();
-  const title = `Hakkımda | ${about?.name || seo?.siteTitle || 'Portfolyo'}`;
-  const description = about?.subTitle || 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.';
+  try {
+    const [about, seo] = await Promise.all([
+      getAbout().catch(() => null),
+      getSeoSettings().catch(() => null),
+    ]);
+    const title = `Hakkımda | ${about?.name || seo?.siteTitle || 'Portfolyo'}`;
+    const description = about?.subTitle || 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.';
 
-  return {
-    title,
-    description,
-    openGraph: {
+    return {
       title,
       description,
-      images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
-    },
-    twitter: {
-      title,
-      description,
-      images: about?.aboutImage ? [about.aboutImage] : [],
-    },
-  };
+      openGraph: {
+        title,
+        description,
+        images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
+      },
+      twitter: {
+        title,
+        description,
+        images: about?.aboutImage ? [about.aboutImage] : [],
+      },
+    };
+  } catch {
+    return { title: 'Hakkımda', description: 'Portfolyo' };
+  }
 }
 
 // Markdown-it ve DOMPurify'ı yapılandır

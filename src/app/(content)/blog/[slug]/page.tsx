@@ -282,14 +282,5 @@ export default function BlogPostPage({ params }: PageProps) {
   );
 }
 
-export async function generateStaticParams() {
-  try {
-    const posts = await listBlogs();
-    return posts.map(post => ({
-      slug: post.slug,
-    }));
-  } catch (error) {
-    console.warn('generateStaticParams: Could not fetch blogs, returning empty array. Build will use dynamic rendering.');
-    return [];
-  }
-}
+// generateStaticParams kaldırıldı - dynamic = 'force-dynamic' ile birlikte çakışıyordu.
+// Sadece runtime render kullanılır. Build sırasında DB'ye erişim gerekmez.

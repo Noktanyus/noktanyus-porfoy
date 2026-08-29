@@ -15,46 +15,60 @@ import { AboutWithRelations } from '@/types/content';
 
 
 
+/**
+ * Safe wrapper: Prisma sorgusu basarisiz olursa null dondurur (build sirasinda DB yoksa).
+ */
+async function safeQuery<T>(fn: () => Promise<T>): Promise<T | null> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[contentService] Query failed (returning null):', (error as Error)?.message);
+    }
+    return null;
+  }
+}
+
 export async function getAbout(): Promise<AboutWithRelations | null> {
-  return prisma.about.findFirst({
+  return safeQuery(() => prisma.about.findFirst({
     include: { experiences: true, skills: true },
-  });
+  }));
 }
 
 export async function getHomeSettings(): Promise<HomeSettings | null> {
-  return prisma.homeSettings.findFirst();
+  return safeQuery(() => prisma.homeSettings.findFirst());
 }
 
 export async function getSeoSettings(): Promise<SeoSettings | null> {
-  return prisma.seoSettings.findFirst();
+  return safeQuery(() => prisma.seoSettings.findFirst());
 }
 
 export async function getBlog(slug: string): Promise<Blog | null> {
-  return prisma.blog.findUnique({ where: { slug } });
+  return safeQuery(() => prisma.blog.findUnique({ where: { slug } }));
 }
 
 export async function listBlogs(): Promise<Blog[]> {
-  return prisma.blog.findMany({ orderBy: { date: 'desc' } });
+  return safeQuery(() => prisma.blog.findMany({ orderBy: { date: 'desc' } }));
 }
 
 export async function getProject(slug: string): Promise<Project | null> {
-  return prisma.project.findUnique({ where: { slug } });
+  return safeQuery(() => prisma.project.findUnique({ where: { slug } }));
 }
 
 export async function listProjects(): Promise<Project[]> {
-  return prisma.project.findMany({ orderBy: { order: 'asc' } });
+  return safeQuery(() => prisma.project.findMany({ orderBy: { order: 'asc' } }));
 }
 
 export async function listExperiences(): Promise<Experience[]> {
-  return prisma.experience.findMany();
+  return safeQuery(() => prisma.experience.findMany());
 }
 
 export async function listSkills(): Promise<Skill[]> {
-  return prisma.skill.findMany();
+  return safeQuery(() => prisma.skill.findMany());
 }
 
 export async function listTestimonials(): Promise<Testimonial[]> {
-  return prisma.testimonial.findMany();
+  return safeQuery(() => prisma.testimonial.findMany());
 }
 
 export async function getPopup(slug: string): Promise<Popup | null> {

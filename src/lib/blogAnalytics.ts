@@ -68,21 +68,25 @@ export async function getPopularBlogs(opts: { limit?: number; days?: number } = 
  * Mevcut yaziyi sonuctan haric tutar.
  */
 export async function getRelatedBlogs(blogId: string, category: string, limit = 3) {
-  return prisma.blog.findMany({
-    where: {
-      id: { not: blogId },
-      category,
-    },
-    take: limit,
-    orderBy: { date: 'desc' },
-    select: {
-      id: true,
-      slug: true,
-      title: true,
-      description: true,
-      thumbnail: true,
-      category: true,
-      readTimeMinutes: true,
-    },
-  });
+  try {
+    return await prisma.blog.findMany({
+      where: {
+        id: { not: blogId },
+        category,
+      },
+      take: limit,
+      orderBy: { date: 'desc' },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        description: true,
+        thumbnail: true,
+        category: true,
+        readTimeMinutes: true,
+      },
+    });
+  } catch {
+    return [];
+  }
 }
