@@ -194,7 +194,9 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
               <input 
                 {...register("email")} 
                 id="email" 
-                type="email" 
+                type="email"
+                required
+                autoComplete="email"
                 className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[48px] sm:min-h-[52px] touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
                 placeholder="ornek@email.com"
               />

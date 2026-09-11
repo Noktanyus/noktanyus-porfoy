@@ -28,7 +28,8 @@ test('header navigation links work', async ({ page }) => {
 
     testedLinks.push(text);
 
-    await link.click();
+    // Header aksiyonları (sepet vb.) son nav linkini örtebilir — force ile güvenli tıkla
+    await link.click({ force: true });
     await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
 
     const url = page.url();

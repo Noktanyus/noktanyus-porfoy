@@ -182,14 +182,14 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 ) : (
                   <Link
                     href="/giris"
-                    className="hidden md:inline-flex items-center text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300"
+                    className="hidden lg:inline-flex items-center text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300"
                   >
                     Giriş Yap
                   </Link>
                 )
               )}
 
-              <div className="md:hidden">
+              <div className="lg:hidden">
                 <button
                   type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -219,7 +219,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
 
       {/* Mobil Menü — kapalıyken DOM'da tutma (a11y + e2e: gizli "Giriş Yap" linki) */}
       {isMobileMenuOpen && (
-      <div className="md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out opacity-100 visible">
+      <div className="lg:hidden fixed inset-0 z-40 transition-all duration-500 ease-out opacity-100 visible">
         <div
           className="fixed inset-0 bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100 transition-all duration-700 ease-out"
           onClick={() => setIsMobileMenuOpen(false)}
