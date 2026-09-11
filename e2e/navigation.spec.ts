@@ -1,47 +1,48 @@
 import { test, expect } from '@playwright/test';
 
 test('header navigation links work', async ({ page }) => {
-  await page.goto('http://localhost:3000/', { waitUntil: 'domcontentloaded' });
+  // Masaüstü nav (lg+) görünür olsun
+  await page.setViewportSize({ width: 1400, height: 900 });
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
   await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {});
 
-  // Turkish navigation labels
   const links = [
-    { text: 'Hakkımda', urlMatch: /\/hakkimda/ },
-    { text: 'Projelerim', urlMatch: /\/projelerim/ },
-    { text: 'Blog', urlMatch: /\/blog/ },
-    { text: 'Mağaza', urlMatch: /\/magaza/ },
-    { text: 'Fiyatlandırma', urlMatch: /\/fiyatlandirma/ },
-    { text: 'İletişim', urlMatch: /\/iletisim/ },
+    { href: '/hakkimda', text: 'Hakkımda' },
+    { href: '/projelerim', text: 'Projelerim' },
+    { href: '/blog', text: 'Blog' },
+    { href: '/magaza', text: 'Mağaza' },
+    { href: '/fiyatlandirma', text: 'Fiyatlandırma' },
+    { href: '/iletisim', text: 'İletişim' },
   ];
 
   const testedLinks: string[] = [];
   const failedLinks: string[] = [];
 
-  for (const { text, urlMatch } of links) {
-    const link = page.locator(`header a:has-text("${text}")`).first();
+  for (const { href, text } of links) {
+    const link = page.locator(`header nav a[href="${href}"]`).first();
     const count = await link.count();
 
     if (count === 0) {
-      console.log(`Link "${text}" not found in header (may be in mobile menu)`);
+      console.log(`Link "${text}" (${href}) header nav'da yok`);
+      failedLinks.push(`${text} → missing`);
       continue;
     }
 
     testedLinks.push(text);
+    await expect(link, `${text} görünür olmalı`).toBeVisible();
 
-    // Header aksiyonları (sepet vb.) son nav linkini örtebilir — force ile güvenli tıkla
-    await link.click({ force: true });
-    await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
+    // Native click — Playwright force click Next.js <Link> ile bazen navigasyon tetiklemiyor
+    await link.evaluate((el: HTMLAnchorElement) => el.click());
+    await page.waitForURL((url) => url.pathname.includes(href), { timeout: 10000 }).catch(() => {});
 
     const url = page.url();
-    if (!url.match(urlMatch)) {
-      failedLinks.push(`${text} → ${url} (expected ${urlMatch})`);
+    if (!url.includes(href)) {
+      failedLinks.push(`${text} → ${url} (expected ${href})`);
     }
 
-    // Verify the page didn't error
     expect(url, `URL after clicking ${text}`).not.toContain('error');
 
-    // Go back to home
-    await page.goto('http://localhost:3000/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
   }
 

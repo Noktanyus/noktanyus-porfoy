@@ -102,15 +102,15 @@ const Header = ({ headerTitle }: HeaderProps) => {
               </Link>
             </Tooltip>
 
-            <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 xl:space-x-4 flex-shrink min-w-0">
+            <nav className="hidden lg:flex items-center space-x-1 lg:space-x-2 xl:space-x-4 flex-1 min-w-0 overflow-x-auto">
               {navLinks.map((link, index) => (
-                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-1.5 lg:px-2 xl:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300" style={{animationDelay: `${index * 0.1}s`}}>
+                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-1.5 lg:px-2 xl:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 shrink-0" style={{animationDelay: `${index * 0.1}s`}}>
                   {link.label}
                 </Link>
               ))}
             </nav>
 
-            <div className="flex items-center space-x-0.5 sm:space-x-1 flex-shrink-0">
+            <div className="flex items-center space-x-0.5 sm:space-x-1 flex-shrink-0 relative z-20">
               <Tooltip content="Arama (⌘K)" side="bottom">
                 <span><GlobalSearch /></span>
               </Tooltip>
