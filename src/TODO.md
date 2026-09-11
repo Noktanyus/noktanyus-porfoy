@@ -7,11 +7,27 @@ teknik borç / eksik / açık konuları içerir.
 > veya tamamlanan TODO'ları bu dosyadan kaldırıp `docs/CHANGELOG.md` veya
 > commit mesajına taşıyın.
 
+> **UI tarama:** 2026-09-11 — ayrıntılar `docs/UI-HATA-ANALIZI.md`.
+
 ---
 
 ## 🔴 Yüksek Öncelik
 
-_(Henüz kayıt yok — yeni TODO'lar buraya eklenir.)_
+### UI / Navigasyon
+
+- [ ] `vercel.json` — `/admin` redirect hedefi `/admin/(protected)/dashboard`
+  (route group URL'de yok). Doğru: `/admin/dashboard`.
+- [ ] `src/app/layout.tsx` — Root Header/Footer admin + dashboard'u sarıyor;
+  çift chrome, iç içe `<main>`, mobil hamburger çakışması. Route-group
+  shell ayrımı gerekli.
+- [ ] Admin CRUD 404 — `products` / `coupons` / `workspaces` listelerinden
+  `.../new` ve `.../[slug]` linkleri var, page dosyaları yok. CTA kaldır
+  veya sayfaları ekle.
+- [ ] Turnstile env — `IletisimForm` `NEXT_PUBLIC_TURNSTILE_SITE_KEY`,
+  widget `NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY`. Tek isme indir.
+- [ ] `ChatWidget` — bileşen hazır, hiçbir layout'ta mount edilmemiş.
+- [ ] `AdminSidebar` — `campaigns`, `themes`, `blog/scheduled` orphan;
+  `/admin/partners` yok.
 
 ---
 
@@ -19,10 +35,23 @@ _(Henüz kayıt yok — yeni TODO'lar buraya eklenir.)_
 
 ### Security / CSP
 
-- `src/middleware.ts:101` — Geçici olarak devre dışı bırakılan CSP
-  kuralları nonce-based CSP'ye geçirilecek.
-  - `unsafe-eval` ve `unsafe-inline` kullanımı kaldırılmalı.
-  - next-intl çıktıları için nonce enjeksiyonu sağlanmalı.
+- `src/middleware.ts` — CSP açık ama `script-src`/`style-src` içinde
+  `'unsafe-inline'`; nonce yok. (Eski “CSP kapalı” notu yanlıştı.)
+
+### UI / a11y / tema
+
+- AdminSidebar desktop `aria-hidden={!isMobileOpen}` → AT'de gizli.
+- Geçersiz Tailwind: `sm:w-84`, `pt-18`, `xs:px-*` (no-op).
+- Header mobil menü: `aria-expanded` / Escape / focus trap yok.
+- CartDrawer: Escape + focus trap yok.
+- i18n: LocaleSwitcher path değiştirir; UI metinleri `useTranslations`
+  kullanmıyor (hardcoded TR).
+- `.glass-card-premium` light mode `rgba(255,255,255,0.08)` — zayıf kontrast.
+- Checkout: ödeme sayfasında adet/sil yok; kupon önizleme yok.
+- CampaignList İngilizce + labelsız form; sidebar'da yok.
+- Workspaces sayfası sahte cookie session kullanıyor.
+- VideoRoom “demo mode” banner kullanıcıya görünür.
+- `vercel.json` health rewrite `/api/health/route` geçersiz.
 
 ---
 
@@ -30,23 +59,19 @@ _(Henüz kayıt yok — yeni TODO'lar buraya eklenir.)_
 
 ### Gelecek İyileştirmeler
 
-- **API Gateway**: Mevcut rate limiter token-bucket; sliding-window'a
-  geçiş değerlendirilebilir.
-- **Dashboard Refactor**: Admin dashboard'daki 23 paralel Prisma count
-  sorgusu ileride `Promise.all([statsRepository.getAll()])` şeklinde
-  tek bir helper'a indirilebilir. Şu an performans açısından kritik
-  değil ama bakım için iyi bir aday.
-- **WebRTC Video Calls**: Şu anda stub seviyesinde. Production için
-  TURN server yapılandırması ve signaling (Socket.IO) entegrasyonu
-  gerekiyor.
-- **SAML SSO**: Schema ve endpoint'ler var; IdP metadata discovery ve
-  attribute mapping henüz implement edilmedi.
+- **API Gateway**: token-bucket → Redis sliding-window.
+- **Dashboard Refactor**: Admin dashboard 23 paralel count → tek helper.
+- **WebRTC Video Calls**: TURN + signaling (şimdi stub).
+- **SAML SSO**: IdP metadata + attribute mapping; route’lar stub.
+- LocaleSwitcher aria-label İngilizce; plan checkout skeleton; Settings
+  fotoğraf “yakında” toast.
+- Push admin broadcast UI; Partner lead Turnstile (docs).
 
 ---
 
 ## ✅ Tamamlanan (Arşiv)
 
-Aşağıdaki öğeler bu refinement turunda düzeltildi:
+Aşağıdaki öğeler önceki refinement turunda düzeltildi:
 
 - [x] `src/lib/apiResponse.ts` — `withErrorHandling` overload imzaları
   generic `T` parametresi ile güncellendi; route handler'lar artık tip
