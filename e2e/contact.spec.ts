@@ -28,8 +28,8 @@ test.describe('Contact Form', () => {
     // We assert the URL hasn't navigated to a different page
     expect(page.url()).toMatch(/\/iletisim/);
 
-    // Email field should be invalid (HTML5 + zod resolver)
-    const emailInput = page.locator('input[type="email"]').first();
+    // İletişim formu e-postası (footer newsletter değil)
+    const emailInput = page.locator('#email, form input[type="email"]').first();
     if (await emailInput.isVisible().catch(() => false)) {
       const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.checkValidity());
       expect(isInvalid).toBeTruthy();

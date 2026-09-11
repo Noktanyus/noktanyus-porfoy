@@ -43,7 +43,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       <button
         type="button"
         className={baseClass}
-        aria-label="Tema değiştir"
+        aria-label="Tema hazırlanıyor"
         disabled
         aria-hidden="true"
       >
