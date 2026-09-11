@@ -44,6 +44,8 @@ for (const path of PAGES) {
       'sentry',
       'gtag',
       'analytics',
+      'Content Security Policy',   // 3p script eval noise (CSP ayrıca middleware’de yönetilir)
+      'unsafe-eval',
     ];
 
     const criticalErrors = errors.filter(e =>

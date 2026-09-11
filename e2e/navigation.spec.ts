@@ -55,19 +55,32 @@ test('theme toggle works', async ({ page }) => {
   const initialClass = await page.locator('html').getAttribute('class');
   const initialDataTheme = await page.locator('html').getAttribute('data-theme');
 
-  // Find theme toggle button - multiple selectors
+  // Find theme toggle button - multiple selectors (placeholder "Tema hazırlanıyor" hariç)
   const themeToggle = page.locator(
-    'button[aria-label*="tema" i], button[aria-label*="theme" i], button:has([class*="theme" i])'
+    'button[aria-label*="temaya geç" i], button[aria-label*="theme" i], button[aria-pressed]'
   ).first();
 
   const toggleCount = await themeToggle.count();
 
   if (toggleCount === 0) {
+    // Wait briefly for hydration mount
+    await page.waitForSelector(
+      'button[aria-label*="temaya geç" i], button[aria-pressed]',
+      { timeout: 8000 }
+    ).catch(() => {});
+  }
+
+  const readyToggle = page.locator(
+    'button[aria-label*="temaya geç" i], button[aria-pressed]'
+  ).first();
+
+  if ((await readyToggle.count()) === 0) {
     test.skip(true, 'No theme toggle button found');
     return;
   }
 
-  await themeToggle.click();
+  await expect(readyToggle).toBeEnabled({ timeout: 10000 });
+  await readyToggle.click();
   await page.waitForTimeout(700);
 
   const newClass = await page.locator('html').getAttribute('class');

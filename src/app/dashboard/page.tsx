@@ -13,7 +13,11 @@ export const dynamic = 'force-dynamic';
 
 export default async function DashboardOverviewPage() {
   const session = await getServerSession(authOptions);
-  const userId = (session!.user as any).id;
+  if (!session?.user) {
+    const { redirect } = await import('next/navigation');
+    redirect('/giris');
+  }
+  const userId = (session!.user as { id: string }).id;
   const stats = await monitoringService.getStats(userId);
 
   // Son 10 incident

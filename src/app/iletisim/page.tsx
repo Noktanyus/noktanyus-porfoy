@@ -40,6 +40,10 @@ export default function IletisimPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
+        <div className="section-header">
+          <h1 className="section-title">İletişime Geçin</h1>
+          <p className="section-subtitle">İletişim bilgileri yükleniyor...</p>
+        </div>
         <SpinnerLoading text="İletişim bilgileri yükleniyor..." />
       </div>
     );
