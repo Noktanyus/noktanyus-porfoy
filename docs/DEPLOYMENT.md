@@ -160,8 +160,12 @@ prisma generate --schema=./prisma/schema.prisma && prisma migrate deploy && next
 2. URL: `https://your-domain.com/api/webhooks/stripe`
 3. Events: `checkout.session.completed`,
    `customer.subscription.created/updated/deleted`,
-   `invoice.payment_succeeded/failed`
+   `invoice.payment_succeeded`,
+   `charge.refunded`
 4. Signing secret'i kopyala → `STRIPE_WEBHOOK_SECRET` env'ine ekle
+
+iyzico Checkout Form callback URL: `https://your-domain.com/api/checkout/iyzico-callback`
+(POST, `token` form alanı). Merchant panelinde bu URL'i de tanımlayın.
 
 ### 9. Cron Jobs
 

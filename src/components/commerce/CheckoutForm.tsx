@@ -11,7 +11,6 @@ type PaymentProvider = 'stripe' | 'iyzico';
 export function CheckoutForm() {
   const items = useCart((s) => s.items);
   const total = useCart((s) => s.total());
-  const clear = useCart((s) => s.clear);
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -19,6 +18,7 @@ export function CheckoutForm() {
   const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>('iyzico');
   const [loading, setLoading] = useState(false);
   const [acceptedCayma, setAcceptedCayma] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +43,7 @@ export function CheckoutForm() {
           customerName: name || undefined,
           customerPhone: phone || undefined,
           paymentProvider,
+          couponCode: couponCode.trim() || undefined,
         }),
       });
 
@@ -52,8 +53,6 @@ export function CheckoutForm() {
         throw new Error(result.error?.message ?? 'Ödeme başlatılamadı');
       }
 
-      // Sepeti temizle ve ödeme sağlayıcısına yönlendir
-      clear();
       window.location.href = result.data.url;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Hata oluştu');
@@ -167,6 +166,24 @@ export function CheckoutForm() {
                 placeholder="+90 5xx xxx xx xx"
               />
             </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="coupon"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
+              Kupon kodu
+            </label>
+            <input
+              id="coupon"
+              type="text"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              placeholder="WELCOME10"
+              autoComplete="off"
+            />
           </div>
 
           <div>

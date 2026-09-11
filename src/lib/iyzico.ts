@@ -22,6 +22,9 @@ interface IyzicoClient {
   checkoutForm: {
     retrieve: (params: Record<string, unknown>, cb: (err: unknown, result: unknown) => void) => void;
   };
+  refund: {
+    create: (params: Record<string, unknown>, cb: (err: unknown, result: unknown) => void) => void;
+  };
 }
 
 let _iyzicoInstance: IyzicoClient | null = null;
@@ -97,10 +100,26 @@ export interface IyzicoCheckoutInput {
   customerIp?: string;
   billingAddress?: IyzicoAddress;
   shippingAddress?: IyzicoAddress;
+  /** Kullanıcı ödeme sonrası bu URL'e POST (token) ile döner. */
   callbackUrl: string;
   currency?: 'TRY' | 'USD' | 'EUR' | 'GBP';
   basketId?: string;
   conversationId?: string;
+}
+
+export interface IyzicoRefundInput {
+  paymentTransactionId: string;
+  price: string;
+  ip?: string;
+  currency?: 'TRY' | 'USD' | 'EUR' | 'GBP';
+  conversationId?: string;
+}
+
+export interface IyzicoRefundResult {
+  status: 'success' | 'failure';
+  paymentId?: string;
+  errorCode?: string;
+  errorMessage?: string;
 }
 
 export interface IyzicoCheckoutSuccess {

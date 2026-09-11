@@ -347,9 +347,11 @@ model Order {
   userId String?
   user   User?   @relation(fields: [userId], references: [id])
 
-  // Stripe
+  // Provider session — Stripe Checkout Session id (cs_...) veya iyzico token.
+  // Alan adı tarihsel olarak stripeSessionId; her iki sağlayıcı da burayı kullanır.
   stripeSessionId     String  @unique
   stripePaymentIntent String? @unique
+  paymentProvider     String  @default("stripe") // stripe | iyzico | mock
 
   status OrderStatus @default(PENDING)
 

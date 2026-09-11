@@ -8,6 +8,8 @@
 
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { commerceService, CartItemSchema } from '@/modules/commerce';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { withRateLimit } from '@/lib/rateLimitMiddleware';
@@ -20,20 +22,28 @@ const BodySchema = z.object({
   customerName: z.string().min(2).max(120).optional(),
   customerPhone: z.string().min(7).max(20).optional(),
   customerIp: z.string().min(7).max(45).optional(),
+  couponCode: z.string().min(2).max(40).optional(),
 });
 
 export const POST = withRateLimit(RateLimits.api, async (req: NextRequest) => {
   return withErrorHandling(async () => {
     const body = await req.json();
     const parsed = BodySchema.parse(body);
-    const { items, customerEmail, paymentProvider, customerName, customerPhone, customerIp } = parsed;
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string } | undefined)?.id ?? null;
 
-    const result = await commerceService.createProductCheckout(items, customerEmail, {
-      paymentProvider,
-      customerName,
-      customerPhone,
-      customerIp,
-    });
+    const result = await commerceService.createProductCheckout(
+      parsed.items,
+      parsed.customerEmail,
+      {
+        paymentProvider: parsed.paymentProvider,
+        customerName: parsed.customerName,
+        customerPhone: parsed.customerPhone,
+        customerIp: parsed.customerIp ?? req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
+        userId,
+        couponCode: parsed.couponCode,
+      }
+    );
     return ok(result);
   });
 });

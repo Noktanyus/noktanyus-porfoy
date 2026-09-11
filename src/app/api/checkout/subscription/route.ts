@@ -7,6 +7,8 @@
 
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { commerceService } from '@/modules/commerce';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { withRateLimit } from '@/lib/rateLimitMiddleware';
@@ -25,14 +27,20 @@ export const POST = withRateLimit(RateLimits.api, async (req: NextRequest) => {
   return withErrorHandling(async () => {
     const body = await req.json();
     const parsed = BodySchema.parse(body);
-    const { planSlug, customerEmail, paymentProvider, customerName, customerPhone, customerIp } = parsed;
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string } | undefined)?.id ?? null;
 
-    const result = await commerceService.createSubscriptionCheckout(planSlug, customerEmail, {
-      paymentProvider,
-      customerName,
-      customerPhone,
-      customerIp,
-    });
+    const result = await commerceService.createSubscriptionCheckout(
+      parsed.planSlug,
+      parsed.customerEmail,
+      {
+        paymentProvider: parsed.paymentProvider,
+        customerName: parsed.customerName,
+        customerPhone: parsed.customerPhone,
+        customerIp: parsed.customerIp ?? req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
+        userId,
+      }
+    );
     return ok(result);
   });
 });

@@ -94,8 +94,13 @@ describe('refundService', () => {
   });
 
   describe('detectProvider', () => {
-    it('returns stripe when paymentIntent starts with pi_', () => {
-      expect(refundService.detectProvider({ stripePaymentIntent: 'pi_123' })).toBe('stripe');
+    it('returns stripe when paymentProvider is stripe', () => {
+      expect(
+        refundService.detectProvider({
+          stripePaymentIntent: 'tok_abc',
+          paymentProvider: 'stripe',
+        })
+      ).toBe('stripe');
     });
 
     it('returns iyzico when paymentIntent is null', () => {

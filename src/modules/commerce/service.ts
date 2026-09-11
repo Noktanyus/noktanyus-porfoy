@@ -7,8 +7,10 @@
 import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { isIyzicoConfigured } from '@/lib/iyzico';
+import { getBaseUrl } from '@/lib/seo';
 import { iyzicoService } from './iyzicoService';
-import { iyzicoSubscriptionService } from './iyzicoSubscriptionService';
+import { addPlanInterval, iyzicoSubscriptionService } from './iyzicoSubscriptionService';
+import { couponService } from './couponService';
 import { emailService } from '@/lib/emailService';
 import {
   planRepository,
@@ -28,22 +30,43 @@ import type { CartItem } from './types';
 
 export type PaymentProvider = 'stripe' | 'iyzico';
 
+export interface ProductCheckoutOptions {
+  paymentProvider?: string | null;
+  customerName?: string;
+  customerPhone?: string;
+  customerIp?: string;
+  userId?: string | null;
+  couponCode?: string | null;
+}
+
+export interface SubscriptionCheckoutOptions {
+  paymentProvider?: string | null;
+  customerName?: string;
+  customerPhone?: string;
+  customerIp?: string;
+  userId?: string | null;
+}
+
 /**
  * Ödeme sağlayıcısı seçimi.
- * Öncelik: explicit istek > iyzico (TR için) > Stripe > fallback (ilk yapılandırılmış olan).
+ * Öncelik: explicit istek (yapılandırılmışsa) > iyzico (TR) > Stripe > mock (stripe etiketi).
  */
 export function selectPaymentProvider(requested?: string | null): PaymentProvider {
   const req = (requested ?? '').toLowerCase();
 
-  if (req === 'iyzico' && isIyzicoConfigured()) return 'iyzico';
-  if (req === 'stripe' && isStripeConfigured()) return 'stripe';
+  if (req === 'iyzico') return 'iyzico';
+  if (req === 'stripe') return 'stripe';
 
-  // Default: iyzico tercih edilir (TR pazarı), Stripe yoksa
   if (isIyzicoConfigured()) return 'iyzico';
   if (isStripeConfigured()) return 'stripe';
 
-  // Hiçbiri yapılandırılmamışsa stripe default kalsın (mock mode)
   return 'stripe';
+}
+
+function resolveStoredProvider(requested: PaymentProvider): 'stripe' | 'iyzico' | 'mock' {
+  if (requested === 'stripe' && !isStripeConfigured()) return 'mock';
+  if (requested === 'iyzico' && !isIyzicoConfigured()) return 'mock';
+  return requested;
 }
 
 function centsToIyzicoString(cents: number): string {
@@ -85,77 +108,128 @@ export const commerceService = {
   async createProductCheckout(
     items: CartItem[],
     customerEmail: string,
-    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+    options?: ProductCheckoutOptions
   ) {
     if (!items.length) throw new ValidationError('Sepet boş');
 
-    // Validate products
-    const productIds = items.map((i) => i.productId);
-    const products = await Promise.all(productIds.map((id) => productRepository.findById(id)));
-    const validProducts = products.filter((p): p is NonNullable<typeof p> => Boolean(p));
-    if (validProducts.length !== items.length) {
+    const uniqueIds = [...new Set(items.map((i) => i.productId))];
+    const products = await Promise.all(uniqueIds.map((id) => productRepository.findById(id)));
+    const productById = new Map(
+      products
+        .filter((p): p is NonNullable<(typeof products)[number]> => p != null && p.active === true)
+        .map((p) => [p.id, p])
+    );
+    if (productById.size !== uniqueIds.length) {
       throw new ValidationError('Bazı ürünler artık mevcut değil');
     }
 
-    const subtotal = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
-    const provider = selectPaymentProvider(options?.paymentProvider);
+    const pricedItems = items.map((item) => {
+      const product = productById.get(item.productId)!;
+      const unitPriceCents = product.priceCents;
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPriceCents,
+        totalCents: unitPriceCents * item.quantity,
+        product,
+      };
+    });
 
-    // --- Mock mode (hiçbir provider yapılandırılmamışsa) ---
-    if (provider === 'stripe' && !isStripeConfigured()) {
-      logger.warn('Stripe not configured, returning mock checkout URL');
+    const subtotal = pricedItems.reduce((sum, i) => sum + i.totalCents, 0);
+    let discountCents = 0;
+    let couponId: string | null = null;
+
+    if (options?.couponCode) {
+      const couponResult = await couponService.validate({
+        code: options.couponCode,
+        customerEmail,
+        subtotalCents: subtotal,
+        productIds: uniqueIds,
+      });
+      if (!couponResult.valid) {
+        throw new ValidationError(couponResult.reason ?? 'Kupon geçersiz');
+      }
+      discountCents = couponResult.discountCents;
+      couponId = couponResult.coupon?.id ?? null;
+    }
+
+    const totalCents = Math.max(0, subtotal - discountCents);
+    const provider = selectPaymentProvider(options?.paymentProvider);
+    const storedProvider = resolveStoredProvider(provider);
+    const baseUrl = getBaseUrl();
+
+    const persistOrder = async (sessionId: string) => {
       const order = await prisma.order.create({
         data: {
           orderNumber: await orderRepository.generateOrderNumber(),
           customerEmail,
-          stripeSessionId: `mock_${Date.now()}`,
+          customerName: options?.customerName,
+          userId: options?.userId ?? undefined,
+          stripeSessionId: sessionId,
+          paymentProvider: storedProvider,
           status: 'PENDING',
           subtotalCents: subtotal,
-          totalCents: subtotal,
+          discountCents,
+          couponId,
+          totalCents,
           currency: 'try',
           items: {
-            create: items.map((item) => {
-              const product = validProducts.find((p) => p.id === item.productId)!;
-              return {
-                productId: item.productId,
-                quantity: item.quantity,
-                unitPriceCents: item.priceCents,
-                totalCents: item.priceCents * item.quantity,
-                productTitle: product.title,
-                productSlug: product.slug,
-              };
-            }),
+            create: pricedItems.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPriceCents: item.unitPriceCents,
+              totalCents: item.totalCents,
+              productTitle: item.product.title,
+              productSlug: item.product.slug,
+            })),
           },
         },
       });
 
+      if (couponId) {
+        try {
+          await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+        } catch (err) {
+          logger.warn('Coupon redeem failed after order create', { orderId: order.id, error: err });
+        }
+      }
+
+      return order;
+    };
+
+    // --- Mock (hiçbir canlı provider yok) ---
+    if (provider === 'stripe' && !isStripeConfigured()) {
+      logger.warn('Stripe not configured, completing mock product checkout');
+      const sessionId = `mock_${Date.now()}`;
+      const order = await persistOrder(sessionId);
+      await this.handleCheckoutCompleted({ id: sessionId, payment_intent: `mock_pi_${order.id}` });
       return {
-        url: `/odeme/basarili?session_id=mock_${order.id}&order=${order.orderNumber}`,
-        sessionId: order.stripeSessionId,
+        url: `/odeme/basarili?session_id=${sessionId}&order=${order.orderNumber}`,
+        sessionId,
         provider: 'stripe' as PaymentProvider,
+        mock: true,
       };
     }
 
-    // --- iyzico akışı ---
+    // --- iyzico ---
     if (provider === 'iyzico') {
-      const totalPrice = centsToIyzicoString(subtotal);
+      const paidPrice = centsToIyzicoString(totalCents);
       const checkout = await iyzicoService.createCheckout({
-        items: items.map((item) => {
-          const product = validProducts.find((p) => p.id === item.productId)!;
-          return {
-            id: item.productId,
-            name: product.title,
-            category: product.category ?? 'general',
-            itemType: 'VIRTUAL',
-            price: centsToIyzicoString(item.priceCents),
-          };
-        }),
-        totalPrice,
-        paidPrice: totalPrice,
+        items: pricedItems.map((item) => ({
+          id: item.productId,
+          name: item.product.title,
+          category: item.product.category ?? 'general',
+          itemType: 'VIRTUAL',
+          // iyzico: sepet satırlarının toplamı price/paidPrice ile eşit olmalı
+          price: centsToIyzicoString(item.totalCents),
+        })),
+        totalPrice: centsToIyzicoString(subtotal),
+        paidPrice,
         customerEmail,
         customerName: options?.customerName,
         customerPhone: options?.customerPhone,
         customerIp: options?.customerIp,
-        callbackUrl: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/odeme/iyzico-callback`,
+        callbackUrl: `${baseUrl}/api/checkout/iyzico-callback`,
         currency: 'TRY',
       });
 
@@ -165,91 +239,53 @@ export const commerceService = {
         );
       }
 
-      await prisma.order.create({
-        data: {
-          orderNumber: await orderRepository.generateOrderNumber(),
-          customerEmail,
-          stripeSessionId: checkout.token, // token'ı bu alanda tutuyoruz
-          status: 'PENDING',
-          subtotalCents: subtotal,
-          totalCents: subtotal,
-          currency: 'try',
-          items: {
-            create: items.map((item) => {
-              const product = validProducts.find((p) => p.id === item.productId)!;
-              return {
-                productId: item.productId,
-                quantity: item.quantity,
-                unitPriceCents: item.priceCents,
-                totalCents: item.priceCents * item.quantity,
-                productTitle: product.title,
-                productSlug: product.slug,
-              };
-            }),
-          },
-        },
-      });
+      await persistOrder(checkout.token);
 
       return {
         url: checkout.paymentPageUrl,
         sessionId: checkout.token,
         provider: 'iyzico' as PaymentProvider,
+        mock: storedProvider === 'mock',
       };
     }
 
-    // --- Stripe akışı ---
+    // --- Stripe ---
+    const stripeLineItems = pricedItems.map((item, idx, arr) => {
+      let unitAmount = item.unitPriceCents;
+      if (discountCents > 0 && idx === arr.length - 1 && item.quantity > 0) {
+        const lineTotal = item.unitPriceCents * item.quantity;
+        const afterDiscount = Math.max(0, lineTotal - discountCents);
+        unitAmount = Math.round(afterDiscount / item.quantity);
+      }
+      return {
+        price_data: {
+          currency: 'try',
+          product_data: {
+            name: item.product.title,
+            description: item.product.shortDescription,
+            ...(item.product.thumbnail ? { images: [item.product.thumbnail] } : {}),
+          },
+          unit_amount: unitAmount,
+        },
+        quantity: item.quantity,
+      };
+    });
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
-      line_items: items.map((item) => {
-        const product = validProducts.find((p) => p.id === item.productId)!;
-        return {
-          price_data: {
-            currency: 'try',
-            product_data: {
-              name: product.title,
-              description: product.shortDescription,
-              ...(product.thumbnail ? { images: [product.thumbnail] } : {}),
-            },
-            unit_amount: item.priceCents,
-          },
-          quantity: item.quantity,
-        };
-      }),
+      line_items: stripeLineItems,
       customer_email: customerEmail,
-      success_url: `${process.env.NEXTAUTH_URL}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/magaza`,
+      success_url: `${baseUrl}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/magaza`,
       metadata: {
         customerEmail,
-        productIds: items.map((i) => i.productId).join(','),
+        productIds: uniqueIds.join(','),
+        ...(couponId ? { couponId } : {}),
       },
     });
 
-    // Create pending order with items snapshot
-    await prisma.order.create({
-      data: {
-        orderNumber: await orderRepository.generateOrderNumber(),
-        customerEmail,
-        stripeSessionId: session.id,
-        status: 'PENDING',
-        subtotalCents: subtotal,
-        totalCents: subtotal,
-        currency: 'try',
-        items: {
-          create: items.map((item) => {
-            const product = validProducts.find((p) => p.id === item.productId)!;
-            return {
-              productId: item.productId,
-              quantity: item.quantity,
-              unitPriceCents: item.priceCents,
-              totalCents: item.priceCents * item.quantity,
-              productTitle: product.title,
-              productSlug: product.slug,
-            };
-          }),
-        },
-      },
-    });
+    await persistOrder(session.id);
 
     return {
       url: session.url!,
@@ -262,26 +298,27 @@ export const commerceService = {
   async createSubscriptionCheckout(
     planSlug: string,
     customerEmail: string,
-    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+    options?: SubscriptionCheckoutOptions
   ) {
     const plan = await planRepository.findBySlug(planSlug);
     if (!plan) throw new NotFoundError('Plan');
+    if (!plan.active) throw new ValidationError('Plan satışta değil');
 
     const provider = selectPaymentProvider(options?.paymentProvider);
+    const baseUrl = getBaseUrl();
 
-    // --- iyzico subscription ---
-    // Email .com.tr uzantılı ise veya explicit iyzico istendiyse iyzico subscription akışı
-    if (
+    const useIyzico =
       provider === 'iyzico' ||
-      (iyzicoSubscriptionService.shouldUseIyzico(customerEmail) && isIyzicoConfigured())
-    ) {
+      (iyzicoSubscriptionService.shouldUseIyzico(customerEmail) && isIyzicoConfigured());
+
+    if (useIyzico) {
       const checkout = await iyzicoSubscriptionService.createSubscriptionCheckout({
         planSlug: plan.slug,
         customerEmail,
         customerName: options?.customerName,
         customerPhone: options?.customerPhone,
         customerIp: options?.customerIp,
-        callbackUrl: '/odeme/iyzico-callback',
+        callbackUrl: '/api/checkout/iyzico-callback',
       });
 
       return {
@@ -292,14 +329,18 @@ export const commerceService = {
       };
     }
 
-    // --- Stripe akışı (veya mock) ---
     if (!isStripeConfigured()) {
       logger.warn('Stripe not configured, returning mock subscription URL');
       return {
         url: `/odeme/basarili?mock_sub=1&plan=${planSlug}`,
         sessionId: 'mock',
         provider: 'stripe' as PaymentProvider,
+        mock: true,
       };
+    }
+
+    if (!plan.stripePriceId) {
+      throw new ValidationError('Plan için Stripe fiyatı tanımlı değil');
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -307,9 +348,9 @@ export const commerceService = {
       payment_method_types: ['card'],
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
       customer_email: customerEmail,
-      success_url: `${process.env.NEXTAUTH_URL}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/fiyatlandirma`,
-      metadata: { planSlug, customerEmail },
+      success_url: `${baseUrl}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/fiyatlandirma`,
+      metadata: { planSlug, customerEmail, userId: options?.userId ?? '' },
     });
 
     return { url: session.url!, sessionId: session.id, provider: 'stripe' as PaymentProvider };
@@ -328,7 +369,7 @@ export const commerceService = {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customer.stripeCustomerId,
-      return_url: `${process.env.NEXTAUTH_URL}/dashboard`,
+      return_url: `${getBaseUrl()}/dashboard`,
     });
 
     return { url: session.url };
@@ -384,30 +425,44 @@ export const commerceService = {
 
   // --- Process webhook event (idempotent) ---
   async processWebhookEvent(event: { id: string; type: string; data: { object: unknown } }) {
-    // Idempotency check
     const existing = await prisma.webhookEvent.findUnique({
       where: { stripeEventId: event.id },
     });
-    if (existing) {
+    if (existing?.success) {
       logger.info('Webhook event already processed', { eventId: event.id });
       return;
     }
 
-    // Save event first
-    await prisma.webhookEvent.create({
-      data: {
-        stripeEventId: event.id,
-        type: event.type,
-        payload: event.data.object as unknown as object,
-      },
-    });
+    if (!existing) {
+      await prisma.webhookEvent.create({
+        data: {
+          stripeEventId: event.id,
+          type: event.type,
+          payload: event.data.object as unknown as object,
+          success: false,
+        },
+      });
+    }
 
-    // Handle specific events
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          const session = event.data.object as { id: string; payment_intent?: string };
-          await this.handleCheckoutCompleted(session);
+          const session = event.data.object as {
+            id: string;
+            payment_intent?: string;
+            customer?: string;
+            customer_email?: string;
+            mode?: string;
+            metadata?: Record<string, string>;
+          };
+          if (session.mode === 'subscription' && session.customer) {
+            await this.linkStripeCustomer(
+              session.customer_email ?? session.metadata?.customerEmail,
+              session.customer
+            );
+          } else {
+            await this.handleCheckoutCompleted(session);
+          }
           break;
         }
         case 'customer.subscription.created':
@@ -421,12 +476,24 @@ export const commerceService = {
           await this.handleSubscriptionCancel(subscription);
           break;
         }
+        case 'invoice.payment_succeeded': {
+          const invoice = event.data.object as Record<string, unknown>;
+          await this.handleInvoicePayment(invoice);
+          break;
+        }
         case 'charge.refunded': {
           const charge = event.data.object as Record<string, unknown>;
           await this.handleRefund(charge);
           break;
         }
+        default:
+          logger.info('Unhandled Stripe webhook type', { type: event.type, eventId: event.id });
       }
+
+      await prisma.webhookEvent.update({
+        where: { stripeEventId: event.id },
+        data: { success: true, error: null },
+      });
     } catch (err) {
       logger.error('Webhook handler error', { eventId: event.id, type: event.type, error: err });
       await prisma.webhookEvent.update({
@@ -437,20 +504,33 @@ export const commerceService = {
     }
   },
 
+  async linkStripeCustomer(email: string | undefined, stripeCustomerId: string) {
+    if (!email) return;
+    await customerRepository.getOrCreate({ email, stripeCustomerId });
+  },
+
   async handleCheckoutCompleted(session: { id: string; payment_intent?: string }) {
     const order = await orderRepository.findByStripeSession(session.id);
-    if (!order || order.status === 'PAID') return;
+    if (!order || order.status === 'PAID' || order.status === 'REFUNDED') return;
+
+    let userId = order.userId;
+    if (!userId) {
+      const user = await prisma.user.findUnique({
+        where: { email: order.customerEmail },
+        select: { id: true },
+      });
+      userId = user?.id ?? null;
+    }
 
     await orderRepository.update(order.id, {
       status: 'PAID',
       stripePaymentIntent: session.payment_intent,
       deliveredAt: new Date(),
+      ...(userId && !order.userId ? { userId } : {}),
     });
 
-    // Generate licenses for digital products
     const licenses = await this.generateLicenseForOrder(order.id);
 
-    // Send receipt email to customer (with license keys if any)
     try {
       await emailService.sendReceipt({
         customerName: order.customer?.name ?? undefined,
@@ -478,7 +558,6 @@ export const commerceService = {
 
     logger.info('Order completed', { orderId: order.id, orderNumber: order.orderNumber });
 
-    // Dispatch webhook event (best-effort, internal hata yakalanır)
     try {
       await webhookService.dispatchEvent('order.paid', {
         orderId: order.id,
@@ -494,8 +573,7 @@ export const commerceService = {
       });
     }
 
-    // In-app notification (Phase 8) — kullanıcıya bildirim gönder
-    await notificationService.dispatch(order.userId, 'order.paid', {
+    await notificationService.dispatch(userId, 'order.paid', {
       title: 'Siparişiniz Tamamlandı',
       message: `#${order.orderNumber} numaralı siparişiniz başarıyla tamamlandı.`,
       link: `/dashboard/orders`,
@@ -504,26 +582,20 @@ export const commerceService = {
       relatedId: order.id,
     });
 
-    // Affiliate commission — davet eden kullanicinin komisyonunu olustur
-    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
     try {
       await affiliateService.trackConversion(order.id);
     } catch (err) {
       logger.warn('Affiliate trackConversion failed', { orderId: order.id, error: err });
     }
 
-    // Loyalty puan — siparis tutarina gore puan kazandir
-    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
-    if (order.userId) {
+    if (userId) {
       try {
-        await loyaltyService.onPurchase(order.id, order.userId, order.totalCents);
+        await loyaltyService.onPurchase(order.id, userId, order.totalCents);
       } catch (err) {
         logger.warn('Loyalty onPurchase failed', { orderId: order.id, error: err });
       }
     }
 
-    // Partner Program — musteri email'i eslesen partner lead'i converted isaretle
-    // (Phase "Partner Program" kapsaminda eklendi, best-effort)
     try {
       await partnerService.markLeadConverted({
         customerEmail: order.customerEmail,
@@ -533,6 +605,85 @@ export const commerceService = {
     } catch (err) {
       logger.warn('Partner markLeadConverted failed', { orderId: order.id, error: err });
     }
+  },
+
+  async activateIyzicoSubscription(
+    subscriptionId: string,
+    extras?: { paymentTransactionId?: string }
+  ) {
+    const subscription = await prisma.subscription.findUnique({
+      where: { id: subscriptionId },
+      include: { customer: true, plan: true },
+    });
+    if (!subscription) throw new NotFoundError('Abonelik');
+    if (subscription.status === 'ACTIVE') return subscription;
+
+    const now = new Date();
+    const periodEnd = addPlanInterval(now, subscription.plan.interval);
+
+    const updated = await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        status: 'ACTIVE',
+        stripeStatus: 'active',
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        metadata: {
+          ...((subscription.metadata as Record<string, unknown> | null) ?? {}),
+          provider: 'iyzico',
+          ...(extras?.paymentTransactionId
+            ? { paymentTransactionId: extras.paymentTransactionId }
+            : {}),
+        },
+      },
+    });
+
+    await this.syncUserSubscription({
+      userId: subscription.customer.userId,
+      email: subscription.customer.email,
+      planSlug: subscription.plan.slug,
+      stripeSubscriptionId: subscription.stripeSubscriptionId,
+      expiresAt: periodEnd,
+      status: 'active',
+    });
+
+    return updated;
+  },
+
+  async syncUserSubscription(input: {
+    userId?: string | null;
+    email: string;
+    planSlug: string;
+    stripeSubscriptionId: string;
+    expiresAt: Date;
+    status: string;
+  }) {
+    let userId = input.userId ?? null;
+    if (!userId) {
+      const user = await prisma.user.findUnique({
+        where: { email: input.email },
+        select: { id: true },
+      });
+      userId = user?.id ?? null;
+    }
+    if (!userId) return;
+
+    await prisma.userSubscription.upsert({
+      where: { stripeSubscriptionId: input.stripeSubscriptionId },
+      create: {
+        userId,
+        planSlug: input.planSlug,
+        status: input.status,
+        expiresAt: input.expiresAt,
+        stripeSubscriptionId: input.stripeSubscriptionId,
+        autoRenew: true,
+      },
+      update: {
+        status: input.status,
+        expiresAt: input.expiresAt,
+        planSlug: input.planSlug,
+      },
+    });
   },
 
   async handleSubscriptionChange(sub: Record<string, unknown>) {
@@ -550,14 +701,29 @@ export const commerceService = {
       return;
     }
 
-    const plan = await planRepository.findByStripePriceId(items.data[0].price.id);
+    const priceId = items?.data?.[0]?.price?.id;
+    if (!priceId) {
+      logger.warn('Subscription event missing price', { subId });
+      return;
+    }
+
+    const plan = await planRepository.findByStripePriceId(priceId);
     if (!plan) {
-      logger.warn('Subscription event for unknown price', { priceId: items.data[0].price.id });
+      logger.warn('Subscription event for unknown price', { priceId });
       return;
     }
 
     const trialStart = sub.trial_start ? new Date((sub.trial_start as number) * 1000) : null;
     const trialEnd = sub.trial_end ? new Date((sub.trial_end as number) * 1000) : null;
+    const mappedStatus = status.toUpperCase() as
+      | 'ACTIVE'
+      | 'TRIALING'
+      | 'PAST_DUE'
+      | 'CANCELED'
+      | 'INCOMPLETE'
+      | 'INCOMPLETE_EXPIRED'
+      | 'UNPAID'
+      | 'PAUSED';
 
     await prisma.subscription.upsert({
       where: { stripeSubscriptionId: subId },
@@ -566,15 +732,7 @@ export const commerceService = {
         planId: plan.id,
         stripeSubscriptionId: subId,
         stripeStatus: status,
-        status: status.toUpperCase() as
-          | 'ACTIVE'
-          | 'TRIALING'
-          | 'PAST_DUE'
-          | 'CANCELED'
-          | 'INCOMPLETE'
-          | 'INCOMPLETE_EXPIRED'
-          | 'UNPAID'
-          | 'PAUSED',
+        status: mappedStatus,
         currentPeriodStart: new Date(cps * 1000),
         currentPeriodEnd: new Date(cpe * 1000),
         cancelAtPeriodEnd: cape,
@@ -583,26 +741,49 @@ export const commerceService = {
       },
       update: {
         stripeStatus: status,
-        status: status.toUpperCase() as
-          | 'ACTIVE'
-          | 'TRIALING'
-          | 'PAST_DUE'
-          | 'CANCELED'
-          | 'INCOMPLETE'
-          | 'INCOMPLETE_EXPIRED'
-          | 'UNPAID'
-          | 'PAUSED',
+        status: mappedStatus,
         currentPeriodStart: new Date(cps * 1000),
         currentPeriodEnd: new Date(cpe * 1000),
         cancelAtPeriodEnd: cape,
       },
     });
+
+    await this.syncUserSubscription({
+      userId: customer.userId,
+      email: customer.email,
+      planSlug: plan.slug,
+      stripeSubscriptionId: subId,
+      expiresAt: new Date(cpe * 1000),
+      status: status === 'active' || status === 'trialing' ? 'active' : status,
+    });
+  },
+
+  async handleInvoicePayment(invoice: Record<string, unknown>) {
+    const stripeSubId = invoice.subscription as string | undefined;
+    if (!stripeSubId) return;
+    const periodUnix = invoice.period_end as number | undefined;
+    if (!periodUnix) return;
+
+    const expiresAt = new Date(periodUnix * 1000);
+    await prisma.subscription.updateMany({
+      where: { stripeSubscriptionId: stripeSubId },
+      data: { currentPeriodEnd: expiresAt, stripeStatus: 'active', status: 'ACTIVE' },
+    });
+    await prisma.userSubscription.updateMany({
+      where: { stripeSubscriptionId: stripeSubId },
+      data: { expiresAt, status: 'active' },
+    });
   },
 
   async handleSubscriptionCancel(sub: Record<string, unknown>) {
-    await prisma.subscription.update({
-      where: { stripeSubscriptionId: sub.id as string },
+    const subId = sub.id as string;
+    await prisma.subscription.updateMany({
+      where: { stripeSubscriptionId: subId },
       data: { status: 'CANCELED', canceledAt: new Date() },
+    });
+    await prisma.userSubscription.updateMany({
+      where: { stripeSubscriptionId: subId },
+      data: { status: 'cancelled', autoRenew: false },
     });
   },
 

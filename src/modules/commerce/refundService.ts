@@ -15,6 +15,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { isIyzicoConfigured } from '@/lib/iyzico';
+import { iyzicoService } from './iyzicoService';
 import { logger } from '@/lib/logger';
 import { logAudit } from '@/lib/audit';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
@@ -40,7 +41,13 @@ export const refundService = {
    * Provider tespiti: stripePaymentIntent "pi_" ile başlıyorsa Stripe,
    * aksi halde iyzico kabul edilir.
    */
-  detectProvider(order: { stripePaymentIntent: string | null }): 'stripe' | 'iyzico' {
+  detectProvider(order: {
+    stripePaymentIntent: string | null;
+    paymentProvider?: string | null;
+  }): 'stripe' | 'iyzico' {
+    if (order.paymentProvider === 'stripe' || order.paymentProvider === 'iyzico') {
+      return order.paymentProvider;
+    }
     return order.stripePaymentIntent?.startsWith('pi_') ? 'stripe' : 'iyzico';
   },
 
@@ -131,10 +138,31 @@ export const refundService = {
     }
 
     // --- iyzico / mock iade ---
-    // Not: iyzico'nun kendi refund endpoint'i üretimde eklenebilir.
-    // Şimdilik DB üzerinde iade işlemi gerçekleştirilir.
-    const refundId = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const metadata = (order.metadata as Record<string, unknown> | null) ?? {};
+    const paymentTransactionId =
+      typeof metadata.paymentTransactionId === 'string' ? metadata.paymentTransactionId : null;
+
+    let refundId = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const iyzicoLive = provider === 'iyzico' && isIyzicoConfigured();
+
+    if (iyzicoLive && paymentTransactionId) {
+      const iyzicoRefund = await iyzicoService.createRefund({
+        paymentTransactionId,
+        price: (refundAmount / 100).toFixed(2),
+        currency: (order.currency?.toUpperCase() as 'TRY' | 'USD' | 'EUR' | 'GBP') ?? 'TRY',
+      });
+      if (iyzicoRefund.status !== 'success') {
+        throw new ValidationError(
+          iyzicoRefund.errorMessage ?? 'iyzico iade başarısız',
+          { errorCode: iyzicoRefund.errorCode }
+        );
+      }
+      refundId = iyzicoRefund.paymentId ?? refundId;
+    } else if (iyzicoLive && !paymentTransactionId) {
+      logger.warn('iyzico refund without paymentTransactionId — recording locally only', {
+        orderId: order.id,
+      });
+    }
 
     await prisma.order.update({
       where: { id: order.id },
@@ -143,7 +171,7 @@ export const refundService = {
         refundedAt: new Date(),
         refundReason: input.reason,
         metadata: {
-          ...((order.metadata as Record<string, unknown>) ?? {}),
+          ...metadata,
           refundId,
           iyzicoLive,
         } as Prisma.InputJsonValue,

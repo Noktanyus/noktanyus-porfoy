@@ -177,21 +177,36 @@ Kupon kodunu doğrular, indirim tutarını hesaplar.
 
 ### `POST /api/checkout/product`
 
-Tek-seferlik dijital ürün satın alma (Stripe Checkout session oluşturur).
+Tek-seferlik dijital ürün satın alma. Stripe Checkout veya iyzico Checkout Form
+oturumu oluşturur, `PENDING` sipariş kaydı açar.
 
 - **Rate limit:** `api`
-- **Auth:** User
-- **Body:** `{ "productId": "...", "couponCode": "WELCOME10" }`
-- **Response:** `200 { success: true, data: { url: "https://checkout.stripe.com/..." } }`
+- **Auth:** Opsiyonel (oturum varsa `userId` siparişe yazılır)
+- **Body:**
+  ```json
+  {
+    "items": [{ "productId": "...", "quantity": 1, "priceCents": 0 }],
+    "customerEmail": "buyer@example.com",
+    "paymentProvider": "stripe | iyzico",
+    "customerName": "Ad Soyad",
+    "customerPhone": "+90...",
+    "couponCode": "WELCOME10"
+  }
+  ```
+  `priceCents` istemci fiyatıdır; sunucu **ürünün DB fiyatını** kullanır.
+  `couponCode` opsiyoneldir; geçersizse `VALIDATION_ERROR`.
+- **Response:** `200 { success: true, data: { url, sessionId, provider, mock? } }`
+- **iyzico callback:** `POST /api/checkout/iyzico-callback` (form `token`). Mock GET `?token=`.
 
 ### `POST /api/checkout/subscription`
 
-Abonelik başlatma (Stripe Checkout subscription session).
+Abonelik başlatma (Stripe Billing veya iyzico tek-çekim + DB period).
 
 - **Rate limit:** `api`
-- **Auth:** User
-- **Body:** `{ "planId": "...", "provider": "stripe" | "iyzico" }`
-- **Response:** `200 { success: true, data: { url: "..." } }`
+- **Auth:** Opsiyonel
+- **Body:** `{ "planSlug": "pro", "customerEmail": "...", "paymentProvider": "stripe" | "iyzico", "customerName": "..." }`
+- **Response:** `200 { success: true, data: { url, sessionId, provider, mock? } }`
+- `.com.tr` e-posta ve yapılandırılmış iyzico → iyzico tercih edilir (explicit `stripe` hariç).
 
 ### `POST /api/checkout/subscription-portal`
 
@@ -199,18 +214,20 @@ Mevcut aboneliği yönetmek için Stripe Billing Portal URL'i döner.
 
 - **Rate limit:** `api`
 - **Auth:** User
+- **Body:** `{ "customerEmail": "buyer@example.com" }`
 - **Response:** `200 { success: true, data: { url: "..." } }`
 
 ### `POST /api/webhooks/stripe`
 
-Stripe webhook receiver. Signature doğrular, idempotency kontrolü yapar.
+Stripe webhook receiver. Signature doğrular, **başarılı** event'ler için
+idempotent'tir (başarısız kayıtlar yeniden işlenir).
 
-- **Auth:** Stripe signature header
+- **Auth:** `Stripe-Signature` header
 - **Body:** Raw Stripe event payload
 - **Events handled:** `checkout.session.completed`,
   `customer.subscription.created/updated/deleted`,
-  `invoice.payment_succeeded/failed`
-- **Errors:** `400 MISSING_SIGNATURE`, `INVALID_SIGNATURE`
+  `invoice.payment_succeeded`, `charge.refunded`
+- **Errors:** `400` missing/invalid signature, `503` Stripe yapılandırılmamış
 
 ### `GET /api/user/products`
 

@@ -1,36 +1,43 @@
 /**
  * iyzico Subscription Service
  *
- * iyzico'nun kendi recurring/subscription API'si sınırlı olduğundan, abonelik
- * akışını tek-çekim PRODUCT üzerinden modelliyoruz. Her periyod için yeni
- * bir checkout session başlatılır ve subscription kaydı DB'de tutulur.
+ * iyzico'nun recurring API'si bu projede kullanılmıyor; abonelik tek-çekim
+ * Checkout Form + DB'de period takibi ile modellendi.
  *
- * Production'da iyzico'nun /subscription/api endpoint'leri entegre edilebilir.
- * Şimdilik:
- *   - Tek-çekim ödeme (iyzico checkoutFormInitialize)
- *   - Plan'a özel basketItems
- *   - Mock mode desteği (env yoksa)
- *
- * Müşteri seçimi:
- *   - .com.tr uzantılı email → iyzico tercih edilir
- *   - Diğer → Stripe veya provider tercihi
+ * - Token, Subscription.stripeSubscriptionId alanına yazılır (INCOMPLETE)
+ * - Callback (fulfillIyzicoToken) kaydı ACTIVE yapar
+ * - Mock mode: mock_iyzico_sub_ token + GET callback
  */
 
-import { getIyzico, isIyzicoConfigured } from '@/lib/iyzico';
+import { isIyzicoConfigured } from '@/lib/iyzico';
+import { getBaseUrl } from '@/lib/seo';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NotFoundError } from '@/modules/shared/errors';
-import type { Plan } from '@prisma/client';
+import { customerRepository } from './repository';
+import { iyzicoService, IYZICO_MOCK_TOKEN_PREFIX } from './iyzicoService';
+import type { Plan, PlanInterval } from '@prisma/client';
 
 function centsToString(cents: number): string {
   return (cents / 100).toFixed(2);
 }
 
-function splitName(fullName?: string): { name: string; surname: string } {
-  if (!fullName || !fullName.trim()) return { name: 'Ad', surname: 'Soyad' };
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 1) return { name: parts[0]!, surname: 'Soyad' };
-  return { name: parts[0]!, surname: parts.slice(1).join(' ') };
+export function addPlanInterval(from: Date, interval: PlanInterval | string): Date {
+  const d = new Date(from);
+  switch (interval) {
+    case 'YEAR':
+      d.setFullYear(d.getFullYear() + 1);
+      break;
+    case 'WEEK':
+      d.setDate(d.getDate() + 7);
+      break;
+    case 'DAY':
+      d.setDate(d.getDate() + 1);
+      break;
+    default:
+      d.setMonth(d.getMonth() + 1);
+  }
+  return d;
 }
 
 export interface SubscriptionCheckoutInput {
@@ -39,7 +46,7 @@ export interface SubscriptionCheckoutInput {
   customerName?: string;
   customerPhone?: string;
   customerIp?: string;
-  callbackUrl: string;
+  callbackUrl?: string;
 }
 
 export interface SubscriptionCheckoutResult {
@@ -59,8 +66,7 @@ export const iyzicoSubscriptionService = {
   },
 
   /**
-   * iyzico üzerinden subscription checkout başlatır.
-   * Mock mode'da sahte token döner (development için).
+   * iyzico üzerinden subscription checkout başlatır ve INCOMPLETE kayıt oluşturur.
    */
   async createSubscriptionCheckout(
     input: SubscriptionCheckoutInput
@@ -68,112 +74,76 @@ export const iyzicoSubscriptionService = {
     const plan = await prisma.plan.findUnique({ where: { slug: input.planSlug } });
     if (!plan) throw new NotFoundError('Plan');
 
-    const baseUrl = (process.env.NEXTAUTH_URL ?? 'http://localhost:3000').replace(/\/+$/, '');
-    const callbackUrl = `${baseUrl}${input.callbackUrl.startsWith('/') ? '' : '/'}${input.callbackUrl}`;
+    const callbackPath = input.callbackUrl ?? '/api/checkout/iyzico-callback';
+    const callbackUrl = callbackPath.startsWith('http')
+      ? callbackPath
+      : `${getBaseUrl()}${callbackPath.startsWith('/') ? '' : '/'}${callbackPath}`;
 
-    if (!isIyzicoConfigured()) {
-      logger.warn('[iyzico subscription] Not configured, returning mock URL');
-      const mockToken = `mock_iyzico_sub_${Date.now()}`;
-      return {
-        url: `${baseUrl}/odeme/basarili?mock_iyzico_sub=1&plan=${plan.slug}&token=${mockToken}`,
-        token: mockToken,
-        planSlug: plan.slug,
-        provider: 'iyzico',
-        mock: true,
-      };
-    }
-
-    const iyzico = getIyzico();
-    const { name, surname } = splitName(input.customerName);
-    const price = centsToString(plan.priceCents);
-
-    const requestBody = {
-      locale: 'tr',
-      conversationId: `sub_${Date.now()}`,
-      price,
-      paidPrice: price,
-      currency: (plan.currency?.toUpperCase() as 'TRY' | 'USD' | 'EUR' | 'GBP') ?? 'TRY',
-      installment: '1',
-      paymentChannel: 'WEB',
-      paymentGroup: 'SUBSCRIPTION',
-      basketId: `sub_basket_${Date.now()}`,
-      callbackUrl,
-      enabledInstallments: ['1'],
-      buyer: {
-        id: `buyer_${Buffer.from(input.customerEmail).toString('base64').slice(0, 16)}`,
-        name,
-        surname,
-        gsmNumber: input.customerPhone ?? '+905555555555',
-        email: input.customerEmail,
-        identityNumber: '11111111111', // Sandbox
-        registrationAddress: 'Adres belirtilmedi',
-        ip: input.customerIp ?? '127.0.0.1',
-        city: 'Istanbul',
-        country: 'Turkey',
-        zipCode: '34000',
-      },
-      billingAddress: {
-        contactName: input.customerName ?? 'Müşteri',
-        city: 'Istanbul',
-        country: 'Turkey',
-        address: 'Adres belirtilmedi',
-        zipCode: '34000',
-      },
-      basketItems: [
+    const checkout = await iyzicoService.createCheckout({
+      items: [
         {
           id: plan.id,
-          name: `${plan.name} - Aylık Abonelik`,
-          category1: 'subscription',
-          itemType: 'VIRTUAL' as const,
-          price,
+          name: `${plan.name} - Abonelik`,
+          category: 'subscription',
+          itemType: 'VIRTUAL',
+          price: centsToString(plan.priceCents),
         },
       ],
-    };
-
-    const result = await new Promise<{
-      status?: string;
-      token?: string;
-      paymentPageUrl?: string;
-      errorCode?: string;
-      errorMessage?: string;
-    }>((resolve, reject) => {
-      // iyzipay SDK callback signature: (err, result)
-      (iyzico.checkoutFormInitialize as { create: (b: unknown, cb: (e: unknown, r: unknown) => void) => void })
-        .create(requestBody, (err: unknown, r: unknown) => {
-          if (err) {
-            logger.error('[iyzico subscription] initialize error', { error: err });
-            reject(new Error('iyzico abonelik başlatılamadı'));
-            return;
-          }
-          const typed = r as {
-            status?: string;
-            token?: string;
-            paymentPageUrl?: string;
-            errorCode?: string;
-            errorMessage?: string;
-          };
-          resolve(typed);
-        });
+      totalPrice: centsToString(plan.priceCents),
+      paidPrice: centsToString(plan.priceCents),
+      customerEmail: input.customerEmail,
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      customerIp: input.customerIp,
+      callbackUrl,
+      currency: (plan.currency?.toUpperCase() as 'TRY' | 'USD' | 'EUR' | 'GBP') ?? 'TRY',
+      basketId: `sub_basket_${Date.now()}`,
+      conversationId: `sub_${Date.now()}`,
     });
 
-    if (result.status === 'success' && result.token && result.paymentPageUrl) {
-      logger.info('[iyzico subscription] checkout initialized', {
-        planSlug: plan.slug,
-        email: input.customerEmail,
-      });
-      return {
-        url: result.paymentPageUrl,
-        token: result.token,
-        planSlug: plan.slug,
-        provider: 'iyzico',
-        mock: false,
-      };
+    if (checkout.status !== 'success') {
+      throw new Error(
+        `[iyzico subscription] ${checkout.errorCode ?? ''} ${checkout.errorMessage ?? ''}`.trim() ||
+          'iyzico abonelik hatası'
+      );
     }
 
-    throw new Error(
-      `[iyzico subscription] ${result.errorCode ?? ''} ${result.errorMessage ?? ''}`.trim() ||
-        'iyzico abonelik hatası'
-    );
+    const now = new Date();
+    const customer = await customerRepository.getOrCreate({
+      email: input.customerEmail,
+      name: input.customerName,
+    });
+
+    await prisma.subscription.create({
+      data: {
+        customerId: customer.id,
+        planId: plan.id,
+        stripeSubscriptionId: checkout.token,
+        stripeStatus: 'incomplete',
+        status: 'INCOMPLETE',
+        currentPeriodStart: now,
+        currentPeriodEnd: addPlanInterval(now, plan.interval),
+        metadata: {
+          provider: 'iyzico',
+          planSlug: plan.slug,
+          mock: !isIyzicoConfigured(),
+        },
+      },
+    });
+
+    logger.info('[iyzico subscription] checkout initialized', {
+      planSlug: plan.slug,
+      email: input.customerEmail,
+      mock: !isIyzicoConfigured(),
+    });
+
+    return {
+      url: checkout.paymentPageUrl,
+      token: checkout.token,
+      planSlug: plan.slug,
+      provider: 'iyzico',
+      mock: !isIyzicoConfigured() || checkout.token.startsWith(IYZICO_MOCK_TOKEN_PREFIX),
+    };
   },
 };
 

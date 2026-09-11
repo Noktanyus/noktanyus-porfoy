@@ -3,7 +3,8 @@
  *
  * - createCheckout: iyzico checkout form initialize eder, token ve paymentPageUrl döner
  * - retrieveCheckout: callback sonrası ödeme sonucunu doğrular
- * - Mock mode: env değişkenleri yoksa hata fırlatmaz, geliştirme için sahte token üretir
+ * - createRefund: paymentTransactionId ile iade (canlı)
+ * - Mock mode: env yoksa sahte token üretir; retrieve yalnızca mock_iyzico_ prefix'ini kabul eder
  */
 
 import {
@@ -11,9 +12,14 @@ import {
   isIyzicoConfigured,
   type IyzicoCheckoutInput,
   type IyzicoCheckoutResult,
+  type IyzicoRefundInput,
+  type IyzicoRefundResult,
   type IyzicoRetrieveResult,
 } from '@/lib/iyzico';
+import { getBaseUrl } from '@/lib/seo';
 import { logger } from '@/lib/logger';
+
+export const IYZICO_MOCK_TOKEN_PREFIX = 'mock_iyzico_';
 
 function splitName(fullName?: string): { name: string; surname: string } {
   if (!fullName || !fullName.trim()) return { name: 'Ad', surname: 'Soyad' };
@@ -22,30 +28,34 @@ function splitName(fullName?: string): { name: string; surname: string } {
   return { name: parts[0], surname: parts.slice(1).join(' ') };
 }
 
-function buildCallbackUrl(baseUrl: string, path = '/odeme/iyzico-callback'): string {
-  return `${baseUrl.replace(/\/+$/, '')}${path}`;
+function resolveCallbackUrl(explicit?: string): string {
+  if (explicit && /^https?:\/\//i.test(explicit)) return explicit;
+  const path = explicit?.startsWith('/')
+    ? explicit
+    : '/api/checkout/iyzico-callback';
+  return `${getBaseUrl()}${path}`;
 }
 
 export const iyzicoService = {
   /**
-   * iyzico checkout başlatır. Mock mode'da sahte token döner.
+   * iyzico checkout başlatır. Mock mode'da sahte token döner;
+   * kullanıcı mock callback üzerinden fulfillment'a gider.
    */
   async createCheckout(input: IyzicoCheckoutInput): Promise<IyzicoCheckoutResult> {
+    const callbackUrl = resolveCallbackUrl(input.callbackUrl);
+
     if (!isIyzicoConfigured()) {
       logger.warn('[iyzico] Not configured, returning mock checkout');
+      const token = `${IYZICO_MOCK_TOKEN_PREFIX}${Date.now()}`;
       return {
         status: 'success',
-        token: 'mock_iyzico_' + Date.now(),
-        paymentPageUrl: `${process.env.NEXTAUTH_URL ?? 'http://localhost:3000'}/odeme/basarili?mock_iyzico=1&token=mock_${Date.now()}`,
+        token,
+        paymentPageUrl: `${callbackUrl}${callbackUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`,
       };
     }
 
     const iyzico = getIyzico();
     const { name, surname } = splitName(input.customerName);
-
-    const callbackUrl = buildCallbackUrl(
-      process.env.NEXTAUTH_URL ?? 'http://localhost:3000'
-    );
 
     const requestBody = {
       locale: 'tr',
@@ -65,7 +75,7 @@ export const iyzicoService = {
         surname,
         gsmNumber: input.customerPhone ?? '+905555555555',
         email: input.customerEmail,
-        identityNumber: '11111111111', // Sandbox/test için
+        identityNumber: '11111111111', // iyzico sandbox zorunlu TC; production'da gerçek değer toplanmalı
         registrationAddress:
           input.billingAddress?.address ?? 'Adres belirtilmedi',
         ip: input.customerIp ?? '127.0.0.1',
@@ -73,8 +83,21 @@ export const iyzicoService = {
         country: input.billingAddress?.country ?? 'Turkey',
         zipCode: input.billingAddress?.zipCode ?? '34000',
       },
-      shippingAddress: input.shippingAddress ?? input.billingAddress,
-      billingAddress: input.billingAddress,
+      shippingAddress: input.shippingAddress ??
+        input.billingAddress ?? {
+          contactName: input.customerName ?? `${name} ${surname}`,
+          city: 'Istanbul',
+          country: 'Turkey',
+          address: 'Adres belirtilmedi',
+          zipCode: '34000',
+        },
+      billingAddress: input.billingAddress ?? {
+        contactName: input.customerName ?? `${name} ${surname}`,
+        city: 'Istanbul',
+        country: 'Turkey',
+        address: 'Adres belirtilmedi',
+        zipCode: '34000',
+      },
       basketItems: input.items.map((item) => ({
         id: item.id,
         name: item.name,
@@ -121,9 +144,14 @@ export const iyzicoService = {
 
   /**
    * iyzico callback sonrası token ile ödeme sonucunu doğrular.
+   * Mock token'lar yalnızca `mock_iyzico_` önekiyle kabul edilir.
    */
   async retrieveCheckout(token: string): Promise<IyzicoRetrieveResult> {
     if (!isIyzicoConfigured()) {
+      if (!token.startsWith(IYZICO_MOCK_TOKEN_PREFIX)) {
+        logger.warn('[iyzico] mock retrieve rejected unknown token');
+        return { status: 'failure', errorCode: 'MOCK_TOKEN', errorMessage: 'Geçersiz mock token' };
+      }
       logger.warn('[iyzico] Not configured, mock retrieve returns success');
       return { status: 'success', paymentStatus: 'SUCCESS', token };
     }
@@ -152,6 +180,52 @@ export const iyzicoService = {
           };
           if (r.status === 'success' && r.paymentStatus === 'SUCCESS') {
             resolve(r as IyzicoRetrieveResult);
+          } else {
+            resolve({
+              status: 'failure',
+              errorCode: r.errorCode,
+              errorMessage: r.errorMessage,
+            });
+          }
+        }
+      );
+    });
+  },
+
+  /**
+   * iyzico iade. paymentTransactionId checkout retrieve'den gelir.
+   */
+  async createRefund(input: IyzicoRefundInput): Promise<IyzicoRefundResult> {
+    if (!isIyzicoConfigured()) {
+      logger.warn('[iyzico] Not configured, mock refund');
+      return { status: 'success', paymentId: `mock_refund_${Date.now()}` };
+    }
+
+    const iyzico = getIyzico();
+    return new Promise<IyzicoRefundResult>((resolve, reject) => {
+      iyzico.refund.create(
+        {
+          locale: 'tr',
+          conversationId: input.conversationId ?? `refund_${Date.now()}`,
+          paymentTransactionId: input.paymentTransactionId,
+          price: input.price,
+          currency: input.currency ?? 'TRY',
+          ip: input.ip ?? '127.0.0.1',
+        },
+        (err: unknown, result: unknown) => {
+          if (err) {
+            logger.error('[iyzico] refund error', { error: err });
+            reject(new Error('iyzico iade başlatılamadı'));
+            return;
+          }
+          const r = result as {
+            status?: string;
+            paymentId?: string;
+            errorCode?: string;
+            errorMessage?: string;
+          };
+          if (r.status === 'success') {
+            resolve({ status: 'success', paymentId: r.paymentId });
           } else {
             resolve({
               status: 'failure',

@@ -27,6 +27,8 @@ export function PlanCheckoutForm() {
 
   const [plan, setPlan] = useState<PublicPlan | null>(null);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [paymentProvider, setPaymentProvider] = useState<'stripe' | 'iyzico'>('iyzico');
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,12 @@ export function PlanCheckoutForm() {
       const response = await fetch('/api/checkout/subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planSlug: slug, customerEmail: email }),
+        body: JSON.stringify({
+          planSlug: slug,
+          customerEmail: email,
+          customerName: name || undefined,
+          paymentProvider,
+        }),
       });
 
       const result = await response.json();
@@ -167,6 +174,53 @@ export function PlanCheckoutForm() {
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="plan-name"
+              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
+            >
+              Ad Soyad
+            </label>
+            <input
+              id="plan-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              placeholder="Ad Soyad"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+              Ödeme Yöntemi
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentProvider('iyzico')}
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                  paymentProvider === 'iyzico'
+                    ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                }`}
+              >
+                iyzico (Türkiye)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentProvider('stripe')}
+                className={`px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                  paymentProvider === 'stripe'
+                    ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-400'
+                }`}
+              >
+                Stripe (Kart)
+              </button>
+            </div>
+          </div>
+
           <label className="flex items-start gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -193,7 +247,9 @@ export function PlanCheckoutForm() {
             disabled={loading || !email}
             className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {loading ? 'Yönlendiriliyor...' : '🔒 Aboneliği Başlat'}
+            {loading
+              ? 'Yönlendiriliyor...'
+              : `🔒 ${paymentProvider === 'iyzico' ? 'iyzico' : 'Stripe'} ile Aboneliği Başlat`}
           </button>
         </form>
       </div>

@@ -1,17 +1,26 @@
 /**
- * iyzico Checkout Callback
+ * iyzico Checkout Callback (GET fallback)
  *
- * iyzico ödeme sonrası kullanıcıyı bu sayfaya yönlendirir.
- * Token ile ödemeyi doğrular, başarılıysa order'ı PAID yapar ve lisans üretir.
+ * iyzico canlıda token'ı POST ile /api/checkout/iyzico-callback'e gönderir.
+ * Bu sayfa eski bookmark / mock GET ?token= için aynı fulfillment'ı çalıştırır.
+ *
+ * NOT: next/navigation redirect() throw eder; catch içinde yutulmamalı.
  */
 
 import { redirect } from 'next/navigation';
-import { iyzicoService } from '@/modules/commerce/iyzicoService';
-import { commerceService } from '@/modules/commerce';
-import { prisma } from '@/lib/prisma';
+import { fulfillIyzicoToken } from '@/modules/commerce/iyzicoCallback';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
+
+function isNextRedirect(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'digest' in err &&
+    String((err as { digest?: unknown }).digest).startsWith('NEXT_REDIRECT')
+  );
+}
 
 interface PageProps {
   searchParams: { token?: string; status?: string };
@@ -25,34 +34,20 @@ export default async function IyzicoCallbackPage({ searchParams }: PageProps) {
   }
 
   try {
-    const result = await iyzicoService.retrieveCheckout(token);
+    const result = await fulfillIyzicoToken(token);
 
-    if (result.status === 'success' && result.paymentStatus === 'SUCCESS') {
-      // Token ile eşleşen order'ı bul (token stripeSessionId alanında tutuluyor)
-      const order = await prisma.order.findFirst({
-        where: { stripeSessionId: token },
-      });
-
-      if (order) {
-        // handleCheckoutCompleted Stripe session imzası bekliyor; mock payment_intent ile çağır
-        await commerceService.handleCheckoutCompleted({
-          id: token,
-          payment_intent: token,
-        });
-
-        logger.info('[iyzico] Order completed', {
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-        });
-        redirect(`/odeme/basarili?iyzico=success&order=${order.orderNumber}`);
-      }
-
-      redirect('/odeme/basarili?iyzico=success');
+    if (!result.ok) {
+      redirect(`/odeme/basarili?iyzico_error=${result.reason}`);
     }
 
-    redirect('/odeme/basarili?iyzico_error=failed');
+    if (result.kind === 'order') {
+      redirect(`/odeme/basarili?iyzico=success&order=${encodeURIComponent(result.orderNumber)}`);
+    }
+
+    redirect(`/odeme/basarili?iyzico=success&plan=${encodeURIComponent(result.planSlug)}`);
   } catch (err) {
-    logger.error('[iyzico] callback verification failed', { error: err });
+    if (isNextRedirect(err)) throw err;
+    logger.error('[iyzico] callback page failed', { error: err });
     redirect('/odeme/basarili?iyzico_error=verify_failed');
   }
 }

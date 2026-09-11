@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { CartClearOnSuccess } from '@/components/commerce/CartClearOnSuccess';
 
 export const metadata: Metadata = {
   title: 'Ödeme Başarılı',
@@ -10,12 +11,17 @@ interface PageProps {
     iyzico?: string;
     iyzico_error?: string;
     mock_iyzico?: string;
+    mock_sub?: string;
+    order?: string;
+    plan?: string;
+    session_id?: string;
   };
 }
 
 export default function SuccessPage({ searchParams }: PageProps) {
   const iyzicoError = searchParams.iyzico_error;
   const iyzicoSuccess = searchParams.iyzico === 'success' || searchParams.mock_iyzico === '1';
+  const orderNumber = searchParams.order;
 
   if (iyzicoError) {
     return (
@@ -65,10 +71,12 @@ export default function SuccessPage({ searchParams }: PageProps) {
           <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
             Ödemeniz Başarılı!
           </h1>
+          <CartClearOnSuccess />
           <p className="text-gray-600 dark:text-gray-400 mb-8">
             {iyzicoSuccess
               ? 'iyzico üzerinden ödemeniz başarıyla tamamlandı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'
               : 'Siparişiniz alındı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'}
+            {orderNumber ? ` Sipariş no: ${orderNumber}.` : ''}
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
             <Link

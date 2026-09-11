@@ -62,18 +62,24 @@ describe('iyzico lib', () => {
     expect(result.status).toBe('success');
     if (result.status === 'success') {
       expect(result.token).toMatch(/^mock_iyzico_/);
-      expect(result.paymentPageUrl).toContain('/odeme/basarili');
+      expect(result.paymentPageUrl).toContain('token=');
     }
   });
 
   it('iyzicoService.retrieveCheckout returns success in mock mode', async () => {
     const { iyzicoService } = await import('@/modules/commerce/iyzicoService');
 
-    const result = await iyzicoService.retrieveCheckout('mock_token');
+    const result = await iyzicoService.retrieveCheckout('mock_iyzico_123');
     expect(result.status).toBe('success');
     if (result.status === 'success') {
       expect(result.paymentStatus).toBe('SUCCESS');
     }
+  });
+
+  it('iyzicoService.retrieveCheckout rejects non-mock tokens when unconfigured', async () => {
+    const { iyzicoService } = await import('@/modules/commerce/iyzicoService');
+    const result = await iyzicoService.retrieveCheckout('random_token');
+    expect(result.status).toBe('failure');
   });
 });
 
@@ -117,10 +123,9 @@ describe('selectPaymentProvider', () => {
     expect(selectPaymentProvider('stripe')).toBe('stripe');
   });
 
-  it('falls back when explicit provider not configured', async () => {
+  it('honors explicit iyzico request even when that provider is not configured (mock path)', async () => {
     process.env.STRIPE_SECRET_KEY = 'sk_test';
     const { selectPaymentProvider } = await import('@/modules/commerce/service');
-    // iyzico istek ama yapılandırılmamış → stripe'a düş
-    expect(selectPaymentProvider('iyzico')).toBe('stripe');
+    expect(selectPaymentProvider('iyzico')).toBe('iyzico');
   });
 });
