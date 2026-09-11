@@ -45,8 +45,25 @@ function attachSecurityHeaders(response: NextResponse): void {
 }
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // /admin kökü → dashboard (Vercel redirect ile aynı; local/e2e için middleware)
+  if (pathname === '/admin' || pathname === '/admin/') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/dashboard';
+    return NextResponse.redirect(url);
+  }
+
+  // Ayrı admin login kaldırıldı
+  if (pathname === '/admin/login' || pathname === '/admin/login/') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/giris';
+    url.search = '?callbackUrl=%2Fadmin%2Fdashboard';
+    return NextResponse.redirect(url);
+  }
+
   // Legacy path yönlendirmesi (kalıcı 301)
-  const legacyTarget = LEGACY_REDIRECTS[request.nextUrl.pathname];
+  const legacyTarget = LEGACY_REDIRECTS[pathname];
   if (legacyTarget) {
     const url = request.nextUrl.clone();
     url.pathname = legacyTarget;
@@ -54,7 +71,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Admin write işlemlerini logla
-  if (isAdminWriteRequest(request.nextUrl.pathname, request.method)) {
+  if (isAdminWriteRequest(pathname, request.method)) {
     const ipAddress =
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
       request.headers.get('x-real-ip') ||

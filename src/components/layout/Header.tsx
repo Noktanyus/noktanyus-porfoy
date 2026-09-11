@@ -217,15 +217,11 @@ const Header = ({ headerTitle }: HeaderProps) => {
         </div>
       </header>
 
-      <div className={`md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${
-        isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
-      }`} aria-hidden={!isMobileMenuOpen}>
+      {/* Mobil Menü — kapalıyken DOM'da tutma (a11y + e2e: gizli "Giriş Yap" linki) */}
+      {isMobileMenuOpen && (
+      <div className="md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out opacity-100 visible">
         <div
-          className={`fixed inset-0 transition-all duration-700 ease-out ${
-            isMobileMenuOpen
-              ? 'bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100'
-              : 'bg-black/0 backdrop-blur-none backdrop-saturate-100 opacity-0'
-          }`}
+          className="fixed inset-0 bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100 transition-all duration-700 ease-out"
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
@@ -234,11 +230,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
           role="dialog"
           aria-modal="true"
           aria-label="Mobil menü"
-          className={`fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/85 dark:bg-black/85 border border-white/60 dark:border-black/60 rounded-2xl shadow-xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto transition-all duration-700 ease-out transform ${
-            isMobileMenuOpen
-              ? 'opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115'
-              : 'opacity-0 scale-95 -translate-y-2 backdrop-blur-none backdrop-saturate-100'
-          }`}
+          className="fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/85 dark:bg-black/85 border border-white/60 dark:border-black/60 rounded-2xl shadow-xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115"
         >
           <nav className="flex flex-col space-y-1">
             <div
@@ -317,6 +309,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
           </nav>
         </div>
       </div>
+      )}
     </>
   );
 };

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function GirisPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-blob-decoration px-4 py-12 pt-24">
+    <main className="min-h-screen flex items-center justify-center bg-blob-decoration px-4 py-12">
       <div className="w-full max-w-md">
         <div className="glass-card-premium p-8">
           <h1 className="text-2xl font-bold mb-2 text-center">Giriş Yap</h1>

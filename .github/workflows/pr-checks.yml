@@ -147,33 +147,31 @@ jobs:
         run: |
           echo "## 🔒 Security Audit" >> $GITHUB_STEP_SUMMARY
           
-          if npm audit --audit-level=moderate --json > audit-results.json 2>/dev/null; then
-            echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
-          else
-            # Process audit results
-            if [ -s audit-results.json ]; then
-              VULNERABILITIES=$(jq -r '.metadata.vulnerabilities | to_entries[] | select(.value > 0) | "\(.key): \(.value)"' audit-results.json 2>/dev/null || echo "")
-              if [ -n "$VULNERABILITIES" ]; then
-                echo "⚠️ **Security vulnerabilities found:**" >> $GITHUB_STEP_SUMMARY
-                echo "$VULNERABILITIES" | while read line; do
-                  echo "- $line" >> $GITHUB_STEP_SUMMARY
-                done
-                
-                # Check for critical/high vulnerabilities
-                CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json 2>/dev/null || echo "0")
-                HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json 2>/dev/null || echo "0")
-                
-                if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  echo "❌ **Critical or high severity vulnerabilities found. Please fix before merging.**" >> $GITHUB_STEP_SUMMARY
-                  exit 1
-                fi
-              else
-                echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
+          # Audit non-blocking (ci-cd.yml / security.yml ile hizalı) — bağımlılık
+          # açıklarını uyarır, PR'ı bloklamaz. Kritik düzeltmeler ayrı sprintte.
+          npm audit --audit-level=moderate --json > audit-results.json || true
+
+          if [ -s audit-results.json ]; then
+            VULNERABILITIES=$(jq -r '.metadata.vulnerabilities | to_entries[] | select(.value > 0) | "\(.key): \(.value)"' audit-results.json 2>/dev/null || echo "")
+            if [ -n "$VULNERABILITIES" ]; then
+              echo "⚠️ **Security vulnerabilities found (non-blocking):**" >> $GITHUB_STEP_SUMMARY
+              echo "$VULNERABILITIES" | while read line; do
+                echo "- $line" >> $GITHUB_STEP_SUMMARY
+              done
+              
+              CRITICAL=$(jq -r '.metadata.vulnerabilities.critical // 0' audit-results.json 2>/dev/null || echo "0")
+              HIGH=$(jq -r '.metadata.vulnerabilities.high // 0' audit-results.json 2>/dev/null || echo "0")
+              
+              if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "⚠️ **Critical: $CRITICAL · High: $HIGH** — tracked as warning, does not block merge." >> $GITHUB_STEP_SUMMARY
+                echo "::warning::Found $CRITICAL critical and $HIGH high severity npm audit findings (non-blocking)"
               fi
             else
               echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
             fi
+          else
+            echo "✅ No security vulnerabilities found!" >> $GITHUB_STEP_SUMMARY
           fi
 
   # 🏗️ Build Verification

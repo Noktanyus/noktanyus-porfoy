@@ -27,11 +27,23 @@ function isAppShellPath(pathname: string | null): boolean {
   );
 }
 
+/** Auth sayfalarında Header/Footer yok — form odaklı + tek e-posta alanı */
+function isAuthPath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === '/giris' ||
+    pathname.startsWith('/giris/') ||
+    pathname === '/kayit' ||
+    pathname.startsWith('/kayit/')
+  );
+}
+
 export function SiteChrome({ children, headerTitle, aboutData }: SiteChromeProps) {
   const pathname = usePathname();
   const appShell = isAppShellPath(pathname);
+  const authPath = isAuthPath(pathname);
 
-  if (appShell) {
+  if (appShell || authPath) {
     return (
       <div className="relative min-h-screen">
         <div id="main-content" tabIndex={-1} className="focus:outline-none">
