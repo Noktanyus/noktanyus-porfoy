@@ -18,7 +18,7 @@ import {
   FaBlog, FaEnvelopeOpenText, FaCog, FaSignOutAlt,
   FaEye, FaHome, FaHistory, FaImages, FaBars, FaTimes,
   FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper, FaChartLine,
-  FaFlask
+  FaFlask, FaPalette, FaHandshake, FaBullhorn, FaClock
 } from "react-icons/fa";
 
 interface AdminSidebarProps {
@@ -30,14 +30,23 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
   const pathname = usePathname();
   const [internalMobileMenuOpen, setInternalMobileMenuOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Use external state if provided, otherwise use internal state
   const isMobileOpen = setIsMobileMenuOpen ? isMobileMenuOpen : internalMobileMenuOpen;
   const setMobileOpen = setIsMobileMenuOpen || setInternalMobileMenuOpen;
 
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
   // Kenar çubuğunda gösterilecek navigasyon linkleri ve ikonları
   const navLinks = [
-    { href: "/admin/dashboard", text: "Gösterge Paneli", icon: <FaTachometerAlt /> },
+    { href: "/admin/dashboard", text: "Gösterge Paneli", icon: <FaTachometerAlt />, match: "exact" as const },
     { href: "/admin/analytics", text: "Analytics", icon: <FaChartLine /> },
     { href: "/admin/home-settings", text: "Ana Sayfa Ayarları", icon: <FaHome /> },
     { href: "/admin/hakkimda", text: "Hakkımda Sayfası", icon: <FaUserEdit /> },
@@ -45,17 +54,33 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
     { href: "/admin/products", text: "Ürün Yönetimi", icon: <FaStore /> },
     { href: "/admin/coupons", text: "Kuponlar", icon: <FaTags /> },
     { href: "/admin/workspaces", text: "Workspace'ler", icon: <FaUsersCog /> },
+    { href: "/admin/partners", text: "İş Ortakları", icon: <FaHandshake /> },
+    { href: "/admin/campaigns", text: "E-posta Kampanyaları", icon: <FaBullhorn /> },
+    { href: "/admin/themes", text: "Temalar", icon: <FaPalette /> },
     { href: "/admin/popups", text: "Popup Yönetimi", icon: <FaBroadcastTower /> },
     { href: "/admin/gallery", text: "Galeri", icon: <FaImages /> },
     { href: "/admin/blog", text: "Blog Yönetimi", icon: <FaBlog /> },
-    { href: "/admin/newsletter", text: "Newsletter", icon: <FaNewspaper /> },
+    { href: "/admin/blog/scheduled", text: "Zamanlanmış Yazılar", icon: <FaClock /> },
+    { href: "/admin/newsletter", text: "Newsletter", icon: <FaNewspaper />, match: "exact" as const },
     { href: "/admin/newsletter/broadcast", text: "Broadcast", icon: <FaBroadcastTower /> },
     { href: "/admin/messages", text: "Gelen Mesajlar", icon: <FaEnvelopeOpenText /> },
     { href: "/admin/seo", text: "SEO Ayarları", icon: <FaCog /> },
     { href: "/admin/history", text: "Değişiklik Geçmişi", icon: <FaHistory /> },
     { href: "/admin/audit", text: "Denetim Kayıtları", icon: <FaShieldAlt /> },
-    { href: "/admin/settings/sandbox", text: "Sandbox Environment", icon: <FaFlask /> },
+    { href: "/admin/settings/sandbox", text: "Sandbox Ortamı", icon: <FaFlask /> },
   ];
+
+  const getActiveHref = useCallback(() => {
+    const candidates = navLinks.filter((link) => {
+      if (link.match === "exact" || link.href === "/admin/dashboard") {
+        return pathname === link.href;
+      }
+      return pathname === link.href || pathname.startsWith(`${link.href}/`);
+    });
+    return candidates.sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  }, [pathname]);
+
+  const activeHref = getActiveHref();
 
   // Mobil menü açıkken body scroll'unu engelle ve keyboard navigation ekle
   useEffect(() => {
@@ -184,12 +209,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
       <div className="lg:hidden fixed top-3 right-3 z-40 pointer-events-none">
         <div className="bg-white/90 dark:bg-dark-card/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-sm border border-gray-200/50 dark:border-dark-border/50">
           <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-            {navLinks.find(link => {
-              const isActive = link.href === "/admin/dashboard" 
-                ? pathname === link.href 
-                : pathname.startsWith(link.href);
-              return isActive;
-            })?.text || "Yönetim Paneli"}
+            {navLinks.find((link) => link.href === activeHref)?.text || "Yönetim Paneli"}
           </span>
         </div>
       </div>
@@ -220,7 +240,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
         id="admin-sidebar"
         className={`
           fixed lg:static inset-y-0 left-0 z-40 lg:z-auto
-          w-80 sm:w-84 md:w-80 lg:w-72 xl:w-80 2xl:w-84
+          w-80 md:w-80 lg:w-72 xl:w-80
           max-w-[90vw] sm:max-w-[85vw] md:max-w-[320px] lg:max-w-none
           bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800
           text-gray-900 dark:text-gray-100
@@ -234,7 +254,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
         `}
         role="navigation"
         aria-label="Ana navigasyon menüsü"
-        aria-hidden={!isMobileOpen ? 'true' : 'false'}
+        aria-hidden={!isDesktop && !isMobileOpen}
         onKeyDown={handleKeyDown}
         style={{
           // Performance optimizations for mobile
@@ -269,11 +289,7 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
           role="list"
         >
           {navLinks.map((link) => {
-            // Aktif linki belirlemek için mevcut yolu (pathname) kontrol et.
-            // Gösterge paneli için tam eşleşme, diğerleri için başlangıç eşleşmesi kullanılır.
-            const isActive = link.href === "/admin/dashboard" 
-              ? pathname === link.href 
-              : pathname.startsWith(link.href);
+            const isActive = link.href === activeHref;
 
             return (
               <Link 

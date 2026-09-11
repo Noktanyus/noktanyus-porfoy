@@ -74,12 +74,12 @@ function ProtectedAdminLayoutInner({
     if (status === 'loading') return; // Yükleniyor
     
     if (!session) {
-      router.push('/admin/login');
+      router.push('/giris?callbackUrl=%2Fadmin%2Fdashboard');
       return;
     }
 
     if (session.user?.role !== 'admin') {
-      router.push('/admin/login');
+      router.push('/giris?callbackUrl=%2Fadmin%2Fdashboard');
       return;
     }
   }, [session, status, router]);
@@ -102,15 +102,23 @@ function ProtectedAdminLayoutInner({
       '/admin/home-settings': 'Ana Sayfa Ayarları',
       '/admin/hakkimda': 'Hakkımda Sayfası',
       '/admin/projects': 'Proje Yönetimi',
+      '/admin/products': 'Ürün Yönetimi',
       '/admin/coupons': 'Kuponlar',
+      '/admin/workspaces': "Workspace'ler",
+      '/admin/partners': 'İş Ortakları',
+      '/admin/campaigns': 'E-posta Kampanyaları',
+      '/admin/themes': 'Temalar',
       '/admin/popups': 'Popup Yönetimi',
       '/admin/gallery': 'Galeri',
       '/admin/blog': 'Blog Yönetimi',
+      '/admin/blog/scheduled': 'Zamanlanmış Yazılar',
+      '/admin/newsletter': 'Newsletter',
+      '/admin/newsletter/broadcast': 'Broadcast',
       '/admin/messages': 'Gelen Mesajlar',
       '/admin/seo': 'SEO Ayarları',
       '/admin/history': 'Değişiklik Geçmişi',
       '/admin/audit': 'Denetim Kayıtları',
-      '/admin/workspaces': "Workspace'ler",
+      '/admin/settings/sandbox': 'Sandbox Ortamı',
     };
 
     // Check for exact matches first
@@ -177,9 +185,9 @@ function ProtectedAdminLayoutInner({
         className={`
           flex-1 w-full lg:w-auto min-w-0
           transition-all duration-300 ease-out
-          ${isMobile ? 'pt-16 sm:pt-18 md:pt-20' : 'pt-0'}
-          px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8
-          py-3 xs:py-4 sm:py-5 md:py-6 lg:py-8
+          ${isMobile ? 'pt-16 sm:pt-16 md:pt-20' : 'pt-0'}
+          px-3 sm:px-4 md:px-6 lg:px-8
+          py-4 sm:py-5 md:py-6 lg:py-8
           overflow-x-hidden
           ${isMobileMenuOpen && isMobile ? 'pointer-events-none opacity-50' : ''}
           ${isMobile ? 'pb-safe-area-inset-bottom' : ''}

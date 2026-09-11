@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function CampaignsPage() {
   const session = await getServerSession(authOptions);
-  if (!session?.user) redirect('/admin/login');
+  if (!session?.user) redirect('/giris?callbackUrl=%2Fadmin%2Fcampaigns');
 
   const campaigns = await emailCampaignRepository.findWithStats();
 

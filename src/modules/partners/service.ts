@@ -438,6 +438,38 @@ export const partnerService = {
   },
 
   /**
+   * Admin: tüm partner kayıtlarını listeler.
+   */
+  async listAll() {
+    return prisma.partner.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: { select: { id: true, email: true, name: true } },
+        _count: { select: { leads: true } },
+      },
+    });
+  },
+
+  /**
+   * Admin: partner doğrulama / aktiflik güncellemesi.
+   */
+  async setModeration(
+    id: string,
+    data: { verified?: boolean; active?: boolean }
+  ) {
+    const partner = await prisma.partner.findUnique({ where: { id } });
+    if (!partner) throw new NotFoundError('İş ortağı');
+
+    return prisma.partner.update({
+      where: { id },
+      data: {
+        ...(data.verified !== undefined ? { verified: data.verified } : {}),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+      },
+    });
+  },
+
+  /**
    * Yardimci: Slug format kontrolu (UI tarafindan kullanilabilir).
    */
   isValidSlug(slug: string): boolean {

@@ -1,30 +1,26 @@
 /**
  * @file Workspace yönetim sayfası.
- * @description Tüm workspace'leri liste halinde gösterir, yeni workspace
- *              oluşturma linki sunar. Server component olarak çalışır —
- *              auth cookie üzerinden kullanıcı email'ini alır ve workspace
- *              service'inden ilgili kayıtları çeker.
- *
- *   Not: Production'da NextAuth session kullanılmalı (session.user.id / email).
- *   Bu sayfa mock cookie yaklaşımıyla geliştirildi, sonraki sprint'lerde
- *   session adaptasyonu yapılacak.
+ * @description NextAuth session üzerinden kullanıcının workspace'lerini listeler.
  */
 
 import { workspaceService } from '@/modules/admin/workspaceService';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function WorkspacesPage() {
-  // Mock session - gerçek projede NextAuth session kullan
-  const cookieStore = cookies();
-  const userEmail = cookieStore.get('admin-email')?.value ?? 'admin@noktanyus.com';
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    redirect('/giris?callbackUrl=%2Fadmin%2Fworkspaces');
+  }
 
-  let workspaces: any[] = [];
+  const userId = (session.user as { id: string }).id;
+  let workspaces: Awaited<ReturnType<typeof workspaceService.listForUser>> = [];
   try {
-    // Production'da: session.user.id kullan
-    workspaces = await workspaceService.listForUser(userEmail);
+    workspaces = await workspaceService.listForUser(userId);
   } catch (err) {
     console.error('Failed to load workspaces', err);
   }
@@ -43,9 +39,11 @@ export default async function WorkspacesPage() {
 
       {workspaces.length === 0 ? (
         <div className="admin-card text-center py-12">
-          <p className="text-5xl mb-3">🏢</p>
+          <p className="text-5xl mb-3" aria-hidden="true">🏢</p>
           <p className="text-lg text-muted-foreground">Henüz workspace yok</p>
-          <p className="text-sm text-muted-foreground mt-2">İlk workspace&apos;inizi oluşturarak başlayın</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            İlk workspace&apos;inizi oluşturarak başlayın
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -55,7 +53,7 @@ export default async function WorkspacesPage() {
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="font-semibold text-lg">{ws.name}</h3>
                   <span className="admin-status-active">
-                    {ws._count?.members ?? ws.members?.length ?? 0} üye
+                    {ws._count?.members ?? 0} üye
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3">

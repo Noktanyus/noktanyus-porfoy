@@ -33,7 +33,7 @@ function formatTry(cents: number): string {
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user || session.user.role !== 'admin') {
-    redirect('/admin/login');
+    redirect('/giris?callbackUrl=%2Fadmin%2Fanalytics');
   }
 
   const [revenue, funnel, clv] = await Promise.all([

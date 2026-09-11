@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // Admin kullanıcıyı admin panele yönlendir (karışmasın)
   const role = (session.user as any).role;
   if (role === 'admin') {
-    redirect('/admin');
+    redirect('/admin/dashboard');
   }
 
   return (

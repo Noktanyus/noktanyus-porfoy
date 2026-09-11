@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import Link from "next/link";
+
+function safeInternalPath(url: string | null, fallback: string): string {
+  if (!url || !url.startsWith("/") || url.startsWith("//")) return fallback;
+  return url;
+}
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +37,15 @@ export function LoginForm() {
         return;
       }
 
-      router.push(callbackUrl);
+      const session = await getSession();
+      const role = (session?.user as { role?: string } | undefined)?.role;
+      const requested = safeInternalPath(callbackUrl, role === "admin" ? "/admin/dashboard" : "/dashboard");
+
+      if (role === "admin") {
+        router.push(requested.startsWith("/admin") ? requested : "/admin/dashboard");
+      } else {
+        router.push(requested.startsWith("/admin") ? "/dashboard" : requested);
+      }
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Giriş başarısız");
@@ -101,15 +114,6 @@ export function LoginForm() {
       >
         {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
       </button>
-
-      <div className="text-center text-sm pt-2 border-t border-border">
-        <Link
-          href="/admin/login"
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Yönetici girişi →
-        </Link>
-      </div>
     </form>
   );
 }

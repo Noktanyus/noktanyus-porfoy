@@ -14,8 +14,6 @@ import { Inter } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
 import "./globals.css"; // Font importu artık bu dosyanın içinde
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
@@ -30,6 +28,7 @@ import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
 import PopupViewerClient from "@/components/layout/PopupViewerClient";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
@@ -200,19 +199,15 @@ export default async function RootLayout({
               disableTransitionOnChange={false}
               defaultAccent={defaultAccent}
             >
-              <SkipLink />
-              <div className="relative flex flex-col min-h-screen">
-                <Header headerTitle={headerTitle} />
-                <main id="main-content" tabIndex={-1} className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8 focus:outline-none">
-                  <div className="w-full">
-                    {children}
-                  </div>
-                </main>
-                <Footer aboutData={aboutData} />
-              </div>
-              <Suspense fallback={<Spinner />}>
-                <PopupViewer />
-              </Suspense>
+              <AnalyticsProvider>
+                <SkipLink />
+                <SiteChrome headerTitle={headerTitle} aboutData={aboutData}>
+                  {children}
+                </SiteChrome>
+                <Suspense fallback={<Spinner />}>
+                  <PopupViewer />
+                </Suspense>
+              </AnalyticsProvider>
             </ThemeProvider>
           </AuthProvider>
         </NextIntlClientProvider>

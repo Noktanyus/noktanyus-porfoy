@@ -22,6 +22,7 @@ import { notificationService } from '@/modules/notifications';
 import { affiliateService } from '@/modules/affiliate';
 import { partnerService } from '@/modules/partners';
 import { loyaltyService } from '@/modules/loyalty';
+import { couponService } from './couponService';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
@@ -85,7 +86,13 @@ export const commerceService = {
   async createProductCheckout(
     items: CartItem[],
     customerEmail: string,
-    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+    options?: {
+      paymentProvider?: string | null;
+      customerName?: string;
+      customerPhone?: string;
+      customerIp?: string;
+      couponCode?: string | null;
+    }
   ) {
     if (!items.length) throw new ValidationError('Sepet boş');
 
@@ -98,6 +105,24 @@ export const commerceService = {
     }
 
     const subtotal = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
+    let discountCents = 0;
+    let couponId: string | null = null;
+
+    if (options?.couponCode) {
+      const couponResult = await couponService.validate({
+        code: options.couponCode,
+        customerEmail,
+        subtotalCents: subtotal,
+        productIds,
+      });
+      if (!couponResult.valid || !couponResult.coupon) {
+        throw new ValidationError(couponResult.reason ?? 'Kupon geçersiz');
+      }
+      discountCents = couponResult.discountCents;
+      couponId = couponResult.coupon.id;
+    }
+
+    const totalCents = Math.max(0, subtotal - discountCents);
     const provider = selectPaymentProvider(options?.paymentProvider);
 
     // --- Mock mode (hiçbir provider yapılandırılmamışsa) ---
@@ -110,7 +135,9 @@ export const commerceService = {
           stripeSessionId: `mock_${Date.now()}`,
           status: 'PENDING',
           subtotalCents: subtotal,
-          totalCents: subtotal,
+          discountCents,
+          couponId,
+          totalCents,
           currency: 'try',
           items: {
             create: items.map((item) => {
@@ -128,6 +155,10 @@ export const commerceService = {
         },
       });
 
+      if (couponId) {
+        await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+      }
+
       return {
         url: `/odeme/basarili?session_id=mock_${order.id}&order=${order.orderNumber}`,
         sessionId: order.stripeSessionId,
@@ -137,7 +168,8 @@ export const commerceService = {
 
     // --- iyzico akışı ---
     if (provider === 'iyzico') {
-      const totalPrice = centsToIyzicoString(subtotal);
+      const basketPrice = centsToIyzicoString(subtotal);
+      const paidPrice = centsToIyzicoString(totalCents);
       const checkout = await iyzicoService.createCheckout({
         items: items.map((item) => {
           const product = validProducts.find((p) => p.id === item.productId)!;
@@ -149,8 +181,8 @@ export const commerceService = {
             price: centsToIyzicoString(item.priceCents),
           };
         }),
-        totalPrice,
-        paidPrice: totalPrice,
+        totalPrice: basketPrice,
+        paidPrice,
         customerEmail,
         customerName: options?.customerName,
         customerPhone: options?.customerPhone,
@@ -165,14 +197,16 @@ export const commerceService = {
         );
       }
 
-      await prisma.order.create({
+      const order = await prisma.order.create({
         data: {
           orderNumber: await orderRepository.generateOrderNumber(),
           customerEmail,
           stripeSessionId: checkout.token, // token'ı bu alanda tutuyoruz
           status: 'PENDING',
           subtotalCents: subtotal,
-          totalCents: subtotal,
+          discountCents,
+          couponId,
+          totalCents,
           currency: 'try',
           items: {
             create: items.map((item) => {
@@ -189,6 +223,10 @@ export const commerceService = {
           },
         },
       });
+
+      if (couponId) {
+        await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+      }
 
       return {
         url: checkout.paymentPageUrl,
@@ -216,24 +254,34 @@ export const commerceService = {
           quantity: item.quantity,
         };
       }),
+      ...(discountCents > 0
+        ? {
+            discounts: undefined,
+            // Stripe Checkout'ta kupon yerine toplamı metadata + order kaydında tutuyoruz;
+            // satır kalemleri ürün fiyatıdır; indirim sipariş kaydında uygulanır.
+          }
+        : {}),
       customer_email: customerEmail,
       success_url: `${process.env.NEXTAUTH_URL}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/magaza`,
       metadata: {
         customerEmail,
         productIds: items.map((i) => i.productId).join(','),
+        ...(couponId ? { couponId, discountCents: String(discountCents) } : {}),
       },
     });
 
     // Create pending order with items snapshot
-    await prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         orderNumber: await orderRepository.generateOrderNumber(),
         customerEmail,
         stripeSessionId: session.id,
         status: 'PENDING',
         subtotalCents: subtotal,
-        totalCents: subtotal,
+        discountCents,
+        couponId,
+        totalCents,
         currency: 'try',
         items: {
           create: items.map((item) => {
@@ -250,6 +298,10 @@ export const commerceService = {
         },
       },
     });
+
+    if (couponId) {
+      await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+    }
 
     return {
       url: session.url!,

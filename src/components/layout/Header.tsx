@@ -44,10 +44,46 @@ const Header = ({ headerTitle }: HeaderProps) => {
       document.body.classList.remove('body-scroll-lock');
     }
 
-    // Cleanup function
     return () => {
       document.body.classList.remove('body-scroll-lock');
     };
+  }, [isMobileMenuOpen]);
+
+  // Escape ile kapat + basit focus trap
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+
+      const root = document.getElementById('mobile-nav-panel');
+      if (!root) return;
+      const focusable = root.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    const firstLink = document
+      .getElementById('mobile-nav-panel')
+      ?.querySelector<HTMLElement>('a, button');
+    firstLink?.focus();
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isMobileMenuOpen]);
 
   const handleMobileLinkClick = () => {
@@ -66,7 +102,6 @@ const Header = ({ headerTitle }: HeaderProps) => {
               </Link>
             </Tooltip>
 
-            {/* Masaüstü Navigasyonu */}
             <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 xl:space-x-4 flex-shrink min-w-0">
               {navLinks.map((link, index) => (
                 <Link key={link.href} href={link.href} className="text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-1.5 lg:px-2 xl:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300" style={{animationDelay: `${index * 0.1}s`}}>
@@ -86,7 +121,6 @@ const Header = ({ headerTitle }: HeaderProps) => {
               </Tooltip>
               <ThemeCustomizer className="touch-target" />
 
-              {/* Kullanıcı menüsü (auth) */}
               {status !== 'loading' && (
                 session?.user ? (
                   <div className="relative">
@@ -94,6 +128,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
                       <button
                         onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                         aria-label="Kullanıcı menüsü"
+                        aria-expanded={isUserMenuOpen}
                         className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-1"
                       >
                         <FaUserCircle className="w-5 h-5 text-gray-900 dark:text-white" />
@@ -154,23 +189,25 @@ const Header = ({ headerTitle }: HeaderProps) => {
                 )
               )}
 
-              {/* Mobil Menü Butonu */}
               <div className="md:hidden">
                 <button
+                  type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label="Menüyü aç/kapat"
+                  aria-label={isMobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+                  aria-expanded={isMobileMenuOpen}
+                  aria-controls="mobile-nav-panel"
                   className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring relative overflow-hidden"
                 >
                   <div className="relative w-5 h-5">
-                    <FaBars 
+                    <FaBars
                       className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
                         isMobileMenuOpen ? 'rotate-90 opacity-0 scale-75' : 'rotate-0 opacity-100 scale-100'
-                      }`} 
+                      }`}
                     />
-                    <FaTimes 
+                    <FaTimes
                       className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
                         isMobileMenuOpen ? 'rotate-0 opacity-100 scale-100' : '-rotate-90 opacity-0 scale-75'
-                      }`} 
+                      }`}
                     />
                   </div>
                 </button>
@@ -180,30 +217,30 @@ const Header = ({ headerTitle }: HeaderProps) => {
         </div>
       </header>
 
-      {/* Mobil Menü */}
       <div className={`md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${
-        isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-      }`}>
-        {/* Backdrop Overlay */}
+        isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
+      }`} aria-hidden={!isMobileMenuOpen}>
         <div
           className={`fixed inset-0 transition-all duration-700 ease-out ${
-            isMobileMenuOpen 
-              ? 'bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100' 
+            isMobileMenuOpen
+              ? 'bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100'
               : 'bg-black/0 backdrop-blur-none backdrop-saturate-100 opacity-0'
           }`}
           onClick={() => setIsMobileMenuOpen(false)}
         />
-        
-        {/* Menu Content */}
+
         <div
+          id="mobile-nav-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobil menü"
           className={`fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/85 dark:bg-black/85 border border-white/60 dark:border-black/60 rounded-2xl shadow-xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto transition-all duration-700 ease-out transform ${
-            isMobileMenuOpen 
-              ? 'opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115' 
+            isMobileMenuOpen
+              ? 'opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115'
               : 'opacity-0 scale-95 -translate-y-2 backdrop-blur-none backdrop-saturate-100'
           }`}
         >
           <nav className="flex flex-col space-y-1">
-            {/* Mobil arama kısayolu */}
             <div
               className={`transition-all duration-500 ease-out transform ${
                 isMobileMenuOpen
@@ -248,7 +285,6 @@ const Header = ({ headerTitle }: HeaderProps) => {
               </div>
             ))}
 
-            {/* Mobil auth linkleri */}
             {session?.user ? (
               <>
                 <Link

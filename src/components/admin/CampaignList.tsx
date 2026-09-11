@@ -1,10 +1,7 @@
 'use client';
 
 /**
- * CampaignList — Admin panel icin campaign tablosu.
- *
- * Status, tip ve istatistik badge'leri ile sirali liste.
- * Yeni campaign olusturma formu inline.
+ * CampaignList — Admin paneli e-posta kampanya tablosu.
  */
 
 import { useState, useTransition } from 'react';
@@ -24,12 +21,26 @@ interface CampaignRow {
   _count: { executions: number };
 }
 
+const STATUS_LABEL: Record<string, string> = {
+  draft: 'Taslak',
+  scheduled: 'Zamanlandı',
+  running: 'Çalışıyor',
+  completed: 'Tamamlandı',
+  paused: 'Duraklatıldı',
+};
+
 const STATUS_COLOR: Record<string, string> = {
   draft: 'bg-gray-200 text-gray-800',
   scheduled: 'bg-blue-100 text-blue-800',
   running: 'bg-green-100 text-green-800',
   completed: 'bg-purple-100 text-purple-800',
   paused: 'bg-yellow-100 text-yellow-800',
+};
+
+const TYPE_LABEL: Record<string, string> = {
+  drip: 'Drip',
+  broadcast: 'Toplu gönderim',
+  behavioral: 'Davranışsal',
 };
 
 export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
@@ -40,7 +51,7 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
     name: '',
     campaignType: 'drip',
     subject: '',
-    template: '<p>Hello {{name}}, welcome!</p>',
+    template: '<p>Merhaba {{name}}, hoş geldiniz!</p>',
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -56,11 +67,16 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data?.error?.message ?? 'Campaign olusturulamadi');
+      setError(data?.error?.message ?? 'Kampanya oluşturulamadı');
       return;
     }
 
-    setForm({ name: '', campaignType: 'drip', subject: '', template: '<p>Hello</p>' });
+    setForm({
+      name: '',
+      campaignType: 'drip',
+      subject: '',
+      template: '<p>Merhaba {{name}}</p>',
+    });
     setShowForm(false);
     startTransition(() => router.refresh());
   };
@@ -69,9 +85,9 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Email Campaigns</h1>
+          <h1 className="text-2xl font-bold">E-posta Kampanyaları</h1>
           <p className="text-sm text-gray-500">
-            Drip, broadcast ve behavioral email kampanyalari
+            Drip, toplu gönderim ve davranışsal e-posta kampanyaları
           </p>
         </div>
         <button
@@ -79,19 +95,19 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
           onClick={() => setShowForm((v) => !v)}
           className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
-          {showForm ? 'Kapat' : '+ Yeni Campaign'}
+          {showForm ? 'Kapat' : '+ Yeni Kampanya'}
         </button>
       </div>
 
       {showForm && (
         <form
           onSubmit={submit}
-          className="space-y-3 rounded border bg-white p-4 shadow-sm"
+          className="space-y-3 rounded border bg-white p-4 shadow-sm dark:bg-gray-900"
         >
           <div className="grid grid-cols-2 gap-3">
             <input
               required
-              placeholder="Campaign adi"
+              placeholder="Kampanya adı"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               className="rounded border px-3 py-2"
@@ -102,20 +118,20 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
               className="rounded border px-3 py-2"
             >
               <option value="drip">Drip</option>
-              <option value="broadcast">Broadcast</option>
-              <option value="behavioral">Behavioral</option>
+              <option value="broadcast">Toplu gönderim</option>
+              <option value="behavioral">Davranışsal</option>
             </select>
           </div>
           <input
             required
-            placeholder="Email subject"
+            placeholder="E-posta konusu"
             value={form.subject}
             onChange={(e) => setForm({ ...form, subject: e.target.value })}
             className="w-full rounded border px-3 py-2"
           />
           <textarea
             required
-            placeholder="HTML template"
+            placeholder="HTML şablon"
             value={form.template}
             onChange={(e) => setForm({ ...form, template: e.target.value })}
             rows={4}
@@ -127,21 +143,21 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
             disabled={isPending}
             className="rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-50"
           >
-            {isPending ? 'Olusturuluyor...' : 'Olustur'}
+            {isPending ? 'Oluşturuluyor...' : 'Oluştur'}
           </button>
         </form>
       )}
 
-      <div className="overflow-hidden rounded border bg-white shadow-sm">
+      <div className="overflow-hidden rounded border bg-white shadow-sm dark:bg-gray-900">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
               <th className="px-4 py-3 text-left">Ad</th>
               <th className="px-4 py-3 text-left">Tip</th>
               <th className="px-4 py-3 text-left">Durum</th>
-              <th className="px-4 py-3 text-right">Sent</th>
-              <th className="px-4 py-3 text-right">Open</th>
-              <th className="px-4 py-3 text-right">Click</th>
+              <th className="px-4 py-3 text-right">Gönderilen</th>
+              <th className="px-4 py-3 text-right">Açılma</th>
+              <th className="px-4 py-3 text-right">Tıklama</th>
               <th className="px-4 py-3 text-left">Tarih</th>
             </tr>
           </thead>
@@ -149,26 +165,26 @@ export function CampaignList({ campaigns }: { campaigns: CampaignRow[] }) {
             {campaigns.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                  Henuz campaign yok
+                  Henüz kampanya yok
                 </td>
               </tr>
             )}
             {campaigns.map((c) => (
-              <tr key={c.id} className="border-t hover:bg-gray-50">
+              <tr key={c.id} className="border-t hover:bg-gray-50 dark:hover:bg-gray-800/50">
                 <td className="px-4 py-3">
                   <div className="font-medium">{c.name}</div>
                   <div className="text-xs text-gray-500">{c.subject}</div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="rounded bg-gray-100 px-2 py-1 text-xs">
-                    {c.campaignType}
+                  <span className="rounded bg-gray-100 px-2 py-1 text-xs dark:bg-gray-800">
+                    {TYPE_LABEL[c.campaignType] ?? c.campaignType}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded px-2 py-1 text-xs ${STATUS_COLOR[c.status] ?? 'bg-gray-100'}`}
                   >
-                    {c.status}
+                    {STATUS_LABEL[c.status] ?? c.status}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">{c.totalSent}</td>

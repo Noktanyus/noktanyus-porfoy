@@ -20,19 +20,29 @@ const BodySchema = z.object({
   customerName: z.string().min(2).max(120).optional(),
   customerPhone: z.string().min(7).max(20).optional(),
   customerIp: z.string().min(7).max(45).optional(),
+  couponCode: z.string().min(3).max(50).optional(),
 });
 
 export const POST = withRateLimit(RateLimits.api, async (req: NextRequest) => {
   return withErrorHandling(async () => {
     const body = await req.json();
     const parsed = BodySchema.parse(body);
-    const { items, customerEmail, paymentProvider, customerName, customerPhone, customerIp } = parsed;
+    const {
+      items,
+      customerEmail,
+      paymentProvider,
+      customerName,
+      customerPhone,
+      customerIp,
+      couponCode,
+    } = parsed;
 
     const result = await commerceService.createProductCheckout(items, customerEmail, {
       paymentProvider,
       customerName,
       customerPhone,
       customerIp,
+      couponCode,
     });
     return ok(result);
   });

@@ -291,7 +291,7 @@ export function VideoRoom({ call }: { call: VideoCallData }) {
           </footer>
 
           <div className="bg-blue-900/30 border-t border-blue-700 p-2 text-center text-xs text-blue-200">
-            ℹ️ Video calls demo mode - gerçek WebRTC peer connection için signaling server gerekir
+            Bilgi: Görüntülü görüşme şu an önizleme modunda. Tam bağlantı için sinyal sunucusu gerekir.
           </div>
         </>
       )}

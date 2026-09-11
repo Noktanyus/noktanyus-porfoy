@@ -102,14 +102,14 @@
   "redirects": [
     {
       "source": "/admin",
-      "destination": "/admin/(protected)/dashboard",
+      "destination": "/admin/dashboard",
+      "permanent": false
+    },
+    {
+      "source": "/admin/login",
+      "destination": "/giris?callbackUrl=%2Fadmin%2Fdashboard",
       "permanent": false
     }
   ],
-  "rewrites": [
-    {
-      "source": "/api/health",
-      "destination": "/api/health/route"
-    }
-  ]
+  "rewrites": []
 }

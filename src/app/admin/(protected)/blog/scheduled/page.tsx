@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
 export default async function ScheduledPostsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    redirect('/admin/login');
+    redirect('/giris?callbackUrl=%2Fadmin%2Fblog%2Fscheduled');
   }
 
   // Taslaklar - en son guncellenen once
