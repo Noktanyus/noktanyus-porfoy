@@ -1,24 +1,20 @@
 /**
- * Dashboard — Kullanıcının satın aldığı dijital ürünler ve lisansları.
- * Auth zorunlu, oturum yoksa /giris'e yönlendir.
- *
- * - Orders: sipariş geçmişi (status, tutar, item detayları)
- * - Licenses: dijital ürün lisans anahtarları
- * - SaaS marketplace: kullanıcı kendi dijital ürününü ekleyebilir
+ * Dashboard — Satın alınan dijital ürünler ve lisanslar.
+ * Kullanıcı ürün yayınlayamaz; yalnızca admin mağazaya ürün ekler.
  */
 
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
-import { FaPlus, FaStore } from 'react-icons/fa';
+import { FaStore } from 'react-icons/fa';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProductList } from '@/components/dashboard/ProductList';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = { title: 'Ürünlerim | Dashboard' };
+export const metadata: Metadata = { title: 'Satın Aldıklarım | Dashboard' };
 
 export default async function ProductsPage() {
   const session = await getServerSession(authOptions);
@@ -45,25 +41,13 @@ export default async function ProductsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Ürünlerim"
-        description="Satın aldığın dijital ürünler ve lisans anahtarların"
+        title="Satın Aldıklarım"
+        description="Satın aldığınız sanal ürünler ve lisans anahtarlarınız"
         actions={
-          <>
-            <Link
-              href="/dashboard/products/new"
-              className="admin-btn admin-btn-primary inline-flex items-center gap-2"
-            >
-              <FaPlus className="w-3 h-3" aria-hidden="true" />
-              Ürün Ekle
-            </Link>
-            <Link
-              href="/magaza"
-              className="admin-btn admin-btn-secondary inline-flex items-center gap-2"
-            >
-              <FaStore className="w-3 h-3" aria-hidden="true" />
-              Mağaza
-            </Link>
-          </>
+          <Link href="/magaza" className="admin-btn admin-btn-primary inline-flex items-center gap-2">
+            <FaStore className="w-3 h-3" aria-hidden="true" />
+            Mağazaya Git
+          </Link>
         }
       />
       <ProductList orders={orders} licenses={licenses} />

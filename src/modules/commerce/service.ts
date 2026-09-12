@@ -626,7 +626,7 @@ export const commerceService = {
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
       customer_email: customerEmail,
       success_url: `${process.env.NEXTAUTH_URL}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/fiyatlandirma`,
+      cancel_url: `${process.env.NEXTAUTH_URL}/magaza/abonelikler`,
       metadata: { planSlug, customerEmail },
     });
 

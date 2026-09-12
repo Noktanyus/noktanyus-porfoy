@@ -38,8 +38,8 @@ export default function FailPage({ searchParams }: PageProps) {
             title="Ödeme Tamamlanamadı"
             description={description}
             action={{
-              label: isTip ? 'Destek Sayfası' : isSub ? 'Fiyatlandırma' : 'Sepete Dön',
-              href: isTip ? '/destek' : isSub ? '/fiyatlandirma' : '/odeme',
+              label: isTip ? 'Destek Sayfası' : isSub ? 'Aylık hizmetler' : 'Sepete Dön',
+              href: isTip ? '/destek' : isSub ? '/magaza/abonelikler' : '/odeme',
             }}
             secondaryAction={{ label: 'Mağaza', href: '/magaza' }}
             className="w-full"

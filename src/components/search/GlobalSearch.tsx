@@ -528,7 +528,7 @@ function getResultUrl(r: SearchResult): string {
     case 'product':
       return `/magaza/${r.slug}`;
     case 'plan':
-      return `/fiyatlandirma`;
+      return `/magaza/abonelikler`;
     default:
       return '/';
   }

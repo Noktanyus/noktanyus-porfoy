@@ -109,7 +109,7 @@ export async function checkAiQuota(
       limit: 0,
       limitRequests: 0,
       planSlug,
-      reason: 'Aktif bir abonelik planınız yok. AI özellikleri için Pro veya Enterprise plana geçin.',
+      reason: 'Aktif bir abonelik planınız yok. AI özellikleri için Profesyonel veya Destek+ plana geçin.',
     };
   }
 

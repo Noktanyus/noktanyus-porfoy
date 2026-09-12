@@ -103,7 +103,6 @@ export const userApi = {
   profile: () => api.get('/api/user/profile'),
   updateProfile: (data: { name?: string; email?: string }) =>
     api.put('/api/user/profile', data),
-  products: () => api.get('/api/user/products'),
   changePassword: (data: { current: string; next: string }) =>
     api.put('/api/user/password', data),
   deleteAccount: () => api.delete('/api/user/delete'),

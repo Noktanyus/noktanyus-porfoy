@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { FaPlus, FaStar } from 'react-icons/fa';
 import { productRepository } from '@/modules/commerce';
 import { formatCurrency } from '@/lib/utils';
+import { productCategoryLabel } from '@/lib/storeCatalog';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { ProductRowActions } from '@/components/admin/ProductRowActions';
 import { PageHeader } from '@/components/dashboard/PageHeader';
@@ -37,8 +38,10 @@ export default async function AdminProductsPage() {
 
   const header = (
     <PageHeader
-      title="Ürünler"
-      description={error ? undefined : `Toplam ${products.length} ürün`}
+      title="Hazır paketler"
+      description={
+        error ? undefined : `Toplam ${products.length} paket — yalnızca admin yayınlar`
+      }
       breadcrumb={<span>Admin / Ürünler</span>}
       actions={
         <Link href="/admin/products/new" className="admin-btn admin-btn-primary">
@@ -106,7 +109,7 @@ export default async function AdminProductsPage() {
                     </Link>
                     <p className="mt-0.5 font-mono text-xs text-muted-foreground">/{p.slug}</p>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{p.category}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{productCategoryLabel(p.category)}</td>
                   <td className="px-4 py-3 text-right font-semibold tabular-nums text-foreground">
                     {formatCurrency(p.priceCents, p.currency)}
                   </td>

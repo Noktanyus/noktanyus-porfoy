@@ -19,7 +19,7 @@ import {
   FaTachometerAlt, FaUserEdit, FaProjectDiagram, FaBroadcastTower,
   FaBlog, FaEnvelopeOpenText, FaCog, FaHome, FaHistory, FaImages,
   FaShieldAlt, FaStore, FaTags, FaUsersCog, FaNewspaper, FaChartLine,
-  FaFlask, FaPalette, FaCalendarAlt, FaBullhorn, FaSwatchbook,
+  FaFlask, FaPalette, FaCalendarAlt, FaBullhorn, FaSwatchbook, FaLayerGroup, FaCreditCard,
 } from 'react-icons/fa';
 
 export interface AdminNavLink {
@@ -35,6 +35,8 @@ export const ADMIN_NAV_LINKS: AdminNavLink[] = [
   { href: '/admin/hakkimda', text: 'Hakkımda Sayfası', icon: <FaUserEdit /> },
   { href: '/admin/projects', text: 'Proje Yönetimi', icon: <FaProjectDiagram /> },
   { href: '/admin/products', text: 'Ürün Yönetimi', icon: <FaStore /> },
+  { href: '/admin/plans', text: 'Abonelik Planları', icon: <FaCreditCard /> },
+  { href: '/admin/categories', text: 'Kategoriler', icon: <FaLayerGroup /> },
   { href: '/admin/templates', text: 'Template Yönetimi', icon: <FaPalette /> },
   { href: '/admin/coupons', text: 'Kuponlar', icon: <FaTags /> },
   { href: '/admin/workspaces', text: "Workspace'ler", icon: <FaUsersCog /> },

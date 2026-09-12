@@ -212,19 +212,17 @@ Stripe webhook receiver. Signature doğrular, idempotency kontrolü yapar.
   `invoice.payment_succeeded/failed`
 - **Errors:** `400 MISSING_SIGNATURE`, `INVALID_SIGNATURE`
 
-### `GET /api/user/products`
+### `GET /api/admin/products`
 
-Kullanıcının satın aldığı dijital ürünleri + aktif lisans anahtarlarını listeler.
-
-- **Auth:** User
-- **Response:** `200 { success: true, data: UserProduct[] }`
-
-### `POST /api/user/products`
-
-Kullanıcıya manuel ürün atama (admin işlemi).
+Admin dijital ürün listesi (sanal ürünler). Kullanıcılar ürün yayınlayamaz.
 
 - **Auth:** Admin
-- **Body:** `{ "userId": "...", "productId": "..." }`
+
+### `POST /api/admin/products`
+
+Yeni sanal ürün oluşturur (template/script vb.).
+
+- **Auth:** Admin
 
 ### `POST /api/user/orders/[id]/refund`
 

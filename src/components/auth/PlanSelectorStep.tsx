@@ -1,8 +1,7 @@
 /**
  * @file PlanSelectorStep - 3-step kayıt sihirbazının 2. adımı
- * @description Kullanıcı Starter / Pro / Enterprise planlarından birini seçer
- *              ve kullanım koşullarını kabul eder. shadcn-style, indigo primary,
- *              dark mode destekli.
+ * @description Kullanıcı Bireysel / Profesyonel / Destek+ planlarından birini seçer
+ *              ve kullanım koşullarını kabul eder.
  *
  * @ai-note Bu component Server Component değildir; form state'i useState ile
  *          tutulduğu için "use client" ile işaretlenmiştir. Üst component
@@ -40,22 +39,22 @@ export interface PlanOption {
 export const PLAN_OPTIONS: PlanOption[] = [
   {
     slug: "starter",
-    name: "Starter",
-    description: "Bireysel geliştiriciler ve küçük projeler için.",
+    name: "Bireysel",
+    description: "Tek kişi için kolay başlangıç.",
     priceCents: 0,
     currency: "try",
     trialDays: 14,
     features: [
       "10K AI token / ay",
       "50 AI üretimi / ay",
-      "1 proje",
-      "Topluluk desteği",
+      "Temel monitör & API",
+      "E-posta destek",
     ],
   },
   {
     slug: "pro",
-    name: "Pro",
-    description: "Büyüyen ekipler ve production projeleri için.",
+    name: "Profesyonel",
+    description: "Daha yüksek kota ve öncelikli destek.",
     priceCents: 29900,
     currency: "try",
     trialDays: 14,
@@ -63,24 +62,22 @@ export const PLAN_OPTIONS: PlanOption[] = [
     features: [
       "100K AI token / ay",
       "500 AI üretimi / ay",
-      "Sınırsız proje",
+      "Yüksek API kotası",
       "Öncelikli destek",
-      "API erişimi",
     ],
   },
   {
     slug: "enterprise",
-    name: "Enterprise",
-    description: "Kurumsal müşteriler için özel çözümler.",
-    priceCents: 99900,
+    name: "Destek+",
+    description: "Kurulum yardımı ve danışmanlık.",
+    priceCents: 49900,
     currency: "try",
-    trialDays: 30,
+    trialDays: 14,
     features: [
-      "Sınırsız AI token",
-      "Sınırsız üretim",
-      "Özel SLA & destek",
-      "SSO & SAML",
-      "Özel eğitim & onboarding",
+      "Profesyonel tüm özellikler",
+      "Aylık danışmanlık",
+      "Kurulum yardımı",
+      "Öncelikli yanıt",
     ],
   },
 ];

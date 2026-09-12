@@ -68,19 +68,12 @@ export default async function ProductPage({ params }: PageProps) {
   const baseUrl = getBaseUrl();
   const canonicalUrl = `${baseUrl}/magaza/${product.slug}`;
 
-  // Marketplace 2.0 — vendor review/rating (eğer ürün bir vendor'a bağlıysa)
-  let reviews: Awaited<ReturnType<typeof reviewService.listForProduct>> = [];
-  let reviewAverage = 0;
-  let reviewCount = 0;
-  if (product.vendorId) {
-    const [list, summary] = await Promise.all([
-      reviewService.listForProduct(product.id),
-      reviewService.average(product.id),
-    ]);
-    reviews = list;
-    reviewAverage = summary.average;
-    reviewCount = summary.count;
-  }
+  const [reviews, summary] = await Promise.all([
+    reviewService.listForProduct(product.id),
+    reviewService.average(product.id),
+  ]);
+  const reviewAverage = summary.average;
+  const reviewCount = summary.count;
 
   // Product JSON-LD — Google Merchant Center ve zengin ürün sonuçları için
   const productLd = productJsonLd({
@@ -99,6 +92,7 @@ export default async function ProductPage({ params }: PageProps) {
   const breadcrumbLd = breadcrumbJsonLd([
     { name: 'Anasayfa', url: `${baseUrl}` },
     { name: 'Mağaza', url: `${baseUrl}/magaza` },
+    { name: 'Hazır paketler', url: `${baseUrl}/magaza/urunler` },
     { name: product.title, url: canonicalUrl },
   ]);
 
@@ -109,14 +103,12 @@ export default async function ProductPage({ params }: PageProps) {
         <div className="space-responsive">
           <ProductDetail product={product} />
           <RelatedProducts currentSlug={params.slug} category={product.category} />
-          {product.vendorId && (
-            <ProductReviews
-              productSlug={product.slug}
-              initialReviews={reviews}
-              initialAverage={reviewAverage}
-              initialCount={reviewCount}
-            />
-          )}
+          <ProductReviews
+            productSlug={product.slug}
+            initialReviews={reviews}
+            initialAverage={reviewAverage}
+            initialCount={reviewCount}
+          />
         </div>
       </div>
     </>

@@ -1,71 +1,44 @@
+/**
+ * /magaza — Satış hub’ı (bireysel kullanıcı odaklı).
+ * İki kanal: Hazır paketler (tek sefer) + Aylık hizmetler (abonelik).
+ */
+
 import { Metadata } from 'next';
-import { commerceService } from '@/modules/commerce';
-import nextDynamic from 'next/dynamic';
-import { EmptyState } from '@/components/ui/EmptyState';
+import { StoreChannelCards, StoreTrustStrip } from '@/components/commerce/StoreChannelCards';
 
 export const metadata: Metadata = {
   title: 'Mağaza',
   description:
-    'Dijital ürünler, yazılım şablonları ve çevrimiçi hizmetler. Hemen indir, kullanmaya başla.',
+    'Hazır paketler (template, script) ve aylık hizmetler (Bireysel, Profesyonel, Destek+).',
 };
 
 export const dynamic = 'force-dynamic';
 
-// Lazy-load ProductGrid (which pulls in next/image + Link + commerce utils)
-// to reduce the initial JS bundle for the /magaza entry chunk.
-const ProductGrid = nextDynamic(
-  () => import('@/components/commerce/ProductGrid').then((m) => m.ProductGrid),
-  {
-    loading: () => (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-80 animate-pulse bg-gray-100/40 dark:bg-gray-800/40 rounded-2xl"
-          />
-        ))}
-      </div>
-    ),
-  }
-);
-
-export default async function MagazaPage() {
-  let products: Awaited<ReturnType<typeof commerceService.listProducts>> = [];
-  let error: string | null = null;
-
-  try {
-    products = await commerceService.listProducts({ take: 50 });
-  } catch (e) {
-    error = e instanceof Error ? e.message : 'Ürünler yüklenemedi';
-  }
-
+export default function MagazaHubPage() {
   return (
-    <div className="container-responsive bg-blob-decoration">
-      <div className="relative z-10 space-responsive">
-        <div className="mb-12 text-center">
-          <h1 className="text-responsive-display font-bold mb-4 text-gray-900 dark:text-white">
-            Mağaza
-          </h1>
-          <p className="text-body-responsive-md text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Dijital ürünler, yazılım şablonları ve hizmetler. Hemen indir, kullanmaya başla.
+    <div className="relative min-h-[70vh]">
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_rgba(14,116,144,0.12),_transparent_55%),radial-gradient(ellipse_at_bottom_right,_rgba(4,120,87,0.10),_transparent_50%)]"
+        aria-hidden="true"
+      />
+      <div className="container-responsive space-responsive">
+        <header className="max-w-3xl mx-auto text-center mb-10 sm:mb-14">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
+            Noktanyus Mağaza
           </p>
-        </div>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+            Ne almak istiyorsunuz?
+          </h1>
+          <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
+            Bireysel kullanım için iki net yol:{' '}
+            <strong className="text-foreground font-semibold">bir kez alıp indirdiğiniz hazır paketler</strong>
+            {' '}veya{' '}
+            <strong className="text-foreground font-semibold">hesabınızla kullandığınız aylık hizmetler</strong>.
+          </p>
+        </header>
 
-        {error && (
-          <div className="text-center text-red-600 dark:text-red-400 py-12">
-            <p>{error}</p>
-          </div>
-        )}
-
-        {!error && products.length === 0 && (
-          <EmptyState
-            title="Henüz ürün yok"
-            description="Yakında yeni dijital ürünler eklenecek."
-            icon="box"
-          />
-        )}
-
-        {!error && products.length > 0 && <ProductGrid products={products} />}
+        <StoreChannelCards />
+        <StoreTrustStrip />
       </div>
     </div>
   );

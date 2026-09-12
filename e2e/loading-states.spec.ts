@@ -10,7 +10,8 @@ import { test, expect } from '@playwright/test';
  *  - /saas/dashboard (auth-protected → redirect)
  *  - /commerce/iyzico-callback (commerce callback, public route)
  *  - /is-ortak/[slug] (dynamic public, slug exists DB gerektirir → seed note)
- *  - /satici/[slug] (dynamic public, slug exists DB gerektirir → seed note)
+ *  - /magaza/[slug] (dynamic public product)
+ *  - /magaza/urunler (sanal ürün kataloğu)
  *  - /marketplace (public template gallery)
  *  - /saas (public landing)
  *  - /workspace, /api/health (auth/protected)
@@ -282,14 +283,14 @@ test.describe('Phase E: Extended routes', () => {
     expect(hasNotFound || hasH1, 'unknown partner slug should yield 404 or fallback').toBeTruthy();
   });
 
-  test('/satici/[slug]: dynamic route handles unknown slug gracefully', async ({ page }) => {
-    const response = await page.goto('http://localhost:3000/satici/test-seed-missing-slug', {
+  test('/magaza/[slug]: unknown product slug handles gracefully', async ({ page }) => {
+    const response = await page.goto('http://localhost:3000/magaza/test-seed-missing-slug', {
       waitUntil: 'domcontentloaded',
       timeout: 15000,
     }).catch(() => null);
 
     if (response && response.status() >= 500) {
-      test.skip(true, 'Server error on /satici/[slug]');
+      test.skip(true, 'Server error on /magaza/[slug]');
       return;
     }
 
@@ -302,6 +303,6 @@ test.describe('Phase E: Extended routes', () => {
 
     const hasNotFound = await page.locator('text=404').first().isVisible().catch(() => false);
     const hasH1 = await page.locator('h1').first().isVisible().catch(() => false);
-    expect(hasNotFound || hasH1, 'unknown seller slug should yield 404 or fallback').toBeTruthy();
+    expect(hasNotFound || hasH1, 'unknown product slug should yield 404 or fallback').toBeTruthy();
   });
 });

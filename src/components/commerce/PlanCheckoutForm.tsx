@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { formatCurrency, getButtonClass, cn } from '@/lib/utils';
+import { intervalLabel } from '@/lib/individualPlans';
 import { PaytrCardForm, type PaytrFormPayload } from '@/components/commerce/PaytrCardForm';
 
 interface PublicPlan {
@@ -115,7 +116,7 @@ export function PlanCheckoutForm() {
         <p className="text-lg mb-6 text-red-600 dark:text-red-400" role="alert">
           {error}
         </p>
-        <Link href="/fiyatlandirma" className={getButtonClass('primary', 'lg')}>
+        <Link href="/magaza/abonelikler" className={getButtonClass('primary', 'lg')}>
           Planlara Dön
         </Link>
       </div>
@@ -138,8 +139,8 @@ export function PlanCheckoutForm() {
 
   return (
     <div className="max-w-md mx-auto">
-      <Link href="/fiyatlandirma" className={cn(getButtonClass('ghost', 'sm'), 'mb-4 -ml-2')}>
-        Planlara Dön
+      <Link href="/magaza/abonelikler" className={cn(getButtonClass('ghost', 'sm'), 'mb-4 -ml-2')}>
+        ← Aylık hizmetlere dön
       </Link>
 
       <div className="glass-card-premium p-6 mb-6">
@@ -148,7 +149,7 @@ export function PlanCheckoutForm() {
         <div className="text-3xl font-bold text-brand-primary">
           {formatCurrency(plan.priceCents, plan.currency)}
           <span className="text-base text-muted-foreground font-normal ml-2">
-            /{plan.interval.toLowerCase()}
+            / {intervalLabel(plan.interval)}
           </span>
         </div>
         <p className="text-xs text-muted-foreground mt-3">

@@ -2,7 +2,7 @@
  * @file RegisterWizard - 3 adımlı kayıt sihirbazı
  * @description
  *   Step 1 — Hesap bilgileri (ad / e-posta / şifre)
- *   Step 2 — Plan seçimi (Starter / Pro / Enterprise) + Kullanım koşulları
+ *   Step 2 — Plan seçimi (Bireysel / Profesyonel / Destek+) + Kullanım koşulları
  *   Step 3 — E-posta doğrulama bekleme ekranı
  *
  *   shadcn-style, indigo primary, dark mode destekli.

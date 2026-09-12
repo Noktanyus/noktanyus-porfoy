@@ -26,11 +26,11 @@ export default function PlanCheckoutPage() {
       <div className="relative z-10 space-responsive">
         <div className="mx-auto max-w-3xl space-y-6">
           <PageHeader
-            title="Abonelik Ödemesi"
-            description="Seçtiğiniz planı onaylayıp ödemeyi tamamlayın."
-            backHref="/fiyatlandirma"
-            backLabel="Fiyatlandırma"
-            breadcrumb={<span>Fiyatlandırma / Ödeme</span>}
+            title="Aylık hizmet ödemesi"
+            description="Seçtiğiniz planı onaylayıp ödemeyi tamamlayın. İstediğiniz zaman iptal edebilirsiniz."
+            backHref="/magaza/abonelikler"
+            backLabel="Aylık hizmetler"
+            breadcrumb={<span>Mağaza / Aylık hizmetler / Ödeme</span>}
           />
           <Suspense
             fallback={

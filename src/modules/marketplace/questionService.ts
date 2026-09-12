@@ -1,10 +1,6 @@
 /**
- * Marketplace 2.0 — Product Question (Q&A) Service
- *
- * Kullanıcıların ürün hakkında soru sorması, vendor'ların cevap vermesi.
- * - Public okuma: cevaplanmış + onaylı sorular
- * - Auth gerekli: soru sormak için
- * - Vendor: kendi ürününe cevap verebilir
+ * Mağaza — ürün Q&A.
+ * Soru: giriş yapmış kullanıcı. Cevap: ürün sahibi (admin) veya admin rolü API katmanında.
  */
 
 import { prisma } from '@/lib/prisma';
@@ -12,9 +8,6 @@ import { logger } from '@/lib/logger';
 import { ValidationError, NotFoundError, ForbiddenError } from '@/modules/shared/errors';
 
 export const questionService = {
-  /**
-   * Kullanıcı bir ürüne soru sorar.
-   */
   async ask(askerId: string, productId: string, question: string) {
     if (!question || question.trim().length < 5) {
       throw new ValidationError('Soru en az 5 karakter olmalı');
@@ -45,27 +38,21 @@ export const questionService = {
   },
 
   /**
-   * Vendor kendi ürününe cevap verir.
+   * Ürün sahibi (admin) veya açıkça yetkili kullanıcı cevaplar.
    */
-  async answer(questionId: string, vendorUserId: string, answerText: string) {
+  async answer(questionId: string, responderId: string, answerText: string, opts?: { isAdmin?: boolean }) {
     if (!answerText || answerText.trim().length < 2) {
       throw new ValidationError('Cevap en az 2 karakter olmalı');
     }
 
     const question = await prisma.productQuestion.findUnique({
       where: { id: questionId },
-      include: { product: { select: { vendorId: true, ownerId: true } } },
+      include: { product: { select: { ownerId: true } } },
     });
     if (!question) throw new NotFoundError('Soru');
 
-    // Vendor (veya owner) cevaplayabilir
-    const isVendor = question.product.vendorId
-      ? await prisma.vendorProfile.findFirst({
-          where: { id: question.product.vendorId, userId: vendorUserId },
-        })
-      : null;
-
-    if (!isVendor && question.product.ownerId !== vendorUserId) {
+    const isOwner = question.product.ownerId === responderId;
+    if (!isOwner && !opts?.isAdmin) {
       throw new ForbiddenError('Bu soruyu cevaplayamazsınız');
     }
 
@@ -74,15 +61,11 @@ export const questionService = {
       data: {
         answer: answerText.trim(),
         answeredAt: new Date(),
-        answeredBy: vendorUserId,
+        answeredBy: responderId,
       },
     });
   },
 
-  /**
-   * Ürünün tüm sorularını listeler (cevaplanmış + cevaplanmamış).
-   * Public erişim için cevaplanmamış sorular gizlenebilir, ama burada hepsi dönülüyor.
-   */
   async listForProduct(productId: string) {
     return prisma.productQuestion.findMany({
       where: { productId },

@@ -11,9 +11,6 @@ vi.mock('@/lib/prisma', () => ({
     digitalProduct: {
       findUnique: vi.fn(),
     },
-    vendorProfile: {
-      findFirst: vi.fn(),
-    },
   },
 }));
 
@@ -55,38 +52,52 @@ describe('questionService — ask', () => {
 
 describe('questionService — answer', () => {
   it('throws when answer text is too short', async () => {
-    await expect(questionService.answer('q-1', 'vendor-1', 'a')).rejects.toThrow();
+    await expect(questionService.answer('q-1', 'admin-1', 'a')).rejects.toThrow();
   });
 
   it('throws when question not found', async () => {
     (prisma.productQuestion.findUnique as any).mockResolvedValueOnce(null);
-    await expect(questionService.answer('q-1', 'vendor-1', 'Cevap metni')).rejects.toThrow(/Soru/);
+    await expect(questionService.answer('q-1', 'admin-1', 'Cevap metni')).rejects.toThrow(/Soru/);
   });
 
-  it('throws when answerer is not the vendor or owner', async () => {
+  it('throws when answerer is not owner and not admin', async () => {
     (prisma.productQuestion.findUnique as any).mockResolvedValueOnce({
       id: 'q-1',
-      product: { vendorId: 'v-1', ownerId: 'owner-1' },
+      product: { ownerId: 'owner-1' },
     });
-    (prisma.vendorProfile.findFirst as any).mockResolvedValueOnce(null);
 
     await expect(questionService.answer('q-1', 'random-user', 'Cevap metni')).rejects.toThrow(
       /cevaplayamazsınız/i
     );
   });
 
-  it('allows vendor to answer', async () => {
+  it('allows product owner to answer', async () => {
     (prisma.productQuestion.findUnique as any).mockResolvedValueOnce({
       id: 'q-1',
-      product: { vendorId: 'v-1', ownerId: 'owner-1' },
+      product: { ownerId: 'owner-1' },
     });
-    (prisma.vendorProfile.findFirst as any).mockResolvedValueOnce({ id: 'v-1' });
     (prisma.productQuestion.update as any).mockResolvedValueOnce({
       id: 'q-1',
       answer: 'Cevap metni',
     });
 
-    const result = await questionService.answer('q-1', 'vendor-user', 'Cevap metni');
+    const result = await questionService.answer('q-1', 'owner-1', 'Cevap metni');
     expect(result.answer).toBe('Cevap metni');
+  });
+
+  it('allows admin flag to answer', async () => {
+    (prisma.productQuestion.findUnique as any).mockResolvedValueOnce({
+      id: 'q-1',
+      product: { ownerId: 'owner-1' },
+    });
+    (prisma.productQuestion.update as any).mockResolvedValueOnce({
+      id: 'q-1',
+      answer: 'Admin cevabı',
+    });
+
+    const result = await questionService.answer('q-1', 'admin-x', 'Admin cevabı', {
+      isAdmin: true,
+    });
+    expect(result.answer).toBe('Admin cevabı');
   });
 });

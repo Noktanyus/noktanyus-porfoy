@@ -651,7 +651,7 @@ Endpoint kategorileri:
 - **Content:** `/api/about`, `/api/blogs/[slug]/comments`, `/api/search`, `/api/popups/[slug]`
 - **Commerce:** `/api/products`, `/api/plans`, `/api/coupons/validate`,
   `/api/checkout/{product,subscription,subscription-portal}`,
-  `/api/webhooks/stripe`, `/api/user/products`, `/api/user/orders/[id]/refund`
+  `/api/webhooks/stripe`, `/api/admin/products`, `/api/user/orders/[id]/refund`
 - **Monitoring:** `/api/monitors`, `/api/monitors/[id]`,
   `/api/monitors/check-all`, `/api/alert-channels`, `/api/alert-channels/[id]`
 - **Workspaces:** `/api/workspaces`, `/api/workspaces/[id]`,

@@ -1,6 +1,8 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { AddToCartButton } from './AddToCartButton';
 import { formatCurrency } from '@/lib/utils';
+import { productCategoryLabel } from '@/lib/storeCatalog';
 import type { DigitalProduct } from '@prisma/client';
 
 export function ProductDetail({ product }: { product: DigitalProduct }) {
@@ -12,6 +14,19 @@ export function ProductDetail({ product }: { product: DigitalProduct }) {
     : [];
 
   return (
+    <div>
+      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted-foreground">
+        <Link href="/magaza" className="hover:text-foreground">
+          Mağaza
+        </Link>
+        <span className="mx-1.5 opacity-60">/</span>
+        <Link href="/magaza/urunler" className="hover:text-foreground">
+          Hazır paketler
+        </Link>
+        <span className="mx-1.5 opacity-60">/</span>
+        <span className="text-foreground line-clamp-1 inline">{product.title}</span>
+      </nav>
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Image */}
       <div className="relative aspect-video bg-muted rounded-2xl overflow-hidden border border-gray-200/60 dark:border-gray-700/60">
@@ -34,17 +49,20 @@ export function ProductDetail({ product }: { product: DigitalProduct }) {
       {/* Info */}
       <div>
         <div className="flex flex-wrap gap-1 mb-3">
-          <span className="text-xs px-2 py-1 rounded-full bg-brand-primary/10 text-brand-primary font-medium">
-            {product.category}
+          <span className="text-xs px-2 py-1 rounded-md bg-brand-primary/10 text-brand-primary font-medium">
+            {productCategoryLabel(product.category)}
+          </span>
+          <span className="text-xs px-2 py-1 rounded-md bg-muted text-muted-foreground font-medium">
+            Tek seferlik
           </span>
           {product.version && (
-            <span className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+            <span className="text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
               v{product.version}
             </span>
           )}
           {product.featured && (
-            <span className="text-xs px-2 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium">
-              ⭐ Öne Çıkan
+            <span className="text-xs px-2 py-1 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 font-medium">
+              Öne çıkan
             </span>
           )}
         </div>
@@ -76,7 +94,7 @@ export function ProductDetail({ product }: { product: DigitalProduct }) {
           </div>
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
             <span aria-hidden="true">🔒</span>
-            <span>Güvenli ödeme (Stripe)</span>
+            <span>Güvenli ödeme (PayTR)</span>
           </div>
         </div>
       </div>
@@ -125,6 +143,7 @@ export function ProductDetail({ product }: { product: DigitalProduct }) {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

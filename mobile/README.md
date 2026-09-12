@@ -127,7 +127,7 @@ mobile/
 | `monitorApi` | `/api/monitors`, `/api/monitors/[id]`, `/api/monitors/check-all` |
 | `apiKeyApi` | `/api/user/api-keys`, `/api/user/api-keys/[id]` |
 | `alertChannelApi` | `/api/alert-channels`, `/api/alert-channels/[id]` |
-| `userApi` | `/api/user/profile`, `/api/user/password`, `/api/user/products`, `/api/user/delete` |
+| `userApi` | `/api/user/profile`, `/api/user/password`, `/api/user/delete` |
 | `newsletterApi` | `/api/newsletter/subscribe`, `/api/newsletter/verify`, `/api/newsletter/unsubscribe` |
 | `contactApi` | `/api/contact` |
 | `searchApi` | `/api/search` |

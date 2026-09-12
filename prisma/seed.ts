@@ -1,4 +1,5 @@
 import { prisma } from '../src/lib/prisma';
+import { INDIVIDUAL_PLANS } from '../src/lib/individualPlans';
 import bcrypt from 'bcryptjs';
 
 async function main() {
@@ -632,96 +633,44 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
     ],
   });
 
-  // ====== Plans (3 plan) ======
-  await prisma.plan.createMany({
-    data: [
-      {
-        slug: 'starter',
-        name: 'Starter',
-        description: 'Bireysel geliştiriciler için ideal başlangıç paketi',
-        stripePriceId: 'price_starter_mock',
-        stripeProductId: 'prod_starter_mock',
-        interval: 'MONTH',
-        priceCents: 9900,
-        currency: 'try',
+  // ====== Plans — bireysel merdiven (slug'lar onboarding ile uyumlu) ======
+  for (const plan of INDIVIDUAL_PLANS) {
+    await prisma.plan.upsert({
+      where: { slug: plan.slug },
+      create: {
+        slug: plan.slug,
+        name: plan.name,
+        description: plan.description,
+        stripePriceId: plan.stripePriceId,
+        stripeProductId: plan.stripeProductId,
+        interval: plan.interval,
+        priceCents: plan.priceCents,
+        currency: plan.currency,
         features: {
-          marketing: [
-            '5 proje',
-            '10 GB depolama',
-            'Temel destek',
-            'SSL sertifikası',
-            'CDN',
-            'AI Blog Writer (10K token/ay)',
-          ],
-          limits: {
-            aiTokensPerMonth: 10000,
-            aiRequestsPerMonth: 50,
-          },
+          marketing: [...plan.marketing],
+          limits: { ...plan.limits },
         },
         active: true,
-        isFeatured: false,
-        order: 1,
+        isFeatured: plan.isFeatured,
+        order: plan.order,
+        trialDays: plan.trialDays,
       },
-      {
-        slug: 'pro',
-        name: 'Pro',
-        description: 'Profesyonel geliştiriciler ve küçük ekipler için',
-        stripePriceId: 'price_pro_mock',
-        stripeProductId: 'prod_pro_mock',
-        interval: 'MONTH',
-        priceCents: 29900,
-        currency: 'try',
+      update: {
+        name: plan.name,
+        description: plan.description,
+        priceCents: plan.priceCents,
+        currency: plan.currency,
         features: {
-          marketing: [
-            'Sınırsız proje',
-            '100 GB depolama',
-            'Öncelikli destek',
-            'SSL + CDN',
-            'Custom domain',
-            'Team collaboration (5 kişi)',
-            'Analytics',
-            'AI Blog + Product Description (100K token/ay)',
-          ],
-          limits: {
-            aiTokensPerMonth: 100000,
-            aiRequestsPerMonth: 500,
-          },
+          marketing: [...plan.marketing],
+          limits: { ...plan.limits },
         },
         active: true,
-        isFeatured: true,
-        order: 2,
+        isFeatured: plan.isFeatured,
+        order: plan.order,
+        trialDays: plan.trialDays,
       },
-      {
-        slug: 'enterprise',
-        name: 'Enterprise',
-        description: 'Büyük ekipler ve kurumsal müşteriler için',
-        stripePriceId: 'price_enterprise_mock',
-        stripeProductId: 'prod_enterprise_mock',
-        interval: 'MONTH',
-        priceCents: 99900,
-        currency: 'try',
-        features: {
-          marketing: [
-            'Sınırsız her şey',
-            '1 TB depolama',
-            '7/24 özel destek',
-            'SLA %99.99',
-            'Custom domain + subdomain',
-            'Sınırsız team',
-            'Advanced analytics',
-            'SSO + SAML',
-            'On-premise option',
-            'AI Features — Sınırsız',
-          ],
-          // Enterprise → sınırsız (Infinity). planGate.ts Number.POSITIVE_INFINITY döner.
-          limits: {},
-        },
-        active: true,
-        isFeatured: false,
-        order: 3,
-      },
-    ],
-  });
+    });
+  }
 
   // ====== HomeSettings ======
   await prisma.homeSettings.create({

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { AnimatedGrid } from '@/components/ui/AnimatedCard';
+import { productCategoryLabel } from '@/lib/storeCatalog';
 import type { DigitalProduct } from '@prisma/client';
 
 interface ProductGridProps {
@@ -31,6 +32,7 @@ const ProductCard = memo(function ProductCard({ product }: { product: DigitalPro
     : [];
   const [imgFailed, setImgFailed] = useState(false);
   const showImage = Boolean(product.thumbnail) && !imgFailed;
+  const categoryLabel = productCategoryLabel(product.category);
 
   return (
     <Link
@@ -58,8 +60,12 @@ const ProductCard = memo(function ProductCard({ product }: { product: DigitalPro
               </span>
             </div>
           )}
+          <span className="absolute top-3 left-3 text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-lg bg-black/55 text-white backdrop-blur-sm">
+            {categoryLabel}
+          </span>
         </div>
         <div className="flex-1 p-5 flex flex-col min-w-0">
+          <p className="text-xs font-medium text-muted-foreground mb-1">Tek seferlik · Hazır paket</p>
           <h3 className="text-lg font-semibold mb-2 line-clamp-2 break-words text-gray-900 dark:text-white">
             {product.title}
           </h3>
@@ -71,7 +77,7 @@ const ProductCard = memo(function ProductCard({ product }: { product: DigitalPro
               {techs.slice(0, 3).map((tech) => (
                 <span
                   key={tech}
-                  className="text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 max-w-full truncate"
+                  className="text-xs px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 max-w-full truncate"
                 >
                   {tech}
                 </span>

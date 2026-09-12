@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import type { DigitalProduct } from '@prisma/client';
+import { PRODUCT_CATEGORIES } from '@/lib/storeCatalog';
 
 type ProductFormData = Pick<
   DigitalProduct,
@@ -327,10 +328,30 @@ export default function ProductForm({ product }: ProductFormProps) {
         </div>
       </div>
 
+      <div className="rounded-xl border border-border/60 bg-muted/30 px-4 py-3 text-sm text-muted-foreground mb-2">
+        Bu form <strong className="text-foreground">sanal ürün</strong> (template, script, paket) içindir.
+        Abonelik / API / danışmanlık planları için Plan kayıtlarını kullanın.
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         <div>
-          <label htmlFor="category" className="block text-sm font-medium mb-2">Kategori</label>
-          <input {...register('category')} id="category" className="admin-input" placeholder="starter, saas, ..." />
+          <label htmlFor="category" className="block text-sm font-medium mb-2">
+            Kategori *
+          </label>
+          <select
+            {...register('category', { required: 'Kategori zorunlu' })}
+            id="category"
+            className="admin-input"
+          >
+            {PRODUCT_CATEGORIES.map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label} — {cat.description}
+              </option>
+            ))}
+          </select>
+          {errors.category && (
+            <p className="text-xs text-rose-600 mt-1">{errors.category.message as string}</p>
+          )}
         </div>
         <div>
           <label htmlFor="version" className="block text-sm font-medium mb-2">Versiyon</label>

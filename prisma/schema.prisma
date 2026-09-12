@@ -325,9 +325,7 @@ model DigitalProduct {
   licenses   License[]
   videoCalls VideoCall[]
 
-  // Marketplace 2.0 — vendor publishing + reviews + Q&A
-  vendorId  String?
-  vendor    VendorProfile?    @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  // Reviews + Q&A (admin-yayınlı ürünler)
   reviews   ProductReview[]
   questions ProductQuestion[]
 
@@ -337,7 +335,6 @@ model DigitalProduct {
   @@index([active, order])
   @@index([category])
   @@index([ownerId])
-  @@index([vendorId])
 }
 
 model Order {
@@ -729,8 +726,7 @@ model User {
   taskComments    TaskComment[]
   taskAttachments TaskAttachment[]
 
-  // Marketplace 2.0 relations
-  vendorProfile    VendorProfile?
+  // Ürün yorumları / sorular (admin mağaza)
   productReviews   ProductReview[]
   productQuestions ProductQuestion[]
 
@@ -1570,44 +1566,8 @@ model Notification {
   @@index([userId, createdAt])
 }
 
-// =================== MARKETPLACE 2.0 (VENDORS + REVIEWS + Q&A) ===================
-// Marketplace 2.0 kapsamında eklendi. Kullanıcıların kendi SaaS ürünlerini
-// yayınlayabildiği, satıcı (vendor) profili, yorum/puan sistemi ve Q&A altyapısı.
-
-model VendorProfile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  displayName String
-  slug        String  @unique
-  bio         String? @db.Text
-  avatar      String?
-  banner      String?
-  website     String?
-  twitter     String?
-  github      String?
-
-  // Stats
-  totalProducts Int   @default(0)
-  totalSales    Int   @default(0)
-  avgRating     Float @default(0)
-  responseTime  Int? // hours
-
-  // Status
-  verified Boolean @default(false)
-  active   Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products DigitalProduct[]
-  reviews  ProductReview[]
-
-  @@index([slug])
-  @@index([active, verified])
-  @@index([avgRating])
-}
+// =================== MAĞAZA YORUM + Q&A ===================
+// Ürünler yalnızca admin tarafından yayınlanır. Multi-vendor kaldırıldı.
 
 model ProductReview {
   id        String         @id @default(cuid())
@@ -1615,9 +1575,7 @@ model ProductReview {
   product   DigitalProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   reviewerId String
-  reviewer   User          @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
-  vendorId   String
-  vendor     VendorProfile @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  reviewer   User @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
   rating  Int // 1-5
   comment String? @db.Text
@@ -1629,7 +1587,6 @@ model ProductReview {
 
   @@unique([productId, reviewerId])
   @@index([productId, approved])
-  @@index([vendorId])
   @@index([rating])
 }
 
@@ -1644,7 +1601,7 @@ model ProductQuestion {
   question   String    @db.Text
   answer     String?   @db.Text
   answeredAt DateTime?
-  answeredBy String? // vendor userId
+  answeredBy String? // admin / ürün sahibi userId
 
   createdAt DateTime @default(now())
 

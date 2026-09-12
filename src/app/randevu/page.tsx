@@ -25,7 +25,7 @@ const PACKAGES = [
     title: 'Proje Danışmanlığı',
     price: 'Paket',
     desc: 'Sprint planlama, Next.js / SaaS mimarisi, entegrasyon tasarımı.',
-    cta: { href: '/fiyatlandirma', label: 'Planlara Bak' },
+    cta: { href: '/magaza/abonelikler', label: 'Planlara Bak' },
   },
 ] as const;
 

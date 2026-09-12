@@ -21,7 +21,6 @@ export const MOBILE_NAV_LINKS = [
   { href: '/projelerim', label: 'Projelerim' },
   { href: '/blog', label: 'Blog' },
   { href: '/magaza', label: 'Mağaza' },
-  { href: '/fiyatlandirma', label: 'Fiyatlandırma' },
   { href: '/iletisim', label: 'İletişim' },
 ] as const;
 
