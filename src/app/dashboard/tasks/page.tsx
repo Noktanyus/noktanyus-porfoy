@@ -9,7 +9,6 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { TaskBoard } from '@/components/dashboard/TaskBoard';
 import { PageHeader } from '@/components/dashboard/PageHeader';
-import Link from 'next/link';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 export const dynamic = 'force-dynamic';
@@ -38,8 +37,8 @@ export default async function DashboardTasksPage() {
         <EmptyState
           title="Workspace'iniz yok"
           description="Görev yönetimi için önce bir workspace oluşturun."
-          icon="🗂️"
-          action={{ label: 'Workspace Oluştur', href: '/api/workspaces' }}
+          icon="box"
+          action={{ label: 'Workspace Oluştur', href: '/dashboard/workspaces?new=1' }}
         />
       </div>
     );

@@ -4,21 +4,27 @@
  * @file UserMenu - Header'daki kullanici dropdown menüsü.
  *
  * 44px touch target + ESC kapatma + dis click kapatma + role="menu".
- * AuthProvider icinde kullanilir; session null ise render edilmez.
+ * Admin kullanıcılarda "Yönetim" (/admin) linki gösterilir.
  */
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
-import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import {
+  FaUserCircle,
+  FaSignOutAlt,
+  FaCog,
+  FaTachometerAlt,
+  FaShieldAlt,
+} from 'react-icons/fa';
 import { Tooltip } from '@/components/ui/Tooltip';
 
 export function UserMenu() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isAdmin = session?.user?.role === 'admin';
 
-  // Dis click + ESC ile kapat
   useEffect(() => {
     if (!open) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -48,13 +54,16 @@ export function UserMenu() {
     );
   }
 
+  const itemClass =
+    'flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-700 dark:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-h-[44px]';
+
   return (
     <div className="relative" ref={containerRef}>
       <Tooltip content="Hesap menüsü" side="bottom">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          aria-label="Kullanıcı menüsü"
+          aria-label="Hesap menüsü"
           aria-expanded={open}
           aria-haspopup="menu"
           className="touch-target rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 p-1"
@@ -65,7 +74,7 @@ export function UserMenu() {
       {open && (
         <div
           role="menu"
-          aria-label="Kullanıcı menüsü"
+          aria-label="Hesap menüsü"
           className="absolute right-0 mt-2 w-56 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 shadow-xl backdrop-blur-md p-2 z-40 fade-in"
         >
           <div className="px-3 py-2 border-b border-slate-200 dark:border-slate-700 mb-1">
@@ -75,25 +84,47 @@ export function UserMenu() {
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
               {session.user.email}
             </p>
+            {isAdmin && (
+              <span className="mt-1.5 inline-flex items-center rounded-full bg-indigo-100 dark:bg-indigo-950/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
+                Admin
+              </span>
+            )}
           </div>
           <Link
             href="/dashboard"
             onClick={() => setOpen(false)}
             role="menuitem"
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-700 dark:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-h-[44px]"
+            className={itemClass}
           >
-            <FaUserCircle className="w-4 h-4" aria-hidden="true" />
+            <FaTachometerAlt className="w-4 h-4 shrink-0" aria-hidden="true" />
             Dashboard
           </Link>
           <Link
             href="/dashboard/settings"
             onClick={() => setOpen(false)}
             role="menuitem"
-            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-slate-700 dark:text-slate-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 min-h-[44px]"
+            className={itemClass}
           >
-            <FaUserCircle className="w-4 h-4" aria-hidden="true" />
+            <FaCog className="w-4 h-4 shrink-0" aria-hidden="true" />
             Ayarlar
           </Link>
+          {isAdmin && (
+            <>
+              <div
+                className="my-1 border-t border-slate-200 dark:border-slate-700"
+                role="separator"
+              />
+              <Link
+                href="/admin"
+                onClick={() => setOpen(false)}
+                role="menuitem"
+                className={`${itemClass} font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100/80 dark:hover:bg-indigo-950/50`}
+              >
+                <FaShieldAlt className="w-4 h-4 shrink-0" aria-hidden="true" />
+                Yönetim
+              </Link>
+            </>
+          )}
           <button
             type="button"
             onClick={() => {
@@ -103,7 +134,7 @@ export function UserMenu() {
             role="menuitem"
             className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 min-h-[44px]"
           >
-            <FaSignOutAlt className="w-4 h-4" aria-hidden="true" />
+            <FaSignOutAlt className="w-4 h-4 shrink-0" aria-hidden="true" />
             Çıkış Yap
           </button>
         </div>

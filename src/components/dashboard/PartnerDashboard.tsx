@@ -8,6 +8,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 interface PartnerDashboardProps {
   stats: {
@@ -72,9 +73,10 @@ export function PartnerDashboard({ stats, referralLink }: PartnerDashboardProps)
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
+      toast.success('Davet linki kopyalandı');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Clipboard API kullanilamazsa sessizce gec
+      toast.error('Kopyalanamadı');
     }
   }
 

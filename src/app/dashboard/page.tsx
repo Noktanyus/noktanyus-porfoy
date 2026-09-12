@@ -8,7 +8,9 @@ import { monitoringService } from '@/modules/monitoring';
 import { prisma } from '@/lib/prisma';
 import { ReferralCard } from '@/components/dashboard/ReferralCard';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaPause, FaChartLine } from 'react-icons/fa';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,19 +80,27 @@ export default async function DashboardOverviewPage() {
           <div className="glass-card-premium p-5">
             <h2 className="font-semibold mb-4">Son Monitörler</h2>
             {recentMonitors.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
-                Henüz monitör yok. <a href="/dashboard/monitors/new" className="text-brand-primary underline">Yeni monitör oluştur</a>.
-              </p>
+              <EmptyState
+                variant="inline"
+                title="Henüz monitör yok"
+                description="İlk monitörünüzü ekleyerek uptime takibine başlayın."
+                icon="inbox"
+                action={{ label: 'Monitör Ekle', href: '/dashboard/monitors/new' }}
+              />
             ) : (
               <div className="space-y-2">
                 {recentMonitors.map((m) => (
-                  <div key={m.id} className="flex items-center justify-between py-2 border-b last:border-0 border-border/30">
+                  <Link
+                    key={m.id}
+                    href={`/dashboard/monitors/${m.id}`}
+                    className="flex items-center justify-between py-2 border-b last:border-0 border-border/30 hover:bg-muted/30 rounded-lg px-2 -mx-2 transition-colors"
+                  >
                     <div>
                       <p className="font-medium text-sm">{m.name}</p>
                       <p className="text-xs text-muted-foreground truncate max-w-md">{m.url}</p>
                     </div>
                     <span className="text-xs text-muted-foreground">{m.uptimePct30d.toFixed(2)}%</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

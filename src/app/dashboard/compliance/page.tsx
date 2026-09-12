@@ -173,7 +173,7 @@ export default async function ComplianceDashboardPage() {
           title="Henüz workspace'iniz yok"
           description="Compliance takibi için önce bir workspace oluşturmalısınız."
           icon="🛡️"
-          action={{ label: 'Workspace Oluştur', href: '/dashboard/workspaces' }}
+          action={{ label: 'Workspace Oluştur', href: '/dashboard/workspaces?new=1' }}
         />
       </div>
     );

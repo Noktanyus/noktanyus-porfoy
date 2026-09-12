@@ -18,10 +18,11 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
-import { FaArrowLeft, FaKey, FaCopy } from 'react-icons/fa';
+import { FaArrowLeft, FaKey } from 'react-icons/fa';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { InstallTemplateForm } from '@/components/dashboard/InstallTemplateForm';
+import { CopyTextButton } from '@/components/dashboard/CopyTextButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -163,7 +164,7 @@ export default async function LicenseDetailPage({
                 <code className="flex-1 text-xs font-mono bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded break-all">
                   {license.licenseKey}
                 </code>
-                <CopyButton text={license.licenseKey} />
+                <CopyTextButton text={license.licenseKey} label="Lisans anahtarını kopyala" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -340,7 +341,7 @@ export default async function LicenseDetailPage({
               <p className="text-sm text-muted-foreground">
                 Kurulum için bir workspace'e sahip olmalısın.{' '}
                 <Link
-                  href="/dashboard/workspaces"
+                  href="/dashboard/workspaces?new=1"
                   className="text-brand-primary hover:underline font-medium"
                 >
                   Workspace oluştur
@@ -387,23 +388,5 @@ export default async function LicenseDetailPage({
         </div>
       </div>
     </div>
-  );
-}
-
-// =================== CLIENT COMPONENT (copy button) ===================
-
-function CopyButton({ text }: { text: string }) {
-  return (
-    <button
-      type="button"
-      onClick={() => {
-        navigator.clipboard.writeText(text).catch(() => {});
-      }}
-      className="px-3 py-2 rounded bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-      aria-label="Lisans anahtarını kopyala"
-      title="Kopyala"
-    >
-      <FaCopy className="w-3 h-3" />
-    </button>
   );
 }

@@ -431,8 +431,88 @@ export function ReportBuilder({ initialReports }: { initialReports: CustomReport
               </button>
             </div>
 
-            <div className="bg-muted/30 rounded-lg p-4 font-mono text-xs overflow-auto max-h-96">
-              <pre>{JSON.stringify(resultModal.result, null, 2)}</pre>
+            <div className="space-y-3 max-h-96 overflow-auto">
+              {(() => {
+                const result = resultModal.result;
+                if (result == null) {
+                  return (
+                    <p className="text-sm text-muted-foreground text-center py-6">
+                      Bu çalıştırmadan sonuç kaydı yok.
+                    </p>
+                  );
+                }
+                if (typeof result === 'object' && !Array.isArray(result)) {
+                  const entries = Object.entries(result as Record<string, unknown>);
+                  const summaryKeys = entries.filter(
+                    ([, v]) =>
+                      v === null ||
+                      typeof v === 'string' ||
+                      typeof v === 'number' ||
+                      typeof v === 'boolean'
+                  );
+                  const nested = entries.filter(
+                    ([, v]) => typeof v === 'object' && v !== null
+                  );
+                  return (
+                    <>
+                      {summaryKeys.length > 0 && (
+                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {summaryKeys.map(([key, value]) => (
+                            <div
+                              key={key}
+                              className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3"
+                            >
+                              <dt className="text-xs text-muted-foreground uppercase tracking-wide">
+                                {key}
+                              </dt>
+                              <dd className="text-sm font-semibold mt-1 break-words">
+                                {String(value)}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                      {nested.length > 0 && (
+                        <details className="rounded-xl border border-border/60 bg-muted/10">
+                          <summary className="cursor-pointer px-4 py-3 text-sm font-medium">
+                            Detaylı veri ({nested.length} alan)
+                          </summary>
+                          <pre className="px-4 pb-4 text-xs font-mono overflow-auto max-h-48 text-muted-foreground">
+                            {JSON.stringify(
+                              Object.fromEntries(nested),
+                              null,
+                              2
+                            )}
+                          </pre>
+                        </details>
+                      )}
+                      {summaryKeys.length === 0 && nested.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-6">
+                          Boş sonuç.
+                        </p>
+                      )}
+                    </>
+                  );
+                }
+                if (Array.isArray(result)) {
+                  return (
+                    <div className="rounded-xl border border-border/60 bg-muted/20 px-4 py-3">
+                      <p className="text-sm font-semibold">{result.length} kayıt</p>
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-xs text-muted-foreground">
+                          Ham listeyi göster
+                        </summary>
+                        <pre className="mt-2 text-xs font-mono overflow-auto max-h-48">
+                          {JSON.stringify(result, null, 2)}
+                        </pre>
+                      </details>
+                    </div>
+                  );
+                }
+                return (
+                  <p className="text-sm font-medium break-words">{String(result)}</p>
+                );
+              })()}
             </div>
 
             <button

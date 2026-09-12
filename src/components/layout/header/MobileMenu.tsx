@@ -126,6 +126,15 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               >
                 Dashboard
               </Link>
+              {session.user.role === 'admin' && (
+                <Link
+                  href="/admin"
+                  onClick={onClose}
+                  className="text-indigo-700 dark:text-indigo-300 rounded-xl px-4 py-4 text-lg font-semibold min-h-[44px] flex items-center gap-2 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                >
+                  Yönetim
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={() => {

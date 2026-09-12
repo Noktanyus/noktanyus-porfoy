@@ -10,8 +10,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  FaSatelliteDish,
+import { FaSatelliteDish,
   FaBell,
   FaChartLine,
   FaChartBar,
@@ -25,6 +24,7 @@ import {
   FaTasks,
   FaGift,
   FaKey,
+  FaLayerGroup,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -41,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
   { href: '/dashboard/monitors', label: 'Monitörler', icon: FaSatelliteDish },
   { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
+  { href: '/dashboard/workspaces', label: "Workspace'ler", icon: FaLayerGroup },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Ürünlerim', icon: FaBox },
   { href: '/dashboard/templates', label: 'Template Lisanslarım', icon: FaKey },

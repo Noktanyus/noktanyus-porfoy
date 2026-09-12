@@ -15,10 +15,9 @@ import { ScanTimeline } from '@/components/compliance/ScanTimeline';
 import { CookieTable } from '@/components/compliance/CookieTable';
 import { PolicyGeneratorDialog } from '@/components/compliance/PolicyGeneratorDialog';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { ComplianceSiteActions } from '@/components/compliance/ComplianceSiteActions';
 import Link from 'next/link';
 import {
-  FaFileDownload,
-  FaPlay,
   FaShieldAlt,
   FaExclamationTriangle,
   FaCheckCircle,
@@ -77,6 +76,7 @@ async function getSiteData(userId: string, siteId: string) {
   return {
     site: {
       id: site.id,
+      workspaceId: site.workspaceId,
       domain: site.domain,
       name: site.name,
       contactEmail: site.contactEmail,
@@ -174,21 +174,11 @@ export default async function ComplianceSiteDetailPage({
         }
         description={`${data.site.domain} · ${data.site.country} · ${data.site.scanInterval} taramalar`}
         actions={
-          <div className="flex gap-2 flex-wrap">
-            <form action={`/api/compliance/sites/${data.site.id}/scan`} method="POST">
-              <button type="submit" className="admin-btn admin-btn-primary">
-                <FaPlay className="w-3 h-3" />
-                Tarama Başlat
-              </button>
-            </form>
-            <Link
-              href={`/api/compliance/sites/${data.site.id}/report.pdf`}
-              className="admin-btn"
-              target="_blank"
-            >
-              <FaFileDownload className="w-3 h-3" />
-              Rapor İndir
-            </Link>
+          <div className="flex gap-2 flex-wrap items-center">
+            <ComplianceSiteActions
+              siteId={data.site.id}
+              workspaceId={data.site.workspaceId}
+            />
             <PolicyGeneratorDialog
               site={{ id: data.site.id, domain: data.site.domain, name: data.site.name }}
             />
