@@ -1,6 +1,7 @@
 /**
  * @file API Anahtarı — Single Resource Endpoint
- * @description PATCH: anahtarı güncelle (scopes, rate limit, name, quota, expires).
+ * @description GET: tek API anahtarını getir.
+ *              PATCH: anahtarı güncelle (scopes, rate limit, name, quota, expires).
  *              DELETE: anahtarı iptal et (soft) veya kalıcı sil (hard=true).
  */
 
@@ -10,7 +11,42 @@ import { authOptions } from '@/lib/auth';
 import { apiKeyService } from '@/modules/api-keys/service';
 import { UpdateApiKeySchema } from '@/modules/api-keys/schemas';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
-import { UnauthorizedError } from '@/modules/shared/errors';
+import { UnauthorizedError, NotFoundError } from '@/modules/shared/errors';
+import { logDataAccess } from '@/lib/audit';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return withErrorHandling(async () => {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) throw new UnauthorizedError('Giriş gerekli');
+    const userId = (session.user as any).id as string;
+
+    const key = await prisma.apiKey.findFirst({
+      where: { id: params.id, userId },
+      include: {
+        _count: { select: { usages: true } },
+      },
+    });
+    if (!key) throw new NotFoundError('API anahtarı bulunamadı');
+
+    // Phase 4 C.8 — KVKK Madde 11: kişisel veri erişimi audit
+    logDataAccess({
+      userId,
+      resource: 'api_key',
+      resourceId: params.id,
+      ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
+      userAgent: req.headers.get('user-agent') ?? undefined,
+    });
+
+    return ok({
+      ...key,
+      key: `${key.prefix}...`, // Mask
+    });
+  });
+}
 
 export async function PATCH(
   req: NextRequest,

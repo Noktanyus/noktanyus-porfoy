@@ -14,6 +14,11 @@ import { authOptions } from '@/lib/auth';
 import { analyticsService } from '@/modules/analytics/service';
 import { RevenueDashboard } from '@/components/admin/RevenueDashboard';
 import { FunnelChart } from '@/components/admin/FunnelChart';
+import { AiUsageWidget } from '@/components/admin/AiUsageWidget';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
+import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +38,7 @@ function formatTry(cents: number): string {
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user || session.user.role !== 'admin') {
-    redirect('/admin/login');
+    redirect('/giris');
   }
 
   const [revenue, funnel, clv] = await Promise.all([
@@ -44,71 +49,80 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="admin-header">
-        <div>
-          <h1 className="admin-title">Analytics Dashboard</h1>
-          <p className="admin-subtitle">
-            Gelir, dönüşüm hunisi ve müşteri yaşam boyu değeri (CLV)
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        title="Analytics"
+        description="Gelir, dönüşüm hunisi ve müşteri yaşam boyu değeri (CLV). Tüm metrikler sipariş kayıtlarından hesaplanır."
+        breadcrumb={<span>Admin / Analytics</span>}
+      />
 
       <RevenueDashboard stats={revenue} />
 
+      <AiUsageWidget />
+
       <FunnelChart stages={funnel.stages} period={funnel.period} />
 
-      <div className="admin-card">
-        <h2 className="text-sm font-semibold mb-1">En Değerli Müşteriler (CLV)</h2>
-        <p className="text-xs text-muted-foreground mb-4">
-          {clv.customerCount} ödeme yapan müşteri · Ortalama CLV ₺{formatTry(clv.avgCLVCents)} ·
-          Toplam ₺{formatTry(clv.totalCLVCents)}
-        </p>
-
+      <DashboardSection
+        title="En Değerli Müşteriler (CLV)"
+        description={
+          clv.customerCount > 0
+            ? `${clv.customerCount} ödeme yapan müşteri · Ortalama CLV ₺${formatTry(clv.avgCLVCents)} · Toplam ₺${formatTry(clv.totalCLVCents)}`
+            : 'Ödeme yapan müşteri bulunduğunda özet burada görünecek.'
+        }
+        padding={clv.customers.length === 0 ? 'md' : 'none'}
+        contained
+      >
         {clv.customers.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">
-            Henüz ödeme yapan müşteri bulunmuyor.
-          </p>
+          <EmptyState
+            variant="inline"
+            icon="inbox"
+            title="Henüz ödeme yapan müşteri yok"
+            description="İlk ödeme tamamlandığında müşteri yaşam boyu değeri tablosu burada listelenecek."
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700 text-left">
-                  <th className="py-2 pr-4 font-medium text-muted-foreground">#</th>
-                  <th className="py-2 pr-4 font-medium text-muted-foreground">Müşteri</th>
-                  <th className="py-2 pr-4 font-medium text-muted-foreground text-right">
-                    Sipariş
-                  </th>
-                  <th className="py-2 font-medium text-muted-foreground text-right">Toplam</th>
-                </tr>
-              </thead>
-              <tbody>
-                {clv.customers.map((customer, index) => (
-                  <tr
-                    key={customer.userId}
-                    className="border-b border-gray-100 dark:border-gray-800 last:border-0"
-                  >
-                    <td className="py-2 pr-4 tabular-nums text-muted-foreground">{index + 1}</td>
-                    <td className="py-2 pr-4">
-                      <span className="block truncate max-w-[240px]">
-                        {customer.name ?? customer.email}
+          <ResponsiveTable
+            minWidth="520px"
+            caption="Müşteri yaşam boyu değeri: sıra, müşteri, sipariş sayısı ve toplam harcama"
+            className="rounded-none border-x-0 border-b-0 border-t border-border/40"
+          >
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">#</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Müşteri</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">Sipariş</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">Toplam</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clv.customers.map((customer, index) => (
+                <tr
+                  key={customer.userId}
+                  className="border-t border-border/40 hover:bg-muted/40"
+                >
+                  <td className="px-4 py-2.5 tabular-nums text-muted-foreground">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="block max-w-[240px] truncate">
+                      {customer.name ?? customer.email}
+                    </span>
+                    {customer.name && (
+                      <span className="block max-w-[240px] truncate text-xs text-muted-foreground">
+                        {customer.email}
                       </span>
-                      {customer.name && (
-                        <span className="block text-xs text-muted-foreground truncate max-w-[240px]">
-                          {customer.email}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-2 pr-4 text-right tabular-nums">{customer.orderCount}</td>
-                    <td className="py-2 text-right tabular-nums font-medium">
-                      ₺{formatTry(customer.totalSpentCents)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 text-right tabular-nums">
+                    {customer.orderCount}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-medium tabular-nums">
+                    ₺{formatTry(customer.totalSpentCents)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </ResponsiveTable>
         )}
-      </div>
+      </DashboardSection>
     </div>
   );
 }

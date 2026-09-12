@@ -14,6 +14,7 @@ import { vendorService } from '@/modules/marketplace';
 import { prisma } from '@/lib/prisma';
 import { VendorDashboard } from '@/components/dashboard/VendorDashboard';
 import { VendorOnboardingForm } from '@/components/dashboard/VendorOnboardingForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Vendor Dashboard | Mağaza' };
@@ -28,12 +29,10 @@ export default async function VendorDashboardPage() {
   if (!profile) {
     return (
       <div className="space-y-6 max-w-2xl">
-        <div>
-          <h1 className="text-2xl font-bold">Satıcı Ol</h1>
-          <p className="text-sm text-muted-foreground">
-            Mağazada ürün yayınlamak, satış yapmak ve gelir elde etmek için bir satıcı profili oluşturun.
-          </p>
-        </div>
+        <PageHeader
+          title="Satıcı Ol"
+          description="Mağazada ürün yayınlamak, satış yapmak ve gelir elde etmek için bir satıcı profili oluşturun."
+        />
         <VendorOnboardingForm />
       </div>
     );

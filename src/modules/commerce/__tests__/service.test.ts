@@ -107,7 +107,7 @@ describe('commerceService', () => {
     );
 
     expect(prisma.order.create).toHaveBeenCalled();
-    expect(result.sessionId).toMatch(/^mock_/);
+    expect(result.sessionId).toMatch(/^paytr_mock_/);
     expect(result.url).toContain('/odeme/basarili');
   });
 

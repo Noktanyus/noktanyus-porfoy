@@ -233,7 +233,12 @@ describe('CouponService', () => {
     const mockUpdate = vi.fn();
     vi.mocked(prisma.$transaction).mockImplementationOnce(async (fn: any) =>
       fn({
-        coupon: { update: mockUpdate.mockResolvedValue({}) },
+        coupon: {
+          // maxUses: null → sınırsız kupon, koşulsuz increment yolu
+          findUnique: vi.fn().mockResolvedValue({ id: 'c1', maxUses: null }),
+          update: mockUpdate.mockResolvedValue({}),
+          updateMany: vi.fn(),
+        },
         couponRedemption: {
           create: vi.fn().mockResolvedValue(mockRedemption),
         },

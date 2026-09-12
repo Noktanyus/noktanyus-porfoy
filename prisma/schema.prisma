@@ -232,6 +232,9 @@ model Plan {
   isFeatured      Boolean      @default(false)
   order           Int          @default(0)
 
+  // Trial gun sayisi (Phase D — self-serve onboarding kapsaminda eklendi).
+  trialDays Int @default(14)
+
   subscriptions Subscription[]
 
   createdAt DateTime @default(now())
@@ -562,6 +565,24 @@ model Workspace {
   customDomain      String?
   whiteLabelEnabled Boolean @default(false)
 
+  // Phase 2 A.1 — Brand Voice training (AI yazi tonu ogrenimi).
+  brandVoices   BrandVoice[]
+  generationJobs GenerationJob[]
+
+  // Phase 3 B.1 — Template Marketplace: licenses and installations per workspace.
+  templateLicenses       TemplateLicense[]
+  templateInstallations  TemplateInstallation[]
+  templatePurchases      TemplatePurchase[]
+
+  // Phase 4 C — KVKK/GDPR Compliance Tracker: workspace bazlı compliance
+  // domain'leri, üretilen policy versiyonları ve data breach olayları.
+  complianceSites       ComplianceSite[]
+  dataBreachIncidents   DataBreachIncident[]
+
+  // Branding — workspace seviyesinde özelleştirilmiş marka kimliği
+  // (logo, renkler, font, custom CSS).
+  branding WorkspaceBranding?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -633,6 +654,22 @@ model User {
   twoFactorBackupCodes Json?
   twoFactorVerifiedAt  DateTime?
 
+  // Email verification (Phase D — Self-Serve Onboarding kapsaminda eklendi).
+  emailVerifyToken   String?   @unique
+  emailVerifyExpires DateTime?
+
+  // Password reset (Phase D — Şifre Sifirlama Aksisi kapsaminda eklendi).
+  passwordResetToken   String?   @unique
+  passwordResetExpires DateTime?
+
+  // Account lockout (Phase D — brute-force korumasi kapsaminda eklendi).
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime?
+
+  // Trial (Phase D — self-serve onboarding kapsaminda eklendi).
+  trialStartedAt DateTime?
+  trialEndsAt    DateTime?
+
   // Profile + Referral alanlari (Phase Chat + Coupon Advanced kapsaminda eklendi).
   birthDate     DateTime?
   referralCode  String?   @unique
@@ -667,6 +704,12 @@ model User {
   webhooks             Webhook[]
   notifications        Notification[]
   conversations        ChatConversation[]
+
+  // OAuth 2.0 relations (Phase D — public API docs & OAuth kapsaminda eklendi).
+  oauthClients         OAuthClient[]
+  oauthAuthorizations  OAuthAuthorizationCode[]
+  oauthTokens          OAuthAccessToken[]
+  oauthRefreshTokens   OAuthRefreshToken[]
 
   // Video Call relations
   hostedCalls        VideoCall[]            @relation("VideoCallHost")
@@ -710,6 +753,18 @@ model User {
   // Custom Report Builder (Phase G3 kapsaminda eklendi)
   customReports CustomReport[]
 
+  // AI usage tracking (Sprint 1: AI Quick Wins)
+  aiUsage AiUsage[]
+
+  // Phase 4 C.8 — KVKK cookie consent kayıtları
+  cookieConsents CookieConsent[]
+
+  // Phase 2 A.1 — Bulk AI generation jobs (Brand Voice training output).
+  generationJobs GenerationJob[]
+
+  // Phase 3 B.1 — Template Marketplace: author of template listings.
+  authoredTemplates TemplateListing[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -721,15 +776,16 @@ model User {
 /// Kullanicinin tema (light/dark/system) ve vurgu rengi (accent) tercihleri.
 /// Sayfa yuklenirken ThemeProvider tarafindan okunup CSS variable olarak uygulanir.
 model ThemePreference {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  theme       String   @default("system") // light | dark | system
-  accentColor String   @default("blue")   // blue | purple | green | orange | pink
+  theme       String @default("system") // light | dark | system
+  accentColor String @default("blue") // blue | purple | green | orange | pink
+  presetId    String? // tema preset identifier (custom theme system)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("theme_preferences")
 }
@@ -1005,6 +1061,8 @@ model ChatMessage {
   createdAt DateTime @default(now())
 
   @@index([conversationId, createdAt])
+  // Sprint 1 prod-hardening: kullanici bazli mesaj arama.
+  @@index([senderId, createdAt])
 }
 
 // =================== DIGITAL PRODUCT BUNDLES ===================
@@ -1135,6 +1193,9 @@ model ApiKey {
 
   @@index([userId])
   @@index([key])
+  // Sprint 1 prod-hardening: cleanup cron ve kullanici bazli kullanım
+  // sorgulari (örn. kullanicinin en cok hangi endpoint'i kullandigi).
+  @@index([revokedAt])
 }
 
 model ApiKeyUsage {
@@ -1150,6 +1211,8 @@ model ApiKeyUsage {
 
   @@index([apiKeyId, timestamp])
   @@index([endpoint])
+  // Sprint 1 prod-hardening: user bazli kullanim raporu (admin panel).
+  @@index([statusCode])
 }
 
 // =================== MONITORING / UPTIME ===================
@@ -1343,6 +1406,9 @@ model UserSubscription {
 
   // Pause history JSON: [{ pausedAt, resumedAt, reason, durationDays }]
   pauseHistory Json @default("[]")
+
+  // Trial alani (Phase D — self-serve onboarding kapsaminda eklendi).
+  trialEndsAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1897,36 +1963,36 @@ model PushSubscription {
 // Tip: orders/users/monitors/revenue. JSON config + execution history.
 
 model CustomReport {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
   name        String
   description String?
 
   // Report type
-  reportType  String   // "orders", "monitors", "users", "revenue", "custom"
+  reportType String // "orders", "monitors", "users", "revenue", "custom"
 
   // Query config (JSON)
-  config      Json     @default("{}") // { metrics: ["totalRevenue"], groupBy: "day", filters: {...} }
+  config Json @default("{}") // { metrics: ["totalRevenue"], groupBy: "day", filters: {...} }
 
   // Scheduling
-  schedule    String?  // "daily", "weekly", "monthly"
-  recipients  Json     @default("[]") // ["email1@...", ...]
+  schedule   String? // "daily", "weekly", "monthly"
+  recipients Json    @default("[]") // ["email1@...", ...]
 
   // Format
-  format      String   @default("table") // table | bar | line | pie
+  format String @default("table") // table | bar | line | pie
 
   // Status
-  enabled     Boolean  @default(true)
-  lastRunAt   DateTime?
-  lastRunResult Json?  // Cache for last execution
+  enabled       Boolean   @default(true)
+  lastRunAt     DateTime?
+  lastRunResult Json? // Cache for last execution
 
   createdById String
-  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdBy   User   @relation(fields: [createdById], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  executions  ReportExecution[]
+  executions ReportExecution[]
 
   @@index([reportType])
   @@index([createdById])
@@ -1934,18 +2000,636 @@ model CustomReport {
 }
 
 model ReportExecution {
-  id          String   @id @default(cuid())
-  reportId    String
-  report      CustomReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  id       String       @id @default(cuid())
+  reportId String
+  report   CustomReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
-  status      String   @default("running") // running | success | failed
-  result      Json?
+  status       String  @default("running") // running | success | failed
+  result       Json?
   errorMessage String?
 
-  durationMs  Int?
+  durationMs Int?
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([reportId, createdAt])
   @@map("report_executions")
+}
+
+// =================== AI USAGE (SPRINT 1) ===================
+// Sprint 1: AI Quick Wins kapsaminda AI provider token kullanimi takibi.
+// Per-user, per-feature, per-model satır bazlı takip.
+// Quota hesaplaması planGate.ts üzerinden yapılır (aylık aggregate).
+
+/// AiUsage — bir AI generation çağrısının token kullanım kaydı.
+model AiUsage {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Feature identification
+  feature String // "blog.write" | "product.describe"
+  model   String // "claude-haiku-4-5-20251001"
+
+  // Token breakdown
+  inputTokens  Int @default(0)
+  outputTokens Int @default(0)
+  totalTokens  Int @default(0)
+
+  // Estimated cost (cents) — Anthropic API pricing × tokens
+  costCents Int @default(0)
+
+  // Optional metadata
+  resourceId    String? // Blog/Product ID
+  resourceType  String? // "Blog" | "DigitalProduct"
+  promptSummary String? // DB'de tam prompt saklanmaz; sadece kısa özet (PII koruması)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([feature])
+  @@index([userId, feature, createdAt])
+  @@map("ai_usage")
+}
+
+// =================== OAUTH 2.0 (PHASE D) ===================
+// Public API OAuth 2.0 Authorization Code + PKCE akisi.
+// Mevcut API key sisteminden farkli olarak, OAuth user'in kendi hesabina
+// 3rd party uygulamaya scoped erisim vermesini saglar (RFC 6749 + RFC 7636).
+
+model OAuthClient {
+  id           String    @id @default(cuid())
+  clientId     String    @unique
+  clientSecret String // bcrypt hash
+  name         String
+  redirectUris Json // ["https://app.example.com/callback"]
+  scopes       Json // ["ai:describe:read", "ai:describe:write", ...]
+  ownerId      String
+  owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  revokedAt    DateTime?
+
+  authorizations OAuthAuthorizationCode[]
+  tokens         OAuthAccessToken[]
+  refreshTokens  OAuthRefreshToken[]
+
+  @@index([ownerId])
+  @@index([clientId])
+}
+
+model OAuthAuthorizationCode {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  clientId    String
+  client      OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  redirectUri String
+  scopes      Json
+  codeChallenge String // PKCE
+  codeChallengeMethod String @default("S256")
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([clientId])
+  @@index([userId])
+}
+
+model OAuthAccessToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique // SHA256 hash — plain token sadece olusturuldugunda response'da doner
+  clientId  String
+  client    OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopes    Json
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([clientId])
+  // Sprint 1 prod-hardening: cleanup cron + active-token lookups.
+  @@index([revokedAt])
+  @@index([expiresAt])
+}
+
+/// OAuthRefreshToken — Refresh token'lar icin ayri model. L3: refresh token
+/// rotation + revocation kapsaminda eklendi. Access token'lardan ayri tutulmasi
+/// rotation audit trail'i (replacedById) ve revocation semantigi izlemeyi
+/// kolaylastirir. tokenHash unique: SHA256(plain) → DB'de sadece hash saklanir.
+///
+/// Rotation davranisi (RFC 6749 § 6):
+///   - Her refresh isteginde eski token revoke edilir (replacedById yeni token'a isaret eder)
+///   - Yeni access + refresh token cifti olusturulur (atomic transaction)
+///   - Eski token reuse tespit edilirse tum aktif refresh token'lar revoke edilir
+model OAuthRefreshToken {
+  id            String       @id @default(cuid())
+  tokenHash     String       @unique // SHA256(plain) — plain sadece response'da doner
+  clientId      String
+  client        OAuthClient  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scopes        Json
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  // Rotation chain: yeni token cikarildiginda eski token.replacedById = newId set edilir
+  replacedById  String?      @unique
+  createdAt     DateTime     @default(now())
+  lastUsedAt    DateTime?
+
+  @@index([userId])
+  @@index([clientId])
+  @@index([userId, clientId])
+  @@index([revokedAt])
+  @@map("oauth_refresh_tokens")
+}
+
+// =================== BRAND VOICE (PHASE 2 A.1) ===================
+// Brand voice training sistemi: Workspace bazinda marka ses/tonu ornekle AI'a
+// ogretilir, sonra generation promptlarina inject edilerek tutarli icerik
+// uretilmesini saglar. Phase 2 A.1 — Brand Voice Training + Bulk Generation.
+//
+// BrandVoice.learnedPatterns JSON shape (documented in service.ts):
+//   {
+//     tone: string,                 // "professional" | "casual" | "technical" | ...
+//     vocabulary: string[],         // ["inovasyon", "kullanici odakli", ...]
+//     sentenceLength: "short" | "medium" | "long",
+//     ctaStyle: string,             // "soft" | "direct" | "storytelling"
+//     examples: string[]            // 2-4 ornek cumle/ifade (few-shot)
+//   }
+//
+// BrandVoice.sampleInputs JSON shape:
+//   [{ title, features, generatedDescription, rating?: 1..5 }]
+//
+// GenerationJob: toplu CSV urun/baslik → AI aciklama uretim isleri.
+// GenerationResult: her bir satirin sonucu (basarili/basarisiz + cost tracking).
+
+model BrandVoice {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  sampleInputs    Json      // [{ title, features, generatedDescription, rating?: 1..5 }]
+  sampleCount     Int       @default(0)
+  learnedPatterns Json      // { tone, vocabulary, sentenceLength, ctaStyle, examples }
+  model           String
+  trainedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  generationJobs GenerationJob[]
+
+  @@index([workspaceId])
+  @@map("brand_voices")
+}
+
+model GenerationJob {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String    @default("pending") // pending | processing | completed | failed
+  csvPath         String    // S3/R2 path
+  csvOriginalName String?
+  totalRows       Int
+  processedRows   Int       @default(0)
+  successfulRows  Int       @default(0)
+  failedRows      Int       @default(0)
+  brandVoiceId    String?
+  brandVoice      BrandVoice? @relation(fields: [brandVoiceId], references: [id])
+  options         Json      // { language, length, keywords }
+  outputCsvPath   String?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  errorMessage    String?
+
+  // L4 — Retry policy & Dead Letter Queue (Phase Async/Compliance).
+  // deadLetterRows: retryCount > maxRetries olan kalıcı başarısız satırlar.
+  // Her entry: { rowIndex, lastError, failedAt, attempts }.
+  deadLetterRows       Json      @default("[]")
+  deadLetterNotifiedAt DateTime?
+  retriesResetCount    Int       @default(0) // Manuel retry tetiklenme sayısı
+
+  createdAt       DateTime  @default(now())
+
+  results         GenerationResult[]
+
+  @@index([workspaceId, status])
+  @@index([userId, createdAt])
+  @@map("ai_generation_jobs")
+}
+
+model GenerationResult {
+  id               String         @id @default(cuid())
+  jobId            String
+  job              GenerationJob  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  rowIndex         Int
+  inputData        Json
+  inputTitle       String
+  inputFeatures    String?
+  shortDescription String?
+  description      String?
+  tags             Json?
+  inputTokens      Int            @default(0)
+  outputTokens     Int            @default(0)
+  costCents        Int            @default(0)
+  model            String?
+  errorMessage     String?
+
+  // L4 — Per-row retry state machine (Phase Async/Compliance).
+  // retryCount: kaç kez retry tetiklendi. lastError: son hata mesajı.
+  // nextRetryAt: bir sonraki deneme zamanı (gerçek job delayed ile sıraya alınır).
+  // status: PENDING | RETRYING | COMPLETED | FAILED | DEAD_LETTER.
+  retryCount       Int            @default(0)
+  lastError        String?
+  lastErrorCode    String?
+  nextRetryAt      DateTime?
+  status           String         @default("completed") // backward-compat: default tamamlandı
+
+  createdAt        DateTime       @default(now())
+
+  @@index([jobId])
+  @@index([status, nextRetryAt])
+  @@map("ai_generation_results")
+}
+
+// =================== TEMPLATE MARKETPLACE (PHASE 3 B.1) ===================
+// White-label template satış marketplace'i. Vendor/admin template listeler,
+// lisans anahtari ile satin alan workspace'e template kurulum (cloning) yapar.
+// Mevcut Marketplace 2.0 (vendor/review/question) yapisindan bagimsizdir —
+// burada "template" somut bir GitHub/GitLab repo olarak dagitilan uygulama
+// iskeletidir; Marketplace 2.0 ise DigitalProduct (zip dosyasi) dagitir.
+
+/// TemplateListing — Marketplace vitrininde sergilenen template kaydi.
+model TemplateListing {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  name            String
+  tagline         String
+  description     String
+  longDescription String?
+  category        String    // "ecommerce" | "saas" | "portfolio" | "blog"
+  previewImages   Json      // string[] — CDN URLs
+  demoUrl         String?
+  priceCents      Int
+  currency        String    @default("USD")
+  licenseType     String    // "single" | "white-label" | "agency"
+  features        Json      // string[]
+  techStack       Json      // string[]
+  version         String
+  authorId        String
+  author          User      @relation(fields: [authorId], references: [id])
+  downloads       Int       @default(0)
+  rating          Float?
+  reviewCount     Int       @default(0)
+  active          Boolean   @default(true)
+  featured        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  licenses        TemplateLicense[]
+  // installations is implicit through TemplateLicense.template (no direct FK).
+  purchases       TemplatePurchase[]
+
+  @@index([category, active])
+  @@index([featured])
+  @@index([authorId])
+  @@map("template_listings")
+}
+
+/// TemplateLicense — Bir template satin alimi sonucu olusturulan lisans.
+/// workspaceId opsiyoneldir — bireysel satin alimlarda (henuz workspace
+/// baglanmadan on satin al / sonra kullan) null olabilir.
+model TemplateLicense {
+  id                  String    @id @default(cuid())
+  templateId          String
+  template            TemplateListing @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  workspaceId         String?
+  workspace           Workspace? @relation(fields: [workspaceId], references: [id])
+  buyerEmail          String
+  buyerName           String?
+  licenseKey          String    @unique
+  type                String    // "single" | "white-label" | "agency"
+  status              String    @default("active") // active | expired | revoked
+  purchasePriceCents  Int
+  currency            String
+  invoiceUrl          String?
+  expiresAt           DateTime?
+  createdAt           DateTime  @default(now())
+
+  installations       TemplateInstallation[]
+
+  @@index([templateId])
+  @@index([workspaceId])
+  @@index([licenseKey])
+  @@map("template_licenses")
+}
+
+/// TemplateInstallation — Workspace'e template kurulum kaydi.
+/// pending -> cloning -> ready | failed yasam dongusu.
+model TemplateInstallation {
+  id              String    @id @default(cuid())
+  licenseId       String
+  license         TemplateLicense @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+  workspaceId     String?
+  workspace       Workspace? @relation(fields: [workspaceId], references: [id])
+  status          String    @default("pending") // pending | cloning | ready | failed
+  configSnapshot  Json?
+  deployedUrl     String?
+  githubRepoUrl   String?
+  errorMessage    String?
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  @@index([licenseId])
+  @@index([workspaceId, status])
+  @@map("template_installations")
+}
+
+/// TemplatePurchase — Ucuncu parti satis kanali (Gumroad/LemonSqueezy/Stripe)
+/// webhook'larindan gelen satin alma kayitlari. Idempotency icin (source, externalId) unique.
+model TemplatePurchase {
+  id              String    @id @default(cuid())
+  templateId      String
+  template        TemplateListing @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  buyerEmail      String
+  buyerName       String?
+  workspaceId     String?
+  workspace       Workspace? @relation(fields: [workspaceId], references: [id])
+  source          String    // "gumroad" | "lemonsqueezy" | "stripe" | "manual"
+  externalId      String    // source's sale ID
+  amountCents     Int
+  currency        String
+  status          String    // "completed" | "refunded" | "pending" | "failed"
+  webhookPayload  Json?
+  createdAt       DateTime  @default(now())
+
+  @@unique([source, externalId])
+  @@index([templateId])
+  @@index([buyerEmail])
+  // Sprint 1 prod-hardening: workspace dashboard + pending purchase cleanup.
+  @@index([workspaceId])
+  @@index([status, createdAt])
+  @@map("template_purchases")
+}
+
+// =================== KVKK / GDPR COMPLIANCE (PHASE 4 C) ===================
+// Workspace bazlı KVKK (TR) ve GDPR (EU) uyumluluk takip sistemi.
+//
+// ComplianceSite    — İzlenecek domain + scan zamanlama bilgisi.
+// CookieScan        — Tek bir crawl sonucu: cookies + scripts + forms + threats.
+// PrivacyPolicy     — AI ile üretilen veya manuel yazılan policy versiyonları.
+// DataBreachIncident — Workspace seviyesinde bildirilen/data-leak incident'ları.
+//
+// Schema tasarım notları:
+//   - ComplianceSite.domain unique: aynı domain birden fazla workspace'e eklenemez
+//     (multi-tenant'ta tenant izolasyonu domain üzerinden yapılır; UI workspace
+//      filtresi sağlar, ancak DB seviyesinde global uniqness tercih edildi).
+//   - CookieScan.cookies/trackingScripts/forms/threats: Prisma JSON; runtime'da
+//     Zod ile parse edilip tip güvenliği sağlanır (schemas.ts).
+//   - PrivacyPolicy.version: aynı site'a ait policy versiyonlarını sıralamak
+//     için monoton artan int (1, 2, 3...).
+//   - DataBreachIncident.severity: free-text enum yerine string kullanıldı
+//     (KVKK severity'si olay bazlı değişebilir; "LOW" | "MEDIUM" | "HIGH" |
+//     "CRITICAL" olarak beklenir).
+
+/// ComplianceSite — Workspace'e kayıtlı izlenecek domain.
+model ComplianceSite {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  domain          String    @unique
+  name            String
+  contactEmail    String
+  country         String    // ISO 3166-1 alpha-2: "TR", "DE", "US", ...
+  language        String    @default("tr") // "tr" | "en"
+  status          String    @default("pending") // pending | scanning | compliant | warning | critical
+  lastScanAt      DateTime?
+  nextScanAt      DateTime?
+  scanInterval    String    @default("weekly") // daily | weekly | monthly
+  complianceScore Int?      // 0-100 arası, en son scan'den hesaplanan
+
+  // Meta
+  notes           String?   @db.Text
+
+  scans           CookieScan[]
+  policies        PrivacyPolicy[]
+  breaches        DataBreachIncident[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([nextScanAt])
+  @@map("compliance_sites")
+}
+
+/// CookieScan — Tek bir crawl çalıştırmasının sonucu.
+/// cookies / trackingScripts / forms / threats: Playwright çıktısı.
+/// score: 0-100 arası compliance skoru (threat ağırlıklı).
+model CookieScan {
+  id              String    @id @default(cuid())
+  siteId          String
+  site            ComplianceSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  status          String    @default("running") // running | completed | failed
+
+  // Playwright extract çıktıları
+  cookies         Json      @default("[]") // [{name, provider, purpose, duration, type}]
+  trackingScripts Json      @default("[]") // [{url, provider, gdprCompliant}]
+  forms           Json      @default("[]") // [{url, fields, consentRequired}]
+  threats         Json      @default("[]") // [{severity, type, description, fixSuggestion}]
+  score           Int?
+
+  // Tarama metadata
+  pagesScanned    Int       @default(0)
+  durationMs      Int?
+  errorMessage    String?   @db.Text
+  userAgent       String?   @db.Text
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  @@index([siteId, startedAt])
+  @@index([status])
+  @@map("cookie_scans")
+}
+
+/// PrivacyPolicy — Site için üretilen policy versiyonları.
+/// Aynı site için birden fazla versiyon tutulur; sadece en güncel
+/// (publishedAt != null) olan yayındadır.
+/// jurisdiction: "KVKK" | "GDPR" | "KVKK+GDPR".
+model PrivacyPolicy {
+  id              String    @id @default(cuid())
+  siteId          String
+  site            ComplianceSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  version         Int
+  title           String
+  content         String    @db.Text // Markdown body
+  jurisdiction    String    // "KVKK" | "GDPR" | "KVKK+GDPR"
+  generatedBy     String    // "ai" | "manual"
+  aiModel         String?
+
+  // Approval workflow
+  approvedAt      DateTime?
+  approvedBy      String?
+  publishedAt     DateTime?
+  publishedUrl    String?   @db.Text // Self-host veya harici yayın URL'i
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([siteId, version])
+  @@index([siteId, jurisdiction])
+  @@index([publishedAt])
+  @@map("privacy_policies")
+}
+
+/// DataBreachIncident — Workspace seviyesinde KVKK Madde 12 kapsamında
+/// bildirilmesi gereken veri ihlali olayları.
+/// siteId opsiyoneldir: workspace genelinde bir breach olabilir ya da
+/// belirli bir site'la ilişkili olabilir.
+model DataBreachIncident {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  siteId          String?
+  site            ComplianceSite? @relation(fields: [siteId], references: [id])
+
+  severity        String    // LOW | MEDIUM | HIGH | CRITICAL
+  title           String
+  description     String    @db.Text
+
+  // Impact
+  affectedUsers   Int?
+  dataCategories  Json?     // ["email", "phone", "payment_info", ...]
+
+  // KVKK notification timeline (Madde 12: 72 saat)
+  detectedAt      DateTime  @default(now())
+  reportedAt      DateTime?
+  resolvedAt      DateTime?
+  notifyKvkk      Boolean   @default(false)
+
+  // L8 — VERBİS submission tracking (Phase Async/Compliance).
+  // verbisNotificationId: Kurum sisteminden dönen takip ID'si.
+  // verbisSubmittedAt: VERBİS'e gönderim zaman damgası.
+  // verbisStatus: SUBMITTED | PENDING | FAILED | ACKNOWLEDGED.
+  verbisNotificationId String?
+  verbisSubmittedAt    DateTime?
+  verbisStatus         String?
+
+  // L8 — Etkilenen kullanıcı bilgilendirme (KVKK Madde 12 aydınlatma yükümlülüğü).
+  // affectedUsersNotifiedAt: workspace üyelerine gönderim zaman damgası.
+  affectedUsersNotifiedAt DateTime?
+
+  // L8 — 72 saat yasal deadline tracking. detectedAt + 72h.
+  kvkkMadde12Deadline DateTime?
+
+  // L8 — 60. saatte otomatik VERBİS escalation flag.
+  escalatedToVerbis Boolean @default(false)
+
+  // Sentry alert bağlantısı (webhook'tan otomatik oluşturulursa)
+  sentryAlertId   String?
+  metadata        Json?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([workspaceId, severity])
+  @@index([workspaceId, detectedAt])
+  @@index([siteId])
+  @@index([notifyKvkk])
+  @@map("data_breach_incidents")
+}
+
+// =================== COOKIE CONSENT (PHASE 4 C.8) ===================
+// KVKK Madde 5/2 ve GDPR Article 6/7 uyarınca cookie/veri toplama için
+// kullanıcı açık rızasının kayıt altına alınması zorunludur.
+// userId opsiyoneldir: oturum açmamış ziyaretçiler için sessionToken ile
+// anonim consent kaydı tutulabilir.
+
+/// CookieConsent — Kullanıcı veya anonim ziyaretçinin cookie tercihi.
+/// necessary her zaman true (zorunlu çerezler); analytics/marketing/preferences
+/// kullanıcının açık tercihi ile false olabilir.
+model CookieConsent {
+  id          String  @id @default(cuid())
+
+  // userId opsiyoneldir — anonim ziyaretçiler sessionToken ile takip edilir
+  userId      String?
+  user        User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Oturum bazlı izleme (anonim ziyaretçi için)
+  sessionToken String? @unique
+
+  // Kategori bazlı consent — UI granular kontrol için
+  necessary   Boolean @default(true)
+  analytics   Boolean @default(false)
+  marketing   Boolean @default(false)
+  preferences Boolean @default(false)
+
+  // KVKK Madde 5/2 — iznin kanıtlanabilirliği için metadata
+  ipAddress   String?
+  userAgent   String? @db.Text
+  consentText String? @db.Text // Gösterilen aydınlatma metni (snapshot)
+
+  expiresAt   DateTime // Consent geçerlilik süresi (genelde 12 ay)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expiresAt])
+  @@map("cookie_consents")
+}
+
+// =================== WORKSPACE BRANDING ===================
+// Workspace başına özelleştirilebilir branding ayarları.
+// Logo, renkler, font, custom CSS — public-facing workspace'lerin
+// (örn. SaaS tenant) kendi marka kimliklerini kullanmasını sağlar.
+
+model WorkspaceBranding {
+  id          String   @id @default(cuid())
+  workspaceId String   @unique
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  logoUrl     String?
+  faviconUrl  String?
+  primaryColor String  @default("#3b82f6")
+  accentColor  String  @default("#a855f7")
+  fontFamily   String  @default("inter")
+  customCss    String? @db.Text
+  tagline      String?
+
+  socialLinks Json? // { twitter?, github?, linkedin?, instagram? }
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("workspace_brandings")
+}
+
+// =================== FUNNEL EVENT TRACKING ===================
+// Funnel analizi için event tracking. userId/sessionId bazlı gruplama
+// ile conversion/dropoff oranları hesaplanır.
+
+model FunnelEvent {
+  id        String   @id @default(cuid())
+  name      String   // step adı (örn. "landing_view", "checkout_start")
+  userId    String?
+  sessionId String?
+  metadata  Json?
+  timestamp DateTime @default(now())
+
+  @@index([name, timestamp])
+  @@index([userId])
+  @@index([sessionId])
+  @@map("funnel_events")
 }

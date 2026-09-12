@@ -1,0 +1,6035 @@
+
+> portfolio@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · instrumentationHook
+
+ ✓ Starting...
+[@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
+[@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+[@sentry/nextjs] It appears you've configured a `sentry.edge.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.edge.config.ts` file afterward.
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Ready in 2.5s
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 2.1s (493 modules)
+ ○ Compiling /_not-found ...
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\DumpStack.log.tmp'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\swapfile.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+ ✓ Compiled /_not-found in 13.5s (2486 modules)
+prisma:info Starting a postgresql pool with 9 connections.
+ ✓ Compiled in 1353ms (806 modules)
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET / 404 in 18379ms
+prisma:info Starting a postgresql pool with 9 connections.
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (132kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /?_=restart 404 in 4122ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 635ms (1675 modules)
+ GET /api/auth/session 200 in 1672ms
+ GET /api/auth/session 200 in 47ms
+ ⚠ ./src/lib/rateLimit.ts
+Module not found: Can't resolve 'ioredis' in 'C:\Users\Administrator\Desktop\noktanyus-porfoy\src\lib'
+
+Import trace for requested module:
+./src/lib/rateLimit.ts
+./src/app/api/search/route.ts
+ ○ Compiling /api/search ...
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.blog.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.project.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.digitalProduct.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.plan.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+{"timestamp":"2026-09-09T22:01:08.466Z","level":"error","message":"Unhandled API error","error":{"clientVersion":"6.19.3","name":"PrismaClientInitializationError"}}
+ GET /api/search?q=test 500 in 4771ms
+ ⚠ ./src/lib/rateLimit.ts
+Module not found: Can't resolve 'ioredis' in 'C:\Users\Administrator\Desktop\noktanyus-porfoy\src\lib'
+
+Import trace for requested module:
+./src/lib/rateLimit.ts
+./src/app/api/search/route.ts
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /?_=restart&_rsc=1kfer 404 in 4255ms
+ GET /?_=restart 404 in 4157ms
+ GET /api/auth/session 200 in 48ms
+ GET /api/auth/session 200 in 36ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /?_=final 404 in 4174ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 38ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.blog.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.project.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.digitalProduct.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.plan.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+{"timestamp":"2026-09-09T22:01:48.851Z","level":"error","message":"Unhandled API error","error":{"clientVersion":"6.19.3","name":"PrismaClientInitializationError"}}
+ GET /api/search?q=test 500 in 4148ms
+ ⚠ ./src/lib/rateLimit.ts
+Module not found: Can't resolve 'ioredis' in 'C:\Users\Administrator\Desktop\noktanyus-porfoy\src\lib'
+
+Import trace for requested module:
+./src/lib/rateLimit.ts
+./src/app/api/search/route.ts
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /?_=final&_rsc=1kfer 404 in 4112ms
+ GET /?_=final 404 in 4083ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 32ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 4170ms
+ GET /en/fiyatlandirma 404 in 4169ms
+ GET /en/blog 404 in 4146ms
+ GET /en/magaza 404 in 4139ms
+ GET /api/auth/session 200 in 178ms
+ GET /api/auth/session 200 in 208ms
+ GET /api/auth/session 200 in 188ms
+ GET /api/auth/session 200 in 170ms
+ GET /api/auth/session 200 in 144ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/session 200 in 135ms
+ GET /api/auth/session 200 in 50ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4140ms
+ GET /en/hakkimda 404 in 4117ms
+ GET /en/iletisim 404 in 4113ms
+ GET /en 404 in 4047ms
+ GET /api/auth/session 200 in 141ms
+ GET /api/auth/session 200 in 188ms
+ GET /api/auth/session 200 in 247ms
+ GET /api/auth/session 200 in 157ms
+ GET /api/auth/session 200 in 140ms
+ GET /api/auth/session 200 in 177ms
+ GET /api/auth/session 200 in 121ms
+ GET /api/auth/session 200 in 120ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4181ms
+ GET /en/iletisim 404 in 3675ms
+ GET /en 404 in 3634ms
+ GET /en 404 in 3635ms
+ GET /api/auth/session 200 in 55ms
+ GET /api/auth/session 200 in 73ms
+ GET /api/auth/session 200 in 84ms
+ GET /api/auth/session 200 in 120ms
+ GET /api/auth/session 200 in 110ms
+ GET /api/auth/session 200 in 106ms
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 86ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 3637ms
+ GET /en/magaza 404 in 4172ms
+ GET /en/iletisim 404 in 3598ms
+ GET /en 404 in 3444ms
+ GET /api/auth/session 200 in 61ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 74ms
+ GET /api/auth/session 200 in 137ms
+ GET /api/auth/session 200 in 154ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/auth/session 200 in 88ms
+ GET /api/auth/session 200 in 41ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4160ms
+ GET /en/blog 404 in 3774ms
+ GET /en 404 in 3496ms
+ GET /en 404 in 3480ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 90ms
+ GET /api/auth/session 200 in 197ms
+ GET /api/auth/session 200 in 139ms
+ GET /api/auth/session 200 in 84ms
+ GET /api/auth/session 200 in 92ms
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 43ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4166ms
+ GET /en/magaza 404 in 4107ms
+ GET /en 404 in 3817ms
+ GET /en 404 in 3830ms
+ GET /api/auth/session 200 in 151ms
+ GET /api/auth/session 200 in 154ms
+ GET /api/auth/session 200 in 120ms
+ GET /api/auth/session 200 in 35ms
+ GET /api/auth/session 200 in 42ms
+ GET /api/auth/session 200 in 41ms
+ GET /api/auth/session 200 in 35ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4127ms
+ GET /en/blog 404 in 3694ms
+ GET /en/magaza 404 in 3535ms
+ GET /api/auth/session 200 in 61ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 41ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/session 200 in 67ms
+ GET /api/auth/session 200 in 45ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4196ms
+ GET /en/fiyatlandirma 404 in 3695ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 50ms
+ GET /api/auth/session 200 in 48ms
+ GET /api/auth/session 200 in 45ms
+ GET /api/auth/session 200 in 50ms
+ GET /en/projelerim 404 in 112ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 4124ms
+ GET /en/magaza 404 in 2143ms
+ GET /en/blog 404 in 3055ms
+ GET /api/auth/session 200 in 68ms
+ GET /api/auth/session 200 in 110ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/session 200 in 65ms
+ GET /api/auth/session 200 in 74ms
+ GET /api/auth/session 200 in 29ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4187ms
+ GET /en 404 in 600ms
+ GET /en/blog 404 in 393ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 71ms
+ GET /api/auth/session 200 in 79ms
+ GET /api/auth/session 200 in 89ms
+ GET /api/auth/session 200 in 46ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4146ms
+ GET /en/hakkimda 404 in 2534ms
+ GET /en/fiyatlandirma 404 in 2550ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 106ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/session 200 in 105ms
+ GET /api/auth/session 200 in 87ms
+ GET /api/auth/session 200 in 104ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/iletisim 404 in 1434ms
+ GET /en/projelerim 404 in 4136ms
+ GET /en 404 in 1401ms
+ GET /en/iletisim 404 in 1294ms
+ GET /api/auth/session 200 in 148ms
+ GET /api/auth/session 200 in 215ms
+ GET /api/auth/session 200 in 186ms
+ GET /api/auth/session 200 in 152ms
+ GET /api/auth/session 200 in 159ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/session 200 in 193ms
+ GET /api/auth/session 200 in 126ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4148ms
+ GET /en 404 in 3835ms
+ GET /en 404 in 3786ms
+ GET /en 404 in 3705ms
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 68ms
+ GET /api/auth/session 200 in 251ms
+ GET /api/auth/session 200 in 183ms
+ GET /api/auth/session 200 in 253ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/session 200 in 106ms
+ GET /api/auth/session 200 in 77ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4201ms
+ GET /en/blog 404 in 3725ms
+ GET /en/iletisim 404 in 3457ms
+ GET /en 404 in 3406ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 165ms
+ GET /api/auth/session 200 in 95ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 107ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4195ms
+ GET /en/magaza 404 in 4133ms
+ GET /en 404 in 3674ms
+ GET /en 404 in 3634ms
+ GET /api/auth/session 200 in 62ms
+ GET /api/auth/session 200 in 69ms
+ GET /api/auth/session 200 in 55ms
+ GET /api/auth/session 200 in 184ms
+ GET /api/auth/session 200 in 178ms
+ GET /api/auth/session 200 in 146ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 94ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4160ms
+ GET /en 404 in 3742ms
+ GET /en/fiyatlandirma 404 in 3712ms
+ GET /en 404 in 3534ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 125ms
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/session 200 in 61ms
+ GET /api/auth/session 200 in 61ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4219ms
+ GET /en/hakkimda 404 in 4145ms
+ GET /en/blog 404 in 3670ms
+ GET /api/auth/session 200 in 82ms
+ GET /api/auth/session 200 in 120ms
+ GET /api/auth/session 200 in 141ms
+ GET /api/auth/session 200 in 179ms
+ GET /api/auth/session 200 in 87ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4150ms
+ GET /en 404 in 4068ms
+ GET /en/blog 404 in 189ms
+ GET /en/fiyatlandirma 404 in 4117ms
+ GET /api/auth/session 200 in 127ms
+ GET /api/auth/session 200 in 192ms
+ GET /api/auth/session 200 in 136ms
+ GET /api/auth/session 200 in 155ms
+ GET /api/auth/session 200 in 130ms
+ GET /api/auth/session 200 in 108ms
+ GET /api/auth/session 200 in 100ms
+ GET /api/auth/session 200 in 74ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 3473ms
+ GET /en/magaza 404 in 4174ms
+ GET /en 404 in 3392ms
+ GET /en/blog 404 in 3249ms
+ GET /api/auth/session 200 in 90ms
+ GET /api/auth/session 200 in 155ms
+ GET /api/auth/session 200 in 167ms
+ GET /api/auth/session 200 in 155ms
+ GET /api/auth/session 200 in 151ms
+ GET /api/auth/session 200 in 57ms
+ GET /api/auth/session 200 in 54ms
+ GET /api/auth/session 200 in 32ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4152ms
+ GET /en/fiyatlandirma 404 in 3944ms
+ GET /en/hakkimda 404 in 1026ms
+ GET /en/projelerim 404 in 955ms
+ GET /api/auth/session 200 in 176ms
+ GET /api/auth/session 200 in 247ms
+ GET /api/auth/session 200 in 226ms
+ GET /api/auth/session 200 in 200ms
+ GET /api/auth/session 200 in 262ms
+ GET /api/auth/session 200 in 197ms
+ GET /api/auth/session 200 in 112ms
+ GET /api/auth/session 200 in 77ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/iletisim 404 in 4023ms
+ GET /en/iletisim 404 in 4131ms
+ GET /en 404 in 4014ms
+ GET /en 404 in 3926ms
+ GET /api/auth/session 200 in 87ms
+ GET /api/auth/session 200 in 116ms
+ GET /api/auth/session 200 in 214ms
+ GET /api/auth/session 200 in 205ms
+ GET /api/auth/session 200 in 103ms
+ GET /api/auth/session 200 in 126ms
+ GET /api/auth/session 200 in 79ms
+ GET /api/auth/session 200 in 36ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4202ms
+ GET /en 404 in 3824ms
+ GET /en 404 in 3689ms
+ GET /en/iletisim 404 in 3642ms
+ GET /api/auth/session 200 in 74ms
+ GET /api/auth/session 200 in 268ms
+ GET /api/auth/session 200 in 335ms
+ GET /api/auth/session 200 in 328ms
+ GET /api/auth/session 200 in 456ms
+ GET /api/auth/session 200 in 162ms
+ GET /api/auth/session 200 in 88ms
+ GET /api/auth/session 200 in 95ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4235ms
+ GET /en/magaza 404 in 4317ms
+ GET /en 404 in 3735ms
+ GET /en 404 in 3977ms
+ GET /api/auth/session 200 in 134ms
+ GET /api/auth/session 200 in 202ms
+ GET /api/auth/session 200 in 260ms
+ GET /api/auth/session 200 in 124ms
+ GET /api/auth/session 200 in 207ms
+ GET /api/auth/session 200 in 161ms
+ GET /api/auth/session 200 in 117ms
+ GET /api/auth/session 200 in 87ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4223ms
+ GET /en/magaza 404 in 4004ms
+ GET /en 404 in 3919ms
+ GET /en 404 in 3650ms
+ GET /api/auth/session 200 in 92ms
+ GET /api/auth/session 200 in 139ms
+ GET /api/auth/session 200 in 205ms
+ GET /api/auth/session 200 in 189ms
+ GET /api/auth/session 200 in 125ms
+ GET /api/auth/session 200 in 129ms
+ GET /api/auth/session 200 in 83ms
+ GET /api/auth/session 200 in 68ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4174ms
+ GET /en/hakkimda 404 in 4112ms
+ GET /en/blog 404 in 3617ms
+ GET /en 404 in 3766ms
+ GET /api/auth/session 200 in 106ms
+ GET /api/auth/session 200 in 243ms
+ GET /api/auth/session 200 in 195ms
+ GET /api/auth/session 200 in 89ms
+ GET /api/auth/session 200 in 128ms
+ GET /api/auth/session 200 in 60ms
+ GET /api/auth/session 200 in 50ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4107ms
+ GET /en/magaza 404 in 3863ms
+ GET /api/auth/session 200 in 80ms
+ GET /api/auth/session 200 in 40ms
+ GET /api/auth/session 200 in 45ms
+ GET /api/auth/session 200 in 43ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4153ms
+ GET /en 404 in 3737ms
+ GET /en/blog 404 in 2772ms
+ GET /en/magaza 404 in 395ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/session 200 in 126ms
+ GET /api/auth/session 200 in 180ms
+ GET /api/auth/session 200 in 113ms
+ GET /api/auth/session 200 in 91ms
+ GET /api/auth/session 200 in 102ms
+ GET /api/auth/session 200 in 76ms
+ GET /api/auth/session 200 in 43ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4131ms
+ GET /api/auth/session 200 in 42ms
+ GET /api/auth/session 200 in 36ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4182ms
+ GET /en/magaza 404 in 4027ms
+ GET /en 404 in 4008ms
+ GET /en/blog 404 in 3973ms
+ GET /api/auth/session 200 in 238ms
+ GET /api/auth/session 200 in 348ms
+ GET /api/auth/session 200 in 222ms
+ GET /api/auth/session 200 in 221ms
+ GET /api/auth/session 200 in 264ms
+ GET /api/auth/session 200 in 257ms
+ GET /api/auth/session 200 in 161ms
+ GET /api/auth/session 200 in 169ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4201ms
+ GET /en/projelerim 404 in 4102ms
+ GET /en/iletisim 404 in 4001ms
+ GET /en 404 in 3894ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 369ms
+ GET /api/auth/session 200 in 143ms
+ GET /api/auth/session 200 in 177ms
+ GET /api/auth/session 200 in 176ms
+ GET /api/auth/session 200 in 272ms
+ GET /api/auth/session 200 in 252ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/session 200 in 168ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4230ms
+ GET /en 404 in 265ms
+ GET /en 404 in 116ms
+ GET /en 404 in 143ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 125ms
+ GET /api/auth/session 200 in 475ms
+ GET /api/auth/session 200 in 571ms
+ GET /api/auth/session 200 in 531ms
+ GET /api/auth/session 200 in 213ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 95ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4169ms
+ GET /en/projelerim 404 in 3293ms
+ GET /api/auth/session 200 in 125ms
+ GET /api/auth/session 200 in 138ms
+ GET /api/auth/session 200 in 271ms
+ GET /api/auth/session 200 in 172ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 2893ms
+ GET /en/fiyatlandirma 404 in 4164ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 65ms
+ GET /api/auth/session 200 in 55ms
+ GET /api/auth/session 200 in 40ms
+ GET /api/auth/session 200 in 121ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4236ms
+ GET /en 404 in 3512ms
+ GET /en/giris 404 in 2689ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/auth/session 200 in 192ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/auth/session 200 in 114ms
+ GET /en 404 in 351ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4323ms
+ GET /en/giris?callbackUrl=%2Fdashboard 404 in 2240ms
+ GET /en/giris 404 in 1931ms
+ GET /en/giris?callbackUrl=%2Fsaas%2Fdashboard 404 in 1136ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 283ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/marketplace 404 in 4141ms
+ GET /en 404 in 4058ms
+ GET /en 404 in 1690ms
+ GET /en 404 in 2804ms
+ GET /api/auth/session 200 in 192ms
+ GET /api/auth/session 200 in 233ms
+ GET /api/auth/session 200 in 178ms
+ GET /api/auth/session 200 in 147ms
+ GET /api/auth/session 200 in 148ms
+ GET /api/auth/session 200 in 159ms
+ GET /api/auth/session 200 in 189ms
+ GET /api/auth/session 200 in 210ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4131ms
+ GET /en/hakkimda 404 in 3294ms
+ GET /en/magaza 404 in 3973ms
+ GET /en/fiyatlandirma 404 in 3797ms
+ GET /api/auth/session 200 in 196ms
+ GET /api/auth/session 200 in 178ms
+ GET /api/auth/session 200 in 193ms
+ GET /api/auth/session 200 in 166ms
+ GET /api/auth/session 200 in 158ms
+ GET /api/auth/session 200 in 172ms
+ GET /api/auth/session 200 in 127ms
+ GET /api/auth/session 200 in 132ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4175ms
+ GET /en/iletisim 404 in 4024ms
+ GET /en 404 in 4023ms
+ GET /en 404 in 3958ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/session 200 in 159ms
+ GET /api/auth/session 200 in 278ms
+ GET /api/auth/session 200 in 76ms
+ GET /api/auth/session 200 in 86ms
+ GET /api/auth/session 200 in 74ms
+ GET /api/auth/session 200 in 64ms
+ GET /api/auth/session 200 in 83ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4167ms
+ GET /en 404 in 569ms
+ GET /en 404 in 424ms
+ GET /api/auth/session 200 in 57ms
+ GET /api/auth/session 200 in 44ms
+ GET /api/auth/session 200 in 62ms
+ GET /api/auth/session 200 in 121ms
+ GET /api/auth/session 200 in 158ms
+ GET /api/auth/session 200 in 71ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4128ms
+ GET /en/magaza 404 in 4126ms
+ GET /api/auth/session 200 in 116ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 72ms
+ GET /api/auth/session 200 in 47ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/fiyatlandirma 404 in 4137ms
+ GET /en 404 in 3292ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 127ms
+ GET /api/auth/session 200 in 84ms
+ GET /api/auth/session 200 in 170ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4169ms
+ GET /en/giris 404 in 3118ms
+ GET /en 404 in 3851ms
+ GET /en/giris 404 in 2774ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 247ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 37ms
+ GET /api/auth/session 200 in 63ms
+ GET /api/auth/session 200 in 47ms
+ GET /api/auth/session 200 in 53ms
+ GET /api/auth/session 200 in 35ms
+ GET /api/auth/session 200 in 65ms
+ GET /en 404 in 256ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/giris?callbackUrl=%2Fsaas%2Fdashboard 404 in 2620ms
+ GET /en/projelerim 404 in 4209ms
+ GET /en/marketplace 404 in 2574ms
+ GET /en/giris?callbackUrl=%2Fdashboard 404 in 1897ms
+ GET /api/auth/session 200 in 164ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 69ms
+ GET /api/auth/session 200 in 121ms
+ GET /api/auth/session 200 in 113ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 4147ms
+ GET /en 404 in 2884ms
+ GET /en 404 in 2701ms
+ GET /en/blog 404 in 2059ms
+ GET /api/auth/session 200 in 149ms
+ GET /api/auth/session 200 in 216ms
+ GET /api/auth/session 200 in 174ms
+ GET /api/auth/session 200 in 195ms
+ GET /api/auth/session 200 in 151ms
+ GET /api/auth/session 200 in 140ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 44ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4180ms
+ GET /en/hakkimda 404 in 2926ms
+ GET /en/fiyatlandirma 404 in 3858ms
+ GET /en/projelerim 404 in 2847ms
+ GET /api/auth/session 200 in 113ms
+ GET /api/auth/session 200 in 182ms
+ GET /api/auth/session 200 in 241ms
+ GET /api/auth/session 200 in 209ms
+ GET /api/auth/session 200 in 193ms
+ GET /api/auth/session 200 in 139ms
+ GET /api/auth/session 200 in 109ms
+ GET /api/auth/session 200 in 65ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/iletisim 404 in 4108ms
+ GET /en 404 in 4035ms
+ GET /en 404 in 4074ms
+ GET /en 404 in 3868ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 342ms
+ GET /api/auth/session 200 in 260ms
+ GET /api/auth/session 200 in 250ms
+ GET /api/auth/session 200 in 250ms
+ GET /api/auth/session 200 in 246ms
+ GET /api/auth/session 200 in 194ms
+ GET /api/auth/session 200 in 208ms
+ GET /api/auth/session 200 in 198ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/blog 404 in 4355ms
+ GET /en/projelerim 404 in 3664ms
+ GET /en 404 in 605ms
+ GET /api/auth/session 200 in 99ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/auth/session 200 in 94ms
+ GET /api/auth/session 200 in 101ms
+ GET /api/auth/session 200 in 43ms
+ GET /api/auth/session 200 in 42ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/magaza 404 in 4146ms
+ GET /api/auth/session 200 in 73ms
+ GET /api/auth/session 200 in 46ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 4143ms
+ GET /en/fiyatlandirma 404 in 3472ms
+ GET /en 404 in 2928ms
+ GET /api/auth/session 200 in 70ms
+ GET /api/auth/session 200 in 48ms
+ GET /api/auth/session 200 in 114ms
+ GET /api/auth/session 200 in 206ms
+ GET /api/auth/session 200 in 194ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 84ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/hakkimda 404 in 4232ms
+ GET /en 404 in 3580ms
+ GET /en/giris 404 in 2683ms
+ GET /en/giris 404 in 1002ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 268ms
+ GET /api/auth/session 200 in 175ms
+ GET /api/auth/session 200 in 174ms
+ GET /api/auth/session 200 in 301ms
+ GET /api/auth/session 200 in 353ms
+ GET /api/auth/session 200 in 383ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en/projelerim 404 in 4493ms
+ GET /en/marketplace 404 in 2352ms
+ GET /en/giris?callbackUrl=%2Fdashboard 404 in 3701ms
+ GET /en/giris?callbackUrl=%2Fsaas%2Fdashboard 404 in 1690ms
+prisma:info Starting a postgresql pool with 9 connections.
+ GET /api/auth/session 200 in 40ms
+ GET /api/auth/session 200 in 38ms
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+prisma:error 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.about.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+[contentService] Query failed (returning null): 
+Invalid `prisma.seoSettings.findFirst()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+ GET /en 404 in 4213ms
+ GET /en 404 in 3973ms
+ GET /api/auth/session 200 in 56ms
+ GET /api/auth/session 200 in 81ms
+ GET /api/auth/session 200 in 71ms
+ GET /api/auth/session 200 in 140ms
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET / 404 in 101ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /hakkimda 404 in 68ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /blog 404 in 40ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /magaza 404 in 78ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /fiyatlandirma 404 in 85ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /projelerim 404 in 68ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /iletisim 404 in 64ms
+[?25h

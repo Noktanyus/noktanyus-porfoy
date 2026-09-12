@@ -90,28 +90,8 @@ export function BillingOverview({
   const [selectedTab, setSelectedTab] = useState<Tab>('overview');
 
   const handleSubscribe = async (planSlug: string) => {
-    if (!userEmail) {
-      toast.error('E-posta adresiniz bulunamadı');
-      return;
-    }
-    try {
-      const res = await fetch('/api/checkout/subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planSlug, customerEmail: userEmail }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error?.message ?? 'Ödeme başlatılamadı');
-      }
-      if (data.data?.url) {
-        window.location.href = data.data.url;
-      } else {
-        toast.success('Abonelik talebi alındı');
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Hata oluştu');
-    }
+    // PayTR kart formu /odeme/plan sayfasında; dashboard'dan oraya yönlendir.
+    window.location.href = `/odeme/plan?slug=${encodeURIComponent(planSlug)}`;
   };
 
   const handleManageSubscription = async () => {

@@ -9,6 +9,7 @@
 import {
   getIyzico,
   isIyzicoConfigured,
+  IYZICO_DIGITAL_ITEM_TYPE,
   type IyzicoCheckoutInput,
   type IyzicoCheckoutResult,
   type IyzicoRetrieveResult,
@@ -79,7 +80,7 @@ export const iyzicoService = {
         id: item.id,
         name: item.name,
         category1: item.category,
-        itemType: item.itemType ?? 'VIRTUAL',
+        itemType: item.itemType ?? IYZICO_DIGITAL_ITEM_TYPE,
         price: item.price,
       })),
     };

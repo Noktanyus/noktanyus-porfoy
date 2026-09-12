@@ -16,7 +16,7 @@
  *   - Diğer → Stripe veya provider tercihi
  */
 
-import { getIyzico, isIyzicoConfigured } from '@/lib/iyzico';
+import { getIyzico, isIyzicoConfigured, IYZICO_DIGITAL_ITEM_TYPE } from '@/lib/iyzico';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { NotFoundError } from '@/modules/shared/errors';
@@ -124,7 +124,9 @@ export const iyzicoSubscriptionService = {
           id: plan.id,
           name: `${plan.name} - Aylık Abonelik`,
           category1: 'subscription',
-          itemType: 'VIRTUAL' as const,
+          // Paylaşılan sabit: 'VIRTUAL' literal'i iki dosyada tekrar edilmesin
+          // ve IyzicoBasketItem union'ına karşı derleme anında kontrol edilsin.
+          itemType: IYZICO_DIGITAL_ITEM_TYPE,
           price,
         },
       ],

@@ -1,145 +1,177 @@
 /**
- * @file Onboarding Schemas & Types
- * @description F3: Onboarding akışı için veri yapıları.
+ * Onboarding Schemas — Sprint 1.5 / Phase D
  *
- *              Onboarding akışı 4 ana adımdan oluşur:
- *              1. Welcome — kullanıcıyı karşıla
- *              2. Profile — kullanıcı tipi/amacı tespit et
- *              3. Tour — ürün özelliklerini gezdir
- *              4. Done — tamamlandı, dashboard'a yönlendir
- *
- *              Her step bir Step objesi ile temsil edilir.
- *              Tüm step'ler DB'de (OnboardingProgress) saklanır.
+ * Zod validation schemas for self-serve onboarding, password reset,
+ * email verification, and 2FA flow. All schemas are strict (no extra
+ * keys) to prevent injection of unknown fields into the User model.
  */
 
-export type OnboardingStepId =
-  | "welcome"
-  | "profile"
-  | "tour"
-  | "complete";
+import { z } from 'zod';
 
-export type UserPersona =
-  | "developer"
-  | "designer"
-  | "marketer"
-  | "founder"
-  | "other";
+/**
+ * Plan tier selection during signup.
+ * Free → 14-day Pro trial (full feature access during trial).
+ */
+export const OnboardingPlanSchema = z.enum(['starter', 'pro', 'enterprise']);
+export type OnboardingPlan = z.infer<typeof OnboardingPlanSchema>;
 
-export type TourTargetId =
-  | "dashboard"
-  | "orders"
-  | "products"
-  | "customers"
-  | "analytics"
-  | "settings";
+/**
+ * Step 1 — Account registration.
+ * Reused by both /kayit wizard and direct API registration.
+ */
+export const RegisterStepSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, 'İsim en az 2 karakter olmalı')
+    .max(100, 'İsim en fazla 100 karakter olabilir'),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email('Geçerli bir e-posta adresi girin'),
+  password: z
+    .string()
+    .min(8, 'Şifre en az 8 karakter olmalı')
+    .max(100, 'Şifre en fazla 100 karakter olabilir')
+    .regex(/[A-Za-z]/, 'Şifre en az bir harf içermeli')
+    .regex(/[0-9]/, 'Şifre en az bir rakam içermeli'),
+});
+export type RegisterStepInput = z.infer<typeof RegisterStepSchema>;
+
+/**
+ * Step 2 — Plan selection (optional, defaults to starter trial).
+ */
+export const PlanSelectStepSchema = z.object({
+  planSlug: OnboardingPlanSchema.default('starter'),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: 'Kullanım koşullarını kabul etmelisiniz' }),
+  }),
+});
+export type PlanSelectStepInput = z.infer<typeof PlanSelectStepSchema>;
+
+/**
+ * Full registration payload (wizard final submit).
+ */
+export const OnboardingPayloadSchema = RegisterStepSchema.extend({
+  planSlug: OnboardingPlanSchema.default('starter'),
+  acceptTerms: z.literal(true),
+});
+export type OnboardingPayload = z.infer<typeof OnboardingPayloadSchema>;
+
+/**
+ * Email verification — token sent in magic link.
+ */
+export const VerifyEmailSchema = z.object({
+  token: z.string().min(20, 'Geçersiz token').max(200, 'Geçersiz token'),
+});
+export type VerifyEmailInput = z.infer<typeof VerifyEmailSchema>;
+
+/**
+ * Resend verification email.
+ */
+export const ResendVerificationSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+export type ResendVerificationInput = z.infer<typeof ResendVerificationSchema>;
+
+/**
+ * Forgot password — request reset link.
+ */
+export const ForgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
+
+/**
+ * Reset password — submit new password using token.
+ */
+export const ResetPasswordSchema = z.object({
+  token: z.string().min(20).max(200),
+  password: z
+    .string()
+    .min(8, 'Şifre en az 8 karakter olmalı')
+    .max(100)
+    .regex(/[A-Za-z]/)
+    .regex(/[0-9]/),
+});
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
+
+/**
+ * 2FA login verification — TOTP code after password auth.
+ */
+export const TwoFactorLoginSchema = z.object({
+  code: z
+    .string()
+    .regex(/^[0-9]{6}$/, '6 haneli kod girin'),
+  backupCode: z.string().optional(),
+});
+export type TwoFactorLoginInput = z.infer<typeof TwoFactorLoginSchema>;
+
+// === Onboarding step definitions (referenced by service + tests) ===
+
+export const OnboardingStepIdSchema = z.enum(['welcome', 'profile', 'tour', 'complete']);
+export type OnboardingStepId = z.infer<typeof OnboardingStepIdSchema>;
+
+export const UserPersonaSchema = z.enum(['developer', 'designer', 'marketer', 'founder', 'other']);
+export type UserPersona = z.infer<typeof UserPersonaSchema>;
 
 export interface TourStep {
-  target: TourTargetId;
+  target: string;
   title: string;
   description: string;
-  /** data-* selector — spotlight için hedef */
-  selector?: string;
-  placement?: "top" | "bottom" | "left" | "right";
 }
 
 export interface OnboardingStep {
   id: OnboardingStepId;
   title: string;
   description: string;
-  /** Bu step için gereken aksiyon. Boşsa "skip" yapılabilir. */
   required: boolean;
-  /** Tour step'leri (sadece "tour" step'inde kullanılır) */
   tourSteps?: TourStep[];
 }
 
-export interface OnboardingState {
-  userId: string;
-  currentStep: OnboardingStepId;
-  completedSteps: OnboardingStepId[];
-  persona: UserPersona | null;
-  skipped: boolean;
-  startedAt: Date;
-  completedAt: Date | null;
-}
-
-export interface OnboardingProgress extends OnboardingState {
-  id: string;
-  updatedAt: Date;
-}
-
-/**
- * Tüm onboarding step tanımları.
- */
 export const ONBOARDING_STEPS: ReadonlyArray<OnboardingStep> = [
   {
-    id: "welcome",
-    title: "Hoş Geldiniz!",
-    description:
-      "Noktanyus portföy yönetim sistemine hoş geldiniz. Birkaç kısa adımda sizi tanıyalım ve sistemi keşfetmenize yardımcı olalım.",
+    id: 'welcome',
+    title: 'Hoş Geldiniz!',
+    description: 'Hızlı bir tur ile platformu tanıyalım.',
     required: false,
   },
   {
-    id: "profile",
-    title: "Sizi Tanıyalım",
-    description:
-      "Size daha iyi bir deneyim sunabilmek için hangi rolde olduğunuzu öğrenmek isteriz.",
+    id: 'profile',
+    title: 'Profilini Tamamla',
+    description: 'Rolünü ve hedeflerini seç — deneyimi sana göre ayarlayalım.',
     required: true,
   },
   {
-    id: "tour",
-    title: "Sistem Turu",
-    description:
-      "Ana özellikleri kısaca gezelim. İstediğiniz zaman atlayabilirsiniz.",
+    id: 'tour',
+    title: 'Ürün Turu',
+    description: 'Önemli sayfaları ve özellikleri hızlıca gezelim.',
     required: false,
     tourSteps: [
-      {
-        target: "dashboard",
-        title: "Dashboard",
-        description: "Tüm metriklerin tek bakışta özeti.",
-        placement: "bottom",
-      },
-      {
-        target: "orders",
-        title: "Siparişler",
-        description: "Gelen siparişleri yönetin, durumlarını güncelleyin.",
-        placement: "right",
-      },
-      {
-        target: "products",
-        title: "Ürünler",
-        description: "Ürün kataloğunuzu oluşturun ve düzenleyin.",
-        placement: "right",
-      },
-      {
-        target: "analytics",
-        title: "Analitik",
-        description: "Detaylı istatistikler ve raporlar.",
-        placement: "left",
-      },
+      { target: '#dashboard', title: 'Dashboard', description: 'Tüm metriklerinin özeti.' },
+      { target: '#projects', title: 'Projeler', description: 'Aktif projelerini buradan yönet.' },
+      { target: '#billing', title: 'Faturalandırma', description: 'Plan ve ödeme geçmişin.' },
     ],
   },
   {
-    id: "complete",
-    title: "Hazırsınız!",
-    description:
-      "Tüm adımları tamamladınız. Artık sistemi keşfetmeye başlayabilirsiniz.",
+    id: 'complete',
+    title: 'Hazırsın!',
+    description: 'Artık başlamak için her şey tamam.',
     required: false,
   },
-] as const;
+];
 
-export function getStepById(id: OnboardingStepId): OnboardingStep | undefined {
+export function getStepById(id: OnboardingStepId | string): OnboardingStep | undefined {
   return ONBOARDING_STEPS.find((s) => s.id === id);
 }
 
-export function getNextStep(id: OnboardingStepId): OnboardingStep | null {
-  const idx = ONBOARDING_STEPS.findIndex((s) => s.id === id);
-  if (idx === -1 || idx === ONBOARDING_STEPS.length - 1) return null;
-  return ONBOARDING_STEPS[idx + 1] ?? null;
+export function getNextStep(id: OnboardingStepId | string): OnboardingStep | null {
+  const currentIndex = ONBOARDING_STEPS.findIndex((s) => s.id === id);
+  if (currentIndex === -1 || currentIndex === ONBOARDING_STEPS.length - 1) return null;
+  return ONBOARDING_STEPS[currentIndex + 1] ?? null;
 }
 
 export function isValidPersona(value: unknown): value is UserPersona {
-  return (
-    typeof value === "string" &&
-    ["developer", "designer", "marketer", "founder", "other"].includes(value)
-  );
+  return UserPersonaSchema.safeParse(value).success;
 }

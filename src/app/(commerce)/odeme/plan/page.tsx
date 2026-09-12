@@ -1,6 +1,18 @@
+/**
+ * @file /odeme/plan — Abonelik planı ödeme sayfası.
+ *
+ * Faz D:
+ *  - `Suspense` fallback'i düz "Yükleniyor..." metniydi; ortak
+ *    `LoadingSkeleton` ile değiştirildi (a11y: role=status + aria-busy).
+ *  - `PageHeader` (breadcrumb + fiyatlandırmaya geri dönüş) eklendi.
+ *  - Ödeme mantığı `PlanCheckoutForm` içinde; DEĞİŞTİRİLMEDİ.
+ */
+
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { PlanCheckoutForm } from '@/components/commerce/PlanCheckoutForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 export const metadata: Metadata = {
   title: 'Plan Ödemesi',
@@ -12,12 +24,26 @@ export default function PlanCheckoutPage() {
   return (
     <div className="container-responsive bg-blob-decoration">
       <div className="relative z-10 space-responsive">
-        <h1 className="text-responsive-display font-bold mb-8 text-center text-gray-900 dark:text-white">
-          Abonelik Ödemesi
-        </h1>
-        <Suspense fallback={<div className="text-center py-12 text-gray-500">Yükleniyor...</div>}>
-          <PlanCheckoutForm />
-        </Suspense>
+        <div className="mx-auto max-w-3xl space-y-6">
+          <PageHeader
+            title="Abonelik Ödemesi"
+            description="Seçtiğiniz planı onaylayıp ödemeyi tamamlayın."
+            backHref="/fiyatlandirma"
+            backLabel="Fiyatlandırma"
+            breadcrumb={<span>Fiyatlandırma / Ödeme</span>}
+          />
+          <Suspense
+            fallback={
+              <LoadingSkeleton
+                variant="text-line"
+                count={4}
+                loadingLabel="Plan bilgileri yükleniyor"
+              />
+            }
+          >
+            <PlanCheckoutForm />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

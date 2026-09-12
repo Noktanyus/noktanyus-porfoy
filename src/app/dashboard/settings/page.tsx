@@ -11,6 +11,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { SettingsOverview } from '@/components/dashboard/SettingsOverview';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,12 +48,10 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Ayarlar</h1>
-        <p className="text-sm text-muted-foreground">
-          Hesap bilgilerinizi, şifrenizi ve hesap silme işlemlerinizi yönetin
-        </p>
-      </div>
+      <PageHeader
+        title="Ayarlar"
+        description="Hesap bilgilerinizi, şifrenizi ve hesap silme işlemlerinizi yönetin"
+      />
       <SettingsOverview user={user} />
     </div>
   );

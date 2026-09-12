@@ -14,6 +14,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { FaSearch, FaTimes, FaArrowRight } from 'react-icons/fa';
 import { formatCurrency, cn } from '@/lib/utils';
@@ -45,18 +46,27 @@ interface SearchResponse {
 }
 
 export function GlobalSearch() {
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  const openSearch = useCallback(() => setOpen(true), []);
+  const closeSearch = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Ctrl+K / Cmd+K + Esc kısayolları + custom event listener
   useEffect(() => {
     const keyHandler = (e: KeyboardEvent) => {
-      const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);
+      const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test(navigator.userAgent);
       const meta = isMac ? e.metaKey : e.ctrlKey;
       if (meta && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -87,12 +97,12 @@ export function GlobalSearch() {
         clearTimeout(t);
         document.body.classList.remove('body-scroll-lock');
       };
-    } else {
-      setQuery('');
-      setResults(null);
-      setActiveIndex(0);
-      document.body.classList.remove('body-scroll-lock');
     }
+    setQuery('');
+    setResults(null);
+    setActiveIndex(0);
+    setSearchError(null);
+    document.body.classList.remove('body-scroll-lock');
   }, [open]);
 
   // Debounce'lı arama
@@ -106,19 +116,29 @@ export function GlobalSearch() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setLoading(true);
+      setSearchError(null);
       try {
         const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`, {
           signal: controller.signal,
         });
+        if (!res.ok) {
+          setResults(null);
+          setSearchError('Arama şu an yapılamıyor. Lütfen daha sonra tekrar deneyin.');
+          return;
+        }
         const data = await res.json();
         if (data?.success) {
           setResults(data.data);
           setActiveIndex(0);
+        } else {
+          setResults(null);
         }
       } catch (err) {
         if ((err as { name?: string }).name !== 'AbortError') {
           // eslint-disable-next-line no-console
           console.error('Search error', err);
+          setResults(null);
+          setSearchError('Arama şu an yapılamıyor. Lütfen daha sonra tekrar deneyin.');
         }
       } finally {
         setLoading(false);
@@ -139,30 +159,16 @@ export function GlobalSearch() {
     [router]
   );
 
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-2"
-        aria-label="Aramayı aç (Ctrl+K)"
-        title="Ara (Ctrl+K)"
-      >
-        <FaSearch className="w-4 h-4 text-gray-900 dark:text-white" aria-hidden="true" />
-      </button>
-    );
-  }
-
-  return (
+  const modal = open ? (
     <div
-      className="modal-overlay fixed inset-0 z-[100] flex items-start justify-center pt-[10vh] px-4 fade-in"
+      className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] px-4 bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Global arama"
-      onClick={() => setOpen(false)}
+      onClick={closeSearch}
     >
       <div
-        className="w-full max-w-2xl glass-card-premium overflow-hidden"
+        className="w-full max-w-2xl glass-card-premium overflow-hidden shadow-2xl z-[10000] bg-background border border-border rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <SearchInput
@@ -170,7 +176,7 @@ export function GlobalSearch() {
           query={query}
           loading={loading}
           onChange={setQuery}
-          onClose={() => setOpen(false)}
+          onClose={closeSearch}
         />
         <ResultsList
           query={query}
@@ -179,10 +185,31 @@ export function GlobalSearch() {
           activeIndex={activeIndex}
           setActiveIndex={setActiveIndex}
           onSelect={handleSelect}
+          searchError={searchError}
         />
-        <Footer results={results} />
+        <Footer results={results} hasError={!!searchError} />
       </div>
     </div>
+  ) : null;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openSearch();
+        }}
+        className="touch-target rounded-full hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 p-2 flex items-center justify-center min-h-[44px] min-w-[44px]"
+        aria-label="Aramayı aç (Ctrl+K)"
+        title="Ara (Ctrl+K)"
+      >
+        <FaSearch className="w-4 h-4 text-slate-700 dark:text-slate-300" aria-hidden="true" />
+      </button>
+
+      {mounted && modal && createPortal(modal, document.body)}
+    </>
   );
 }
 
@@ -202,11 +229,12 @@ function SearchInput({ inputRef, query, loading, onChange, onClose }: SearchInpu
       <FaSearch className="text-muted-foreground flex-shrink-0" aria-hidden="true" />
       <input
         ref={inputRef}
-        type="text"
+        type="search"
+        inputMode="search"
         value={query}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Blog, proje, ürün veya plan ara..."
-        className="flex-1 min-w-0 bg-transparent outline-none text-base text-foreground placeholder:text-muted-foreground"
+        className="flex-1 min-w-0 min-h-[44px] bg-transparent outline-none text-base text-foreground placeholder:text-muted-foreground"
         autoComplete="off"
         spellCheck={false}
         aria-label="Arama terimi"
@@ -235,6 +263,7 @@ interface ResultsListProps {
   activeIndex: number;
   setActiveIndex: (n: number) => void;
   onSelect: (url: string) => void;
+  searchError?: string | null;
 }
 
 function ResultsList({
@@ -244,6 +273,7 @@ function ResultsList({
   activeIndex,
   setActiveIndex,
   onSelect,
+  searchError,
 }: ResultsListProps) {
   const flat = useMemo(() => {
     if (!results) return [];
@@ -272,15 +302,17 @@ function ResultsList({
 
   return (
     <div className="max-h-[60vh] overflow-y-auto" role="listbox" aria-label="Arama sonuçları">
-      {query.length < 2 && <EmptyState />}
+      {query.length < 2 && !searchError && <EmptyState />}
 
-      {query.length >= 2 && loading && !results && <LoadingState />}
+      {searchError && <ErrorState message={searchError} />}
 
-      {query.length >= 2 && !loading && results && results.total === 0 && (
+      {query.length >= 2 && loading && !results && !searchError && <LoadingState />}
+
+      {query.length >= 2 && !loading && results && results.total === 0 && !searchError && (
         <NoResults query={query} />
       )}
 
-      {results && results.total > 0 && (
+      {results && results.total > 0 && !searchError && (
         <div className="divide-y divide-border">
           {results.blog.length > 0 && (
             <SearchSection
@@ -364,8 +396,8 @@ function SearchSection({
             type="button"
             onClick={() => onSelect(getResultUrl(r))}
             className={cn(
-              'w-full flex items-center gap-3 p-3 transition-colors text-left',
-              isActive ? 'bg-blue-50 dark:bg-blue-900/30' : 'hover:bg-muted'
+              'w-full flex items-center gap-3 p-3 min-h-[44px] transition-colors text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset',
+              isActive ? 'bg-indigo-50 dark:bg-indigo-950/40' : 'hover:bg-muted'
             )}
             role="option"
             aria-selected={isActive}
@@ -450,10 +482,27 @@ function NoResults({ query }: { query: string }) {
   );
 }
 
-function Footer({ results }: { results: SearchResponse | null }) {
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div
+      className="p-8 text-center text-sm text-red-600 dark:text-red-400"
+      role="alert"
+      aria-live="assertive"
+    >
+      <p className="font-medium">{message}</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Birkaç saniye sonra tekrar deneyebilirsiniz.
+      </p>
+    </div>
+  );
+}
+
+function Footer({ results, hasError }: { results: SearchResponse | null; hasError: boolean }) {
   return (
     <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted-foreground bg-muted/30">
-      <span>{results?.total ?? 0} sonuç</span>
+      <span aria-live="polite" aria-atomic="true">
+        {hasError ? 'Hata' : `${results?.total ?? 0} sonuç`}
+      </span>
       <div className="flex items-center gap-3">
         <span>
           <kbd className="px-1.5 py-0.5 rounded bg-background border border-border">↑↓</kbd>{' '}

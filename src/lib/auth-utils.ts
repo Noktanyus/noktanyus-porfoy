@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { env } from '@/lib/env';
+import bcrypt from 'bcryptjs';
 
 type ApiHandler = (request: NextRequest, params: { [key: string]: any }) => Promise<NextResponse>;
 
@@ -28,4 +29,20 @@ export function withAdminAuth(handler: ApiHandler): ApiHandler {
     // Yetkilendirme başarılı, asıl işleyiciyi çalıştır.
     return handler(request, params);
   };
+}
+
+/**
+ * Plain-text şifreyi bcrypt ile hashler.
+ * Onboarding service + tüm signup akışları tarafından kullanılır.
+ */
+export async function hashPassword(plain: string): Promise<string> {
+  return bcrypt.hash(plain, 12);
+}
+
+/**
+ * Bcrypt hash'i plain-text şifre ile karşılaştırır (timing-safe).
+ */
+export async function verifyPassword(plain: string, hash: string): Promise<boolean> {
+  if (!hash) return false;
+  return bcrypt.compare(plain, hash);
 }

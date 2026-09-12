@@ -74,8 +74,8 @@ const OptimizedImage = ({
   };
 
   const handleError = () => {
-    if (currentSrc !== "/images/profile.webp") {
-      setSrc("/images/profile.webp");
+    if (currentSrc !== "/images/placeholder.webp") {
+      setSrc("/images/placeholder.webp");
     } else {
       setHasError(true);
     }

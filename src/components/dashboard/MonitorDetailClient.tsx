@@ -232,11 +232,11 @@ export function MonitorDetailClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-muted-foreground border-b border-border/40">
-                  <th className="text-left py-2 px-2">Zaman</th>
-                  <th className="text-left py-2 px-2">Durum</th>
-                  <th className="text-left py-2 px-2">Kod</th>
-                  <th className="text-left py-2 px-2">Süre</th>
-                  <th className="text-left py-2 px-2">Hata</th>
+                  <th scope="col" className="text-left py-2 px-2">Zaman</th>
+                  <th scope="col" className="text-left py-2 px-2">Durum</th>
+                  <th scope="col" className="text-left py-2 px-2">Kod</th>
+                  <th scope="col" className="text-left py-2 px-2">Süre</th>
+                  <th scope="col" className="text-left py-2 px-2">Hata</th>
                 </tr>
               </thead>
               <tbody>

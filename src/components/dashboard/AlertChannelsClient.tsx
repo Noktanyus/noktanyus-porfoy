@@ -16,6 +16,7 @@ import {
   FaTrash,
   FaPlus,
 } from 'react-icons/fa';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface AlertChannel {
   id: string;
@@ -228,13 +229,11 @@ export function AlertChannelsClient({ initialChannels }: { initialChannels: Aler
       )}
 
       {channels.length === 0 ? (
-        <div className="glass-card-premium p-12 text-center">
-          <p className="text-5xl mb-3">🔔</p>
-          <p className="text-lg font-medium">Henüz alert kanalı yok</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            İlk alert kanalınızı oluşturun
-          </p>
-        </div>
+        <EmptyState
+          title="Henüz alert kanalı yok"
+          description="İlk alert kanalını oluşturarak monitör olaylarından haberdar ol."
+          icon="🔔"
+        />
       ) : (
         <div className="space-y-3">
           {channels.map((c) => {

@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils';
 import { FaBox, FaKey, FaCopy, FaEye, FaDownload } from 'react-icons/fa';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type OrderStatus =
   | 'PENDING'
@@ -133,18 +134,12 @@ export function ProductList({ orders, licenses }: ProductListProps) {
 function OrdersTab({ orders }: { orders: OrderRow[] }) {
   if (orders.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3" aria-hidden="true">
-          📦
-        </p>
-        <p className="text-lg font-medium mb-2">Henüz siparişiniz yok</p>
-        <p className="text-sm text-muted-foreground mb-4">
-          Mağazadan dijital ürün satın alarak başlayabilirsiniz.
-        </p>
-        <Link href="/magaza" className="admin-btn admin-btn-primary inline-block">
-          Mağazaya Git
-        </Link>
-      </div>
+      <EmptyState
+        title="Henüz siparişin yok"
+        description="Mağazadan dijital ürün satın alarak başlayabilirsin."
+        icon="📦"
+        action={{ label: 'Mağazaya Git', href: '/magaza' }}
+      />
     );
   }
 
@@ -219,15 +214,12 @@ function LicensesTab({
 }) {
   if (licenses.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3" aria-hidden="true">
-          🔑
-        </p>
-        <p className="text-lg font-medium">Henüz lisansınız yok</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          Bir ürün satın aldığınızda lisans anahtarınız burada görünecek.
-        </p>
-      </div>
+      <EmptyState
+        title="Henüz lisansın yok"
+        description="Bir ürün satın aldığında lisans anahtarın burada görünecek."
+        icon="🔑"
+        variant="inline"
+      />
     );
   }
 

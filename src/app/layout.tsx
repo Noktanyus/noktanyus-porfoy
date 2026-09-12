@@ -14,8 +14,7 @@ import { Inter } from "next/font/google";
 export const dynamic = 'force-dynamic';
 
 import "./globals.css"; // Font importu artık bu dosyanın içinde
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { SiteChrome } from "@/components/layout/SiteChrome";
 import AuthProvider from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AnalyticsProvider from "@/components/providers/AnalyticsProvider";
@@ -30,6 +29,7 @@ import { Suspense } from 'react';
 import Script from "next/script";
 import Spinner from "@/components/ui/Spinner";
 import PopupViewerClient from "@/components/layout/PopupViewerClient";
+import GlobalToaster from "@/components/providers/GlobalToaster";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
@@ -189,7 +189,7 @@ export default async function RootLayout({
       {/* Apply next/font CSS variable + Tailwind classes. The `inter.variable`
           class wires the generated --font-inter custom property onto <html>. */}
       <body
-        className={`${inter.variable} bg-light-bg text-light-text dark:bg-dark-bg dark:text-dark-text`}
+        className={`${inter.variable} bg-background text-foreground antialiased`}
       >
         <NextIntlClientProvider locale={activeLocale} messages={messages}>
           <AuthProvider>
@@ -201,18 +201,13 @@ export default async function RootLayout({
               defaultAccent={defaultAccent}
             >
               <SkipLink />
-              <div className="relative flex flex-col min-h-screen">
-                <Header headerTitle={headerTitle} />
-                <main id="main-content" tabIndex={-1} className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8 focus:outline-none">
-                  <div className="w-full">
-                    {children}
-                  </div>
-                </main>
-                <Footer aboutData={aboutData} />
-              </div>
+              <SiteChrome headerTitle={headerTitle} aboutData={aboutData}>
+                {children}
+              </SiteChrome>
               <Suspense fallback={<Spinner />}>
                 <PopupViewer />
               </Suspense>
+              <GlobalToaster />
             </ThemeProvider>
           </AuthProvider>
         </NextIntlClientProvider>

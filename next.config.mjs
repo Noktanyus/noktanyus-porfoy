@@ -25,12 +25,26 @@ const nextConfig = {
     // jsdom (isomorphic-dompurify dependency'si) build artifact konumundan
     // browser/default-stylesheet.css'i relative path ile arar, bu da
     // 'Failed to collect page data' ENOENT hatasina yol acar.
-    serverComponentsExternalPackages: ['iyzipay', 'jsdom', 'isomorphic-dompurify'],
+    // Opsiyonel native ve runtime servis bagimliliklari build sirasinda
+    // disarida tutulur; gercek kullanici isteklerinde runtime'da yuklenir.
+    serverComponentsExternalPackages: [
+      'iyzipay',
+      'jsdom',
+      'isomorphic-dompurify',
+      '@react-pdf/renderer',
+    ],
   },
   // Node-only paketleri server build'inde external et (iyzipay fs/http kullanır)
   webpack: (config, { isServer }) => {
     if (isServer) {
-      config.externals = [...(config.externals || []), 'iyzipay'];
+      config.externals = [
+        ...(config.externals || []),
+        'iyzipay',
+        'playwright-core',
+        'chromium-bidi',
+        'kerberos',
+        '@react-pdf/renderer',
+      ];
     } else {
       config.resolve = config.resolve || {};
       config.resolve.fallback = {
@@ -109,6 +123,24 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   output: 'standalone',
+  // Wildcard subdomain routing (Phase 3 B.6).
+  // Prod-only: SUBDOMAIN_ROUTING_ENABLED env ile kontrol edilir.
+  // Reverse proxy tarafi (Cloudflare Worker veya Vercel middleware) Host
+  // header'ini okuyup /workspace/{slug} path'ine rewrite eder; burada
+  // Next.js rewrite sadece path uzerinde olur, Host header Next.js tarafindan
+  // dogal olarak okunmaz. Bu nedenle anahtar konfigurasyon proxy tarafidir;
+  // Next.js sadece karsilayan route'un varligini saglar.
+  async rewrites() {
+    if (process.env.SUBDOMAIN_ROUTING_ENABLED !== 'true') {
+      return [];
+    }
+    return [
+      {
+        source: '/workspace-redirect/:slug',
+        destination: '/workspace/:slug',
+      },
+    ];
+  },
   async headers() {
     return [
       // Immutable cache for uploaded images
@@ -141,7 +173,10 @@ const nextConfig = {
           },
         ],
       },
-      // Security headers for all routes
+      // Security headers for all routes (CSP/HSTS/X-Frame-Options/defense-in-depth).
+      // CSP ve HSTS ayrıca middleware.ts'de de set ediliyor; burada
+      // static/cacheable response'lar (RSC payload, _next/data vb.) için
+      // merkezi bir default saglaniyor.
       {
         source: '/(.*)',
         headers: [
@@ -164,6 +199,13 @@ const nextConfig = {
             ].join('; ')
           },
           {
+            // HSTS — middleware ile ayni politika; next.config tarafinda
+            // tum static response'lara da eklenir. CDN/edge cache'lenmis
+            // cevaplar icin merkezi default saglar.
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
             key: 'X-Frame-Options',
             value: 'DENY'
           },
@@ -176,8 +218,20 @@ const nextConfig = {
             value: 'strict-origin-when-cross-origin'
           },
           {
+            // camera, microphone, geolocation, payment, usb, browsing-topics, interest-cohort
+            // Tum hassas API'ler kapatildi. Gerekli oldugunda sayfa-bazli
+            // Permissions-Policy header ile muafiyet tanimlanabilir.
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()'
+            value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=(), interest-cohort=()'
+          },
+          {
+            // Cross-Origin politika — clickjacking ve cross-origin izolasyon
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'same-origin'
           }
         ]
       }

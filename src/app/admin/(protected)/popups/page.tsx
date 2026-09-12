@@ -3,6 +3,14 @@
  * @description Bu sayfa, mevcut tüm popup'ları bir liste halinde gösterir.
  *              Kullanıcıların yeni popup eklemesine, mevcutları düzenlemesine,
  *              silmesine ve aktif/pasif durumunu değiştirmesine olanak tanır.
+ *
+ * Faz D:
+ *  - 60 satırlık elle yazılmış tablo iskeleti `LoadingSkeleton` ile değiştirildi.
+ *  - Fetch hatası sadece toast'tı; artık `ErrorDisplay` + "Tekrar Dene".
+ *  - Boş durum `EmptyState`, tablo `ResponsiveTable`, başlık `PageHeader`.
+ *  - Kullanılmayan `handleDelete` ölü kodu kaldırıldı (silme `DeleteButton` ile).
+ *  - Toggle switch'e erişilebilir etiket eklendi (önceden yalnızca görsel bir
+ *    switch'ti; ekran okuyucu neyi değiştirdiğini söyleyemiyordu).
  */
 
 "use client";
@@ -13,24 +21,38 @@ import toast from "react-hot-toast";
 import { Popup } from "@/types/content";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { ResponsiveTable } from "@/components/ui/ResponsiveTable";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 
 export default function PopupsAdminPage() {
   const [popups, setPopups] = useState<Popup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [togglingSlug, setTogglingSlug] = useState<string | null>(null);
 
   /**
    * API'den tüm popup verilerini çeker ve duruma göre sıralar.
    */
   const fetchPopups = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/admin/content?type=popups');
       if (!response.ok) throw new Error("Popup'lar sunucudan yüklenemedi.");
       const data = await response.json();
+      const list: Popup[] = Array.isArray(data) ? data : [];
       // Aktif olanları üste alacak şekilde sırala
-      setPopups(data.sort((a: Popup, b: Popup) => (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1));
-    } catch (error) {
-      toast.error((error as Error).message);
+      setPopups(
+        [...list].sort((a, b) => (a.isActive === b.isActive ? 0 : a.isActive ? -1 : 1)),
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu.';
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -41,33 +63,12 @@ export default function PopupsAdminPage() {
   }, [fetchPopups]);
 
   /**
-   * Belirtilen popup'ı siler.
-   * @param slug - Silinecek popup'ın kimliği.
-   */
-  const handleDelete = async (slug: string) => {
-    if (!confirm(`'${slug}' kodlu popup'ı kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
-
-    const loadingToast = toast.loading("Popup siliniyor...");
-    try {
-      // API'ye slug'ı temiz olarak gönder
-      const response = await fetch(`/api/admin/content?type=popups&slug=${slug}`, { method: 'DELETE' });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Silme işlemi başarısız oldu.");
-      }
-      toast.success("Popup başarıyla silindi!", { id: loadingToast });
-      setPopups(prev => prev.filter(p => p.slug !== slug));
-    } catch (error) {
-      toast.error((error as Error).message, { id: loadingToast });
-    }
-  };
-
-  /**
    * Bir popup'ın aktif/pasif durumunu değiştirir.
    * @param popup - Durumu değiştirilecek popup nesnesi.
    */
   const handleToggleActive = async (popup: Popup) => {
     const toastId = toast.loading('Popup durumu güncelleniyor...');
+    setTogglingSlug(popup.slug);
     try {
       // Popup'ın isActive durumunu tersine çevir
       const updatedPopup = { ...popup, isActive: !popup.isActive };
@@ -88,138 +89,138 @@ export default function PopupsAdminPage() {
         throw new Error(errorData.error || 'Durum güncellenemedi.');
       }
 
-      toast.success('Durum başarıyla güncellendi!', { id: toastId });
+      toast.success('Durum güncellendi.', { id: toastId });
       fetchPopups(); // Listeyi yenile
-    } catch (error) {
-      toast.error((error as Error).message, { id: toastId });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Durum güncellenemedi.', { id: toastId });
+    } finally {
+      setTogglingSlug(null);
     }
   };
+
+  const header = (
+    <PageHeader
+      title="Popup Yönetimi"
+      description="Popup'larınızı oluşturun, düzenleyin ve yayın durumunu yönetin"
+      breadcrumb={<span>Admin / Popup&apos;lar</span>}
+      actions={
+        <Link href="/admin/popups/new" className="admin-btn admin-btn-primary">
+          <FaPlus aria-hidden="true" className="w-3 h-3" />
+          Yeni Popup Ekle
+        </Link>
+      }
+    />
+  );
 
   if (isLoading) {
     return (
       <div className="admin-content-spacing">
-        <div className="admin-header">
-          <div>
-            <h1 className="admin-title">🎯 Popup Yönetimi</h1>
-            <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
-          </div>
-          <div className="admin-btn admin-btn-primary animate-pulse">
-            Yükleniyor...
-          </div>
-        </div>
+        {header}
+        <LoadingSkeleton variant="table-row" count={5} loadingLabel="Popup'lar yükleniyor" />
+      </div>
+    );
+  }
 
-        <div className="admin-section">
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
-                <tr>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Durum</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Popup Kodu</th>
-                  <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Başlık</th>
-                  <th className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {[...Array(5)].map((_, i) => (
-                  <tr key={i} className="animate-pulse">
-                    <td className="py-4 px-6">
-                      <div className="h-6 w-11 bg-gray-200 dark:bg-gray-600 rounded-full"></div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4"></div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
-                    </td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex justify-end space-x-3">
-                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded-lg"></div>
-                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded-lg"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+  if (error) {
+    return (
+      <div className="admin-content-spacing">
+        {header}
+        <ErrorDisplay
+          variant="card"
+          title="Popup'lar yüklenemedi"
+          message={error}
+          onRetry={fetchPopups}
+          showHomeLink={false}
+        />
       </div>
     );
   }
 
   return (
     <div className="admin-content-spacing">
-      <div className="admin-header">
-        <div>
-          <h1 className="admin-title">🎯 Popup Yönetimi</h1>
-          <p className="admin-subtitle">Popup&apos;larınızı oluşturun, düzenleyin ve yönetin</p>
-        </div>
-        <Link href="/admin/popups/new" className="admin-btn admin-btn-primary">
-          <FaPlus className="mr-2" />
-          Yeni Popup Ekle
-        </Link>
-      </div>
+      {header}
 
-      <div className="admin-section">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+      <DashboardSection
+        padding={popups.length === 0 ? 'md' : 'none'}
+        contained
+        meta={popups.length > 0 ? `${popups.length} popup` : undefined}
+      >
+        {popups.length === 0 ? (
+          <EmptyState
+            variant="inline"
+            icon="inbox"
+            title="Henüz popup oluşturulmamış"
+            description="İlk popup'ınızı ekleyin. Yayına almadan önce pasif olarak kaydedebilirsiniz."
+            action={{ label: 'Yeni Popup Ekle', href: '/admin/popups/new' }}
+          />
+        ) : (
+          <ResponsiveTable
+            minWidth="640px"
+            caption="Popup'lar: yayın durumu, kod, başlık ve işlemler"
+            className="rounded-none border-0"
+          >
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Durum</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Popup Kodu</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Başlık</th>
-                <th className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Yayın</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Popup Kodu</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Başlık</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">İşlemler</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {popups.length > 0 ? (
-                popups.map((popup) => (
-                  <tr key={popup.slug} className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-300 ease-out ${!popup.isActive ? 'opacity-60' : ''}`}>
-                    <td className="py-4 px-6">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={popup.isActive}
-                          onChange={() => handleToggleActive(popup)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500"></div>
-                      </label>
-                    </td>
-                    <td className="py-4 px-6 font-mono text-sm text-gray-600 dark:text-gray-400">{popup.slug}</td>
-                    <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">{popup.title}</td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex justify-end space-x-3">
-                        <Link href={`/admin/popups/edit/${popup.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${popup.title} popup&apos;ını düzenle`}>
-                          <FaEdit size={16} />
-                        </Link>
-                        <DeleteButton
-                          endpoint={`/api/admin/popups/${popup.slug}`}
-                          itemName={popup.title}
-                          confirmMessage={`'${popup.title}' popup&apos;ını kalıcı olarak silmek istediğinizden emin misiniz?`}
-                          onSuccess={() => setPopups((prev) => prev.filter((p) => p.slug !== popup.slug))}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={4} className="text-center py-12 text-gray-500 dark:text-gray-400">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="text-4xl">🎯</div>
-                      <div>
-                        <p className="text-lg font-medium">Henüz popup oluşturulmamış</p>
-                        <p className="text-sm mt-1">&quot;Yeni Popup Ekle&quot; butonu ile başlayabilirsiniz</p>
-                      </div>
+            <tbody>
+              {popups.map((popup) => (
+                <tr
+                  key={popup.slug}
+                  className={`border-t border-border/40 transition-colors hover:bg-muted/40 ${
+                    !popup.isActive ? 'opacity-70' : ''
+                  }`}
+                >
+                  <td className="px-4 py-3">
+                    <label className="relative inline-flex cursor-pointer items-center">
+                      <input
+                        type="checkbox"
+                        checked={popup.isActive}
+                        disabled={togglingSlug === popup.slug}
+                        onChange={() => handleToggleActive(popup)}
+                        className="peer sr-only"
+                      />
+                      <span className="sr-only">
+                        {popup.title} popup&apos;ını {popup.isActive ? 'yayından kaldır' : 'yayına al'}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="h-6 w-11 rounded-full bg-muted-foreground/30 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-border after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-disabled:opacity-50"
+                      />
+                    </label>
+                  </td>
+                  <td className="px-4 py-3 font-mono text-sm text-muted-foreground">
+                    {popup.slug}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-foreground">{popup.title}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/admin/popups/edit/${popup.slug}`}
+                        className="admin-btn admin-btn-ghost px-3"
+                        aria-label={`${popup.title} popup'ını düzenle`}
+                      >
+                        <FaEdit aria-hidden="true" size={14} />
+                        <span className="sr-only sm:not-sr-only">Düzenle</span>
+                      </Link>
+                      <DeleteButton
+                        endpoint={`/api/admin/popups/${popup.slug}`}
+                        itemName={popup.title}
+                        confirmMessage={`'${popup.title}' popup'ını kalıcı olarak silmek istediğinizden emin misiniz?`}
+                        onSuccess={() => setPopups((prev) => prev.filter((p) => p.slug !== popup.slug))}
+                      />
                     </div>
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+          </ResponsiveTable>
+        )}
+      </DashboardSection>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { OrdersList } from '@/components/dashboard/OrdersList';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Siparişler | Dashboard' };
@@ -30,17 +31,18 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Siparişler</h1>
-          <p className="text-sm text-muted-foreground">
-            Tüm siparişlerin ve ödeme durumların
-          </p>
-        </div>
-        <a href="/magaza" className="admin-btn admin-btn-primary self-start sm:self-auto">
-          Mağazaya Git
-        </a>
-      </div>
+      <PageHeader
+        title="Siparişler"
+        description="Tüm siparişlerin ve ödeme durumların"
+        actions={
+          <a
+            href="/magaza"
+            className="admin-btn admin-btn-primary self-start sm:self-auto"
+          >
+            Mağazaya Git
+          </a>
+        }
+      />
       <OrdersList orders={orders} />
     </div>
   );

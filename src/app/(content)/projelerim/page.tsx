@@ -5,6 +5,7 @@ import { listProjects } from '@/services/contentService';
 import nextDynamic from 'next/dynamic';
 import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { PageStates } from '@/components/ui/PageStates';
 
 // Lazy-load the heavy client list component (search/filter logic) to reduce
 // initial JS bundle size. SSR is kept on so SEO and first paint are preserved.
@@ -37,16 +38,25 @@ export default async function ProjelerimPage() {
   return (
     <div className="section-glass-hero bg-blob-decoration">
       <div className="relative z-10 space-y-8">
-        <div className="text-center mb-8 sm:mb-12">
+        <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 text-gradient-animated">
             Projelerim
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.
           </p>
-        </div>
+        </header>
 
-        <ProjectList allProjects={allProjects} />
+        <PageStates
+          data={allProjects}
+          loadingVariant="project"
+          loadingCount={3}
+          emptyTitle="Henüz proje yok"
+          emptyDescription="Yakında yeni projeler burada olacak."
+          emptyIcon="box"
+        >
+          <ProjectList allProjects={allProjects} />
+        </PageStates>
       </div>
     </div>
   );

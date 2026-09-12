@@ -1,0 +1,46 @@
+- generic [active] [ref=f11e1]:
+  - link "İçeriğe geç" [ref=f11e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f11e3]:
+    - banner [ref=f11e4]:
+      - generic [ref=f11e6]:
+        - link "Ana Sayfa" [ref=f11e8] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f11e9]: Portföyüm
+        - generic [ref=f11e10]:
+          - button "Aramayı aç (Ctrl+K)" [ref=f11e13] [cursor=pointer]
+          - button "Open language menu" [ref=f11e17] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f11e18]: 🇹🇷
+            - generic [ref=f11e19]: TR
+          - button "Tema değiştir" [disabled] [ref=f11e22]
+          - button "Tema ve renk özelleştirici" [disabled] [ref=f11e24]
+          - button "Menüyü aç" [ref=f11e27] [cursor=pointer]
+    - main [ref=f11e33]:
+      - generic [ref=f11e35]:
+        - heading "404" [level=1] [ref=f11e37]
+        - heading "Sayfa Bulunamadı" [level=2] [ref=f11e39]
+        - paragraph [ref=f11e40]: Aradığınız sayfa kaldırılmış, adı değiştirilmiş veya geçici olarak kullanım dışı olabilir.
+        - link "Ana Sayfaya Dön" [ref=f11e41] [cursor=pointer]:
+          - /url: /
+    - contentinfo [ref=f11e42]:
+      - generic [ref=f11e44]:
+        - navigation "Yasal bilgilendirme bağlantıları" [ref=f11e45]:
+          - generic [ref=f11e46]:
+            - link "KVKK" [ref=f11e47] [cursor=pointer]:
+              - /url: /yasal/kvkk
+            - generic [aria-hidden] [ref=f11e48]: ·
+          - generic [ref=f11e49]:
+            - link "Mesafeli Satış" [ref=f11e50] [cursor=pointer]:
+              - /url: /yasal/mesafeli-satis
+            - generic [aria-hidden] [ref=f11e51]: ·
+          - generic [ref=f11e52]:
+            - link "Çerez Politikası" [ref=f11e53] [cursor=pointer]:
+              - /url: /yasal/cerez-politikasi
+            - generic [aria-hidden] [ref=f11e54]: ·
+          - generic [ref=f11e55]:
+            - link "Cayma Hakkı" [ref=f11e56] [cursor=pointer]:
+              - /url: /yasal/cayma-hakki
+            - generic [aria-hidden] [ref=f11e57]: ·
+          - link "Gizlilik" [ref=f11e59] [cursor=pointer]:
+            - /url: /yasal/gizlilik
+        - paragraph [ref=f11e60]: © 2026 Portföyüm. Tüm Hakları Saklıdır.

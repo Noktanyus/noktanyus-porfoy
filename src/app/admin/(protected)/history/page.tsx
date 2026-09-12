@@ -8,6 +8,7 @@
 
 import { getCommitHistory, getGitRepoUrl } from "@/lib/git-utils";
 import { HistoryClientPage } from "@/components/admin/HistoryClientPage";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 // Bu sayfanın her istekte yeniden render edilmesini ve statik olarak oluşturulmamasını sağlar.
 // Böylece her zaman en güncel commit geçmişi gösterilir.
@@ -32,12 +33,12 @@ export default async function HistoryPage() {
   }));
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">İçerik Değişiklik Geçmişi</h1>
-      <p className="text-gray-600 dark:text-gray-400 mb-8">
-        İçerik üzerinde yapılan son 50 değişiklik burada listelenir. 
-        &quot;Geçmişe Al&quot; işlemi, seçilen değişikliği geri alır ve bu işlem geri alınamaz.
-      </p>
+    <div className="admin-content-spacing">
+      <PageHeader
+        title="İçerik Değişiklik Geçmişi"
+        description={`Son ${commits.length} değişiklik listelenir. "Geçmişe Al" işlemi seçilen değişikliği geri alır ve geri alınamaz.`}
+        breadcrumb={<span>Admin / Değişiklik Geçmişi</span>}
+      />
       {/* Alınan verileri istemci bileşenine prop olarak geçir. */}
       <HistoryClientPage commits={commits} repoUrl={repoUrl || '#'} />
     </div>

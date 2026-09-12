@@ -10,8 +10,8 @@ export interface ValidationResult {
   depth?: number;
 }
 
-const MAX_DEPTH = 10;
-const MAX_COMPLEXITY = 1000;
+export const MAX_DEPTH = 10;
+export const MAX_COMPLEXITY = 1000;
 
 /**
  * GraphQL sorgu string'inin max derinliğini hesaplar.

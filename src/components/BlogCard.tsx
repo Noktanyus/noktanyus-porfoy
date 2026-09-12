@@ -26,7 +26,7 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
 
   return (
     <article
-      className="group glass-card-premium h-full flex flex-col animate-fade-in relative"
+      className="group glass-card-premium h-full flex flex-col animate-fade-in relative focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900 rounded-2xl"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Image Section */}
@@ -42,11 +42,11 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
         />
 
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40 opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
 
         {/* Category Badge */}
         <div className="absolute top-4 left-4 z-10">
-          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase bg-white/20 backdrop-blur-md border border-white/20 text-white shadow-lg">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase glass-badge-overlay">
             {blog.category}
           </span>
         </div>
@@ -61,7 +61,7 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
 
       {/* Content Section */}
       <div className="p-5 flex-grow flex flex-col">
-        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-3 mb-4">
+        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-3 mb-4">
           {blog.description}
         </p>
 
@@ -74,17 +74,19 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
               </span>
             ))}
             {tags.length > 3 && (
-              <span className="glass-tag opacity-60">+{tags.length - 3}</span>
+              <span className="glass-tag opacity-60" aria-hidden="true">
+                +{tags.length - 3}
+              </span>
             )}
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-auto pt-4 border-t border-white/10 dark:border-white/5 flex justify-between items-center">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+        <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
             <span className="inline-flex items-center gap-1.5">
-              <FaClock className="w-3 h-3" />
-              <time>
+              <FaClock className="w-3 h-3" aria-hidden="true" />
+              <time dateTime={new Date(blog.date).toISOString()}>
                 {new Date(blog.date).toLocaleDateString('tr-TR', {
                   year: 'numeric',
                   month: 'short',
@@ -94,27 +96,33 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
             </span>
             {blog.viewCount > 0 && (
               <span className="inline-flex items-center gap-1.5">
-                <FaEye className="w-3 h-3" />
-                {blog.viewCount.toLocaleString('tr-TR')}
+                <FaEye className="w-3 h-3" aria-hidden="true" />
+                <span aria-label={`${blog.viewCount} görüntülenme`}>
+                  {blog.viewCount.toLocaleString('tr-TR')}
+                </span>
               </span>
             )}
             {blog.readTimeMinutes > 0 && (
               <span className="inline-flex items-center gap-1.5">
-                <FaClock className="w-3 h-3" />
-                {blog.readTimeMinutes} dk
+                <FaClock className="w-3 h-3" aria-hidden="true" />
+                <span>{blog.readTimeMinutes} dk okuma</span>
               </span>
             )}
           </div>
 
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-primary group-hover:gap-2.5 transition-all duration-300">
+          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400 group-hover:gap-2.5 transition-all duration-300">
             Oku
-            <FaArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" />
+            <FaArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
           </span>
         </div>
       </div>
 
       {/* Full card link */}
-      <Link href={`/blog/${blog.slug}`} className="absolute inset-0 z-20" aria-label={blog.title}>
+      <Link
+        href={`/blog/${blog.slug}`}
+        className="absolute inset-0 z-20 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+        aria-label={`${blog.title} - Devamını oku`}
+      >
         <span className="sr-only">Devamını oku</span>
       </Link>
     </article>

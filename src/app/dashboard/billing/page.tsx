@@ -9,6 +9,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { BillingOverview } from '@/components/dashboard/BillingOverview';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,10 +49,10 @@ export default async function BillingPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Faturalandırma</h1>
-        <p className="text-sm text-muted-foreground">Abonelik ve siparişlerin</p>
-      </div>
+      <PageHeader
+        title="Faturalandırma"
+        description="Abonelik ve siparişlerin"
+      />
       <BillingOverview
         subscription={subscription}
         orders={orders}

@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { DS } from "@/lib/design-system";
+import { FormField } from "@/components/ui/FormField";
+import { FormSubmitButton } from "@/components/ui/FormSubmitButton";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -75,130 +78,135 @@ export function RegisterForm() {
 
   const strengthLabel = ["", "Zayıf", "Orta", "İyi", "Güçlü"][passwordStrength];
   const strengthColor = [
-    "bg-muted",
-    "bg-destructive",
+    "bg-slate-200 dark:bg-slate-700",
+    "bg-rose-500",
     "bg-orange-500",
-    "bg-yellow-500",
-    "bg-green-500",
+    "bg-amber-500",
+    "bg-emerald-500",
   ][passwordStrength];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
       {error && (
         <div
-          className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm border border-destructive/20"
+          className={DS.formErrorBanner}
           role="alert"
+          aria-live="assertive"
         >
           {error}
         </div>
       )}
 
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium mb-2">
-          Ad Soyad
-        </label>
-        <input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          minLength={2}
-          maxLength={100}
-          disabled={loading}
-          className="admin-input"
-          placeholder="Yunus Tuğhan"
-          autoComplete="name"
-        />
-      </div>
+      <FormField id="name" label="Ad Soyad" required>
+        {(inputProps) => (
+          <input
+            {...inputProps}
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            minLength={2}
+            maxLength={100}
+            disabled={loading}
+            className={DS.input}
+            placeholder="Yunus Tuğhan"
+            autoComplete="name"
+          />
+        )}
+      </FormField>
+
+      <FormField id="reg-email" label="E-posta" required>
+        {(inputProps) => (
+          <input
+            {...inputProps}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            maxLength={200}
+            disabled={loading}
+            className={DS.input}
+            placeholder="ornek@email.com"
+            autoComplete="email"
+          />
+        )}
+      </FormField>
 
       <div>
-        <label htmlFor="reg-email" className="block text-sm font-medium mb-2">
-          E-posta
-        </label>
-        <input
-          id="reg-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          maxLength={200}
-          disabled={loading}
-          className="admin-input"
-          placeholder="ornek@email.com"
-          autoComplete="email"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="reg-password" className="block text-sm font-medium mb-2">
-          Şifre
-        </label>
-        <input
-          id="reg-password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-          maxLength={100}
-          disabled={loading}
-          className="admin-input"
-          placeholder="En az 8 karakter"
-          autoComplete="new-password"
-        />
+        <FormField id="reg-password" label="Şifre" required>
+          {(inputProps) => (
+            <input
+              {...inputProps}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              maxLength={100}
+              disabled={loading}
+              className={DS.input}
+              placeholder="En az 8 karakter"
+              autoComplete="new-password"
+            />
+          )}
+        </FormField>
         {password && (
           <div className="mt-2 flex items-center gap-2">
-            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div
+              className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden"
+              role="progressbar"
+              aria-valuenow={passwordStrength}
+              aria-valuemin={0}
+              aria-valuemax={4}
+              aria-label="Şifre gücü"
+            >
               <div
                 className={`h-full transition-all ${strengthColor}`}
                 style={{ width: `${(passwordStrength / 4) * 100}%` }}
               />
             </div>
-            <span className="text-xs text-muted-foreground w-12 text-right">
+            <span className="text-xs text-slate-500 dark:text-slate-400 w-12 text-right">
               {strengthLabel}
             </span>
           </div>
         )}
       </div>
 
-      <div>
-        <label
-          htmlFor="reg-confirm-password"
-          className="block text-sm font-medium mb-2"
-        >
-          Şifre Tekrar
-        </label>
-        <input
-          id="reg-confirm-password"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          minLength={8}
-          maxLength={100}
-          disabled={loading}
-          className="admin-input"
-          placeholder="Şifreyi tekrar girin"
-          autoComplete="new-password"
-        />
-      </div>
+      <FormField id="reg-confirm-password" label="Şifre Tekrar" required>
+        {(inputProps) => (
+          <input
+            {...inputProps}
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            minLength={8}
+            maxLength={100}
+            disabled={loading}
+            className={DS.input}
+            placeholder="Şifreyi tekrar girin"
+            autoComplete="new-password"
+          />
+        )}
+      </FormField>
 
-      <button
+      <FormSubmitButton
         type="submit"
-        disabled={loading}
-        className="admin-btn admin-btn-primary w-full"
+        loading={loading}
+        loadingText="Hesap oluşturuluyor..."
+        fullWidth
+        className="mt-2"
       >
-        {loading ? "Hesap oluşturuluyor..." : "Hesap Oluştur"}
-      </button>
+        Hesap Oluştur
+      </FormSubmitButton>
 
-      <p className="text-xs text-muted-foreground text-center mt-4">
+      <p className="text-xs text-slate-500 dark:text-slate-400 text-center mt-4">
         Hesap oluşturarak{" "}
-        <Link href="/yasal/kvkk" className="underline">
+        <Link href="/yasal/kvkk" className="underline hover:text-foreground">
           KVKK
         </Link>{" "}
         ve{" "}
-        <Link href="/yasal/mesafeli-satis" className="underline">
+        <Link href="/yasal/mesafeli-satis" className="underline hover:text-foreground">
           Mesafeli Satış
         </Link>{" "}
         şartlarını kabul edersiniz.

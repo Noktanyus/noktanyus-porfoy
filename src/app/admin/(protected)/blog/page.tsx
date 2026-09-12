@@ -3,15 +3,31 @@
  * @description Bu sayfa, mevcut tüm blog yazılarını bir liste halinde gösterir.
  *              Kullanıcıların yeni yazı eklemesine, mevcut yazıları düzenlemesine
  *              ve silmesine olanak tanır.
+ *
+ * Faz D:
+ *  - Yükleniyor durumu düz metin yerine `LoadingSkeleton variant="table-row"`.
+ *  - Hata durumu artık yalnızca toast değil; kalıcı `ErrorDisplay` + "Tekrar Dene".
+ *    (Önceden fetch hatasında sayfa boş bir tablo gösteriyordu ve kullanıcı
+ *    verinin yüklenip yüklenmediğini anlayamıyordu.)
+ *  - Boş durum `EmptyState`, tablo `ResponsiveTable`, başlık `PageHeader`.
+ *  - Kullanılmayan `handleDelete` fonksiyonu kaldırıldı (silme işi
+ *    `DeleteButton` üzerinden yapılıyordu; ölü kod iki farklı endpoint
+ *    kullanıyordu ve kafa karıştırıcıydı).
  */
 
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { FaPlus, FaEdit } from "react-icons/fa";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { PageHeader } from "@/components/dashboard/PageHeader";
+import { DashboardSection } from "@/components/dashboard/DashboardSection";
+import { ResponsiveTable } from "@/components/ui/ResponsiveTable";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
+import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 
 /** Blog yazısının temel bilgilerini içeren tip. */
 type BlogPost = {
@@ -19,12 +35,10 @@ type BlogPost = {
   title: string;
 };
 
-/**
- * Blog yazılarını listeleyen ve yöneten ana bileşen.
- */
-const BlogList = () => {
+export default function BlogAdminPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * API'den tüm blog yazılarını getiren fonksiyon.
@@ -32,6 +46,7 @@ const BlogList = () => {
    */
   const fetchPosts = useCallback(async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('/api/admin/content?type=blog');
       if (!response.ok) {
@@ -40,10 +55,10 @@ const BlogList = () => {
       const data = await response.json();
       // Gelen verinin bir dizi olduğundan emin ol, değilse boş dizi ata.
       setPosts(Array.isArray(data) ? data : []);
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu.";
-      console.error("Blog yazıları getirilirken hata oluştu:", error);
-      toast.error(errorMessage);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Bilinmeyen bir hata oluştu.";
+      setError(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -54,109 +69,113 @@ const BlogList = () => {
     fetchPosts();
   }, [fetchPosts]);
 
-  /**
-   * Belirtilen 'slug'a sahip yazıyı silme işlemini gerçekleştirir.
-   * @param {string} slug - Silinecek yazının kimliği.
-   */
-  const handleDelete = async (slug: string) => {
-    // Kullanıcıdan silme onayı al.
-    if (confirm(`'${slug}' başlıklı yazıyı kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`)) {
-      const toastId = toast.loading('Yazı siliniyor, lütfen bekleyin...');
-      try {
-        const response = await fetch(`/api/admin/content?type=blog&slug=${slug}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Yazı silinirken bir hata oluştu.');
-        }
-        toast.success('Yazı başarıyla silindi.', { id: toastId });
-        // Silme işlemi başarılı olursa, state'i güncelleyerek listeyi yenile.
-        setPosts(posts.filter(p => p.slug !== slug));
-      } catch (error) {
-        toast.error((error as Error).message, { id: toastId });
+  const header = (
+    <PageHeader
+      title="Blog Yönetimi"
+      description="Blog yazılarınızı oluşturun, düzenleyin ve yönetin"
+      breadcrumb={<span>Admin / Blog</span>}
+      actions={
+        <>
+          <Link href="/admin/blog/scheduled" className="admin-btn admin-btn-secondary">
+            Taslaklar
+          </Link>
+          <Link href="/admin/blog/new" className="admin-btn admin-btn-primary">
+            <FaPlus aria-hidden="true" className="w-3 h-3" />
+            Yeni Yazı Ekle
+          </Link>
+        </>
       }
-    }
-  };
+    />
+  );
 
-  // Veri yüklenirken gösterilecek içerik.
   if (isLoading) {
-    return <div className="text-center p-8">Blog yazıları yükleniyor...</div>;
+    return (
+      <div className="admin-content-spacing">
+        {header}
+        <LoadingSkeleton variant="table-row" count={5} loadingLabel="Blog yazıları yükleniyor" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="admin-content-spacing">
+        {header}
+        <ErrorDisplay
+          variant="card"
+          title="Blog yazıları yüklenemedi"
+          message={error}
+          onRetry={fetchPosts}
+          showHomeLink={false}
+        />
+      </div>
+    );
   }
 
   return (
     <div className="admin-content-spacing">
-      <div className="admin-header">
-        <div>
-          <h1 className="admin-title">📝 Blog Yönetimi</h1>
-          <p className="admin-subtitle">Blog yazılarınızı oluşturun, düzenleyin ve yönetin</p>
-        </div>
-        <Link href="/admin/blog/new" className="admin-btn admin-btn-primary">
-          <FaPlus className="mr-2" />
-          Yeni Yazı Ekle
-        </Link>
-      </div>
+      {header}
 
-      <div className="admin-section">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+      <DashboardSection
+        padding={posts.length === 0 ? 'md' : 'none'}
+        contained
+        meta={posts.length > 0 ? `${posts.length} yazı` : undefined}
+      >
+        {posts.length === 0 ? (
+          <EmptyState
+            variant="inline"
+            icon="file"
+            title="Henüz blog yazısı eklenmemiş"
+            description="İlk yazınızı oluşturarak başlayın. Taslak olarak kaydedip daha sonra yayınlayabilirsiniz."
+            action={{ label: 'Yeni Yazı Ekle', href: '/admin/blog/new' }}
+          />
+        ) : (
+          <ResponsiveTable
+            minWidth="560px"
+            caption="Blog yazıları: başlık, slug ve işlemler"
+            className="rounded-none border-0"
+          >
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Yazı Başlığı</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Slug</th>
-                <th className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Yazı Başlığı</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Slug</th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">İşlemler</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {posts.length > 0 ? (
-                posts.map((post) => (
-                  <tr key={post.slug} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-300 ease-out">
-                    <td className="py-4 px-6 font-medium text-gray-900 dark:text-gray-100">{post.title}</td>
-                    <td className="py-4 px-6 font-mono text-sm text-gray-600 dark:text-gray-400">{post.slug}</td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex justify-end space-x-3">
-                        <Link href={`/admin/blog/edit/${post.slug}`} className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20" aria-label={`${post.title} yazısını düzenle`}>
-                          <FaEdit size={16} />
-                        </Link>
-                        <DeleteButton
-                          endpoint={`/api/admin/blog/${post.slug}`}
-                          itemName={post.title}
-                          confirmMessage={`'${post.title}' yazısını kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
-                          onSuccess={() => setPosts((prev) => prev.filter((p) => p.slug !== post.slug))}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3} className="text-center py-12 text-gray-500 dark:text-gray-400">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="text-4xl">📝</div>
-                      <div>
-                        <p className="text-lg font-medium">Henüz blog yazısı eklenmemiş</p>
-                        <p className="text-sm mt-1">&quot;Yeni Yazı Ekle&quot; butonu ile başlayabilirsiniz</p>
-                      </div>
+            <tbody>
+              {posts.map((post) => (
+                <tr
+                  key={post.slug}
+                  className="border-t border-border/40 transition-colors hover:bg-muted/40"
+                >
+                  <td className="px-4 py-3 font-medium text-foreground">{post.title}</td>
+                  <td className="px-4 py-3 font-mono text-sm text-muted-foreground">
+                    {post.slug}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/admin/blog/edit/${post.slug}`}
+                        className="admin-btn admin-btn-ghost px-3"
+                        aria-label={`${post.title} yazısını düzenle`}
+                      >
+                        <FaEdit aria-hidden="true" size={14} />
+                        <span className="sr-only sm:not-sr-only">Düzenle</span>
+                      </Link>
+                      <DeleteButton
+                        endpoint={`/api/admin/blog/${post.slug}`}
+                        itemName={post.title}
+                        confirmMessage={`'${post.title}' yazısını kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
+                        onSuccess={() => setPosts((prev) => prev.filter((p) => p.slug !== post.slug))}
+                      />
                     </div>
                   </td>
                 </tr>
-              )}
+              ))}
             </tbody>
-          </table>
-        </div>
-      </div>
+          </ResponsiveTable>
+        )}
+      </DashboardSection>
     </div>
-  );
-};
-
-/**
- * Blog yönetimi sayfasını Suspense içinde render eden ana sayfa bileşeni.
- * Bu, veri yüklemesi sırasında bir yedek (fallback) arayüz gösterilmesini sağlar.
- */
-export default function BlogAdminPage() {
-  return (
-    <Suspense fallback={<div className="text-center p-8">Sayfa yükleniyor...</div>}>
-      <BlogList />
-    </Suspense>
   );
 }

@@ -162,11 +162,11 @@ export function PartnerDashboard({ stats, referralLink }: PartnerDashboardProps)
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500 dark:bg-slate-900/50">
               <tr>
-                <th className="px-6 py-3">Müşteri</th>
-                <th className="px-6 py-3">Durum</th>
-                <th className="px-6 py-3">Tutar</th>
-                <th className="px-6 py-3">Komisyon</th>
-                <th className="px-6 py-3">Tarih</th>
+                <th scope="col" className="px-6 py-3">Müşteri</th>
+                <th scope="col" className="px-6 py-3">Durum</th>
+                <th scope="col" className="px-6 py-3">Tutar</th>
+                <th scope="col" className="px-6 py-3">Komisyon</th>
+                <th scope="col" className="px-6 py-3">Tarih</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700">

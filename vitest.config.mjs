@@ -25,7 +25,7 @@ export default defineConfig({
     server: {
       deps: {
         inline: [],
-        external: ['iyzico'],
+        external: ['iyzico', 'next-intl'],
       },
     },
     coverage: {
@@ -50,6 +50,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@aws-sdk/s3-request-presigner': path.resolve(__dirname, './src/__mocks__/aws-presigner-stub.ts'),
+      'next/server': 'next/server.js',
     },
   },
 });

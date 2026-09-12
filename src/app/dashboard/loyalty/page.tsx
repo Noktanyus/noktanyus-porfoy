@@ -11,6 +11,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { loyaltyService } from '@/modules/loyalty';
 import { LoyaltyDashboard } from '@/components/dashboard/LoyaltyDashboard';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,5 +27,13 @@ export default async function LoyaltyPage() {
 
   const stats = await loyaltyService.getStats(userId);
 
-  return <LoyaltyDashboard stats={stats} />;
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Sadakat Programı"
+        description="Puan biriktir, ödüller kazan. Tier seviyeni yükselt."
+      />
+      <LoyaltyDashboard stats={stats} />
+    </div>
+  );
 }

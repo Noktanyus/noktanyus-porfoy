@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { FaCopy, FaTrash, FaEye } from 'react-icons/fa';
 import { formatDate } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface ApiKeyRow {
   id: string;
@@ -60,13 +61,12 @@ export function ApiKeyList({ keys }: { keys: ApiKeyRow[] }) {
 
   if (keys.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3">🔑</p>
-        <p className="text-lg font-medium">Henüz API anahtarı yok</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          İlk anahtarınızı oluşturarak başlayın
-        </p>
-      </div>
+      <EmptyState
+        title="Henüz API anahtarı yok"
+        description="İlk anahtarını oluşturarak başla. Anahtar sadece oluşturulduğunda gösterilir."
+        icon="🔑"
+        action={{ label: 'Yeni API Anahtarı', href: '/dashboard/api-keys/new' }}
+      />
     );
   }
 
@@ -95,11 +95,11 @@ export function ApiKeyList({ keys }: { keys: ApiKeyRow[] }) {
               type="button"
               onClick={() => handleRevoke(key.id, key.name)}
               disabled={busyId === key.id}
-              className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50"
-              aria-label="İptal et"
+              className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+              aria-label={`${key.name} API anahtarını iptal et`}
               title="İptal et"
             >
-              <FaTrash className="w-4 h-4" />
+              <FaTrash className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
 

@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { commerceService } from '@/modules/commerce';
 import nextDynamic from 'next/dynamic';
-import { EmptyState } from '@/components/ui/ErrorDisplay';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const metadata: Metadata = {
   title: 'Mağaza',
@@ -60,8 +60,8 @@ export default async function MagazaPage() {
         {!error && products.length === 0 && (
           <EmptyState
             title="Henüz ürün yok"
-            message="Yakında yeni dijital ürünler eklenecek."
-            icon={<span className="text-3xl" aria-hidden="true">🛒</span>}
+            description="Yakında yeni dijital ürünler eklenecek."
+            icon="box"
           />
         )}
 

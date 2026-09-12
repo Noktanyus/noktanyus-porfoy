@@ -3,12 +3,24 @@
  *
  * Abone istatistikleri ve son N abone listesi.
  * Server component — Prisma üzerinden doğrudan sorgu.
+ *
+ * Veri dürüstlüğü: tüm sayılar `newsletterService.getStats()` çıktısıdır.
+ *
+ * Faz D: yerel `StatCard` kopyası kaldırıldı; ortak `StatCard`, `PageHeader`,
+ * `DashboardSection`, `ResponsiveTable`, `EmptyState` ve `StatusBadge`
+ * primitive'leri kullanılıyor.
  */
 
 import Link from 'next/link';
-import { FaPaperPlane } from 'react-icons/fa';
+import { FaPaperPlane, FaCheck } from 'react-icons/fa';
 import { newsletterService } from '@/modules/newsletter';
 import { NewsletterSubscriber } from '@prisma/client';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
+import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { StatCard, StatCardGrid } from '@/components/ui/StatCard';
+import { StatusBadge, resolveActiveStatus } from '@/components/ui/StatusBadge';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,114 +32,68 @@ export default async function AdminNewsletterPage() {
 
   return (
     <div className="admin-content-spacing">
-      <div className="admin-header">
-        <div>
-          <h1 className="admin-title">Newsletter Aboneleri</h1>
-          <p className="admin-subtitle">
-            Blog email abone sistemi — istatistikler ve abone listesi
-          </p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Link
-            href="/admin/newsletter/broadcast"
-            className="admin-btn admin-btn-primary"
-          >
-            <FaPaperPlane className="mr-2" />
+      <PageHeader
+        title="Newsletter Aboneleri"
+        description="Blog email abone sistemi — istatistikler ve abone listesi"
+        breadcrumb={<span>Admin / Newsletter</span>}
+        actions={
+          <Link href="/admin/newsletter/broadcast" className="admin-btn admin-btn-primary">
+            <FaPaperPlane aria-hidden="true" className="w-3 h-3" />
             Broadcast Gönder
           </Link>
-        </div>
-      </div>
+        }
+      />
 
-      {/* İstatistik Kartları */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Toplam Abone" value={stats.total} accent="default" />
-        <StatCard
-          label="Aktif"
-          value={stats.active}
-          accent="success"
-        />
-        <StatCard
-          label="Doğrulanmış"
-          value={stats.verified}
-          accent="info"
-        />
-      </div>
+      {/* İstatistik Kartları — canlı DB sayıları */}
+      <StatCardGrid columns={3}>
+        <StatCard label="Toplam Abone" value={stats.total} />
+        <StatCard label="Aktif" value={stats.active} tone="success" />
+        <StatCard label="Doğrulanmış" value={stats.verified} tone="info" />
+      </StatCardGrid>
 
       {/* Abone Listesi */}
-      <div className="admin-section">
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="admin-section-header">
+      <DashboardSection
+        title="Son Aboneler"
+        description={
+          subscribers.length > 0
+            ? `En son ${subscribers.length} kayıt gösteriliyor`
+            : undefined
+        }
+        padding="none"
+        contained
+      >
+        {subscribers.length === 0 ? (
+          <div className="p-5 pt-0">
+            <EmptyState
+              variant="inline"
+              icon="inbox"
+              title="Henüz abone yok"
+              description="Footer veya blog üzerinden ilk abone kaydolduğunda burada görünecek."
+            />
+          </div>
+        ) : (
+          <ResponsiveTable
+            minWidth="720px"
+            caption="Newsletter aboneleri: email, isim, kaynak, durum ve kayıt tarihi"
+            className="rounded-none border-x-0 border-b-0 border-t border-border/40"
+          >
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
-                  Email
-                </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
-                  İsim
-                </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
-                  Kaynak
-                </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
-                  Durum
-                </th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">
-                  Kayıt Tarihi
-                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Email</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">İsim</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Kaynak</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Durum</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Kayıt Tarihi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {subscribers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="text-center py-12 text-gray-500 dark:text-gray-400"
-                  >
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="text-4xl">📧</div>
-                      <div>
-                        <p className="text-lg font-medium">
-                          Henüz abone yok
-                        </p>
-                        <p className="text-sm mt-1">
-                          Footer veya blog üzerinden ilk abone geldiğinde
-                          burada görünecek
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                subscribers.map((sub) => (
-                  <SubscriberRow key={sub.id} sub={sub} />
-                ))
-              )}
+            <tbody>
+              {subscribers.map((sub) => (
+                <SubscriberRow key={sub.id} sub={sub} />
+              ))}
             </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-interface StatCardProps {
-  label: string;
-  value: number;
-  accent: 'default' | 'success' | 'info' | 'warning';
-}
-
-function StatCard({ label, value, accent }: StatCardProps) {
-  const accentClasses = {
-    default: 'text-gray-900 dark:text-white',
-    success: 'text-green-600 dark:text-green-400',
-    info: 'text-blue-600 dark:text-blue-400',
-    warning: 'text-orange-600 dark:text-orange-400',
-  } as const;
-
-  return (
-    <div className="admin-card">
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{label}</p>
-      <p className={`text-3xl font-bold ${accentClasses[accent]}`}>{value}</p>
+          </ResponsiveTable>
+        )}
+      </DashboardSection>
     </div>
   );
 }
@@ -136,33 +102,38 @@ function SubscriberRow({ sub }: { sub: NewsletterSubscriber }) {
   const isActive = sub.active && !sub.unsubscribedAt;
 
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-all duration-200">
-      <td className="py-4 px-6 font-mono text-sm text-gray-900 dark:text-gray-100">
-        {sub.email}
-      </td>
-      <td className="py-4 px-6 text-gray-700 dark:text-gray-300">
+    <tr className="border-t border-border/40 transition-colors hover:bg-muted/40">
+      <td className="px-4 py-3 font-mono text-sm text-foreground">{sub.email}</td>
+      <td className="px-4 py-3 text-muted-foreground">
         {sub.name ?? (
-          <span className="text-gray-400 dark:text-gray-500 italic">—</span>
-        )}
-      </td>
-      <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400">
-        {sub.source ?? (
-          <span className="text-gray-400 dark:text-gray-500 italic">—</span>
-        )}
-      </td>
-      <td className="py-4 px-6">
-        {isActive ? (
-          <span className="admin-status-active">Aktif</span>
-        ) : (
-          <span className="admin-status-inactive">Pasif</span>
-        )}
-        {sub.verifiedAt && (
-          <span className="ml-2 text-xs text-blue-600 dark:text-blue-400">
-            ✓ Doğrulandı
+          <span className="italic">
+            <span aria-hidden="true">—</span>
+            <span className="sr-only">İsim girilmemiş</span>
           </span>
         )}
       </td>
-      <td className="py-4 px-6 text-sm text-gray-600 dark:text-gray-400">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
+        {sub.source ?? (
+          <span className="italic">
+            <span aria-hidden="true">—</span>
+            <span className="sr-only">Kaynak bilinmiyor</span>
+          </span>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <StatusBadge size="sm" {...resolveActiveStatus(isActive)} />
+          {sub.verifiedAt && (
+            <StatusBadge
+              size="sm"
+              tone="info"
+              label="Doğrulandı"
+              icon={<FaCheck className="w-2.5 h-2.5" />}
+            />
+          )}
+        </div>
+      </td>
+      <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
         {new Date(sub.createdAt).toLocaleString('tr-TR')}
       </td>
     </tr>

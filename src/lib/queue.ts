@@ -40,9 +40,33 @@ export interface Queue {
 export const Jobs = {
   MonitorCheck: 'monitor.check',
   NewsletterBroadcast: 'newsletter.broadcast',
+  /** Newsletter fan-out'un tek parçası (bkz. queueHandlers BROADCAST_BATCH_SIZE). */
+  NewsletterBroadcastBatch: 'newsletter.broadcast.batch',
   EmailSend: 'email.send',
   ImageOptimize: 'image.optimize',
   OrderExpire: 'order.expire',
+  /** Ödeme sonrası yan etkiler (receipt/webhook/notification/affiliate/loyalty). */
+  OrderPostCheckout: 'order.post-checkout',
+  AiBulkGenerate: 'ai.bulk.generate',
+  AiBrandVoiceTrain: 'ai.brand-voice.train',
+  // L4 — AI Bulk Dead Letter Queue (maxRetries aşıldığında tetiklenir).
+  AiBulkGenerateDeadLetter: 'ai.bulk.deadletter',
+  // L4 — Per-row AI Bulk retry (backoff sonrası tek satır işlenir).
+  AiBulkRowRetry: 'ai.bulk.row.retry',
+  // Phase 3 B.1 — Template Marketplace kurulum is akisi.
+  templateInstall: 'template.install',
+  // Phase 3 B.6 — Demo deployment (Vercel preview + subdomain).
+  TemplateDemoDeploy: 'template.demo.deploy',
+  // Phase 4 C.2 — KVKK/GDPR site crawl (Playwright scanner).
+  ComplianceScan: 'compliance.scan',
+  // Phase 4 C.4 — Compliance monitor cron (nextScanAt dolduğunda tetiklenir).
+  ComplianceMonitor: 'compliance.monitor',
+  // L8 — KVKK 72 saat deadline hatırlatma (deadline 24 saat kala).
+  BreachDeadlineReminder: 'breach.deadline.reminder',
+  // L8 — 60. saatte otomatik VERBİS escalation.
+  AutoSubmitBreachToVerbis: 'breach.verbis.autosubmit',
+  // L8 — Günlük breach deadline cron (UTC 09:00).
+  BreachDeadlineCron: 'breach.deadline.cron',
 } as const;
 
 export type JobName = (typeof Jobs)[keyof typeof Jobs];
@@ -129,6 +153,29 @@ export class InMemoryQueue implements Queue {
 const BULL_QUEUE_NAME = 'noktanyus-jobs';
 
 /**
+ * `bullmq` opsiyonel bağımlılık gibi ele alınır: yüklü değilse ya da runtime
+ * `require` sağlamıyorsa (saf ESM bağlam) hata FIRLATILMAZ, null döner ve
+ * createQueue() in-memory'e düşer.
+ *
+ * `typeof require` kontrolü tanımsız değişkende bile güvenlidir (typeof throw
+ * etmez), bu yüzden ESM'de patlamak yerine null dönülür.
+ */
+function loadBullMQ(): any | null {
+  if (typeof require !== 'function') {
+    logger.warn('[queue] require() bu ortamda yok, BullMQ yüklenemedi');
+    return null;
+  }
+  try {
+    return require('bullmq');
+  } catch (err) {
+    logger.warn('[queue] bullmq paketi yüklenemedi', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    return null;
+  }
+}
+
+/**
  * BullMQ tabanlı queue. Tüm job tipleri tek queue'da tutulur; ayırma
  * job.name üzerinden worker içinde yapılır.
  */
@@ -141,13 +188,23 @@ export class BullMQQueue implements Queue {
   private handlers = new Map<string, JobHandler>();
   private connection: { url: string };
 
-  constructor(redisUrl: string) {
+  /**
+   * @param redisUrl   Redis bağlantı URL'i
+   * @param bullModule Test seam'i. `undefined` (varsayılan) → `loadBullMQ()`
+   *                   ile gerçek paket yüklenir. `null` → "paket yok" senaryosu.
+   *                   Production'da HİÇ geçilmez.
+   */
+  constructor(redisUrl: string, bullModule?: any | null) {
     this.connection = { url: redisUrl };
-    // bullmq opsiyonel bir bağımlılık gibi ele alınır: yüklü değilse
-    // constructor patlamaz, createQueue() in-memory'e düşer.
-    // require() burada koşullu yükleme için kullanılır; standart bundler
-    // dynamic import yerine bunu kabul eder.
-    this.bull = require('bullmq');
+
+    // `??` DEĞİL: explicit null "paket yok" demek, "verilmedi" demek değil.
+    const bull = bullModule === undefined ? loadBullMQ() : bullModule;
+    if (!bull) {
+      // createQueue() bunu yakalayıp in-memory'e düşer.
+      throw new Error('bullmq yüklü değil');
+    }
+    this.bull = bull;
+
     this.queue = new this.bull.Queue(BULL_QUEUE_NAME, {
       connection: this.connection,
       defaultJobOptions: {
@@ -156,6 +213,22 @@ export class BullMQQueue implements Queue {
         removeOnComplete: 100,
         removeOnFail: 500,
       },
+    });
+
+    // Redis erişilemezse ioredis 'error' event'i yayar. Listener YOKSA Node
+    // bunu unhandled 'error' sayar ve PROCESS'İ ÖLDÜRÜR. Kuyruk bozulsa bile
+    // uygulamanın ayakta kalması gerekir.
+    this.attachErrorListener(this.queue, 'queue');
+  }
+
+  /** 'error' event'ini loglar ve yutar — unhandled error ile process ölmesin. */
+  private attachErrorListener(emitter: any, label: string): void {
+    if (typeof emitter?.on !== 'function') return;
+    emitter.on('error', (err: unknown) => {
+      logger.error('[queue] BullMQ bağlantı/altyapı hatası', {
+        scope: label,
+        error: err instanceof Error ? err.message : String(err),
+      });
     });
   }
 
@@ -182,6 +255,8 @@ export class BullMQQueue implements Queue {
       { connection: this.connection, concurrency: 5 }
     );
 
+    this.attachErrorListener(this.worker, 'worker');
+
     this.worker.on('failed', (job: any, err: Error) => {
       logger.error('[queue] Job başarısız', {
         job: job?.name,
@@ -194,16 +269,32 @@ export class BullMQQueue implements Queue {
 
   async add(job: Job): Promise<void> {
     if (!this.queue) return;
-    await this.queue.add(job.name, job.data, {
-      jobId: job.id,
-      delay: job.delay,
-      attempts: job.attempts ?? 3,
-    });
+    try {
+      await this.queue.add(job.name, job.data, {
+        jobId: job.id,
+        delay: job.delay,
+        attempts: job.attempts ?? 3,
+      });
+    } catch (err) {
+      // Redis down → enqueue başarısız. Çağıran (checkout, webhook) bu yüzden
+      // 500 dönmemeli; job kaybı loglanır.
+      logger.error('[queue] Job kuyruğa eklenemedi', {
+        job: job.name,
+        id: job.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   async close(): Promise<void> {
-    await this.worker?.close();
-    await this.queue?.close();
+    try {
+      await this.worker?.close();
+      await this.queue?.close();
+    } catch (err) {
+      logger.warn('[queue] BullMQ kapatılırken hata', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
     this.worker = null;
     this.queue = null;
   }

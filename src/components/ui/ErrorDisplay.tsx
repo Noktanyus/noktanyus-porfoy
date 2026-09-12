@@ -3,10 +3,20 @@
  *
  * a11y: `role="alert"` + `aria-live="assertive"` ile kritik hata mesajlari
  *       ekran okuyucu tarafindan HEMEN duyurulur (polite yerine assertive).
+ *
+ * Bu dosya artik SADECE ErrorDisplay ve ErrorBanner icerir. EmptyState
+ * `EmptyState.tsx`'ten re-export edilir — tek kaynak (PageStates ve
+ * diger consumer'lar ayni component'i kullanir).
  */
 
 import { FaExclamationTriangle, FaSyncAlt, FaHome } from "react-icons/fa";
 import Link from "next/link";
+import { DS } from "@/lib/design-system";
+import { EmptyState as EmptyStateUnified } from "./EmptyState";
+
+/* Re-export — backward compatibility.
+   Once bunu import eden consumer'lar ayni davranisi alir. */
+export { EmptyStateUnified as EmptyState };
 
 interface ErrorDisplayProps {
   title?: string;
@@ -48,7 +58,7 @@ export function ErrorDisplay({
         {onRetry && (
           <button
             onClick={onRetry}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/20 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className={`${DS.button.primary} px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-indigo-500/20`}
           >
             <FaSyncAlt size={14} aria-hidden="true" />
             Tekrar Dene
@@ -57,7 +67,7 @@ export function ErrorDisplay({
         {showHomeLink && (
           <Link
             href="/"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold glass-card hover:bg-white/50 dark:hover:bg-gray-800/50 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+            className={`${DS.button.secondary} px-5 py-2.5 rounded-xl text-sm font-bold glass-card`}
           >
             <FaHome size={14} aria-hidden="true" />
             Ana Sayfa
@@ -104,7 +114,7 @@ export function ErrorDisplay({
       aria-live="assertive"
       className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4"
     >
-      <div className="glass-card-premium p-10 max-w-md flex flex-col items-center">
+      <div className="glass-card p-10 max-w-md flex flex-col items-center">
         {content}
       </div>
     </div>
@@ -112,7 +122,7 @@ export function ErrorDisplay({
 }
 
 /**
- * Küçük hata gösterimi (inline banner)
+ * Kucuk hata gosterimi (inline banner)
  */
 export function ErrorBanner({
   message,
@@ -125,7 +135,7 @@ export function ErrorBanner({
     <div
       role="alert"
       aria-live="assertive"
-      className="glass-card-premium p-4 flex items-center justify-between gap-4 animate-fade-in"
+      className="glass-card p-4 flex items-center justify-between gap-4 animate-fade-in"
     >
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-red-100/50 dark:bg-red-900/20 flex items-center justify-center flex-shrink-0" aria-hidden="true">
@@ -136,7 +146,7 @@ export function ErrorBanner({
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
           aria-label="Kapat"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -144,49 +154,6 @@ export function ErrorBanner({
           </svg>
         </button>
       )}
-    </div>
-  );
-}
-
-/**
- * Empty state gösterimi (içerik yok)
- */
-export function EmptyState({
-  title = "İçerik Bulunamadı",
-  message = "Henüz içerik eklenmemiş.",
-  icon,
-  action,
-  actionLabel
-}: {
-  title?: string;
-  message?: string;
-  icon?: React.ReactNode;
-  action?: () => void;
-  actionLabel?: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4 py-16">
-      <div className="glass-card-premium p-10 max-w-md flex flex-col items-center">
-        {icon && (
-          <div className="w-16 h-16 mb-6 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center" aria-hidden="true">
-            {icon}
-          </div>
-        )}
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-          {title}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          {message}
-        </p>
-        {action && actionLabel && (
-          <button
-            onClick={action}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-          >
-            {actionLabel}
-          </button>
-        )}
-      </div>
     </div>
   );
 }

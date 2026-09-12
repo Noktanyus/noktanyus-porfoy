@@ -17,9 +17,11 @@
  */
 
 import { ApolloServer } from "@apollo/server";
+import type { ValidationRule } from "graphql";
 import { typeDefs } from "@/modules/graphql/schema";
 import { resolvers } from "@/modules/graphql/resolvers";
 import type { GraphQLContext } from "@/modules/graphql/context";
+import { GraphQLError } from "graphql";
 import { logger } from "./logger";
 import {
   checkRateLimit,
@@ -68,23 +70,23 @@ export async function getApolloServer(): Promise<ApolloServer<GraphQLContext>> {
 
     validationRules: [
       // Custom validation: depth + complexity kontrolü
-      (context) => {
-        const query = context.operation?.query ?? "";
-        const depth = calculateDepth(query);
+      ((context) => {
+        const source = context.getDocument().loc?.source?.body ?? "";
+        const depth = calculateDepth(source);
         if (depth > MAX_DEPTH) {
           context.reportError(
-            new Error(`Query depth ${depth} exceeds max ${MAX_DEPTH}`)
+            new GraphQLError(`Query depth ${depth} exceeds max ${MAX_DEPTH}`)
           );
         }
-        const complexity = calculateComplexity(query);
+        const complexity = calculateComplexity(source);
         if (complexity > MAX_COMPLEXITY) {
           context.reportError(
-            new Error(
+            new GraphQLError(
               `Query complexity ${complexity} exceeds max ${MAX_COMPLEXITY}`
             )
           );
         }
-      },
+      }) as ValidationRule,
     ],
 
     plugins: [
@@ -110,7 +112,7 @@ export async function getApolloServer(): Promise<ApolloServer<GraphQLContext>> {
               requestContext.errors?.forEach((err) => {
                 logger.warn(
                   `[graphql] error: ${err.message}`,
-                  err.path?.join(".")
+                  { path: err.path?.join(".") }
                 );
               });
             },
@@ -131,7 +133,7 @@ export async function getApolloServer(): Promise<ApolloServer<GraphQLContext>> {
           return formattedError;
         }
         // Internal hatalar → generic mesaj
-        logger.error("[graphql] internal error:", error);
+        logger.error("[graphql] internal error", { error });
         return {
           message: "Internal server error",
           extensions: { code: "INTERNAL_SERVER_ERROR" },

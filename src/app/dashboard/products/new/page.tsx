@@ -12,6 +12,7 @@ import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { NewProductForm } from '@/components/dashboard/NewProductForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Yeni Ürün | Dashboard' };
@@ -22,12 +23,12 @@ export default async function NewProductPage() {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div>
-        <h1 className="text-2xl font-bold">Yeni Ürün Ekle</h1>
-        <p className="text-sm text-muted-foreground">
-          Mağazada yayınlayacağın bir dijital ürün oluştur
-        </p>
-      </div>
+      <PageHeader
+        title="Yeni Ürün Ekle"
+        description="Mağazada yayınlayacağın bir dijital ürün oluştur"
+        backHref="/dashboard/products"
+        backLabel="Ürünlerim"
+      />
       <NewProductForm />
     </div>
   );

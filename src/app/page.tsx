@@ -115,7 +115,7 @@ export default async function Home() {
           <AnimatedHero
             name={aboutData?.name ?? 'Yunus Tuğhan'}
             title={aboutData?.title ?? 'Software Developer'}
-            subtitle={`// ${aboutData?.title ?? 'Yazılım Geliştirici'}`}
+            subtitle="// Portföy · SaaS · E-ticaret"
             description={
               aboutData?.content ?? 'Akdeniz Üniversitesi Yazılım Geliştirici'
             }
@@ -123,12 +123,16 @@ export default async function Home() {
             linkedinUrl={linkedinUrl}
             instagramUrl={instagramUrl}
             email={aboutData?.contactEmail ?? undefined}
+            profileImage={aboutData?.profileImage || '/images/profile.webp'}
           />
 
-          {/* Featured Content (sağ kolon) */}
-          <section className="relative">
-            <FeaturedContent homeSettings={homeSettings} />
-          </section>
+          {/* Öne çıkan içerik — yalnızca gerçek içerik yapılandırıldıysa */}
+          {homeSettings?.featuredContentType &&
+            homeSettings.featuredContentType !== '' && (
+              <section className="relative">
+                <FeaturedContent homeSettings={homeSettings} />
+              </section>
+            )}
 
           {/* Featured Projects */}
           <FeaturedProjects projects={featuredProjects} />

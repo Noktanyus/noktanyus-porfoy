@@ -168,7 +168,7 @@ export function validateReportConfig(config: ReportConfig): {
     }
     const allowedFunctions = SOURCE_METRIC_FUNCTIONS[config.source];
     if (!allowedFunctions?.includes(m.function)) {
-      errors.push(`metric[${i}].function ${m.source ?? config.source} icin gecersiz`);
+      errors.push(`metric[${i}].function ${m.function} icin gecersiz`);
     }
   });
 

@@ -12,9 +12,10 @@ import { webhookService } from '@/modules/webhooks';
 import { UpdateWebhookSchema } from '@/modules/webhooks/schemas';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { UnauthorizedError } from '@/modules/shared/errors';
+import { logDataAccess } from '@/lib/audit';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   return withErrorHandling(async () => {
@@ -23,6 +24,14 @@ export async function GET(
     const userId = (session.user as any).id as string;
 
     const webhook = await webhookService.getWebhook(userId, params.id);
+    // Phase 4 C.8 — KVKK Madde 11: kişisel veri erişimi audit
+    logDataAccess({
+      userId,
+      resource: 'webhook',
+      resourceId: params.id,
+      ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
+      userAgent: req.headers.get('user-agent') ?? undefined,
+    });
     return ok({
       webhook: {
         ...webhook,

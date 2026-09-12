@@ -1,0 +1,100 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Noktanyus Portfolio & SaaS API",
+    "version": "1.0.0",
+    "description": "Public REST API surface for the Noktanyus portfolio + SaaS platform. Covers authentication (NextAuth + OAuth 2.0 PKCE), AI generation with plan-based quota enforcement, the digital product catalog, blog CMS, API key management and newsletter.",
+    "contact": { "name": "API Support", "email": "api@noktanyus.local" },
+    "license": { "name": "Proprietary" }
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local development" }
+  ],
+  "tags": [
+    { "name": "Auth" },
+    { "name": "OAuth 2.0" },
+    { "name": "AI" },
+    { "name": "Products" },
+    { "name": "Blog" },
+    { "name": "API Keys" },
+    { "name": "Newsletter" },
+    { "name": "Plans" },
+    { "name": "System" }
+  ],
+  "paths": {},
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Machine-to-machine API anahtarı. /api/user/api-keys ile üretilir."
+      },
+      "OAuth2Auth": {
+        "type": "oauth2",
+        "description": "OAuth 2.0 Authorization Code with PKCE (RFC 7636, S256).",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "/api/auth/oauth/authorize",
+            "tokenUrl": "/api/auth/oauth/token",
+            "refreshUrl": "/api/auth/oauth/token",
+            "scopes": {
+              "read:profile": "Kullanıcı profil bilgilerini oku",
+              "read:orders": "Sipariş geçmişini oku",
+              "write:products": "Ürün oluştur / güncelle (admin)"
+            }
+          }
+        }
+      },
+      "SessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "next-auth.session-token",
+        "description": "NextAuth session cookie (browser tabanlı admin/SSR akışları için)."
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["success", "error"],
+        "properties": {
+          "success": { "type": "boolean", "enum": [false] },
+          "error": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "properties": {
+                  "code": { "type": "string" },
+                  "message": { "type": "string" }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "ApiEnvelope": {
+        "type": "object",
+        "required": ["success"],
+        "properties": {
+          "success": { "type": "boolean" },
+          "data": {},
+          "error": { "type": "string" },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer" },
+              "page": { "type": "integer" },
+              "limit": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "_meta": {
+    "note": "Spec'in dolu içeriği src/lib/openapi.ts üzerinden runtime'da üretilir. Bu statik dosya, JS runtime olmadan (örn. CDN mirror, GitHub Pages preview) temel metadata + security schemes + schemas sağlar.",
+    "specSource": "/api/openapi",
+    "lastGenerated": "phase-d.4"
+  }
+}

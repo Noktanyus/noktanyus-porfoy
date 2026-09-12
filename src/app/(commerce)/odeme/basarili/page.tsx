@@ -1,8 +1,13 @@
+/**
+ * @file /odeme/basarili — Ödeme sonucu sayfası.
+ */
+
 import { Metadata } from 'next';
-import Link from 'next/link';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export const metadata: Metadata = {
-  title: 'Ödeme Başarılı',
+  title: 'Ödeme Sonucu',
 };
 
 interface PageProps {
@@ -10,80 +15,88 @@ interface PageProps {
     iyzico?: string;
     iyzico_error?: string;
     mock_iyzico?: string;
+    paytr?: string;
+    tip?: string;
+    sub?: string;
+    mock_sub?: string;
   };
+}
+
+function describeError(code: string): string {
+  switch (code) {
+    case 'no_token':
+      return 'Ödeme oturumu doğrulanamadı. İşlem tamamlanmadan sayfa kapatılmış olabilir.';
+    case 'failed':
+      return 'Ödeme sağlayıcısı işlemi onaylamadı. Kart bilgilerinizi kontrol edip tekrar deneyin.';
+    default:
+      return 'Ödeme doğrulaması tamamlanamadı. Tutar kartınızdan çekilmediyse tekrar deneyebilirsiniz.';
+  }
 }
 
 export default function SuccessPage({ searchParams }: PageProps) {
   const iyzicoError = searchParams.iyzico_error;
   const iyzicoSuccess = searchParams.iyzico === 'success' || searchParams.mock_iyzico === '1';
+  const isPaytr = Boolean(searchParams.paytr);
+  const isTip = searchParams.tip === '1';
+  const isSub = searchParams.sub === '1' || searchParams.mock_sub === '1';
 
   if (iyzicoError) {
     return (
       <div className="container-responsive">
-        <div className="space-responsive">
-          <div className="max-w-md mx-auto text-center py-12">
-            <p className="text-6xl mb-6" aria-hidden="true">
-              ⚠️
+        <div className="space-responsive" role="alert">
+          <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+            <StatusBadge tone="danger" dot label="Ödeme tamamlanamadı" srLabel="Durum:" />
+            <EmptyState
+              variant="page"
+              icon="question"
+              title="Ödeme Tamamlanamadı"
+              description={`${describeError(iyzicoError)} Sorun sürerse destek ekibiyle iletişime geçin.`}
+              action={{ label: 'Mağazaya Dön', href: '/magaza' }}
+              secondaryAction={{ label: 'Siparişlerim', href: '/dashboard/orders' }}
+              className="w-full"
+            />
+            <p className="font-mono text-xs text-muted-foreground">
+              Referans kodu: {iyzicoError}
             </p>
-            <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-              Ödeme Tamamlanamadı
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              iyzico ödeme doğrulaması başarısız oldu
-              {iyzicoError !== 'failed' && iyzicoError !== 'no_token'
-                ? ` (${iyzicoError})`
-                : ''}
-              . Lütfen tekrar deneyin veya destek ile iletişime geçin.
-            </p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              <Link
-                href="/magaza"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
-              >
-                Mağazaya Dön
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300"
-              >
-                Dashboard
-              </Link>
-            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  const title = isTip
+    ? 'Desteğiniz Alındı'
+    : isSub
+      ? 'Abonelik Ödemesi Alındı'
+      : 'Ödemeniz Başarılı';
+
+  const description = isTip
+    ? 'Teşekkürler. Destek ödemeniz PayTR üzerinden alındı.'
+    : isSub
+      ? 'Dönem ödemeniz alındı. Aboneliğiniz aktifleştirildi. Otomatik yenileme yoktur; süre bitince yeniden ödeme yapabilirsiniz.'
+      : iyzicoSuccess
+        ? 'iyzico üzerinden ödemeniz tamamlandı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'
+        : isPaytr
+          ? 'PayTR üzerinden ödemeniz alındı. Sipariş onayı e-posta ile gelir; lisanslar kısa sürede hesabınıza yansır.'
+          : 'Siparişiniz alındı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.';
+
   return (
     <div className="container-responsive">
-      <div className="space-responsive">
-        <div className="max-w-md mx-auto text-center py-12">
-          <p className="text-6xl mb-6" aria-hidden="true">
-            ✅
-          </p>
-          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-            Ödemeniz Başarılı!
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mb-8">
-            {iyzicoSuccess
-              ? 'iyzico üzerinden ödemeniz başarıyla tamamlandı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'
-              : 'Siparişiniz alındı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'}
-          </p>
-          <div className="flex gap-3 justify-center flex-wrap">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
-            >
-              Dashboard&apos;a Git
-            </Link>
-            <Link
-              href="/magaza"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300"
-            >
-              Alışverişe Devam
-            </Link>
-          </div>
+      <div className="space-responsive" role="status">
+        <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
+          <StatusBadge tone="success" dot label="Ödeme alındı" srLabel="Durum:" />
+          <EmptyState
+            variant="page"
+            icon="box"
+            title={title}
+            description={description}
+            action={{
+              label: isTip ? 'Ana Sayfa' : isSub ? 'Dashboard' : 'Siparişlerime Git',
+              href: isTip ? '/' : isSub ? '/dashboard' : '/dashboard/orders',
+            }}
+            secondaryAction={{ label: 'Alışverişe Devam', href: '/magaza' }}
+            className="w-full"
+          />
         </div>
       </div>
     </div>

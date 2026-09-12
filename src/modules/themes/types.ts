@@ -1,7 +1,11 @@
 /**
  * @file Theme Preference Service
  * @description Kullanıcının aktif tema preset'ini DB'de saklar ve yükler.
- *              Schema: ThemePreference (User.id PK, presetId, updatedAt).
+ *              Schema: ThemePreference (userId @unique, theme, accentColor, updatedAt).
+ *
+ *              NOT: Schema'da ayrı bir `presetId` alanı yok; preset kimliği
+ *              `theme` alanında ("default" | "ocean" | "sunset" | "forest"
+ *              | "rose" | "midnight") string olarak saklanır.
  */
 
 import { prisma } from "@/lib/prisma";
@@ -14,6 +18,16 @@ export interface UserThemePreference {
   updatedAt: Date;
 }
 
+/**
+ * DB'de saklanan alan (theme) ile uygulama tarafındaki presetId arasında
+ * adapter. Bu sayede service hâlâ `presetId` API'sini kullanır; DB katmanında
+ * schema uyumu için `theme` alanına map'lenir.
+ */
+function themeToPresetId(theme: string | null | undefined): ThemePresetId {
+  if (theme && isThemePresetId(theme)) return theme;
+  return "default";
+}
+
 export const userThemeService = {
   /**
    * Kullanıcının tema tercihini getirir. Yoksa default döner.
@@ -22,9 +36,9 @@ export const userThemeService = {
     try {
       const pref = await prisma.themePreference.findUnique({
         where: { userId },
-        select: { presetId: true },
+        select: { theme: true },
       });
-      if (pref && isThemePresetId(pref.presetId)) return pref.presetId;
+      if (pref) return themeToPresetId(pref.theme);
     } catch (err) {
       // DB erişimi yoksa default'a düş
     }
@@ -37,12 +51,12 @@ export const userThemeService = {
   async setPreference(userId: string, presetId: ThemePresetId): Promise<UserThemePreference | null> {
     const pref = await prisma.themePreference.upsert({
       where: { userId },
-      create: { userId, presetId },
-      update: { presetId },
+      create: { userId, theme: presetId },
+      update: { theme: presetId },
     });
     return {
       userId: pref.userId,
-      presetId: isThemePresetId(pref.presetId) ? pref.presetId : "default",
+      presetId: themeToPresetId(pref.theme),
       updatedAt: pref.updatedAt,
     };
   },

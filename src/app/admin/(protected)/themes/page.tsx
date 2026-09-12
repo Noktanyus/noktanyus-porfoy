@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import { ThemeManager } from "@/components/admin/ThemeManager";
+import { PageHeader } from "@/components/dashboard/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +18,12 @@ export const metadata: Metadata = {
 
 export default function AdminThemesPage() {
   return (
-    <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Tema Yönetimi</h1>
-        <p className="text-sm text-muted-foreground">
-          Sistem genelinde kullanılan renk paletlerini önizleyin ve seçin.
-          Kullanıcılar kendi tercihlerini ayrıca belirleyebilir.
-        </p>
-      </header>
+    <div className="admin-content-spacing">
+      <PageHeader
+        title="Tema Yönetimi"
+        description="Sistem genelinde kullanılan renk paletlerini önizleyin ve seçin. Kullanıcılar kendi tercihlerini ayrıca belirleyebilir."
+        breadcrumb={<span>Admin / Tema</span>}
+      />
 
       <ThemeManager />
     </div>

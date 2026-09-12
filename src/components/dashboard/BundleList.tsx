@@ -9,6 +9,7 @@
 import Link from 'next/link';
 import { FaBoxOpen, FaEdit, FaShoppingBag, FaTag } from 'react-icons/fa';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface BundleRow {
   id: string;
@@ -43,16 +44,12 @@ function discountPercent(original: number, discounted: number): number {
 export function BundleList({ bundles }: BundleListProps) {
   if (bundles.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <FaBoxOpen className="mx-auto w-12 h-12 text-muted-foreground mb-4" aria-hidden="true" />
-        <h2 className="text-xl font-semibold mb-2">Henüz bundle oluşturmadınız</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          Birden fazla dijital ürünü paketleyip indirimli satışa sunabilirsiniz.
-        </p>
-        <Link href="/dashboard/bundles/new" className="admin-btn admin-btn-primary inline-block">
-          İlk Bundle&apos;ı Oluştur
-        </Link>
-      </div>
+      <EmptyState
+        title="Henüz bundle oluşturmadınız"
+        description="Birden fazla dijital ürünü paketleyip indirimli satışa sunabilirsiniz."
+        icon="📦"
+        action={{ label: 'İlk Bundle Oluştur', href: '/dashboard/bundles/new' }}
+      />
     );
   }
 
@@ -116,10 +113,10 @@ export function BundleList({ bundles }: BundleListProps) {
               <span>{formatDate(bundle.createdAt)}</span>
               <Link
                 href={`/dashboard/bundles/${bundle.id}`}
-                className="inline-flex items-center gap-1 text-brand-primary hover:underline"
+                className="inline-flex items-center gap-1 text-brand-primary hover:underline min-h-[44px] px-1"
                 aria-label={`${bundle.name} bundle'ını düzenle`}
               >
-                <FaEdit className="w-3 h-3" />
+                <FaEdit className="w-3 h-3" aria-hidden="true" />
                 Düzenle
               </Link>
             </footer>

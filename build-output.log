@@ -1,0 +1,333 @@
+
+> portfolio@0.1.0 build
+> prisma generate --schema=./prisma/schema.prisma && next build
+
+[33m[1mwarn[22m[39m The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+For more information, see: [4mhttps://pris.ly/prisma-config[24m
+
+[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from prisma\schema.prisma[22m
+
+✔ Generated [1mPrisma Client[22m (v6.19.3)[2m to .\node_modules\@prisma\client[22m in 493ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+  [1m[38;2;173;127;168m▲ Next.js 14.2.35[39m[22m
+  - Environments: .env
+  - Experiments (use with caution):
+    · instrumentationHook
+
+ [37m[1m [22m[39m Creating an optimized production build ...
+[@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
+[@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+[@sentry/nextjs] It appears you've configured a `sentry.edge.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.edge.config.ts` file afterward.
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (132kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ [33m[1m⚠[22m[39m Compiled with warnings
+
+./node_modules/@protobufjs/inquire/index.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+./node_modules/@protobufjs/inquire/index.js
+./node_modules/@apollo/protobufjs/src/util/minimal.js
+./node_modules/@apollo/protobufjs/src/index-minimal.js
+./node_modules/@apollo/protobufjs/minimal.js
+./node_modules/@apollo/usage-reporting-protobuf/generated/esm/protobuf.js
+./node_modules/@apollo/server/dist/esm/plugin/inlineTrace/index.js
+./node_modules/@apollo/server/dist/esm/ApolloServer.js
+./node_modules/@apollo/server/dist/esm/index.js
+./src/lib/apollo.ts
+./src/app/api/graphql/route.ts
+
+./node_modules/bullmq/dist/esm/classes/valkey-glide-client.js
+Module not found: Can't resolve '@valkey/valkey-glide' in 'C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\bullmq\dist\esm\classes'
+
+Import trace for requested module:
+./node_modules/bullmq/dist/esm/classes/valkey-glide-client.js
+./node_modules/bullmq/dist/esm/classes/index.js
+./node_modules/bullmq/dist/esm/index.js
+./src/lib/queue.ts
+./src/lib/queueService.ts
+./src/app/api/admin/newsletter/broadcast/route.ts
+
+./src/lib/apollo.ts
+Attempted import error: 'MAX_DEPTH' is not exported from '@/modules/graphql/validation' (imported as 'MAX_DEPTH').
+
+Import trace for requested module:
+./src/lib/apollo.ts
+./src/app/api/graphql/route.ts
+
+./src/lib/apollo.ts
+Attempted import error: 'MAX_DEPTH' is not exported from '@/modules/graphql/validation' (imported as 'MAX_DEPTH').
+
+Import trace for requested module:
+./src/lib/apollo.ts
+./src/app/api/graphql/route.ts
+
+./src/lib/apollo.ts
+Attempted import error: 'MAX_COMPLEXITY' is not exported from '@/modules/graphql/validation' (imported as 'MAX_COMPLEXITY').
+
+Import trace for requested module:
+./src/lib/apollo.ts
+./src/app/api/graphql/route.ts
+
+./src/lib/apollo.ts
+Attempted import error: 'MAX_COMPLEXITY' is not exported from '@/modules/graphql/validation' (imported as 'MAX_COMPLEXITY').
+
+Import trace for requested module:
+./src/lib/apollo.ts
+./src/app/api/graphql/route.ts
+
+ [37m[1m [22m[39m Skipping validation of types
+ [37m[1m [22m[39m Skipping linting
+ [37m[1m [22m[39m Collecting page data ...
+{"timestamp":"2026-08-30T08:56:33.534Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+{"timestamp":"2026-08-30T08:56:33.805Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+{"timestamp":"2026-08-30T08:56:33.886Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+{"timestamp":"2026-08-30T08:56:33.887Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+{"timestamp":"2026-08-30T08:56:33.914Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+{"timestamp":"2026-08-30T08:56:34.000Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+{"timestamp":"2026-08-30T08:56:34.117Z","level":"warn","message":"[Email] RESEND_API_KEY not configured — emails will be logged to console"}
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ [37m[1m [22m[39m Generating static pages (0/120) ...
+{"timestamp":"2026-08-30T08:56:38.972Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/admin/analytics/funnel couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+{"timestamp":"2026-08-30T08:56:39.358Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/admin/analytics/revenue couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+{"timestamp":"2026-08-30T08:56:39.359Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/admin/analytics/clv couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+{"timestamp":"2026-08-30T08:56:40.689Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/currency couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+ [37m[1m [22m[39m Generating static pages (30/120) 
+{"timestamp":"2026-08-30T08:56:40.749Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/products couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+{"timestamp":"2026-08-30T08:56:40.749Z","level":"error","message":"Unhandled API error","error":{"description":"Route /api/tax/calculate couldn't be rendered statically because it used `request.url`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error","digest":"DYNAMIC_SERVER_USAGE"}}
+ [37m[1m [22m[39m Generating static pages (60/120) 
+ [37m[1m [22m[39m Generating static pages (90/120) 
+ [32m[1m✓[22m[39m Generating static pages (120/120)
+ [37m[1m [22m[39m Finalizing page optimization ...
+ [37m[1m [22m[39m Collecting build traces ...
+
+[4mRoute (app)[24m                                 [4mSize[24m     [4mFirst Load JS[24m
+┌ ƒ /                                       8.89 kB         [37m[1m183 kB[22m[39m
+├ ƒ /_not-found                             349 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /admin/analytics                        2.65 kB         [37m[1m123 kB[22m[39m
+├ ƒ /admin/audit                            3.01 kB        [37m[1m92.1 kB[22m[39m
+├ ƒ /admin/blog                             3.16 kB         [37m[1m138 kB[22m[39m
+├ ƒ /admin/blog/edit/[slug]                 894 B           [37m[1m271 kB[22m[39m
+├ ƒ /admin/blog/new                         385 B           [37m[1m271 kB[22m[39m
+├ ƒ /admin/blog/scheduled                   3.03 kB         [37m[1m146 kB[22m[39m
+├ ƒ /admin/campaigns                        1.87 kB        [37m[1m90.9 kB[22m[39m
+├ ƒ /admin/coupons                          394 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /admin/dashboard                        395 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /admin/gallery                          2.77 kB         [37m[1m134 kB[22m[39m
+├ ƒ /admin/hakkimda                         31 kB           [37m[1m283 kB[22m[39m
+├ ƒ /admin/history                          1.52 kB        [37m[1m95.8 kB[22m[39m
+├ ƒ /admin/home-settings                    1.9 kB          [37m[1m109 kB[22m[39m
+├ ƒ /admin/login                            3.06 kB         [37m[1m167 kB[22m[39m
+├ ƒ /admin/messages                         2.32 kB        [37m[1m96.6 kB[22m[39m
+├ ƒ /admin/newsletter                       394 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /admin/newsletter/broadcast             3.88 kB         [37m[1m138 kB[22m[39m
+├ ƒ /admin/popups                           3.61 kB         [37m[1m138 kB[22m[39m
+├ ƒ /admin/popups/edit/[slug]               889 B           [37m[1m162 kB[22m[39m
+├ ƒ /admin/popups/new                       372 B           [37m[1m162 kB[22m[39m
+├ ƒ /admin/products                         2.5 kB          [37m[1m137 kB[22m[39m
+├ ƒ /admin/projects                         3.06 kB         [37m[1m138 kB[22m[39m
+├ ƒ /admin/projects/edit/[slug]             884 B           [37m[1m197 kB[22m[39m
+├ ƒ /admin/projects/new                     375 B           [37m[1m197 kB[22m[39m
+├ ƒ /admin/seo                              2.26 kB         [37m[1m119 kB[22m[39m
+├ ƒ /admin/settings/sandbox                 2.72 kB         [37m[1m128 kB[22m[39m
+├ ƒ /admin/themes                           3.55 kB        [37m[1m92.6 kB[22m[39m
+├ ƒ /admin/workspaces                       393 B          [37m[1m98.3 kB[22m[39m
+├ ○ /api/about                              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/analytics/clv                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/analytics/funnel             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/analytics/revenue            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/blog/[slug]                  0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/campaigns                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/content                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/branches                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/commit-all               0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/log                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/revert                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/switch-branch            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/git/test-connection          0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/hakkimda                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/images                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/newsletter/broadcast         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/popups/[slug]                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/products/[id]                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/products/[id]/toggle-active  0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/projects/[slug]              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/reply                        0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/settings                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/themes                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/admin/upload                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/affiliate/payout                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/alert-channels                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/alert-channels/[id]                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/[...nextauth]                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/register                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/saml                          0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/saml/callback                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/blogs/[slug]/comments              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/blogs/[slug]/schedule              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/blogs/draft                        0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/blogs/popular                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/bundles                            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/bundles/[slug]                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/bundles/stats                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/chat/conversations                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/chat/conversations/[id]/messages   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/chat/conversations/[id]/read       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/checkout/product                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/checkout/subscription              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/checkout/subscription-portal       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/comments/[id]                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/contact                            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/conversions/[name]                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/coupons/validate                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/cron/publish-scheduled             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/cron/run-campaigns                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/cron/subscription-resume           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/cron/webhook-retry                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/currency                           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/custom-domain/[domain]             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/experiments/[name]                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/graphql                            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/health                             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/health/modules                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/health/ready                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/images/[...filename]               0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/marketplace/vendor/profile         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/marketplace/vendor/profile/update  0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/marketplace/vendors/top            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/monitors                           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/monitors/[id]                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/monitors/check-all                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/newsletter/subscribe               0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/newsletter/unsubscribe             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/newsletter/verify                  0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/notifications/stream               0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/partners/lead                      0 B                [37m[1m0 B[22m[39m
+├ ○ /api/plans                              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/plans/[slug]                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/popups/[slug]                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/products                           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/products/[slug]                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/products/[slug]/questions          0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/products/[slug]/reviews            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/push/subscribe                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/push/vapid-key                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/sandbox/seed                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/search                             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/static/[...file]                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/tasks/[id]                         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/tasks/[id]/comments                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/tax/calculate                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/test-email                         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/track/email/open                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/upload                             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/2fa/disable                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/2fa/setup                     0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/2fa/verify                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/api-keys                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/api-keys/[id]                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/coupons                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/delete                        0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/email-preferences             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/loyalty                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/loyalty/redeem                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/notifications                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/notifications/read            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/orders/[id]/refund            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/partner                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/password                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/preferences                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/products                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/profile                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/referral                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/reports                       0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/reports/[id]                  0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/reports/[id]/execute          0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/subscription/pause            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/subscription/resume           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/webhooks                      0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/webhooks/[id]                 0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/user/webhooks/[id]/rotate-secret   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/verify-turnstile                   0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/video-calls                        0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/video-calls/[roomCode]             0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/video-calls/[roomCode]/end         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/video-calls/[roomCode]/join        0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/webhooks/stripe                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces                         0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces/[id]                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces/[id]/branding           0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces/[id]/members            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces/[id]/tasks              0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/workspaces/invitations/accept      0 B                [37m[1m0 B[22m[39m
+├ ƒ /blog                                   6.78 kB         [37m[1m181 kB[22m[39m
+├ ƒ /blog/[slug]                            4.84 kB         [37m[1m163 kB[22m[39m
+├ ƒ /call/[roomCode]                        3.62 kB         [37m[1m129 kB[22m[39m
+├ ƒ /dashboard                              2.39 kB         [37m[1m128 kB[22m[39m
+├ ƒ /dashboard/affiliate                    4.35 kB         [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/alert-channels               3.22 kB         [37m[1m129 kB[22m[39m
+├ ƒ /dashboard/api-keys                     3.35 kB         [37m[1m147 kB[22m[39m
+├ ƒ /dashboard/api-keys/new                 3.45 kB         [37m[1m129 kB[22m[39m
+├ ƒ /dashboard/billing                      4.9 kB          [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/bundles                      3.07 kB         [37m[1m141 kB[22m[39m
+├ ƒ /dashboard/loyalty                      4.79 kB         [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/monitors                     2.98 kB         [37m[1m138 kB[22m[39m
+├ ƒ /dashboard/monitors/[id]                3.62 kB         [37m[1m138 kB[22m[39m
+├ ƒ /dashboard/monitors/new                 2.25 kB        [37m[1m96.5 kB[22m[39m
+├ ƒ /dashboard/orders                       395 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /dashboard/partner                      3.01 kB        [37m[1m92.1 kB[22m[39m
+├ ƒ /dashboard/products                     3.93 kB         [37m[1m147 kB[22m[39m
+├ ƒ /dashboard/products/new                 5.07 kB         [37m[1m140 kB[22m[39m
+├ ƒ /dashboard/reports                      4.61 kB         [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/settings                     3.56 kB         [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/tasks                        4.35 kB         [37m[1m139 kB[22m[39m
+├ ƒ /dashboard/vendor                       5.53 kB         [37m[1m149 kB[22m[39m
+├ ƒ /dashboard/workspaces/[id]/branding     28.1 kB         [37m[1m163 kB[22m[39m
+├ ƒ /fiyatlandirma                          1.9 kB          [37m[1m109 kB[22m[39m
+├ ƒ /giris                                  1.37 kB         [37m[1m109 kB[22m[39m
+├ ƒ /hakkimda                               364 B           [37m[1m104 kB[22m[39m
+├ ƒ /iletisim                               6.03 kB         [37m[1m169 kB[22m[39m
+├ ƒ /is-ortak/[slug]                        1.63 kB        [37m[1m90.7 kB[22m[39m
+├ ƒ /kayit                                  1.97 kB         [37m[1m110 kB[22m[39m
+├ ƒ /magaza                                 2.05 kB         [37m[1m145 kB[22m[39m
+├ ƒ /magaza/[slug]                          6.51 kB         [37m[1m205 kB[22m[39m
+├ ƒ /odeme                                  4.42 kB         [37m[1m116 kB[22m[39m
+├ ƒ /odeme/basarili                         393 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /odeme/iyzico-callback                  350 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /odeme/plan                             2.77 kB         [37m[1m115 kB[22m[39m
+├ ƒ /projelerim                             5.69 kB         [37m[1m140 kB[22m[39m
+├ ƒ /projelerim/[slug]                      1.42 kB         [37m[1m105 kB[22m[39m
+├ ○ /robots.txt                             0 B                [37m[1m0 B[22m[39m
+├ ƒ /saglik                                 350 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /satici/[slug]                          395 B          [37m[1m98.3 kB[22m[39m
+├ ƒ /sitemap.xml                            0 B                [37m[1m0 B[22m[39m
+├ ƒ /status/[slug]                          349 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /test-components                        5.69 kB         [37m[1m126 kB[22m[39m
+├ ƒ /yasal/cayma-hakki                      349 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /yasal/cerez-politikasi                 349 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /yasal/gizlilik                         349 B          [37m[1m89.4 kB[22m[39m
+├ ƒ /yasal/kvkk                             349 B          [37m[1m89.4 kB[22m[39m
+└ ƒ /yasal/mesafeli-satis                   350 B          [37m[1m89.4 kB[22m[39m
++ First Load JS shared by all               [37m[1m89.1 kB[22m[39m
+  ├ chunks/2117-e4cd0a4b2eea5f9b.js         32 kB
+  ├ chunks/fd9d1056-1081d3b255a2aa26.js     53.8 kB
+  └ other shared chunks (total)             3.26 kB
+
+
+ƒ Middleware                                [37m[1m35.6 kB[22m[39m
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

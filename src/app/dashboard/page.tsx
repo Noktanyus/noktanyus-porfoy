@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { monitoringService } from '@/modules/monitoring';
 import { prisma } from '@/lib/prisma';
 import { ReferralCard } from '@/components/dashboard/ReferralCard';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaPause, FaChartLine } from 'react-icons/fa';
 
 export const dynamic = 'force-dynamic';
@@ -39,10 +40,10 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">Hoş geldin, {session?.user?.name ?? 'kullanıcı'}</h1>
-        <p className="text-sm text-muted-foreground">Monitoring sisteminizin genel durumu</p>
-      </div>
+      <PageHeader
+        title={`Hoş geldin, ${session?.user?.name ?? 'kullanıcı'}`}
+        description="Monitoring sisteminizin genel durumu"
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {cards.map((c) => {

@@ -90,9 +90,9 @@ export default function ProjectsAdminPage() {
           <table className="min-w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
               <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Proje Başlığı</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Slug</th>
-                <th className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
+                <th scope="col" className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Proje Başlığı</th>
+                <th scope="col" className="text-left py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">Slug</th>
+                <th scope="col" className="text-right py-4 px-6 font-semibold text-gray-700 dark:text-gray-300">İşlemler</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">

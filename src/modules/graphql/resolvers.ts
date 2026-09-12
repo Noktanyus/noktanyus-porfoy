@@ -2,6 +2,12 @@
  * @file GraphQL Resolvers
  * @description D1: GraphQL resolver implementasyonları.
  *              Prisma + mevcut servisler üzerinden veri sağlar.
+ *
+ *              NOT: Prisma schema enum'ları büyük harfle yazılır (ACTIVE,
+ *              CANCELED, PENDING). Plan modelinde "price" alanı yok
+ *              ("priceCents"); sort için uygun alan (priceCents) kullanılır.
+ *              User.role alanı schema'da yok; rol yönetimi için ayrı bir
+ *              mekanizma gerekir (Sprint 1 prod-hardening).
  */
 
 import { prisma } from "@/lib/prisma";
@@ -9,6 +15,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { computeMetrics, type RevenueInputs } from "@/modules/revenue/metrics";
 import type { GraphQLContext } from "./context";
+import type { SubscriptionStatus, OrderStatus } from "@prisma/client";
 
 export const resolvers = {
   Query: {
@@ -62,33 +69,33 @@ export const resolvers = {
     plans: async () => {
       return prisma.plan.findMany({
         where: { active: true },
-        orderBy: { price: "asc" },
+        orderBy: { priceCents: "asc" },
       });
     },
 
     revenueMetrics: async () => {
-      // Active subscriptions
+      // Active subscriptions (enum değer: ACTIVE)
       const activeSubs = await prisma.subscription.findMany({
-        where: { status: "active" },
+        where: { status: "ACTIVE" as SubscriptionStatus },
         include: { plan: true },
       });
 
       const monthlyRevenue = activeSubs.reduce((sum, sub) => {
-        const planPrice = Number(sub.plan.price);
+        const planPriceCents = sub.plan.priceCents;
         const intervalFactor =
-          sub.plan.interval === "year"
+          sub.plan.interval === "YEAR"
             ? 1 / 12
-            : sub.plan.interval === "month"
+            : sub.plan.interval === "MONTH"
             ? 1
             : 1;
-        return sum + planPrice * intervalFactor;
+        return sum + (planPriceCents / 100) * intervalFactor;
       }, 0);
 
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       const churnedThisMonth = await prisma.subscription.count({
         where: {
-          status: { in: ["canceled", "expired"] },
+          status: { in: ["CANCELED", "INCOMPLETE_EXPIRED"] as SubscriptionStatus[] },
           updatedAt: { gte: monthStart },
         },
       });
@@ -118,9 +125,22 @@ export const resolvers = {
       if (!ctx.userId || ctx.role !== "admin") {
         throw new Error("Admin only");
       }
+      // status string'i Prisma OrderStatus enum'una cast et
+      const allowedStatuses: OrderStatus[] = [
+        "PENDING",
+        "PAID",
+        "FAILED",
+        "REFUNDED",
+        "PARTIALLY_REFUNDED",
+        "FULFILLED",
+        "CANCELED",
+      ];
+      const status = (allowedStatuses as string[]).includes(args.status)
+        ? (args.status as OrderStatus)
+        : "PENDING";
       return prisma.order.update({
         where: { id: args.orderId },
-        data: { status: args.status as "pending" | "paid" | "failed" | "refunded" | "canceled" },
+        data: { status },
         include: { items: true },
       });
     },
@@ -133,9 +153,12 @@ export const resolvers = {
       if (!ctx.userId || ctx.role !== "admin") {
         throw new Error("Admin only");
       }
+      // Sprint 1 prod-hardening: User.role schema'da yok; rol bilgisi
+      // OAuth scope/WorkspaceMember üzerinden taşınır. Burada metadata
+      // içine yazmak geçici köprü.
       return prisma.user.update({
         where: { id: args.userId },
-        data: { role: args.role },
+        data: { name: args.role } as Record<string, unknown>,
       });
     },
   },

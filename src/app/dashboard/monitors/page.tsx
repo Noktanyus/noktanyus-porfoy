@@ -8,6 +8,7 @@ import { monitoringService } from '@/modules/monitoring';
 import { redirect } from 'next/navigation';
 import { MonitorList } from '@/components/dashboard/MonitorList';
 import { MonitorStats } from '@/components/dashboard/MonitorStats';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 import Link from 'next/link';
 import { FaPlus } from 'react-icons/fa';
 
@@ -22,16 +23,19 @@ export default async function MonitorsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Monitörler</h1>
-          <p className="text-sm text-muted-foreground">{monitors.length} monitör</p>
-        </div>
-        <Link href="/dashboard/monitors/new" className="admin-btn admin-btn-primary">
-          <FaPlus className="w-3 h-3" />
-          Yeni Monitör
-        </Link>
-      </div>
+      <PageHeader
+        title="Monitörler"
+        description={`${monitors.length} monitör`}
+        actions={
+          <Link
+            href="/dashboard/monitors/new"
+            className="admin-btn admin-btn-primary"
+          >
+            <FaPlus className="w-3 h-3" aria-hidden="true" />
+            Yeni Monitör
+          </Link>
+        }
+      />
 
       <MonitorStats stats={stats} />
       <MonitorList monitors={monitors} />

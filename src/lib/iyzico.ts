@@ -65,6 +65,22 @@ export interface IyzicoBasketItem {
   price: string; // "100.00"
 }
 
+/** `IyzicoBasketItem.itemType`'ın zorunlu hali — inline literal yerine bunu kullan. */
+export type IyzicoItemType = NonNullable<IyzicoBasketItem['itemType']>;
+
+/**
+ * Dijital ürün / abonelik kalemleri için iyzico itemType'ı.
+ *
+ * Hem `iyzicoService.createCheckout` hem `iyzicoSubscriptionService` bu sabiti
+ * kullanır. Önceden her iki dosyada ayrı ayrı `'VIRTUAL'` string literal'i
+ * yazılıydı; abonelik tarafı ham SDK objesi kurduğu için `IyzicoBasketItem`
+ * union'ına karşı hiç kontrol edilmiyordu (yazım hatası derlenirdi).
+ *
+ * Satılan her şey indirilebilir ürün veya abonelik olduğu için PHYSICAL
+ * kullanılmıyor — union'da duruyor, çünkü iyzico API'si onu tanımlıyor.
+ */
+export const IYZICO_DIGITAL_ITEM_TYPE: IyzicoItemType = 'VIRTUAL';
+
 export interface IyzicoBuyer {
   id: string;
   name: string;

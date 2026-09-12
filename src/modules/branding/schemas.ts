@@ -76,7 +76,7 @@ export const FONT_OPTIONS: ReadonlyArray<{
   },
 ] as const;
 
-export function getFontByValue(value: FontFamily) {
+export function getFontByValue(value: string) {
   return FONT_OPTIONS.find((f) => f.value === value);
 }
 

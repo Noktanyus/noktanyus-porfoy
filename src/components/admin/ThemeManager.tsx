@@ -51,7 +51,7 @@ function PresetCard({ preset, active, onSelect }: PresetCardProps) {
               </div>
               <div
                 className="text-xs opacity-70"
-                style={{ color: `oklch(${preset.tokens.light.mutedForeground ?? preset.tokens.light["muted-foreground"]})` }}
+                style={{ color: `oklch(${preset.tokens.light["muted-foreground"]})` }}
               >
                 Light
               </div>

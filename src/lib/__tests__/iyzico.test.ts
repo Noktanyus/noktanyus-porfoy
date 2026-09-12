@@ -85,6 +85,9 @@ describe('selectPaymentProvider', () => {
     delete process.env.IYZICO_SECRET_KEY;
     delete process.env.IYZICO_URI;
     delete process.env.STRIPE_SECRET_KEY;
+    delete process.env.PAYTR_MERCHANT_ID;
+    delete process.env.PAYTR_MERCHANT_KEY;
+    delete process.env.PAYTR_MERCHANT_SALT;
     vi.resetModules();
   });
 
@@ -92,12 +95,26 @@ describe('selectPaymentProvider', () => {
     process.env = { ...originalEnv };
   });
 
-  it('returns stripe default when nothing configured', async () => {
+  it('returns paytr (mock path) when nothing configured', async () => {
     const { selectPaymentProvider } = await import('@/modules/commerce/service');
-    expect(selectPaymentProvider()).toBe('stripe');
+    expect(selectPaymentProvider()).toBe('paytr');
   });
 
-  it('returns iyzico when configured and no explicit request', async () => {
+  it('returns paytr when PayTR configured even if others exist', async () => {
+    process.env.PAYTR_MERCHANT_ID = 'm';
+    process.env.PAYTR_MERCHANT_KEY = 'k';
+    process.env.PAYTR_MERCHANT_SALT = 's';
+    process.env.IYZICO_API_KEY = 'k';
+    process.env.IYZICO_SECRET_KEY = 's';
+    process.env.IYZICO_URI = 'https://sandbox-api.iyzipay.com';
+    process.env.STRIPE_SECRET_KEY = 'sk_test';
+
+    const { selectPaymentProvider } = await import('@/modules/commerce/service');
+    expect(selectPaymentProvider()).toBe('paytr');
+    expect(selectPaymentProvider('stripe')).toBe('paytr');
+  });
+
+  it('returns iyzico when PayTR missing and iyzico configured', async () => {
     process.env.IYZICO_API_KEY = 'k';
     process.env.IYZICO_SECRET_KEY = 's';
     process.env.IYZICO_URI = 'https://sandbox-api.iyzipay.com';
@@ -106,7 +123,7 @@ describe('selectPaymentProvider', () => {
     expect(selectPaymentProvider()).toBe('iyzico');
   });
 
-  it('honors explicit iyzico request even when stripe also configured', async () => {
+  it('honors explicit iyzico/stripe only when PayTR not configured', async () => {
     process.env.IYZICO_API_KEY = 'k';
     process.env.IYZICO_SECRET_KEY = 's';
     process.env.IYZICO_URI = 'https://sandbox-api.iyzipay.com';
@@ -120,7 +137,6 @@ describe('selectPaymentProvider', () => {
   it('falls back when explicit provider not configured', async () => {
     process.env.STRIPE_SECRET_KEY = 'sk_test';
     const { selectPaymentProvider } = await import('@/modules/commerce/service');
-    // iyzico istek ama yapılandırılmamış → stripe'a düş
     expect(selectPaymentProvider('iyzico')).toBe('stripe');
   });
 });

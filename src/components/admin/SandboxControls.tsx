@@ -3,6 +3,10 @@
  * @description Shows the current sandbox state and lets an admin wipe
  *              transactional data with a double-confirm flow. Calls
  *              /api/sandbox/seed which is itself sandbox-gated on the server.
+ *
+ * Faz D: başlık `PageHeader`, kartlar `DashboardSection`, durum rozeti
+ * `StatusBadge`, buton `admin-btn` sınıfları ve `ButtonSpinner` ile
+ * standartlaştırıldı. API davranışı DEĞİŞTİRİLMEDİ.
  */
 
 'use client';
@@ -11,6 +15,9 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import { FaFlask, FaExclamationTriangle, FaSync } from 'react-icons/fa';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export function SandboxControls({ isSandbox }: { isSandbox: boolean }) {
   const router = useRouter();
@@ -39,67 +46,77 @@ export function SandboxControls({ isSandbox }: { isSandbox: boolean }) {
   };
 
   return (
-    <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <FaFlask className="text-yellow-500" />
-        Sandbox Environment
-      </h1>
-
-      <div
-        className={`p-6 rounded-lg border-2 ${
-          isSandbox
-            ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
-            : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40'
-        }`}
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <FaFlask
-            className={`w-6 h-6 ${isSandbox ? 'text-yellow-500' : 'text-gray-400'}`}
+    <div className="admin-content-spacing">
+      <PageHeader
+        title="Sandbox Environment"
+        description="Test ortamı durumu ve veri sıfırlama aracı."
+        breadcrumb={<span>Admin / Ayarlar / Sandbox</span>}
+        actions={
+          <StatusBadge
+            tone={isSandbox ? 'warning' : 'neutral'}
+            dot
+            label={isSandbox ? 'Sandbox açık' : 'Sandbox kapalı'}
+            srLabel="Ortam durumu:"
           />
-          <span className="font-semibold">
-            {isSandbox ? 'Sandbox Mode: ON' : 'Sandbox Mode: OFF'}
-          </span>
-        </div>
+        }
+      />
 
-        {isSandbox ? (
-          <>
-            <div className="bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded p-3 mb-4 flex gap-2">
-              <FaExclamationTriangle className="text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                DİKKAT: Sandbox modu aktif. Tüm veriler test amaçlıdır ve
-                gerçek müşteri/ödeme kaydı içermez.
-              </p>
+      <div className="max-w-2xl space-y-6">
+        <DashboardSection
+          title={
+            <span className="inline-flex items-center gap-2">
+              <FaFlask
+                aria-hidden="true"
+                className={isSandbox ? 'text-amber-500' : 'text-muted-foreground'}
+              />
+              Ortam Durumu
+            </span>
+          }
+          padding="lg"
+        >
+          {isSandbox ? (
+            <div className="space-y-4">
+              <div
+                role="alert"
+                className="flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3"
+              >
+                <FaExclamationTriangle
+                  aria-hidden="true"
+                  className="mt-0.5 flex-shrink-0 text-amber-600 dark:text-amber-400"
+                />
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  DİKKAT: Sandbox modu aktif. Tüm veriler test amaçlıdır ve
+                  gerçek müşteri/ödeme kaydı içermez.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={loading}
+                className="admin-btn admin-btn-danger"
+              >
+                <FaSync aria-hidden="true" className={loading ? 'animate-spin' : ''} />
+                {loading ? 'Sıfırlanıyor...' : 'Tüm Verileri Sıfırla'}
+              </button>
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Sandbox modu kapalı. Production ortamında yıkıcı işlemler devre
+              dışıdır. Geliştirme için <code className="font-mono">SANDBOX_MODE=true</code>{' '}
+              olarak ayarlayın.
+            </p>
+          )}
+        </DashboardSection>
 
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-medium transition-colors"
-            >
-              <FaSync className={loading ? 'animate-spin' : ''} />
-              {loading ? 'Sıfırlanıyor...' : 'Tüm Verileri Sıfırla'}
-            </button>
-          </>
-        ) : (
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Sandbox modu kapalı. Production ortamında destructive işlemler
-            devre dışı. Geliştirme için <code>SANDBOX_MODE=true</code>{' '}
-            olarak ayarlayın.
-          </p>
-        )}
-      </div>
-
-      <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
-        <p>
-          Sandbox tespiti şu sinyalleri kullanır:
-        </p>
-        <ul className="list-disc list-inside mt-1 space-y-1">
-          <li><code>SANDBOX_MODE=true</code> env değişkeni</li>
-          <li>Stripe test anahtarı (<code>sk_test_...</code>)</li>
-          <li>iyzico sandbox URI</li>
-          <li><code>NODE_ENV !== production</code></li>
-        </ul>
+        <DashboardSection title="Sandbox Tespit Sinyalleri" padding="lg">
+          <ul className="list-inside list-disc space-y-1 text-xs text-muted-foreground">
+            <li><code className="font-mono">SANDBOX_MODE=true</code> env değişkeni</li>
+            <li>Stripe test anahtarı (<code className="font-mono">sk_test_...</code>)</li>
+            <li>iyzico sandbox URI</li>
+            <li><code className="font-mono">NODE_ENV !== production</code></li>
+          </ul>
+        </DashboardSection>
       </div>
     </div>
   );

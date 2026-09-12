@@ -2,175 +2,109 @@
  * @file Sitenin üst (header) bölümünü oluşturan bileşen.
  * @description Bu bileşen, site başlığını, ana navigasyon linklerini (desktop ve mobil için ayrı),
  *              ve tema (açık/koyu mod) değiştiriciyi içerir.
+ *
+ * Bu kabuk sadece layout/marka isleriyle ilgilenir; kullanici menüsü
+ * ve mobil menü ayri sub-component'lere tasindi.
  */
 
 "use client";
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { FaBars, FaTimes, FaUserCircle, FaSignOutAlt, FaSearch } from 'react-icons/fa';
-import { useSession, signOut } from 'next-auth/react';
-import { CartButton } from '@/components/commerce/CartButton';
+import { useState } from 'react';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ThemeCustomizer } from '@/components/ui/ThemeCustomizer';
-import { GlobalSearch, OPEN_EVENT } from '@/components/search/GlobalSearch';
+import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { LocaleSwitcher } from '@/components/layout/LocaleSwitcher';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { UserMenu } from './header/UserMenu';
+import { MobileMenu, MOBILE_NAV_LINKS } from './header/MobileMenu';
 
 interface HeaderProps {
   /** Header'da gösterilecek site başlığı. */
   headerTitle: string;
 }
 
-const navLinks = [
-  { href: "/hakkimda", label: "Hakkımda" },
-  { href: "/projelerim", label: "Projelerim" },
-  { href: "/blog", label: "Blog" },
-  { href: "/magaza", label: "Mağaza" },
-  { href: "/fiyatlandirma", label: "Fiyatlandırma" },
-  { href: "/iletisim", label: "İletişim" },
-];
+/** Uzun selamlaşma başlıklarını marka için kısaltır (ör. "Merhaba, Ben X" → "X"). */
+function shortBrandLabel(title: string): string {
+  const trimmed = title.trim();
+  const merhaba = trimmed.match(/^Merhaba,?\s+Ben\s+(.+)$/i);
+  if (merhaba?.[1]) return merhaba[1].trim();
+  if (trimmed.length <= 28) return trimmed;
+  return `${trimmed.slice(0, 26).trimEnd()}…`;
+}
 
 const Header = ({ headerTitle }: HeaderProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { data: session, status } = useSession();
-
-  // Mobil menü açıkken body scroll'unu engelle
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.classList.add('body-scroll-lock');
-    } else {
-      document.body.classList.remove('body-scroll-lock');
-    }
-
-    // Cleanup function
-    return () => {
-      document.body.classList.remove('body-scroll-lock');
-    };
-  }, [isMobileMenuOpen]);
-
-  const handleMobileLinkClick = () => {
-    setIsMobileMenuOpen(false);
-    setIsUserMenuOpen(false);
-  };
+  const { status } = useSession();
+  const brandLabel = shortBrandLabel(headerTitle);
 
   return (
     <>
+      {/* SkipLink, layout.tsx'te zaten merkezi olarak ekleniyor (tek kaynak). */}
       <header className="fixed top-2 sm:top-4 left-0 right-0 z-50 flex justify-center px-2 sm:px-4 fade-in">
         <div className="w-full max-w-6xl xl:max-w-7xl">
-          <div className="flex items-center justify-between h-14 sm:h-16 bg-white/80 dark:bg-black/80 border border-white/40 dark:border-black/40 rounded-full shadow-lg backdrop-blur-sm backdrop-saturate-110 px-3 sm:px-6 hover:shadow-xl hover:shadow-blue-500/10 hover:backdrop-blur-md hover:backdrop-saturate-125 hover:bg-white/85 hover:dark:bg-black/85 transition-all duration-700 ease-out gap-2">
+          <div className="flex items-center justify-between h-14 sm:h-16 bg-white/80 dark:bg-slate-900/80 border border-white/40 dark:border-slate-700/40 rounded-full shadow-lg backdrop-blur-sm backdrop-saturate-110 px-3 sm:px-5 lg:px-6 hover:shadow-xl hover:shadow-brand-primary/10 hover:backdrop-blur-md hover:backdrop-saturate-125 hover:bg-white/85 hover:dark:bg-slate-900/85 transition-all duration-500 ease-out gap-2 sm:gap-3">
             <Tooltip content="Ana sayfaya dön" side="bottom">
-              <Link href="/" className="text-base sm:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 dark:text-white truncate flex-shrink min-w-0 mr-2 sm:mr-3 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300" aria-label="Ana Sayfa">
-                <span className="block truncate max-w-[140px] sm:max-w-[180px] md:max-w-[220px] xl:max-w-none">{headerTitle}</span>
+              <Link
+                href="/"
+                className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white truncate min-w-0 max-w-[10rem] sm:max-w-[14rem] xl:max-w-[18rem] shrink hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+                aria-label="Ana Sayfa"
+                title={headerTitle}
+              >
+                {brandLabel}
               </Link>
             </Tooltip>
 
-            {/* Masaüstü Navigasyonu */}
-            <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 xl:space-x-4 flex-shrink min-w-0">
-              {navLinks.map((link, index) => (
-                <Link key={link.href} href={link.href} className="text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-1.5 lg:px-2 xl:px-3 rounded-lg min-h-[40px] flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300" style={{animationDelay: `${index * 0.1}s`}}>
+            {/* Masaüstü Navigasyonu — xl altında hamburger (taşmayı önler) */}
+            <nav aria-label="Ana navigasyon" className="hidden xl:flex items-center gap-0.5 min-w-0 flex-1 justify-center">
+              {MOBILE_NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap py-2 px-2 rounded-lg min-h-[44px] flex items-center hover:bg-brand-primary/10 hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                >
                   {link.label}
                 </Link>
               ))}
             </nav>
 
-            <div className="flex items-center space-x-0.5 sm:space-x-1 flex-shrink-0">
-              <Tooltip content="Arama (⌘K)" side="bottom">
-                <span><GlobalSearch /></span>
-              </Tooltip>
-              <CartButton />
-              <LocaleSwitcher />
-              <Tooltip content="Tema değiştir" side="bottom">
-                <span><ThemeToggle className="touch-target focus-ring" /></span>
-              </Tooltip>
-              <ThemeCustomizer className="touch-target" />
+            <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+              <GlobalSearch />
+              <span className="hidden md:inline-flex">
+                <LocaleSwitcher />
+              </span>
+              <ThemeToggle className="touch-target focus-ring" />
+              <span className="hidden md:inline-flex">
+                <ThemeCustomizer className="touch-target" />
+              </span>
 
               {/* Kullanıcı menüsü (auth) */}
-              {status !== 'loading' && (
-                session?.user ? (
-                  <div className="relative">
-                    <Tooltip content="Hesap menüsü" side="bottom">
-                      <button
-                        onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                        aria-label="Kullanıcı menüsü"
-                        className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring p-1"
-                      >
-                        <FaUserCircle className="w-5 h-5 text-gray-900 dark:text-white" />
-                      </button>
-                    </Tooltip>
-                    {isUserMenuOpen && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-30"
-                          onClick={() => setIsUserMenuOpen(false)}
-                        />
-                        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white/95 dark:bg-black/95 border border-white/40 dark:border-black/40 shadow-xl backdrop-blur-md p-2 z-40 fade-in">
-                          <div className="px-3 py-2 border-b border-border mb-1">
-                            <p className="text-sm font-semibold truncate">
-                              {session.user.name || 'Kullanıcı'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {session.user.email}
-                            </p>
-                          </div>
-                          <Link
-                            href="/dashboard"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                          >
-                            <FaUserCircle className="w-4 h-4" />
-                            Dashboard
-                          </Link>
-                          <Link
-                            href="/dashboard/settings"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                          >
-                            <FaUserCircle className="w-4 h-4" />
-                            Ayarlar
-                          </Link>
-                          <button
-                            onClick={() => {
-                              setIsUserMenuOpen(false);
-                              signOut({ callbackUrl: '/' });
-                            }}
-                            className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
-                          >
-                            <FaSignOutAlt className="w-4 h-4" />
-                            Çıkış Yap
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    href="/giris"
-                    className="hidden md:inline-flex items-center text-sm lg:text-base text-gray-900 dark:text-gray-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[40px] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300"
-                  >
-                    Giriş Yap
-                  </Link>
-                )
-              )}
+              {status !== 'loading' && <UserMenu />}
 
-              {/* Mobil Menü Butonu */}
-              <div className="md:hidden">
+              {/* Mobil / tablet Menü Butonu */}
+              <div className="xl:hidden">
                 <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label="Menüyü aç/kapat"
-                  className="touch-target rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring relative overflow-hidden"
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen((v) => !v)}
+                  aria-label={isMobileMenuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+                  aria-expanded={isMobileMenuOpen}
+                  aria-controls="mobile-menu"
+                  className="touch-target rounded-full hover:bg-brand-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 relative overflow-hidden"
                 >
                   <div className="relative w-5 h-5">
-                    <FaBars 
-                      className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
+                    <FaBars
+                      className={`absolute w-5 h-5 text-slate-700 dark:text-slate-300 transition-all duration-300 transform ${
                         isMobileMenuOpen ? 'rotate-90 opacity-0 scale-75' : 'rotate-0 opacity-100 scale-100'
-                      }`} 
+                      }`}
+                      aria-hidden="true"
                     />
-                    <FaTimes 
-                      className={`absolute w-5 h-5 text-gray-900 dark:text-white transition-all duration-300 transform ${
+                    <FaTimes
+                      className={`absolute w-5 h-5 text-slate-700 dark:text-slate-300 transition-all duration-300 transform ${
                         isMobileMenuOpen ? 'rotate-0 opacity-100 scale-100' : '-rotate-90 opacity-0 scale-75'
-                      }`} 
+                      }`}
+                      aria-hidden="true"
                     />
                   </div>
                 </button>
@@ -180,107 +114,7 @@ const Header = ({ headerTitle }: HeaderProps) => {
         </div>
       </header>
 
-      {/* Mobil Menü */}
-      <div className={`md:hidden fixed inset-0 z-40 transition-all duration-500 ease-out ${
-        isMobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
-      }`}>
-        {/* Backdrop Overlay */}
-        <div
-          className={`fixed inset-0 transition-all duration-700 ease-out ${
-            isMobileMenuOpen 
-              ? 'bg-black/20 backdrop-blur-xs backdrop-saturate-105 opacity-100' 
-              : 'bg-black/0 backdrop-blur-none backdrop-saturate-100 opacity-0'
-          }`}
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-        
-        {/* Menu Content */}
-        <div
-          className={`fixed top-[4.5rem] sm:top-20 left-3 right-3 sm:left-4 sm:right-4 z-50 bg-white/85 dark:bg-black/85 border border-white/60 dark:border-black/60 rounded-2xl shadow-xl p-4 sm:p-6 max-h-[calc(100vh-6rem)] overflow-y-auto transition-all duration-700 ease-out transform ${
-            isMobileMenuOpen 
-              ? 'opacity-100 scale-100 translate-y-0 backdrop-blur-md backdrop-saturate-115' 
-              : 'opacity-0 scale-95 -translate-y-2 backdrop-blur-none backdrop-saturate-100'
-          }`}
-        >
-          <nav className="flex flex-col space-y-1">
-            {/* Mobil arama kısayolu */}
-            <div
-              className={`transition-all duration-500 ease-out transform ${
-                isMobileMenuOpen
-                  ? 'opacity-100 translate-x-0'
-                  : 'opacity-0 -translate-x-4'
-              }`}
-              style={{ transitionDelay: isMobileMenuOpen ? '150ms' : '0ms' }}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  handleMobileLinkClick();
-                  window.dispatchEvent(new Event(OPEN_EVENT));
-                }}
-                className="w-full text-left text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring flex items-center gap-3"
-              >
-                <FaSearch className="w-4 h-4" aria-hidden="true" />
-                Ara
-                <span className="ml-auto text-xs text-muted-foreground">Ctrl+K</span>
-              </button>
-            </div>
-
-            {navLinks.map((link, index) => (
-              <div
-                key={link.href}
-                className={`transition-all duration-500 ease-out transform ${
-                  isMobileMenuOpen
-                    ? 'opacity-100 translate-x-0'
-                    : 'opacity-0 -translate-x-4'
-                }`}
-                style={{
-                  transitionDelay: isMobileMenuOpen ? `${index * 100 + 300}ms` : '0ms'
-                }}
-              >
-                <Link
-                  href={link.href}
-                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-300 focus-ring block"
-                  onClick={handleMobileLinkClick}
-                >
-                  {link.label}
-                </Link>
-              </div>
-            ))}
-
-            {/* Mobil auth linkleri */}
-            {session?.user ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  onClick={handleMobileLinkClick}
-                  className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 border-t border-border mt-2 pt-4 block"
-                >
-                  Dashboard
-                </Link>
-                <button
-                  onClick={() => {
-                    handleMobileLinkClick();
-                    signOut({ callbackUrl: '/' });
-                  }}
-                  className="w-full text-left text-destructive rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-destructive/10 transition-all duration-300 flex items-center gap-3"
-                >
-                  <FaSignOutAlt className="w-4 h-4" />
-                  Çıkış Yap
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/giris"
-                onClick={handleMobileLinkClick}
-                className="text-gray-700 dark:text-gray-300 rounded-xl px-4 py-4 text-lg font-medium touch-target hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 border-t border-border mt-2 pt-4 block"
-              >
-                Giriş Yap
-              </Link>
-            )}
-          </nav>
-        </div>
-      </div>
+      <MobileMenu open={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
     </>
   );
 };

@@ -13,7 +13,8 @@
  * Yapılan kontroller:
  *   1. Key presence
  *   2. Key validation (DB + revoked + expired + quota)
- *   3. Rate limiting (per-key bucket)
+ *   3. Rate limiting (per-key bucket — bucket identity = validated keyId,
+ *      böylece aynı kullanıcıya ait key rotasyonlarında bucket izole kalır)
  *   4. Usage tracking (fire-and-forget)
  */
 
@@ -30,6 +31,12 @@ export interface ApiKeyContext {
 
 /**
  * Scope kontrolü. Admin scope'u her şeyi kapsar.
+ *
+ * NOT: SaaS scope'ları (`ai:bulk:write` vb.) için `@/lib/saasScopes`
+ * içindeki `hasSaasScope` / `ensureSaasScope` kullanılır. Bu helper ise
+ * API-key modülünün kendi `ApiKeyScopeSchema`'sı ile uyumludur; SaaS
+ * scope adlarını da geçerli kabul eder (string-based), yani rotalar
+ * ihtiyaç duyduğunda bu helper'ı kullanabilir.
  */
 export function hasScope(scopes: string[], required: string): boolean {
   if (scopes.includes('admin')) return true;
@@ -38,10 +45,15 @@ export function hasScope(scopes: string[], required: string): boolean {
 
 /**
  * API key doğrulama + rate limit + usage tracking.
+ *
+ * ÖNEMLİ: Bu fonksiyon `async` DEĞİLDİR. Next.js route handler export'ları
+ * (GET/POST/...) doğrudan fonksiyon bekler; Promise dönersek route çağrılamaz.
+ * İçeride rateLimiter.check() async olabilir (Redis backend), bu yüzden
+ * Promise.resolve ile sarmalayıp bekliyoruz.
  */
-export async function withApiKey(
+export function withApiKey(
   handler: (req: NextRequest, ctx: ApiKeyContext) => Promise<NextResponse>
-) {
+): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest): Promise<NextResponse> => {
     const authHeader = req.headers.get('authorization');
     const apiKeyHeader = req.headers.get('x-api-key');
@@ -78,13 +90,18 @@ export async function withApiKey(
       );
     }
 
-    // Rate limit — per-key bucket
-    const bucketKey = `apikey:${apiKey.substring(0, 20)}`;
-    const limit = rateLimiter.check(bucketKey, {
+    // Rate limit — bucket identity'yi doğrulanmış keyId'ye bağla.
+    // Önceki implementasyon `apikey:<rawKey>` kullanıyordu — bu, aynı
+    // kullanıcının key rotasyonlarında bucket'ı sıfırlamıyor ve raw token
+    // bilgisini rate-limit log'larında tutuyordu.
+    const bucketKey = validation.keyId;
+    // rateLimiter.check() sync veya async olabilir (Redis backend);
+    // Promise.resolve ile normalize edip await ediyoruz.
+    const limit = await Promise.resolve(rateLimiter.check(bucketKey, {
       capacity: validation.rateLimit,
       refillRate: validation.rateLimit / 60, // per minute -> per second
       keyPrefix: 'apikey',
-    });
+    }));
 
     if (!limit.allowed) {
       return NextResponse.json(

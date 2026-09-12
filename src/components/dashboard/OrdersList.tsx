@@ -5,6 +5,7 @@
 
 import Link from 'next/link';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type OrderStatus =
   | 'PENDING'
@@ -55,18 +56,12 @@ const ORDER_STATUS_STYLES: Record<string, string> = {
 export function OrdersList({ orders }: OrdersListProps) {
   if (orders.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3" aria-hidden="true">
-          📦
-        </p>
-        <p className="text-lg font-medium mb-2">Henüz siparişiniz yok</p>
-        <p className="text-sm text-muted-foreground mb-4">
-          Mağazadan dijital ürün satın alarak başlayabilirsiniz.
-        </p>
-        <Link href="/magaza" className="admin-btn admin-btn-primary inline-block">
-          Mağazaya Git
-        </Link>
-      </div>
+      <EmptyState
+        title="Henüz siparişin yok"
+        description="Mağazadan dijital ürün satın alarak başlayabilirsin."
+        icon="📦"
+        action={{ label: 'Mağazaya Git', href: '/magaza' }}
+      />
     );
   }
 
@@ -97,9 +92,9 @@ export function OrdersList({ orders }: OrdersListProps) {
               <table className="w-full text-sm min-w-[480px]">
                 <thead className="text-muted-foreground text-xs uppercase">
                   <tr>
-                    <th className="text-left p-2 font-medium">Ürün</th>
-                    <th className="text-center p-2 font-medium w-20">Adet</th>
-                    <th className="text-right p-2 font-medium w-32">Tutar</th>
+                    <th scope="col" className="text-left p-2 font-medium">Ürün</th>
+                    <th scope="col" className="text-center p-2 font-medium w-20">Adet</th>
+                    <th scope="col" className="text-right p-2 font-medium w-32">Tutar</th>
                   </tr>
                 </thead>
                 <tbody>

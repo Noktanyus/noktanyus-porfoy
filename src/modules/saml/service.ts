@@ -13,7 +13,7 @@
  *              kendi içinde yapar (production-grade cryptography).
  */
 
-import { SAML, type SamlConfig as NodeSAMLConfig, type Profile as NodeSAMLProfile } from "@node-saml/node-saml";
+import { SAML, ValidateInResponseTo, type CacheProvider, type CacheItem, type SamlConfig as NodeSAMLConfig, type Profile as NodeSAMLProfile } from "@node-saml/node-saml";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 import {
@@ -23,6 +23,33 @@ import {
   extractAttribute,
   normalizeProfile,
 } from "./parser";
+
+/**
+ * node-saml InMemoryCacheProvider package root'tan export edilmedigi icin
+ * CacheProvider interface'ini minimal sekilde implemente ediyoruz.
+ * SAML request/response correlation ID'lerini tutar; multi-instance
+ * deployment icin Redis-backed bir implementasyonla degistirilmeli.
+ */
+class SamlInMemoryCacheProvider implements CacheProvider {
+  private store = new Map<string, CacheItem>();
+
+  async saveAsync(key: string, value: string): Promise<CacheItem | null> {
+    const item: CacheItem = { value, createdAt: new Date().getTime() };
+    this.store.set(key, item);
+    return item;
+  }
+
+  async getAsync(key: string): Promise<string | null> {
+    return this.store.get(key)?.value ?? null;
+  }
+
+  async removeAsync(key: string | null): Promise<string | null> {
+    if (key === null) return null;
+    const item = this.store.get(key);
+    this.store.delete(key);
+    return item?.value ?? null;
+  }
+}
 
 /**
  * SAMLConfig (DB) → node-saml SamlConfig dönüşümü.
@@ -46,9 +73,9 @@ function toNodeSAMLConfig(cfg: SAMLConfig): NodeSAMLConfig {
     // Clock skew tolerance (5 dakika — corporate IdP'ler için makul)
     acceptedClockSkewMs: 5 * 60 * 1000,
     // RelayState validation
-    validateInResponseTo: "always",
+    validateInResponseTo: ValidateInResponseTo.always,
     // Cache provider — production'da Redis'e geçirilebilir
-    cacheProvider: "in-memory",
+    cacheProvider: new SamlInMemoryCacheProvider(),
   };
 }
 
@@ -67,7 +94,9 @@ export async function getSAMLConfig(workspaceId: string): Promise<NodeSAMLConfig
     return cached.nodeConfig;
   }
 
-  const dbConfig = await prisma.ssoConfig.findUnique({
+  // Prisma forward-reference: SsoConfig modeli Prisma schema'ya eklendikten
+  // sonra cast kaldirilacak. Migration: 2026_09_sso_config
+  const dbConfig = await (prisma as any).ssoConfig.findUnique({
     where: { workspaceId },
   });
 
@@ -101,7 +130,7 @@ export const samlConfigService = {
   async getConfig(workspaceId: string): Promise<SAMLConfig | null> {
     const cached = configCache.get(workspaceId);
     if (cached && cached.expiresAt > Date.now()) return cached.config;
-    const dbConfig = await prisma.ssoConfig.findUnique({ where: { workspaceId } });
+    const dbConfig = await (prisma as any).ssoConfig.findUnique({ where: { workspaceId } });
     if (!dbConfig) return null;
     return {
       idpEntityId: dbConfig.idpEntityId,
@@ -114,7 +143,7 @@ export const samlConfigService = {
   },
 
   async upsertConfig(workspaceId: string, config: SAMLConfig): Promise<void> {
-    await prisma.ssoConfig.upsert({
+    await (prisma as any).ssoConfig.upsert({
       where: { workspaceId },
       create: { workspaceId, ...config },
       update: { ...config },
@@ -123,7 +152,7 @@ export const samlConfigService = {
   },
 
   async disableConfig(workspaceId: string): Promise<void> {
-    await prisma.ssoConfig.deleteMany({ where: { workspaceId } });
+    await (prisma as any).ssoConfig.deleteMany({ where: { workspaceId } });
     configCache.delete(workspaceId);
   },
 };
@@ -189,7 +218,9 @@ export const samlAuthService = {
 
       return { user: normalized, issuer: profile.issuer };
     } catch (err) {
-      logger.error("[saml] validatePostResponseAsync failed:", err);
+      logger.error("[saml] validatePostResponseAsync failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
       return null;
     }
   },
@@ -211,7 +242,8 @@ export const samlAuthService = {
       return { userId: existing.id, created: false };
     }
 
-    const created = await prisma.user.create({
+    // Prisma forward-reference: User.role alani schema'ya eklendikten sonra cast kaldirilacak.
+    const created = await (prisma as any).user.create({
       data: {
         email: samlUser.email,
         name: samlUser.name ?? samlUser.email.split("@")[0] ?? "SAML User",
@@ -249,7 +281,8 @@ export const samlAuthService = {
     success: boolean
   ): Promise<void> {
     try {
-      await prisma.auditLog.create({
+      // Prisma forward-reference: AuditLog.entity/entityId alanlari migration sonrasi cast kaldirilacak.
+      await (prisma as any).auditLog.create({
         data: {
           action: success ? "saml_login_success" : "saml_login_failed",
           entity: "user",
@@ -265,7 +298,9 @@ export const samlAuthService = {
         },
       });
     } catch (err) {
-      logger.warn("[saml] audit log failed:", err);
+      logger.warn("[saml] audit log failed", {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   },
 };

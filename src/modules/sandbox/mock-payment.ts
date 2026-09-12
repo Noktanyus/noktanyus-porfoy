@@ -129,6 +129,6 @@ export const MOCK_SCENARIOS = [
  */
 export function logMockUsage(operation: string, payload: unknown): void {
   if (process.env.NODE_ENV !== "production") {
-    logger.debug(`[sandbox:mock-payment] ${operation}`, payload);
+    logger.debug(`[sandbox:mock-payment] ${operation}`, { payload });
   }
 }

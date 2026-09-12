@@ -46,6 +46,30 @@ describe('EmptyState', () => {
     render(<EmptyState title="X" description="Y" />);
     expect(screen.queryByRole('link')).toBeNull();
   });
+
+  it('renders secondary action link alongside primary action', () => {
+    render(
+      <EmptyState
+        title="X"
+        description="Y"
+        action={{ label: 'Geri Dön', href: '/dashboard' }}
+        secondaryAction={{ label: 'Destek Al', href: '/iletisim' }}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Geri Dön' })).toHaveAttribute('href', '/dashboard');
+    expect(screen.getByRole('link', { name: 'Destek Al' })).toHaveAttribute('href', '/iletisim');
+  });
+
+  it('renders only secondary action when primary action is omitted', () => {
+    render(
+      <EmptyState
+        title="X"
+        description="Y"
+        secondaryAction={{ label: 'Yardım', href: '/help' }}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Yardım' })).toHaveAttribute('href', '/help');
+  });
 });
 
 describe('SkeletonCard', () => {

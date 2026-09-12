@@ -18,6 +18,7 @@ import type { Metadata } from 'next';
 import { prisma } from '@/lib/prisma';
 import { AdminStats } from '@/components/admin/AdminStats';
 import { RecentActivity } from '@/components/admin/RecentActivity';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 // Her istekte fresh data (dashboard için gerekli)
 export const dynamic = 'force-dynamic';
@@ -130,12 +131,11 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="admin-content-spacing">
-      <div className="admin-header">
-        <div>
-          <h1 className="admin-title">Admin Dashboard</h1>
-          <p className="admin-subtitle">Sistem özeti ve son aktiviteler</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Yönetim Paneli"
+        description="Sistem özeti ve son aktiviteler. Tüm sayılar canlı veritabanından okunur."
+        breadcrumb={<span>Admin / Gösterge Paneli</span>}
+      />
 
       <AdminStats
         users={{ total: totalUsers, newToday: newUsersToday, active: activeUsers }}

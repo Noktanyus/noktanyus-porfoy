@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import MarkdownIt from 'markdown-it';
 import DOMPurify from 'isomorphic-dompurify';
-import { FaArrowLeft, FaClock, FaUser, FaTag, FaEye } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendarAlt, FaUser, FaTag, FaEye, FaClock } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { CommentsSection } from '@/components/blog/CommentsSection';
@@ -132,7 +132,7 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
   }
 
   // Ayni kategorideki ilgili yazilar (hata durumunda bos dizi).
-  let related = [];
+  let related: Awaited<ReturnType<typeof getRelatedBlogs>> = [];
   try {
     related = await getRelatedBlogs(post.id, post.category, 3);
   } catch (e) {
@@ -203,21 +203,23 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
           </h1>
 
           {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-gray-500 dark:text-gray-400">
             <span className="inline-flex items-center gap-1.5">
-              <FaClock className="w-3.5 h-3.5" />
-              {new Date(post.date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+              <FaCalendarAlt className="w-3.5 h-3.5" aria-hidden="true" />
+              <time dateTime={new Date(post.date).toISOString()}>
+                {new Date(post.date).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })}
+              </time>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <FaUser className="w-3.5 h-3.5" />
+              <FaUser className="w-3.5 h-3.5" aria-hidden="true" />
               {post.author}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <FaClock className="w-3.5 h-3.5" />
+              <FaClock className="w-3.5 h-3.5" aria-hidden="true" />
               {readTime} dakika okuma
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <FaEye className="w-3.5 h-3.5" />
+              <FaEye className="w-3.5 h-3.5" aria-hidden="true" />
               {post.viewCount.toLocaleString('tr-TR')} okunma
             </span>
           </div>

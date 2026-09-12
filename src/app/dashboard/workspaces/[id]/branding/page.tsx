@@ -11,6 +11,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { brandingService } from '@/modules/workspaces/brandingService';
 import { BrandingForm } from '@/components/dashboard/BrandingForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,18 +60,24 @@ export default async function BrandingPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs text-muted-foreground">
-          <Link href={`/dashboard/workspaces/${ws.id}`} className="hover:underline">
-            ← {ws.name}
-          </Link>
-        </p>
-        <h1 className="text-2xl font-bold mt-2">Branding & White-Label</h1>
-        <p className="text-muted-foreground text-sm mt-1">
-          Marka rengini, logoyu ve özel domain ayarlarını yönet.
-        </p>
-      </div>
-
+      <PageHeader
+        title="Branding & White-Label"
+        description="Marka rengini, logoyu ve özel domain ayarlarını yönet."
+        backHref={`/dashboard/workspaces/${ws.id}`}
+        backLabel={ws.name}
+        breadcrumb={
+          <span>
+            <Link
+              href={`/dashboard/workspaces/${ws.id}`}
+              className="hover:text-foreground transition-colors"
+            >
+              {ws.name}
+            </Link>
+            <span className="mx-1.5 opacity-60">/</span>
+            <span className="text-foreground">Branding</span>
+          </span>
+        }
+      />
       <BrandingForm workspaceId={ws.id} initial={branding} />
     </div>
   );

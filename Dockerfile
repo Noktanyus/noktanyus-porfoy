@@ -2,25 +2,19 @@
 FROM node:24 AS deps
 WORKDIR /app
 
-# Paket dosyalarını kopyala
 COPY package.json package-lock.json ./
-
-# Cache temizle ve bağımlılıkları yükle (npm ci yerine npm install - lock tutarsızlığını önler)
 RUN npm cache clean --force && npm install --legacy-peer-deps --no-audit --prefer-offline
 
 # Stage 2: Uygulamayı build et
 FROM node:24 AS builder
 WORKDIR /app
 
-# Bağımlılıkları ve kaynak kodu kopyala
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ARG NEXT_PUBLIC_BASE_URL
-ARG NEXT_PUBLIC_BASE_URL
 ARG NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY
 
-# Çevresel değişkenleri ayarla (Build zamanı için)
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV SKIP_ENV_VALIDATION=true
 ENV NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
@@ -35,30 +29,32 @@ ENV EMAIL_PORT="587"
 ENV EMAIL_USER="admin@noktanyus.com"
 ENV EMAIL_PASSWORD="password"
 
-# Prisma Client oluştur ve build et
-# NOT: generateStaticParams ve dynamic zaten dosyalarda düzeltildi, burada tekrar yapmaya gerek yok.
-RUN npx prisma generate --schema=./prisma/schema.prisma && npx next build
+RUN npx prisma generate --schema=./prisma/schema.prisma \
+  && npx next build \
+  && mkdir -p /app/.next/standalone/node_modules \
+  && cp -r /app/node_modules/.prisma /app/.next/standalone/node_modules/.prisma \
+  && cp -r /app/node_modules/@prisma /app/.next/standalone/node_modules/@prisma
 
-# Stage 3: Çalışma zamanı imajı
+# Stage 3: Production runtime (standalone — npm ci / COPY . YOK)
 FROM node:24-slim AS runner
 WORKDIR /app
 
-# Slim imajda gerekli olabilecek kütüphaneler
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Gerekli dosyaları kopyala (Standalone output için)
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Portu ayarla
 EXPOSE 3000
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-# Uygulamayı başlat
 CMD ["node", "server.js"]

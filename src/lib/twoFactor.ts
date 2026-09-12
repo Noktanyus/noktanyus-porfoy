@@ -135,3 +135,9 @@ export const twoFactor = {
   verifyBackupCode,
   consumeBackupCode,
 };
+
+/**
+ * Alias used by onboarding/service.ts (verifyTotp is the legacy name).
+ * Same semantics as verifyToken.
+ */
+export const verifyTotp = verifyToken;

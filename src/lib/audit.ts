@@ -28,7 +28,14 @@ export type AuditAction =
   | 'IMAGE_UPLOAD'
   | 'IMAGE_DELETE'
   | 'SETTINGS_UPDATE'
-  | 'REFUND';
+  | 'REFUND'
+  | 'AI_GENERATE'
+  | 'DATA_ACCESS'        // KVKK Madde 11 — kullanıcı verisine erişim
+  | 'DATA_EXPORT'        // KVKK Madde 11 — veri ihracı talebi
+  | 'CONSENT_GRANT'      // Cookie/consent kayıt
+  | 'CONSENT_REVOKE'     // Consent iptali
+  | 'REGISTER'           // Self-serve onboarding
+  | 'PASSWORD_RESET';    // Password reset completed
 
 export interface AuditEntry {
   userId?: string;
@@ -39,6 +46,7 @@ export interface AuditEntry {
   details?: Record<string, unknown>;
   ipAddress?: string;
   userAgent?: string;
+  status?: 'success' | 'failure';
 }
 
 /**
@@ -58,7 +66,7 @@ export async function logAudit(entry: AuditEntry): Promise<void> {
         : Prisma.JsonNull,
       ipAddress: entry.ipAddress ?? null,
       userAgent: entry.userAgent ?? null,
-      status: 'success',
+      status: entry.status ?? 'success',
     };
 
     await prisma.auditLog.create({ data });
@@ -86,7 +94,7 @@ export async function logAuditFailure(
         userAgent: entry.userAgent ?? null,
         status: 'failure',
         errorMessage: error instanceof Error ? error.message : String(error),
-      },
+      } as Prisma.AuditLogCreateInput,
     });
   } catch (e) {
     logger.error('Audit log failure record failed', { error: e });
@@ -115,4 +123,49 @@ export async function getAuditLogsByResource(resource: string, resourceId?: stri
     orderBy: { timestamp: 'desc' },
     take: 100,
   });
+}
+
+/**
+ * Phase 4 C.8 — KVKK Madde 11 / GDPR Article 15 kapsamında, kullanıcı
+ * kişisel verilerine erişim olduğunda (GET endpoint'leri) çağrılır.
+ *
+ * - `action: 'DATA_ACCESS'` olarak kayıt düşer.
+ * - Fire-and-forget: ana request'i BLOKLamaz (void promise).
+ * - Çağıran taraf await ETMEMELİ — performans için tasarlandı.
+ *
+ * @example
+ *   logDataAccess({
+ *     userId, resource: 'api_key', resourceId: id,
+ *     ipAddress, userAgent,
+ *   });
+ */
+export function logDataAccess(entry: {
+  userId: string;
+  resource: string;
+  resourceId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  details?: Record<string, unknown>;
+}): void {
+  // Fire-and-forget — promise'i beklemiyoruz
+  void (async () => {
+    try {
+      await prisma.auditLog.create({
+        data: {
+          userId: entry.userId,
+          action: 'DATA_ACCESS',
+          resource: entry.resource,
+          resourceId: entry.resourceId ?? null,
+          ipAddress: entry.ipAddress ?? null,
+          userAgent: entry.userAgent?.slice(0, 500) ?? null,
+          details: entry.details
+            ? (entry.details as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
+          status: 'success',
+        },
+      });
+    } catch (error) {
+      logger.error('logDataAccess failed', { error, entry });
+    }
+  })();
 }

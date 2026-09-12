@@ -48,7 +48,7 @@ export async function getBlog(slug: string): Promise<Blog | null> {
 }
 
 export async function listBlogs(): Promise<Blog[]> {
-  return safeQuery(() => prisma.blog.findMany({ orderBy: { date: 'desc' } }));
+  return (await safeQuery(() => prisma.blog.findMany({ orderBy: { date: 'desc' } }))) ?? [];
 }
 
 export async function getProject(slug: string): Promise<Project | null> {
@@ -56,19 +56,19 @@ export async function getProject(slug: string): Promise<Project | null> {
 }
 
 export async function listProjects(): Promise<Project[]> {
-  return safeQuery(() => prisma.project.findMany({ orderBy: { order: 'asc' } }));
+  return (await safeQuery(() => prisma.project.findMany({ orderBy: { order: 'asc' } }))) ?? [];
 }
 
 export async function listExperiences(): Promise<Experience[]> {
-  return safeQuery(() => prisma.experience.findMany());
+  return (await safeQuery(() => prisma.experience.findMany())) ?? [];
 }
 
 export async function listSkills(): Promise<Skill[]> {
-  return safeQuery(() => prisma.skill.findMany());
+  return (await safeQuery(() => prisma.skill.findMany())) ?? [];
 }
 
 export async function listTestimonials(): Promise<Testimonial[]> {
-  return safeQuery(() => prisma.testimonial.findMany());
+  return (await safeQuery(() => prisma.testimonial.findMany())) ?? [];
 }
 
 export async function getPopup(slug: string): Promise<Popup | null> {

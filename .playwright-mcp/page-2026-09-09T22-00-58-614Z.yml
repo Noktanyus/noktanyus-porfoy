@@ -1,0 +1,58 @@
+- generic [active] [ref=f15e1]:
+  - link "İçeriğe geç" [ref=f15e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f15e3]:
+    - banner [ref=f15e4]:
+      - generic [ref=f15e6]:
+        - link "Ana Sayfa" [ref=f15e8] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f15e9]: Portföyüm
+        - navigation "Ana navigasyon" [ref=f15e10]:
+          - link "Hakkımda" [ref=f15e11] [cursor=pointer]:
+            - /url: /hakkimda
+          - link "Projelerim" [ref=f15e12] [cursor=pointer]:
+            - /url: /projelerim
+          - link "Blog" [ref=f15e13] [cursor=pointer]:
+            - /url: /blog
+          - link "Mağaza" [ref=f15e14] [cursor=pointer]:
+            - /url: /magaza
+          - link "Fiyatlandırma" [ref=f15e15] [cursor=pointer]:
+            - /url: /fiyatlandirma
+          - link "İletişim" [ref=f15e16] [cursor=pointer]:
+            - /url: /iletisim
+        - generic [ref=f15e17]:
+          - button "Aramayı aç (Ctrl+K)" [ref=f15e20] [cursor=pointer]
+          - button "Open language menu" [ref=f15e24] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f15e25]: 🇹🇷
+            - generic [ref=f15e26]: TR
+          - button "Tema değiştir" [disabled] [ref=f15e29]
+          - button "Tema ve renk özelleştirici" [disabled] [ref=f15e31]
+    - main [ref=f15e33]:
+      - generic [ref=f15e35]:
+        - heading "404" [level=1] [ref=f15e37]
+        - heading "Sayfa Bulunamadı" [level=2] [ref=f15e39]
+        - paragraph [ref=f15e40]: Aradığınız sayfa kaldırılmış, adı değiştirilmiş veya geçici olarak kullanım dışı olabilir.
+        - link "Ana Sayfaya Dön" [ref=f15e41] [cursor=pointer]:
+          - /url: /
+    - contentinfo [ref=f15e42]:
+      - generic [ref=f15e44]:
+        - navigation "Yasal bilgilendirme bağlantıları" [ref=f15e45]:
+          - generic [ref=f15e46]:
+            - link "KVKK" [ref=f15e47] [cursor=pointer]:
+              - /url: /yasal/kvkk
+            - generic [aria-hidden] [ref=f15e48]: ·
+          - generic [ref=f15e49]:
+            - link "Mesafeli Satış" [ref=f15e50] [cursor=pointer]:
+              - /url: /yasal/mesafeli-satis
+            - generic [aria-hidden] [ref=f15e51]: ·
+          - generic [ref=f15e52]:
+            - link "Çerez Politikası" [ref=f15e53] [cursor=pointer]:
+              - /url: /yasal/cerez-politikasi
+            - generic [aria-hidden] [ref=f15e54]: ·
+          - generic [ref=f15e55]:
+            - link "Cayma Hakkı" [ref=f15e56] [cursor=pointer]:
+              - /url: /yasal/cayma-hakki
+            - generic [aria-hidden] [ref=f15e57]: ·
+          - link "Gizlilik" [ref=f15e59] [cursor=pointer]:
+            - /url: /yasal/gizlilik
+        - paragraph [ref=f15e60]: © 2026 Portföyüm. Tüm Hakları Saklıdır.

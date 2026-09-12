@@ -1,6 +1,7 @@
 // src/lib/env.ts
 import 'dotenv/config';
 import { z } from 'zod';
+import { DEFAULT_BASE_URL } from './seo';
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1, { message: "Database URL is required" }),
@@ -25,6 +26,27 @@ const envSchema = z.object({
   NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
   VAPID_PRIVATE_KEY: z.string().optional(),
   VAPID_SUBJECT: z.string().optional(),
+
+  // AI Provider (OpenAI-compatible) — opsiyonel; 3 env boşsa mock mode
+  AI_BASE_URL: z.string().optional(),
+  AI_API_KEY: z.string().optional(),
+  AI_MODEL: z.string().optional(),
+  AI_PROVIDER_DISPLAY_NAME: z.string().optional(),
+
+  // SAML SSO — opsiyonel (L5: SAML SSO production implementation).
+  // SAML_IDP_METADATA_URL verilmisse cert/SSO/entityId otomatik cekilir;
+  // alternatif olarak SAML_IDP_CERT + SAML_IDP_SSO_URL + SAML_IDP_ENTITY_ID env'den okunur.
+  SAML_SP_ENTITY_ID: z.string().optional(),
+  SAML_SP_ACS_URL: z.string().url().optional(),
+  SAML_SP_PRIVATE_KEY: z.string().optional(),
+  SAML_SP_PUBLIC_CERT: z.string().optional(),
+  SAML_IDP_METADATA_URL: z.string().url().optional(),
+  SAML_IDP_CERT: z.string().optional(),
+  SAML_IDP_SSO_URL: z.string().url().optional(),
+  SAML_IDP_ENTITY_ID: z.string().optional(),
+  SAML_CLOCK_SKEW_MS: z.string().optional(),
+  SAML_WANT_ASSERTIONS_SIGNED: z.string().optional(),
+  SAML_WANT_RESPONSE_SIGNED: z.string().optional(),
 });
 
 const isTestOrSkip =
@@ -59,6 +81,21 @@ try {
       NEXT_PUBLIC_VAPID_PUBLIC_KEY: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
       VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY,
       VAPID_SUBJECT: process.env.VAPID_SUBJECT,
+      AI_BASE_URL: process.env.AI_BASE_URL,
+      AI_API_KEY: process.env.AI_API_KEY,
+      AI_MODEL: process.env.AI_MODEL,
+      AI_PROVIDER_DISPLAY_NAME: process.env.AI_PROVIDER_DISPLAY_NAME,
+      SAML_SP_ENTITY_ID: process.env.SAML_SP_ENTITY_ID,
+      SAML_SP_ACS_URL: process.env.SAML_SP_ACS_URL,
+      SAML_SP_PRIVATE_KEY: process.env.SAML_SP_PRIVATE_KEY,
+      SAML_SP_PUBLIC_CERT: process.env.SAML_SP_PUBLIC_CERT,
+      SAML_IDP_METADATA_URL: process.env.SAML_IDP_METADATA_URL,
+      SAML_IDP_CERT: process.env.SAML_IDP_CERT,
+      SAML_IDP_SSO_URL: process.env.SAML_IDP_SSO_URL,
+      SAML_IDP_ENTITY_ID: process.env.SAML_IDP_ENTITY_ID,
+      SAML_CLOCK_SKEW_MS: process.env.SAML_CLOCK_SKEW_MS,
+      SAML_WANT_ASSERTIONS_SIGNED: process.env.SAML_WANT_ASSERTIONS_SIGNED,
+      SAML_WANT_RESPONSE_SIGNED: process.env.SAML_WANT_RESPONSE_SIGNED,
     };
   } else if (error instanceof z.ZodError) {
     const missingVariables = error.issues.map(issue => issue.path[0]).join(', ');
@@ -70,3 +107,24 @@ try {
 }
 
 export const env = parsedEnv;
+
+/**
+ * Uygulamanın genel base URL'si (server-side, callback/redirect üretmek için).
+ * Öncelik: NEXTAUTH_URL → NEXT_PUBLIC_BASE_URL → DEFAULT_BASE_URL.
+ * Trailing slash otomatik olarak sıyrılır.
+ */
+export function getAppUrl(): string {
+  const raw =
+    env.NEXTAUTH_URL ||
+    env.NEXT_PUBLIC_BASE_URL ||
+    DEFAULT_BASE_URL;
+  return raw.replace(/\/+$/, '');
+}
+
+/**
+ * Public (browser) tarafında kullanılan absolute URL üretmek için.
+ * NEXT_PUBLIC_BASE_URL'e düşer; yoksa DEFAULT_BASE_URL döner.
+ */
+export function getPublicAppUrl(): string {
+  return (env.NEXT_PUBLIC_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
+}

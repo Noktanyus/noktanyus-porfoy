@@ -1,0 +1,189 @@
+mobile/app/(auth)/_layout.tsx(1,23): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(auth)/login.tsx(11,8): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(auth)/login.tsx(12,33): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(auth)/login.tsx(13,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(auth)/login.tsx(15,25): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(auth)/login.tsx(16,25): error TS2307: Cannot find module '@/lib/store' or its corresponding type declarations.
+mobile/app/(auth)/register.tsx(11,8): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(auth)/register.tsx(12,33): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(auth)/register.tsx(13,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(auth)/register.tsx(15,25): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(tabs)/_layout.tsx(1,22): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(tabs)/_layout.tsx(2,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(tabs)/_layout.tsx(3,28): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/_layout.tsx(4,25): error TS2307: Cannot find module '@/lib/store' or its corresponding type declarations.
+mobile/app/(tabs)/_layout.tsx(7,30): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(27,26): error TS7031: Binding element 'color' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(27,33): error TS7031: Binding element 'size' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(36,26): error TS7031: Binding element 'color' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(36,33): error TS7031: Binding element 'size' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(45,26): error TS7031: Binding element 'color' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(45,33): error TS7031: Binding element 'size' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(54,26): error TS7031: Binding element 'color' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(54,33): error TS7031: Binding element 'size' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(85,26): error TS7031: Binding element 'color' implicitly has an 'any' type.
+mobile/app/(tabs)/_layout.tsx(85,33): error TS7031: Binding element 'size' implicitly has an 'any' type.
+mobile/app/(tabs)/blog.tsx(1,84): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/blog.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/(tabs)/blog.tsx(3,22): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(tabs)/blog.tsx(4,25): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(tabs)/blog.tsx(5,27): error TS2306: File 'C:/Users/Administrator/Desktop/noktanyus-porfoy/src/types/index.d.ts' is not a module.
+mobile/app/(tabs)/blog.tsx(26,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+mobile/app/(tabs)/blog.tsx(33,22): error TS7031: Binding element 'item' implicitly has an 'any' type.
+mobile/app/(tabs)/blog.tsx(51,33): error TS7006: Parameter 'tag' implicitly has an 'any' type.
+mobile/app/(tabs)/dashboard.tsx(1,58): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/dashboard.tsx(2,33): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(tabs)/dashboard.tsx(3,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(tabs)/dashboard.tsx(4,25): error TS2307: Cannot find module '@/lib/store' or its corresponding type declarations.
+mobile/app/(tabs)/dashboard.tsx(17,25): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/app/(tabs)/dashboard.tsx(18,28): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/app/(tabs)/index.tsx(1,82): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/index.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/(tabs)/index.tsx(3,22): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(tabs)/index.tsx(4,37): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(tabs)/index.tsx(5,36): error TS2306: File 'C:/Users/Administrator/Desktop/noktanyus-porfoy/src/types/index.d.ts' is not a module.
+mobile/app/(tabs)/projects.tsx(1,86): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/projects.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/(tabs)/projects.tsx(3,22): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/(tabs)/projects.tsx(4,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(tabs)/projects.tsx(5,21): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(1,91): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(3,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(4,28): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(5,25): error TS2307: Cannot find module '@/lib/store' or its corresponding type declarations.
+mobile/app/(tabs)/store.tsx(6,30): error TS2306: File 'C:/Users/Administrator/Desktop/noktanyus-porfoy/src/types/index.d.ts' is not a module.
+mobile/app/(tabs)/store.tsx(13,28): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/app/(tabs)/store.tsx(40,22): error TS7006: Parameter 'item' implicitly has an 'any' type.
+mobile/app/(tabs)/store.tsx(47,22): error TS7031: Binding element 'item' implicitly has an 'any' type.
+mobile/app/_layout.tsx(1,23): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/_layout.tsx(2,27): error TS2307: Cannot find module 'expo-status-bar' or its corresponding type declarations.
+mobile/app/_layout.tsx(3,37): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/_layout.tsx(4,40): error TS2307: Cannot find module 'react-native-gesture-handler' or its corresponding type declarations.
+mobile/app/_layout.tsx(5,34): error TS2307: Cannot find module 'react-native-safe-area-context' or its corresponding type declarations.
+mobile/app/_layout.tsx(6,29): error TS2307: Cannot find module '@/lib/queryClient' or its corresponding type declarations.
+mobile/app/blog/[slug].tsx(1,59): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/blog/[slug].tsx(2,38): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/blog/[slug].tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/blog/[slug].tsx(4,25): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(1,84): error TS2307: Cannot find module 'react-native' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(2,49): error TS2307: Cannot find module 'expo-router' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(4,26): error TS2307: Cannot find module '@expo/vector-icons' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(5,28): error TS2307: Cannot find module '@/lib/api' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(6,34): error TS2307: Cannot find module '@/lib/store' or its corresponding type declarations.
+mobile/app/products/[slug].tsx(11,25): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/app/products/[slug].tsx(12,28): error TS7006: Parameter 's' implicitly has an 'any' type.
+mobile/src/lib/api.ts(1,66): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+mobile/src/lib/api.ts(2,30): error TS2307: Cannot find module 'expo-secure-store' or its corresponding type declarations.
+mobile/src/lib/api.ts(3,23): error TS2307: Cannot find module 'expo-constants' or its corresponding type declarations.
+mobile/src/lib/api.ts(31,4): error TS7006: Parameter 'response' implicitly has an 'any' type.
+mobile/src/lib/api.ts(32,4): error TS7006: Parameter 'error' implicitly has an 'any' type.
+mobile/src/lib/queryClient.ts(1,29): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+mobile/src/lib/store.ts(3,26): error TS2307: Cannot find module '@react-native-async-storage/async-storage' or its corresponding type declarations.
+mobile/src/lib/store.ts(4,30): error TS2307: Cannot find module 'expo-secure-store' or its corresponding type declarations.
+src/app/(content)/blog/[slug]/page.tsx(135,7): error TS7034: Variable 'related' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/app/(content)/blog/[slug]/page.tsx(268,16): error TS7005: Variable 'related' implicitly has an 'any[]' type.
+src/app/api/admin/products/[id]/route.ts(83,18): error TS2339: Property 'images' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(83,57): error TS2339: Property 'images' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(88,18): error TS2339: Property 'currency' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(88,61): error TS2339: Property 'currency' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(91,18): error TS2339: Property 'version' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(91,59): error TS2339: Property 'version' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(92,18): error TS2339: Property 'requirements' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(92,69): error TS2339: Property 'requirements' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(93,18): error TS2339: Property 'active' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(93,57): error TS2339: Property 'active' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(94,18): error TS2339: Property 'featured' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(94,61): error TS2339: Property 'featured' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(95,18): error TS2339: Property 'order' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/[id]/route.ts(95,55): error TS2339: Property 'order' does not exist on type '{ title?: string | undefined; description?: string | undefined; slug?: string | undefined; thumbnail?: string | null | undefined; category?: string | undefined; technologies?: string[] | undefined; ... 6 more ...; ttlHours?: number | undefined; }'.
+src/app/api/admin/products/route.ts(42,22): error TS2339: Property 'images' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(47,24): error TS2339: Property 'currency' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(52,23): error TS2339: Property 'version' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(53,28): error TS2339: Property 'requirements' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(54,22): error TS2339: Property 'active' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(55,24): error TS2339: Property 'featured' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/admin/products/route.ts(56,21): error TS2339: Property 'order' does not exist on type '{ title: string; description: string; slug: string; category: string; technologies: string[]; shortDescription: string; fileUrl: string; fileName: string; fileSize: number; priceCents: number; downloadCountMax: number; ttlHours: number; thumbnail?: string | ... 1 more ... | undefined; }'.
+src/app/api/ai/bulk/jobs/[jobId]/export/route.ts(19,50): error TS2345: Argument of type '(req: NextRequest, { params }: {    params: {        jobId: string;    };}) => Promise<NextResponse<unknown>>' is not assignable to parameter of type '(req: NextRequest) => Promise<NextResponse<unknown>>'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+src/app/api/ai/bulk/jobs/[jobId]/route.ts(20,50): error TS2345: Argument of type '(req: NextRequest, { params }: {    params: {        jobId: string;    };}) => Promise<NextResponse<unknown>>' is not assignable to parameter of type '(req: NextRequest) => Promise<NextResponse<unknown>>'.
+  Target signature provides too few arguments. Expected 2 or more, but got 1.
+src/app/api/auth/register/route.ts(35,22): error TS2531: Object is possibly 'null'.
+src/app/api/auth/register/route.ts(58,41): error TS2345: Argument of type '{ name: string; email: string; password: string; planSlug: "starter" | "pro" | "enterprise"; acceptTerms: true; } | { planSlug: "starter"; acceptTerms: true; name?: string | undefined; email?: string | undefined; password?: string | undefined; }' is not assignable to parameter of type '{ name: string; email: string; password: string; planSlug: "starter" | "pro" | "enterprise"; acceptTerms: true; }'.
+  Type '{ planSlug: "starter"; acceptTerms: true; name?: string | undefined; email?: string | undefined; password?: string | undefined; }' is not assignable to type '{ name: string; email: string; password: string; planSlug: "starter" | "pro" | "enterprise"; acceptTerms: true; }'.
+    Types of property 'name' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+src/app/api/compliance/breach/route.ts(66,9): error TS2322: Type 'string[] | null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'null' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+src/app/api/compliance/breach/route.ts(68,9): error TS2322: Type 'Record<string, unknown> | undefined' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+  Type 'Record<string, unknown>' is not assignable to type 'NullableJsonNullValueInput | InputJsonValue | undefined'.
+    Type 'Record<string, unknown>' is missing the following properties from type 'readonly (InputJsonValue | null)[]': length, concat, join, slice, and 26 more.
+src/app/api/compliance/sites/route.ts(46,47): error TS2551: Property 'sites' does not exist on type '{ items: ({ _count: { scans: number; policies: number; breaches: number; }; } & { status: string; name: string; id: string; contactEmail: string; createdAt: Date; updatedAt: Date; notes: string | null; ... 7 more ...; complianceScore: number | null; })[]; total: number; page: number; pageSize: number; }'. Did you mean 'items'?
+src/app/api/graphql/route.ts(109,43): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'LogContext | undefined'.
+src/app/api/saas-ui/brand-voice/train/route.ts(71,43): error TS2554: Expected 3 arguments, but got 2.
+src/app/api/saas/ai/describe/bulk/route.ts(203,26): error TS2339: Property 'workspaceId' does not exist on type '{ length: "short" | "medium" | "long"; csvPath: string; language: "tr" | "en" | "de" | "ar" | "fr" | "es"; brandVoiceId?: string | undefined; keywords?: string[] | undefined; }'.
+src/app/api/user/export/route.ts(29,33): error TS2305: Module '"@/lib/apiResponse"' has no exported member 'UnauthorizedError'.
+src/app/api/user/export/route.ts(33,30): error TS2307: Cannot find module '@aws-sdk/s3-request-presigner' or its corresponding type declarations.
+src/app/saas/(app)/dashboard/page.tsx(90,39): error TS2353: Object literal may only specify known properties, and 'sampleCount' does not exist in type 'BrandVoiceSelect<DefaultArgs>'.
+src/app/saas/(app)/dashboard/page.tsx(256,28): error TS2339: Property 'sampleCount' does not exist on type '{ model: string; name: string; id: string; description: string | null; createdAt: Date; updatedAt: Date; workspaceId: string; sampleInputs: JsonValue; learnedPatterns: JsonValue; trainedAt: Date | null; }'.
+src/lib/__tests__/middleware-protected.test.ts(26,37): error TS2307: Cannot find module '../middleware' or its corresponding type declarations.
+src/lib/apollo.ts(29,3): error TS2459: Module '"@/modules/graphql/validation"' declares 'MAX_DEPTH' locally, but it is not exported.
+src/lib/apollo.ts(30,3): error TS2459: Module '"@/modules/graphql/validation"' declares 'MAX_COMPLEXITY' locally, but it is not exported.
+src/lib/apollo.ts(71,7): error TS2322: Type '(context: ValidationContext) => void' is not assignable to type 'ValidationRule'.
+  Type 'void' is not assignable to type 'ASTVisitor'.
+src/lib/apollo.ts(72,31): error TS2339: Property 'operation' does not exist on type 'ValidationContext'.
+src/lib/apollo.ts(76,13): error TS2345: Argument of type 'Error' is not assignable to parameter of type 'GraphQLError'.
+  Type 'Error' is missing the following properties from type 'GraphQLError': locations, path, nodes, source, and 5 more.
+src/lib/apollo.ts(82,13): error TS2345: Argument of type 'Error' is not assignable to parameter of type 'GraphQLError'.
+src/lib/apollo.ts(113,19): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'LogContext | undefined'.
+  Type 'string' is not assignable to type 'LogContext'.
+src/lib/apollo.ts(134,51): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'LogContext | undefined'.
+src/lib/stripe.ts(23,7): error TS2322: Type '"2026-07-29.dahlia"' is not assignable to type '"2026-08-26.dahlia"'.
+src/modules/branding/__tests__/schemas.test.ts(47,27): error TS2345: Argument of type '"comic-sans"' is not assignable to parameter of type 'FontFamily'.
+src/modules/branding/service.ts(32,35): error TS2339: Property 'workspaceBranding' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/branding/service.ts(51,34): error TS2339: Property 'workspaceBranding' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/branding/service.ts(83,34): error TS2339: Property 'workspaceBranding' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/branding/service.ts(106,18): error TS2339: Property 'workspaceBranding' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/funnel/service.ts(8,30): error TS2459: Module '"./analyzer"' declares 'FunnelReport' locally, but it is not exported.
+src/modules/funnel/service.ts(16,18): error TS2339: Property 'funnelEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/funnel/service.ts(31,18): error TS2339: Property 'funnelEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/funnel/service.ts(53,33): error TS2339: Property 'funnelEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/funnel/service.ts(64,47): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/modules/funnel/service.ts(82,19): error TS2339: Property 'funnelEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/funnel/service.ts(90,33): error TS2339: Property 'funnelEvent' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'.
+src/modules/graphql/resolvers.ts(65,20): error TS2353: Object literal may only specify known properties, and 'price' does not exist in type 'PlanOrderByWithRelationInput | PlanOrderByWithRelationInput[]'.
+src/modules/graphql/resolvers.ts(72,18): error TS2820: Type '"active"' is not assignable to type 'SubscriptionStatus | EnumSubscriptionStatusFilter<"Subscription"> | undefined'. Did you mean '"ACTIVE"'?
+src/modules/graphql/resolvers.ts(77,38): error TS2339: Property 'plan' does not exist on type '{ status: SubscriptionStatus; id: string; createdAt: Date; updatedAt: Date; stripeSubscriptionId: string; customerId: string; metadata: JsonValue; ... 7 more ...; trialEnd: Date | null; }'.
+src/modules/graphql/resolvers.ts(79,15): error TS2339: Property 'plan' does not exist on type '{ status: SubscriptionStatus; id: string; createdAt: Date; updatedAt: Date; stripeSubscriptionId: string; customerId: string; metadata: JsonValue; ... 7 more ...; trialEnd: Date | null; }'.
+src/modules/graphql/resolvers.ts(81,19): error TS2339: Property 'plan' does not exist on type '{ status: SubscriptionStatus; id: string; createdAt: Date; updatedAt: Date; stripeSubscriptionId: string; customerId: string; metadata: JsonValue; ... 7 more ...; trialEnd: Date | null; }'.
+src/modules/graphql/resolvers.ts(91,26): error TS2820: Type '"canceled"' is not assignable to type 'SubscriptionStatus'. Did you mean '"CANCELED"'?
+src/modules/graphql/resolvers.ts(91,38): error TS2322: Type '"expired"' is not assignable to type 'SubscriptionStatus'.
+src/modules/graphql/resolvers.ts(123,17): error TS2322: Type '"failed" | "pending" | "refunded" | "canceled" | "paid"' is not assignable to type 'OrderStatus | EnumOrderStatusFieldUpdateOperationsInput | undefined'.
+  Type '"failed"' is not assignable to type 'OrderStatus | EnumOrderStatusFieldUpdateOperationsInput | undefined'. Did you mean '"FAILED"'?
+src/modules/graphql/resolvers.ts(138,17): error TS2353: Object literal may only specify known properties, and 'role' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+src/modules/onboarding/__tests__/schemas.test.ts(8,3): error TS2305: Module '"../schemas"' has no exported member 'ONBOARDING_STEPS'.
+src/modules/onboarding/__tests__/schemas.test.ts(9,3): error TS2305: Module '"../schemas"' has no exported member 'getStepById'.
+src/modules/onboarding/__tests__/schemas.test.ts(10,3): error TS2305: Module '"../schemas"' has no exported member 'getNextStep'.
+src/modules/onboarding/__tests__/schemas.test.ts(11,3): error TS2305: Module '"../schemas"' has no exported member 'isValidPersona'.
+src/modules/onboarding/__tests__/schemas.test.ts(12,8): error TS2305: Module '"../schemas"' has no exported member 'OnboardingStepId'.
+src/modules/onboarding/__tests__/schemas.test.ts(13,8): error TS2305: Module '"../schemas"' has no exported member 'UserPersona'.
+src/modules/onboarding/__tests__/schemas.test.ts(22,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/modules/onboarding/__tests__/schemas.test.ts(27,31): error TS7006: Parameter 'step' implicitly has an 'any' type.
+src/modules/onboarding/__tests__/schemas.test.ts(86,31): error TS7006: Parameter 'ts' implicitly has an 'any' type.
+src/modules/onboarding/__tests__/service.test.ts(78,10): error TS2305: Module '"@/lib/twoFactor"' has no exported member 'verifyTotp'.
+src/modules/onboarding/service.ts(21,10): error TS2305: Module '"@/lib/auth-utils"' has no exported member 'hashPassword'.
+src/modules/onboarding/service.ts(21,24): error TS2305: Module '"@/lib/auth-utils"' has no exported member 'verifyPassword'.
+src/modules/onboarding/service.ts(24,10): error TS2305: Module '"@/lib/twoFactor"' has no exported member 'verifyTotp'.
+src/modules/onboarding/service.ts(114,5): error TS2322: Type '"REGISTER"' is not assignable to type 'AuditAction'.
+src/modules/onboarding/service.ts(291,5): error TS2322: Type '"PASSWORD_RESET"' is not assignable to type 'AuditAction'.
+src/modules/onboarding/service.ts(369,7): error TS2353: Object literal may only specify known properties, and 'status' does not exist in type 'AuditEntry'.
+src/modules/reports/builder/schemas.ts(171,46): error TS2339: Property 'source' does not exist on type 'MetricConfig'.
+src/modules/themes/types.ts(25,19): error TS2353: Object literal may only specify known properties, and 'presetId' does not exist in type 'ThemePreferenceSelect<DefaultArgs>'.
+src/modules/themes/types.ts(27,40): error TS2339: Property 'presetId' does not exist on type '{ updatedAt: Date; id: string; createdAt: Date; userId: string; theme: string; accentColor: string; }'.
+src/modules/themes/types.ts(27,63): error TS2339: Property 'presetId' does not exist on type '{ updatedAt: Date; id: string; createdAt: Date; userId: string; theme: string; accentColor: string; }'.
+src/modules/themes/types.ts(40,25): error TS2353: Object literal may only specify known properties, and 'presetId' does not exist in type 'Without<ThemePreferenceCreateInput, ThemePreferenceUncheckedCreateInput> & ThemePreferenceUncheckedCreateInput'.
+src/modules/themes/types.ts(41,17): error TS2353: Object literal may only specify known properties, and 'presetId' does not exist in type '(Without<ThemePreferenceUpdateInput, ThemePreferenceUncheckedUpdateInput> & ThemePreferenceUncheckedUpdateInput) | (Without<...> & ThemePreferenceUpdateInput)'.
+src/modules/themes/types.ts(45,38): error TS2339: Property 'presetId' does not exist on type '{ updatedAt: Date; id: string; createdAt: Date; userId: string; theme: string; accentColor: string; }'.
+src/modules/themes/types.ts(45,55): error TS2339: Property 'presetId' does not exist on type '{ updatedAt: Date; id: string; createdAt: Date; userId: string; theme: string; accentColor: string; }'.

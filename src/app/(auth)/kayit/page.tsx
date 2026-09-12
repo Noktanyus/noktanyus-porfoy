@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { RegisterForm } from "@/components/auth/RegisterForm";
+import { RegisterWizard } from "@/components/auth/RegisterWizard";
 
 export const metadata: Metadata = {
   title: "Kayıt Ol",
@@ -10,25 +10,27 @@ export const metadata: Metadata = {
 
 export default function KayitPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-blob-decoration px-4 py-12 pt-24">
+    <div className="min-h-[70vh] flex items-center justify-center bg-blob-decoration px-4 py-8">
       <div className="w-full max-w-md">
         <div className="glass-card-premium p-8">
-          <h1 className="text-2xl font-bold mb-2 text-center">Hesap Oluştur</h1>
-          <p className="text-sm text-muted-foreground text-center mb-6">
-            Ücretsiz başlayın
+          <h1 className="text-2xl font-bold mb-2 text-center text-slate-900 dark:text-white">
+            Hesap Oluştur
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400 text-center mb-6">
+            Ücretsiz başlayın, 14 gün Pro deneyin
           </p>
-          <RegisterForm />
-          <p className="text-sm text-center mt-6 text-muted-foreground">
+          <RegisterWizard />
+          <p className="text-sm text-center mt-6 text-slate-600 dark:text-slate-400">
             Zaten hesabınız var mı?{" "}
             <Link
               href="/giris"
-              className="text-primary font-semibold hover:underline"
+              className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
             >
               Giriş Yap
             </Link>
           </p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 /* OKLCH color space - shadcn/ui standard token structure
- * Light + Dark dual theme with glassmorphism support
- * Chromaticity values use the blue hue (250-255 range) for cool/calm feel
+ * Light + Dark dual theme. BARE CHANNEL values (e.g. "0.55 0.18 255")
+ * must be wrapped in oklch(...) at the consumer site so alpha can be applied.
  */
 
 :root {
@@ -8,12 +8,12 @@
   --background: 0.99 0.005 250;
   --foreground: 0.18 0.01 250;
 
-  /* Cards / Surfaces (alpha 0.7 for glass) */
-  --card: 1 0 0 / 0.7;
+  /* Cards / Surfaces */
+  --card: 0.99 0 0;
   --card-foreground: 0.18 0.01 250;
 
   /* Popover */
-  --popover: 1 0 0 / 0.85;
+  --popover: 0.99 0 0;
   --popover-foreground: 0.18 0.01 250;
 
   /* Primary (Blue accent) */
@@ -55,16 +55,16 @@
   /* Ring (focus) */
   --ring: 0.55 0.18 255;
 
-  /* Radius scale (12px - modern yumuşak köşeler) */
+  /* Radius scale (12px base) */
   --radius: 0.75rem;
 
-  /* Glass blur scale */
+  /* Glass blur scale — opt-in, Modal/Drawer gibi yerlerde kullanilir */
   --blur-sm: 8px;
   --blur-md: 12px;
   --blur-lg: 24px;
   --blur-xl: 40px;
 
-  /* Brand tokens (still needed for backward compat with hardcoded refs) */
+  /* Brand alias — backward compat */
   --brand-primary: 0.55 0.18 255;
 }
 
@@ -73,12 +73,12 @@
   --background: 0.12 0.01 250;
   --foreground: 0.96 0.005 250;
 
-  /* Cards / Surfaces (alpha 0.6 for dark glass) */
-  --card: 0.18 0.01 250 / 0.6;
+  /* Cards / Surfaces */
+  --card: 0.18 0.01 250;
   --card-foreground: 0.96 0.005 250;
 
   /* Popover */
-  --popover: 0.18 0.01 250 / 0.8;
+  --popover: 0.18 0.01 250;
   --popover-foreground: 0.96 0.005 250;
 
   /* Primary (parlak) */
@@ -120,28 +120,18 @@
   /* Ring (focus) */
   --ring: 0.7 0.15 255;
 
-  /* Brand tokens */
+  /* Brand alias */
   --brand-primary: 0.7 0.15 255;
 }
 
-/* ===== UTILITY CLASSES ===== */
+/* ===== UTILITY CLASSES (lightweight) ===== */
 
-/* Glass surfaces (white-blur / dark-blur) */
-.glass {
-  background-color: oklch(var(--card));
-  backdrop-filter: blur(var(--blur-md));
-  -webkit-backdrop-filter: blur(var(--blur-md));
-  border: 1px solid oklch(var(--border));
-}
+/* Surface tokens are NORMALIZE ONLY; actual blur/glass styling is in
+   globals.css `.glass-card`, `.glass-pill` etc. Burada sadece raw
+   oklch surface'leri cikar ki admin / dashboard yalniz, okunakli
+   gorunsun. */
 
-.glass-strong {
-  background-color: oklch(var(--popover));
-  backdrop-filter: blur(var(--blur-lg));
-  -webkit-backdrop-filter: blur(var(--blur-lg));
-  border: 1px solid oklch(var(--border));
-}
-
-/* Gradient text using primary + accent */
+/* Gradient text using primary + accent — sayfa basliklarinda */
 .gradient-text {
   background: linear-gradient(135deg, oklch(var(--primary)), oklch(var(--accent)));
   -webkit-background-clip: text;
@@ -150,7 +140,19 @@
   color: transparent;
 }
 
-/* Smooth theme transitions on color/border only */
-* {
+/* Global theme-transition sadece tema-yapisal property'ler icin
+   UYGULANMAZ: butun DOM node'larina `transition` koymak perfomans
+   regression yaratir ve prefers-reduced-motion kullanicilarinda
+   kapatilmaz. Asagida reduced-motion guard blogu ile birlikte
+   yalniz belirli selector'lara uygulanir (renk/bg/border). */
+.surface-transition,
+.surface-transition * {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surface-transition,
+  .surface-transition * {
+    transition: none !important;
+  }
 }

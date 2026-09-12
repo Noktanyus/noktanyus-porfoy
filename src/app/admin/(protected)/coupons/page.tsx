@@ -1,12 +1,24 @@
 /**
  * @file Admin — Kupon Yönetimi sayfası (sunucu tarafı).
- * @description Tüm kuponları listeler; admin tarafından oluşturulan indirim
- *              kampanyalarını yönetmek için giriş noktasıdır.
+ * @description Tüm kuponları listeler; indirim kampanyalarının durumunu izlemek
+ *              için salt-okunur bir görünüm sunar.
+ *
+ * Faz D:
+ *  - "+ Yeni Kupon" CTA'sı KALDIRILDI. `/admin/coupons/new` route'u projede
+ *    yok ve kupon oluşturan bir admin API endpoint'i de yok; buton kullanıcıyı
+ *    doğrudan 404'e götürüyordu. Bunun yerine sayfanın salt-okunur olduğu
+ *    açıkça yazıldı (yeni özellik eklenmedi, yalnızca kırık CTA temizlendi).
+ *  - Tablo/boş durum/rozet ortak primitive'lere taşındı.
  */
 
-import Link from 'next/link';
 import { couponService } from '@/modules/commerce/couponService';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
+import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { StatCard, StatCardGrid } from '@/components/ui/StatCard';
+import { StatusBadge, resolveActiveStatus } from '@/components/ui/StatusBadge';
 
 // Her istekte yeniden render — DB'den canlı veri çekmek için
 export const dynamic = 'force-dynamic';
@@ -24,6 +36,11 @@ function formatUsage(coupon: CouponListItem): string {
   return coupon.maxUses ? `${coupon.currentUses}/${coupon.maxUses}` : `${coupon.currentUses}`;
 }
 
+/** Kuponun süresi geçmiş mi? */
+function isExpired(coupon: CouponListItem): boolean {
+  return Boolean(coupon.expiresAt && new Date(coupon.expiresAt).getTime() < Date.now());
+}
+
 export default async function AdminCouponsPage() {
   let coupons: CouponListItem[] = [];
   let error: string | null = null;
@@ -34,102 +51,104 @@ export default async function AdminCouponsPage() {
     error = e instanceof Error ? e.message : 'Kuponlar yüklenemedi';
   }
 
+  const header = (
+    <PageHeader
+      title="Kuponlar"
+      description="İndirim kuponlarının durumu ve kullanım sayıları (salt-okunur görünüm)."
+      breadcrumb={<span>Admin / Kuponlar</span>}
+    />
+  );
+
   if (error) {
     return (
-      <ErrorDisplay
-        title="Kuponlar Yüklenemedi"
-        message={error}
-      />
+      <div className="admin-content-spacing">
+        {header}
+        <ErrorDisplay
+          variant="card"
+          title="Kuponlar yüklenemedi"
+          message={error}
+          showHomeLink={false}
+        />
+      </div>
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8 gap-4 flex-wrap">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Kuponlar
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Toplam {coupons.length} kupon
-          </p>
-        </div>
-        <Link
-          href="/admin/coupons/new"
-          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300"
-        >
-          + Yeni Kupon
-        </Link>
-      </div>
+  const activeCount = coupons.filter((c) => c.active && !isExpired(c)).length;
+  const expiredCount = coupons.filter(isExpired).length;
 
-      <div className="glass-card-premium overflow-hidden">
+  return (
+    <div className="admin-content-spacing">
+      {header}
+
+      {coupons.length > 0 && (
+        <StatCardGrid columns={3}>
+          <StatCard label="Toplam kupon" value={coupons.length} />
+          <StatCard label="Kullanılabilir" value={activeCount} tone="success" />
+          <StatCard
+            label="Süresi geçmiş"
+            value={expiredCount}
+            tone={expiredCount > 0 ? 'warning' : 'default'}
+          />
+        </StatCardGrid>
+      )}
+
+      <DashboardSection padding={coupons.length === 0 ? 'md' : 'none'} contained>
         {coupons.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-            <p className="text-5xl mb-3" aria-hidden="true">🎟️</p>
-            <p>Henüz kupon yok. İlk kuponu oluşturun.</p>
-          </div>
+          <EmptyState
+            variant="inline"
+            icon="inbox"
+            title="Henüz kupon yok"
+            description="Bu ekran mevcut kuponları listeler. Kupon oluşturma arayüzü bu sürümde bulunmuyor; kuponlar seed/servis katmanı üzerinden tanımlanır."
+          />
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
-                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
-                    Kod
-                  </th>
-                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
-                    İndirim
-                  </th>
-                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
-                    Kullanım
-                  </th>
-                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
-                    Bitiş
-                  </th>
-                  <th className="text-left p-4 font-semibold text-gray-700 dark:text-gray-300">
-                    Durum
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {coupons.map((c) => (
+          <ResponsiveTable
+            minWidth="680px"
+            caption="Kuponlar: kod, indirim, kullanım, bitiş tarihi ve durum"
+            className="rounded-none border-0"
+          >
+            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+              <tr>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Kod</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">İndirim</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Kullanım</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Bitiş</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">Durum</th>
+              </tr>
+            </thead>
+            <tbody>
+              {coupons.map((c) => {
+                const expired = isExpired(c);
+                return (
                   <tr
                     key={c.id}
-                    className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="border-t border-border/40 transition-colors hover:bg-muted/40"
                   >
-                    <td className="p-4 font-mono font-medium text-gray-900 dark:text-white">
-                      {c.code}
-                    </td>
-                    <td className="p-4 text-gray-700 dark:text-gray-300">
+                    <td className="px-4 py-3 font-mono font-medium text-foreground">{c.code}</td>
+                    <td className="px-4 py-3 tabular-nums text-muted-foreground">
                       {formatDiscount(c)}
                     </td>
-                    <td className="p-4 text-gray-700 dark:text-gray-300">
+                    <td className="px-4 py-3 tabular-nums text-muted-foreground">
                       {formatUsage(c)}
                     </td>
-                    <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
                       {c.expiresAt
                         ? new Date(c.expiresAt).toLocaleDateString('tr-TR')
                         : 'Süresiz'}
                     </td>
-                    <td className="p-4">
-                      {c.active ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" aria-hidden="true" />
-                          Aktif
-                        </span>
+                    <td className="px-4 py-3">
+                      {expired ? (
+                        <StatusBadge size="sm" tone="warning" dot label="Süresi geçti" />
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-gray-400" aria-hidden="true" />
-                          Pasif
-                        </span>
+                        <StatusBadge size="sm" {...resolveActiveStatus(c.active)} />
                       )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                );
+              })}
+            </tbody>
+          </ResponsiveTable>
         )}
-      </div>
+      </DashboardSection>
     </div>
   );
 }

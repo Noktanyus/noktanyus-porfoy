@@ -13,9 +13,49 @@ export class AppError extends Error {
   }
 }
 
-export function handleApiError(error: unknown): { message: string; statusCode: number } {
-  console.error('API Error:', error);
+/**
+ * Production'da kullanıcıya göstereceğimiz güvenli varsayılan 500 mesajı.
+ * ASLA internal hata detayı içermez (stack trace, SQL, credentials, vb.).
+ */
+const PRODUCTION_GENERIC_500 = 'Beklenmeyen bir sunucu hatası oluştu.';
 
+/**
+ * Bilinen Prisma hata sınıfları — string match yerine constructor / code
+ * kontrolü tercih edilir, ancak Prisma'nın client API'si her zaman aynı
+ * sınıfları export etmediği için string fallback ile birlikte savunma
+ * katmanı olarak kullanılır.
+ */
+function classifyPrismaError(message: string): { message: string; statusCode: number } | null {
+  // Unique constraint (P2002)
+  if (message.includes('Unique constraint') || message.includes('P2002')) {
+    return { message: 'Bu kayıt zaten mevcut.', statusCode: 409 };
+  }
+  // Record not found (P2025)
+  if (message.includes('Record to update not found') || message.includes('P2025')) {
+    return { message: 'Güncellenecek kayıt bulunamadı.', statusCode: 404 };
+  }
+  // Foreign key constraint (P2003)
+  if (message.includes('Foreign key constraint') || message.includes('P2003')) {
+    return {
+      message: 'İlişkili kayıtlar nedeniyle işlem gerçekleştirilemedi.',
+      statusCode: 400,
+    };
+  }
+  return null;
+}
+
+function isZodError(error: Error): boolean {
+  return (
+    error.name === 'ZodError' ||
+    error.constructor?.name === 'ZodError' ||
+    // Zod'un kendi `issues` alanı — diğer error sınıflarıyla çakışma riski düşük
+    Array.isArray((error as unknown as { issues?: unknown }).issues)
+  );
+}
+
+export function handleApiError(error: unknown): { message: string; statusCode: number } {
+  // AppError her zaman kullanıcı-dostu mesaj taşır (uygulama katmanı
+  // tarafından üretildiği için safe kabul edilir).
   if (error instanceof AppError) {
     return {
       message: error.message,
@@ -24,33 +64,29 @@ export function handleApiError(error: unknown): { message: string; statusCode: n
   }
 
   if (error instanceof Error) {
-    // Prisma hataları
-    if (error.message.includes('Unique constraint')) {
-      return {
-        message: 'Bu kayıt zaten mevcut.',
-        statusCode: 409,
-      };
-    }
+    // Prisma — bilinen hatalar
+    const prismaClassified = classifyPrismaError(error.message);
+    if (prismaClassified) return prismaClassified;
 
-    if (error.message.includes('Record to update not found')) {
-      return {
-        message: 'Güncellenecek kayıt bulunamadı.',
-        statusCode: 404,
-      };
-    }
-
-    if (error.message.includes('Foreign key constraint')) {
-      return {
-        message: 'İlişkili kayıtlar nedeniyle işlem gerçekleştirilemedi.',
-        statusCode: 400,
-      };
-    }
-
-    // Zod validation hataları
-    if (error.name === 'ZodError' || error.constructor?.name === 'ZodError') {
+    // Zod — input validation
+    if (isZodError(error)) {
       return {
         message: 'Geçersiz veri formatı.',
         statusCode: 400,
+      };
+    }
+
+    // Production'da internal Error.message ASLA sızdırılmaz.
+    // Sadece geliştirme ortamında ham mesaj kullanıcıya gösterilir.
+    if (isProduction()) {
+      // Log internal error for ops; response is generic.
+      console.error('[error-handler] masked internal error:', {
+        name: error.name,
+        message: error.message,
+      });
+      return {
+        message: PRODUCTION_GENERIC_500,
+        statusCode: 500,
       };
     }
 
@@ -60,6 +96,14 @@ export function handleApiError(error: unknown): { message: string; statusCode: n
     };
   }
 
+  // Non-Error throwables (string, number, undefined, ...) — production'da
+  // ASLA ham değeri dışarıya verme.
+  if (isProduction()) {
+    return {
+      message: PRODUCTION_GENERIC_500,
+      statusCode: 500,
+    };
+  }
   return {
     message: 'Bilinmeyen bir hata oluştu.',
     statusCode: 500,

@@ -118,7 +118,6 @@ export function ThemeCustomizer({ className }: ThemeCustomizerProps) {
         className={baseClass}
         aria-label="Tema ve renk özelleştirici"
         disabled
-        aria-hidden="true"
       >
         <span className="w-5 h-5 sm:w-6 sm:h-6 block" />
       </button>

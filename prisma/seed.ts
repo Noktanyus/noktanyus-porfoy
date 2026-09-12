@@ -1,4 +1,5 @@
 import { prisma } from '../src/lib/prisma';
+import bcrypt from 'bcryptjs';
 
 async function main() {
   console.log('🌱 Zengin seed verisi yükleniyor...');
@@ -25,13 +26,73 @@ async function main() {
   await prisma.webhookEvent.deleteMany();
   await prisma.auditLog.deleteMany();
 
+  // ====== Normal Kullanıcılar (User tablosu, bcrypt) ======
+  // Auth: NextAuth Credentials provider, src/lib/auth.ts
+  // Şifreler bcrypt 12 round ile hash'lendi. Plain text asla DB'ye yazılmaz.
+  // Demo amaçlı: emailVerified = now, referralCode = benzersiz.
+  // upsert kullanıyoruz ki seed'i birden fazla kez çalıştırınca duplicate olmasın.
+  const now = new Date();
+  const usersData = [
+    {
+      email: 'ahmetyilmaz@gmail.com',
+      name: 'Ahmet Yılmaz',
+      password: 'Test12345',
+      referralCode: 'AHMET2026',
+    },
+    {
+      email: 'zeynepkaya@gmail.com',
+      name: 'Zeynep Kaya',
+      password: 'Sifre2026!',
+      referralCode: 'ZEYNEP26',
+    },
+    {
+      email: 'mehmetdemir@gmail.com',
+      name: 'Mehmet Demir',
+      password: 'Demo12345',
+      referralCode: 'MEHMET26',
+    },
+    {
+      email: 'ayseselcuk@example.com',
+      name: 'Ayşe Selçuk',
+      password: 'User2026!',
+      referralCode: 'AYSE2026',
+    },
+  ];
+
+  const users = [];
+  for (const u of usersData) {
+    const hashed = await bcrypt.hash(u.password, 12);
+    const user = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        name: u.name,
+        password: hashed,
+        emailVerified: now,
+        referralCode: u.referralCode,
+      },
+      create: {
+        email: u.email,
+        name: u.name,
+        password: hashed,
+        emailVerified: now,
+        referralCode: u.referralCode,
+      },
+    });
+    users.push({ user, plainPassword: u.password });
+  }
+
+  console.log(`   - User: ${users.length} normal kullanıcı oluşturuldu`);
+  users.forEach(({ user, plainPassword }) =>
+    console.log(`     · ${user.email} / ${plainPassword}`)
+  );
+
   // ====== About ======
   const about = await prisma.about.create({
     data: {
       name: 'Yunus Tuğhan',
       title: 'Software Developer',
       subTitle: 'Akdeniz Üniversitesi bünyesinde yazılım çözümleri üretiyorum.',
-      headerTitle: 'Merhaba, Ben Yunus Tuğhan',
+      headerTitle: 'Yunus Tuğhan',
       content: 'Akdeniz Üniversitesi Bilgi İşlem Daire Başkanlığı bünyesinde stajyerlik sürecimi tamamladıktan sonra şu an aktif olarak yazılım geliştirici olarak görev yapıyorum. ESTM Spor Tesisleri başta olmak üzere üniversite genelindeki dijital dönüşüm süreçlerine katkı sağlıyorum.',
       profileImage: '/images/profile.webp',
       contactEmail: 'tughan@akdeniz.edu.tr',
@@ -583,13 +644,20 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         interval: 'MONTH',
         priceCents: 9900,
         currency: 'try',
-        features: [
-          '5 proje',
-          '10 GB depolama',
-          'Temel destek',
-          'SSL sertifikası',
-          'CDN',
-        ],
+        features: {
+          marketing: [
+            '5 proje',
+            '10 GB depolama',
+            'Temel destek',
+            'SSL sertifikası',
+            'CDN',
+            'AI Blog Writer (10K token/ay)',
+          ],
+          limits: {
+            aiTokensPerMonth: 10000,
+            aiRequestsPerMonth: 50,
+          },
+        },
         active: true,
         isFeatured: false,
         order: 1,
@@ -603,15 +671,22 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         interval: 'MONTH',
         priceCents: 29900,
         currency: 'try',
-        features: [
-          'Sınırsız proje',
-          '100 GB depolama',
-          'Öncelikli destek',
-          'SSL + CDN',
-          'Custom domain',
-          'Team collaboration (5 kişi)',
-          'Analytics',
-        ],
+        features: {
+          marketing: [
+            'Sınırsız proje',
+            '100 GB depolama',
+            'Öncelikli destek',
+            'SSL + CDN',
+            'Custom domain',
+            'Team collaboration (5 kişi)',
+            'Analytics',
+            'AI Blog + Product Description (100K token/ay)',
+          ],
+          limits: {
+            aiTokensPerMonth: 100000,
+            aiRequestsPerMonth: 500,
+          },
+        },
         active: true,
         isFeatured: true,
         order: 2,
@@ -625,17 +700,22 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         interval: 'MONTH',
         priceCents: 99900,
         currency: 'try',
-        features: [
-          'Sınırsız her şey',
-          '1 TB depolama',
-          '7/24 özel destek',
-          'SLA %99.99',
-          'Custom domain + subdomain',
-          'Sınırsız team',
-          'Advanced analytics',
-          'SSO + SAML',
-          'On-premise option',
-        ],
+        features: {
+          marketing: [
+            'Sınırsız her şey',
+            '1 TB depolama',
+            '7/24 özel destek',
+            'SLA %99.99',
+            'Custom domain + subdomain',
+            'Sınırsız team',
+            'Advanced analytics',
+            'SSO + SAML',
+            'On-premise option',
+            'AI Features — Sınırsız',
+          ],
+          // Enterprise → sınırsız (Infinity). planGate.ts Number.POSITIVE_INFINITY döner.
+          limits: {},
+        },
         active: true,
         isFeatured: false,
         order: 3,
@@ -743,6 +823,7 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
   console.log(`   - Plan: 3`);
   console.log(`   - Testimonial: 3`);
   console.log(`   - Coupon: 2`);
+  console.log(`   - User: ${users.length} (normal)`);
 }
 
 main()

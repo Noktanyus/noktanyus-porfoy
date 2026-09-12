@@ -42,8 +42,8 @@ services:
       - .env
     depends_on:
       - db
-    volumes:
-      - public_volume:/app/public
+    # NOT: public_volume mount kaldırıldı — eski volume yeni build'in
+    # /app/public içeriğini eziyordu (asset/JS kırılması, "sadece anasayfa").
 
   tunnel:
     image: cloudflare/cloudflared:latest
@@ -55,5 +55,4 @@ services:
       - web
 
 volumes:
-  public_volume:
   postgres_data:

@@ -30,26 +30,26 @@ export const revenueService = {
 
     // Aktif abonelikler
     const activeSubs = await prisma.subscription.findMany({
-      where: { status: "active" },
+      where: { status: "ACTIVE" },
       include: { plan: true },
     });
 
     // Her aktif abonelik için plan fiyatını aylık olarak hesapla
     const monthlyRevenue = activeSubs.reduce((sum, sub) => {
-      const planPrice = Number(sub.plan.price);
+      const planPrice = Number(sub.plan.priceCents);
       const intervalFactor =
-        sub.plan.interval === "year"
+        sub.plan.interval === "YEAR"
           ? 1 / 12
-          : sub.plan.interval === "month"
+          : sub.plan.interval === "MONTH"
           ? 1
-          : 1; // week için de 1 (basit yaklaşım)
+          : 1; // week/day için de 1 (basit yaklaşım)
       return sum + planPrice * intervalFactor;
     }, 0);
 
     // Bu ay churn'lenen abonelikler
     const churnedThisMonth = await prisma.subscription.count({
       where: {
-        status: { in: ["canceled", "expired"] },
+        status: { in: ["CANCELED"] },
         updatedAt: { gte: monthStart },
       },
     });
@@ -116,7 +116,7 @@ export const revenueService = {
       where: {
         createdAt: { lt: prevMonthEnd },
         OR: [
-          { status: "active" },
+          { status: "ACTIVE" },
           { updatedAt: { gte: prevMonthStart, lt: prevMonthEnd } },
         ],
       },
@@ -124,13 +124,13 @@ export const revenueService = {
     });
 
     const monthlyRevenue = prevActiveSubs.reduce((sum, sub) => {
-      const planPrice = Number(sub.plan.price);
+      const planPrice = Number(sub.plan.priceCents);
       const intervalFactor =
-        sub.plan.interval === "year" ? 1 / 12 : sub.plan.interval === "month" ? 1 : 1;
+        sub.plan.interval === "YEAR" ? 1 / 12 : sub.plan.interval === "MONTH" ? 1 : 1;
       return sum + planPrice * intervalFactor;
     }, 0);
 
-    const churned = prevActiveSubs.filter((s) => s.status === "canceled" || s.status === "expired").length;
+    const churned = prevActiveSubs.filter((s) => s.status === "CANCELED").length;
     const totalActive = prevActiveSubs.length;
 
     const inputs: RevenueInputs = {

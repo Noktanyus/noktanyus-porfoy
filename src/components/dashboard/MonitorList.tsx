@@ -17,6 +17,7 @@ import {
   FaEye,
   FaEdit,
 } from 'react-icons/fa';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 interface Monitor {
   id: string;
@@ -66,16 +67,12 @@ export function MonitorList({ monitors }: { monitors: Monitor[] }) {
 
   if (monitors.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3">📡</p>
-        <p className="text-lg font-medium">Henüz monitör yok</p>
-        <p className="text-sm text-muted-foreground mt-2">
-          İlk monitörünüzü oluşturun ve izlemeye başlayın
-        </p>
-        <Link href="/dashboard/monitors/new" className="admin-btn admin-btn-primary mt-5 inline-flex">
-          Yeni Monitör Oluştur
-        </Link>
-      </div>
+      <EmptyState
+        title="Henüz monitör yok"
+        description="İlk monitörünüzü oluşturun ve izlemeye başlayın."
+        icon="📡"
+        action={{ label: 'Yeni Monitör Oluştur', href: '/dashboard/monitors/new' }}
+      />
     );
   }
 
@@ -117,27 +114,31 @@ export function MonitorList({ monitors }: { monitors: Monitor[] }) {
                 <Link
                   href={`/status/${monitor.publicSlug}`}
                   target="_blank"
-                  className="p-2 hover:bg-muted rounded transition-colors"
+                  rel="noopener noreferrer"
+                  className="p-2 hover:bg-muted rounded transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
                   title="Public Status Page"
+                  aria-label={`${monitor.name} public status sayfası`}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <FaEye className="w-4 h-4" />
+                  <FaEye className="w-4 h-4" aria-hidden="true" />
                 </Link>
               )}
               <Link
                 href={`/dashboard/monitors/${monitor.id}`}
                 className="p-2 hover:bg-muted rounded transition-colors"
                 title="Düzenle"
+                aria-label={`${monitor.name} monitörünü düzenle`}
               >
-                <FaEdit className="w-4 h-4" />
+                <FaEdit className="w-4 h-4" aria-hidden="true" />
               </Link>
               <button
                 onClick={() => handleDelete(monitor.id)}
                 disabled={busyId === monitor.id}
-                className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50"
+                className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50 min-h-[44px] min-w-[44px]"
                 title="Sil"
+                aria-label={`${monitor.name} monitörünü sil`}
               >
-                <FaTrash className="w-4 h-4" />
+                <FaTrash className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>

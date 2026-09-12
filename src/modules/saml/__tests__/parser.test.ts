@@ -3,7 +3,7 @@
  * @description D3: parser, request builder (deprecated), service testleri.
  */
 
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   isValidNameIdFormat,
   isValidEmail,
@@ -187,6 +187,7 @@ describe("SAML Profile Normalization", () => {
   it("normalizeProfile nameID'den email fallback yapar", () => {
     const profile = {
       nameID: "fallback@example.com",
+      nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       issuer: "https://idp.example.com",
       sessionIndex: "",
       attributes: { role: "user" },
@@ -198,6 +199,7 @@ describe("SAML Profile Normalization", () => {
   it("normalizeProfile invalid email → null", () => {
     const profile = {
       nameID: "not-an-email",
+      nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       issuer: "https://idp.example.com",
       sessionIndex: "",
       attributes: {},
@@ -208,6 +210,7 @@ describe("SAML Profile Normalization", () => {
   it("normalizeProfile attributes array normalize eder", () => {
     const profile = {
       nameID: "user@example.com",
+      nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       issuer: "https://idp.example.com",
       sessionIndex: "",
       attributes: {
@@ -221,6 +224,7 @@ describe("SAML Profile Normalization", () => {
   it("normalizeProfile attributes'ta invalid type filtrelenir", () => {
     const profile = {
       nameID: "user@example.com",
+      nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
       issuer: "https://idp.example.com",
       sessionIndex: "",
       attributes: {

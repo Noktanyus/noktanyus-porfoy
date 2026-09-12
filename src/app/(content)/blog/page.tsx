@@ -6,6 +6,7 @@ import { listBlogs } from '@/services/contentService';
 import { prisma } from '@/lib/prisma';
 import nextDynamic from 'next/dynamic';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { PageStates } from '@/components/ui/PageStates';
 import { locales, defaultLocale } from '@/i18n/config';
 
 /**
@@ -84,16 +85,25 @@ export default async function BlogPage({
   return (
     <div className="section-glass-hero bg-blob-decoration">
       <div className="relative z-10 space-y-8">
-        <div className="text-center mb-8 sm:mb-12">
+        <header className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 text-gradient-animated">
             Blog
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Teknoloji, yazılım ve diğer konulardaki yazılarım.
           </p>
-        </div>
+        </header>
 
-        <BlogList allPosts={allPosts} sort={sort} />
+        <PageStates
+          data={allPosts}
+          loadingVariant="blog"
+          loadingCount={6}
+          emptyTitle="Henüz blog yazısı yok"
+          emptyDescription="Yakında yeni yazılarla buradayız."
+          emptyIcon="file"
+        >
+          <BlogList allPosts={allPosts} sort={sort} />
+        </PageStates>
       </div>
     </div>
   );

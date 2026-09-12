@@ -13,9 +13,11 @@
  * - redemption atomik transaction içinde oluşturulur (currentUses++ ile birlikte)
  */
 
+import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import type { DiscountType } from '@prisma/client';
+import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 
 export interface ValidateCouponInput {
   code: string;
@@ -154,7 +156,20 @@ export const couponService = {
 
   /**
    * Kupon redemption kaydı oluşturur ve currentUses sayaçını artırır.
-   * Atomik transaction içinde çalışır (yarış durumu güvenli).
+   *
+   * YARIŞ DURUMU (race condition)
+   * -----------------------------
+   * `validate()` limiti okuyup karar veriyor, `redeem()` ise ayrı bir çağrıda
+   * artırıyor. İki istek aynı anda gelirse ikisi de validate'ten geçer ve
+   * `currentUses` maxUses'i AŞAR (tek kullanımlık kupon iki kez kullanılır).
+   *
+   * Çözüm: sayacı koşullu artır (compare-and-set). `updateMany` + `currentUses:
+   * { lt: maxUses }` filtresi tek bir atomik UPDATE ... WHERE cümlesine
+   * derlenir. Kaybeden istek `count === 0` alır ve redemption oluşturulmadan
+   * hata fırlatılır — transaction geri sarılır.
+   *
+   * Sıralama önemli: ÖNCE sayaç (kapı), SONRA redemption. Tersi olsaydı
+   * kaybeden istek de bir redemption satırı bırakırdı.
    */
   async redeem(
     couponId: string,
@@ -163,14 +178,36 @@ export const couponService = {
     discountCents: number
   ) {
     return prisma.$transaction(async (tx) => {
-      const redemption = await tx.couponRedemption.create({
+      const coupon = await tx.coupon.findUnique({
+        where: { id: couponId },
+        select: { id: true, maxUses: true },
+      });
+      if (!coupon) {
+        throw new NotFoundError('Kupon');
+      }
+
+      if (coupon.maxUses === null) {
+        // Sınırsız kupon — koşula gerek yok, increment zaten atomik.
+        await tx.coupon.update({
+          where: { id: couponId },
+          data: { currentUses: { increment: 1 } },
+        });
+      } else {
+        const claimed = await tx.coupon.updateMany({
+          where: { id: couponId, currentUses: { lt: coupon.maxUses } },
+          data: { currentUses: { increment: 1 } },
+        });
+        if (claimed.count === 0) {
+          throw new ValidationError('Kupon kullanım limiti dolmuş', {
+            couponId,
+            maxUses: coupon.maxUses,
+          });
+        }
+      }
+
+      return tx.couponRedemption.create({
         data: { couponId, customerEmail, orderId, discountCents },
       });
-      await tx.coupon.update({
-        where: { id: couponId },
-        data: { currentUses: { increment: 1 } },
-      });
-      return redemption;
     });
   },
 
@@ -300,7 +337,12 @@ export const couponService = {
    */
   async generateReferralCode(userId: string): Promise<string> {
     const userIdPrefix = userId.substring(0, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase().replace(/[^A-Z0-9]/g, 'X');
+    // crypto.randomBytes ile tahmin edilemez 4 karakter (onceki Math.random brute-force.a acikti).
+    const randomSuffix = crypto
+      .randomBytes(4)
+      .toString('hex')
+      .toUpperCase()
+      .slice(0, 4);
     const code = `REF${userIdPrefix}${randomSuffix}`;
 
     // Veritabanında çakışma kontrolü

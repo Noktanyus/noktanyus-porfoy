@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { FaGift, FaDollarSign, FaUsers, FaCopy, FaDownload, FaCheckCircle, FaClock } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { PageStates } from '@/components/ui/PageStates';
 
 export interface AffiliateStats {
   balanceCents: number;
@@ -235,48 +236,51 @@ export function AffiliateDashboard({ stats, referralCode, referralLink, commissi
       {/* Commissions list */}
       <div className="glass-card-premium p-6">
         <h3 className="font-semibold mb-3">Son Komisyonlar</h3>
-        {commissions.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">
-            Henüz komisyon yok. Davet linkini paylaşmaya başla!
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-2 font-medium">Tarih</th>
-                  <th className="text-left p-2 font-medium">Davetli</th>
-                  <th className="text-left p-2 font-medium">Sipariş</th>
-                  <th className="text-right p-2 font-medium">Tutar</th>
-                  <th className="text-right p-2 font-medium">Komisyon</th>
-                  <th className="text-right p-2 font-medium">Durum</th>
-                </tr>
-              </thead>
-              <tbody>
-                {commissions.map((c) => (
-                  <tr key={c.id} className="border-b border-border/50">
-                    <td className="p-2 text-muted-foreground">{formatDateTime(c.createdAt)}</td>
-                    <td className="p-2">
-                      {c.referred?.name ?? c.referred?.email ?? 'Anonim'}
-                    </td>
-                    <td className="p-2 font-mono text-xs">
-                      #{c.order?.orderNumber ?? '—'}
-                    </td>
-                    <td className="p-2 text-right">{formatCurrency(c.orderAmountCents)}</td>
-                    <td className="p-2 text-right font-semibold">{formatCurrency(c.commissionCents)}</td>
-                    <td className="p-2 text-right">
-                      <span
-                        className={`px-2 py-0.5 rounded text-xs ${STATUS_COLORS[c.status] ?? 'bg-gray-500/20'}`}
-                      >
-                        {STATUS_LABELS[c.status] ?? c.status}
-                      </span>
-                    </td>
+        <PageStates
+          data={commissions}
+          emptyTitle="Henüz komisyon yok"
+          emptyDescription="Davet linkini paylaşmaya başla."
+          emptyIcon="🎁"
+        >
+          {(rows) => (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th scope="col" className="text-left p-2 font-medium">Tarih</th>
+                    <th scope="col" className="text-left p-2 font-medium">Davetli</th>
+                    <th scope="col" className="text-left p-2 font-medium">Sipariş</th>
+                    <th scope="col" className="text-right p-2 font-medium">Tutar</th>
+                    <th scope="col" className="text-right p-2 font-medium">Komisyon</th>
+                    <th scope="col" className="text-right p-2 font-medium">Durum</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {rows.map((c) => (
+                    <tr key={c.id} className="border-b border-border/50">
+                      <td className="p-2 text-muted-foreground">{formatDateTime(c.createdAt)}</td>
+                      <td className="p-2">
+                        {c.referred?.name ?? c.referred?.email ?? 'Anonim'}
+                      </td>
+                      <td className="p-2 font-mono text-xs">
+                        #{c.order?.orderNumber ?? '—'}
+                      </td>
+                      <td className="p-2 text-right">{formatCurrency(c.orderAmountCents)}</td>
+                      <td className="p-2 text-right font-semibold">{formatCurrency(c.commissionCents)}</td>
+                      <td className="p-2 text-right">
+                        <span
+                          className={`px-2 py-0.5 rounded text-xs ${STATUS_COLORS[c.status] ?? 'bg-gray-500/20'}`}
+                        >
+                          {STATUS_LABELS[c.status] ?? c.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </PageStates>
       </div>
     </div>
   );

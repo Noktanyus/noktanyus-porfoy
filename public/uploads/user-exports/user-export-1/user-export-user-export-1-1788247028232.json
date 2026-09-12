@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "exportedAt": "2026-09-01T07:17:08.232Z",
+    "userId": "user-export-1",
+    "gdprArticle": "Article 15 — Right of Access",
+    "kvkkMadde": "Madde 11 — İlgili Kişinin Hakları",
+    "format": "application/json; charset=utf-8",
+    "note": "Bu veri ihracı KVKK Madde 11 ve GDPR Article 15 kapsamında tarafınıza sunulmuştur. Şifre, 2FA secret, API key secret ve OAuth client secret alanları güvenlik nedeniyle hariç tutulmuştur."
+  },
+  "profile": {
+    "id": "user-export-1",
+    "email": "export@test.com",
+    "name": "Export Test",
+    "password": "$2b$10$xwkDsmRc0H80QofKjtocQe82JqZRmPP7o4NjfJ4IBYBAFAGiTjoze"
+  },
+  "commerce": {
+    "orders": [
+      {
+        "id": "order-1",
+        "totalCents": 5000
+      }
+    ],
+    "subscriptions": [],
+    "licenses": []
+  },
+  "api": {
+    "keys": [],
+    "recentUsage": [],
+    "oauthClients": [],
+    "oauthTokens": []
+  },
+  "monitoring": {
+    "monitors": [],
+    "recentChecks": [],
+    "alertChannels": [],
+    "notifications": []
+  },
+  "social": {
+    "comments": [],
+    "workspaceMemberships": []
+  },
+  "affiliate": {
+    "asReferrer": [],
+    "asReferred": [],
+    "payouts": []
+  },
+  "ai": {
+    "aggregateByFeatureModel": []
+  },
+  "privacy": {
+    "cookieConsents": [],
+    "auditTrail": []
+  },
+  "devices": {
+    "pushSubscriptions": []
+  }
+}

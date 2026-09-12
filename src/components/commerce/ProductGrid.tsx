@@ -1,4 +1,6 @@
-import { memo } from 'react';
+'use client';
+
+import { memo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
@@ -27,24 +29,36 @@ const ProductCard = memo(function ProductCard({ product }: { product: DigitalPro
   const techs = Array.isArray(product.technologies)
     ? (product.technologies as unknown[]).map((t) => String(t))
     : [];
+  const [imgFailed, setImgFailed] = useState(false);
+  const showImage = Boolean(product.thumbnail) && !imgFailed;
 
   return (
     <Link
       href={`/magaza/${product.slug}`}
-      className="group h-full min-w-0 focus:outline-none focus:ring-2 focus:ring-brand-primary rounded-2xl"
+      className="group h-full min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded-2xl"
     >
-      <article className="h-full card-professional overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
-        {product.thumbnail && (
-          <div className="relative w-full aspect-video bg-muted overflow-hidden">
+      <article className="h-full card-professional overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl flex flex-col">
+        <div className="relative w-full aspect-video bg-muted overflow-hidden">
+          {showImage ? (
             <Image
-              src={product.thumbnail}
+              src={product.thumbnail!}
               alt={product.title}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              onError={() => setImgFailed(true)}
             />
-          </div>
-        )}
+          ) : (
+            <div
+              className="absolute inset-0 bg-gradient-to-br from-slate-800 via-brand-primary/80 to-sky-700 flex items-end p-4"
+              aria-hidden="true"
+            >
+              <span className="text-white/90 text-sm font-semibold line-clamp-2">
+                {product.title}
+              </span>
+            </div>
+          )}
+        </div>
         <div className="flex-1 p-5 flex flex-col min-w-0">
           <h3 className="text-lg font-semibold mb-2 line-clamp-2 break-words text-gray-900 dark:text-white">
             {product.title}

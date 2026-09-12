@@ -11,6 +11,13 @@ import type {
   FunnelStepResult,
 } from "./schemas";
 
+export type {
+  FunnelEvent,
+  FunnelReport,
+  FunnelStep,
+  FunnelStepResult,
+} from "./schemas";
+
 /**
  * Event listesini alır, step'lere göre gruplar, dönüşüm oranlarını hesaplar.
  *

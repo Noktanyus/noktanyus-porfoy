@@ -6,6 +6,8 @@
 
 import { auditService } from '@/modules/admin/audit';
 import { AuditClientPage } from '@/components/admin/AuditClientPage';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { StatCard, StatCardGrid } from '@/components/ui/StatCard';
 
 // Her istekte yeniden render — DB'den canlı veri çekmek için
 export const dynamic = 'force-dynamic';
@@ -61,13 +63,23 @@ export default async function AuditLogPage({ searchParams }: PageProps) {
   }));
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Denetim Kayıtları (Audit Log)</h1>
-      <p className="text-gray-600 dark:text-gray-400 mb-8">
-        Admin panelinden yapılan kritik işlemlerin kayıtları. Toplam{' '}
-        <strong>{stats.total}</strong> kayıt, bugün <strong>{stats.today}</strong> işlem,
-        başarısız işlem sayısı <strong className="text-red-600">{stats.failures}</strong>.
-      </p>
+    <div className="admin-content-spacing">
+      <PageHeader
+        title="Denetim Kayıtları"
+        description="Admin panelinden yapılan kritik işlemlerin kayıtları."
+        breadcrumb={<span>Admin / Denetim Kayıtları</span>}
+      />
+
+      {/* Özet sayılar auditService.getStats() çıktısıdır */}
+      <StatCardGrid columns={3}>
+        <StatCard label="Toplam kayıt" value={stats.total} />
+        <StatCard label="Bugünkü işlem" value={stats.today} tone="info" />
+        <StatCard
+          label="Başarısız işlem"
+          value={stats.failures}
+          tone={stats.failures > 0 ? 'danger' : 'default'}
+        />
+      </StatCardGrid>
 
       <AuditClientPage
         items={items}

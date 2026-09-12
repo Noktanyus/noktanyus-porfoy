@@ -37,7 +37,9 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     className
   );
 
-  // Mount öncesi: skeleton placeholder (yumuşak geçiş için)
+  // Mount öncesi: skeleton placeholder (yumuşak geçiş için).
+  // aria-hidden KULLANMA — screen reader butonu görmeli; sadece disabled
+  // kalır ki hidrasyondan önce yanlış aksiyon alınmasın.
   if (!mounted) {
     return (
       <button
@@ -45,7 +47,6 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         className={baseClass}
         aria-label="Tema değiştir"
         disabled
-        aria-hidden="true"
       >
         <span className="w-5 h-5 sm:w-6 sm:h-6 block" />
       </button>

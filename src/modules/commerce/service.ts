@@ -1,15 +1,17 @@
 /**
  * Commerce Module — Service Layer
  *
- * Stripe + iyzico checkout, webhook işleme, lisans aktivasyonu ve commerce iş kuralları.
+ * PayTR Direkt API (TR birincil) + legacy Stripe/iyzico fallback,
+ * webhook işleme, lisans aktivasyonu ve commerce iş kuralları.
  */
 
 import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
-import { isIyzicoConfigured } from '@/lib/iyzico';
+import { isIyzicoConfigured, IYZICO_DIGITAL_ITEM_TYPE } from '@/lib/iyzico';
+import { isPaytrConfigured } from '@/lib/paytr';
 import { iyzicoService } from './iyzicoService';
 import { iyzicoSubscriptionService } from './iyzicoSubscriptionService';
-import { emailService } from '@/lib/emailService';
+import { paytrService } from './paytrService';
 import {
   planRepository,
   productRepository,
@@ -17,37 +19,63 @@ import {
   orderRepository,
   licenseRepository,
 } from './repository';
-import { webhookService } from '@/modules/webhooks';
-import { notificationService } from '@/modules/notifications';
-import { affiliateService } from '@/modules/affiliate';
-import { partnerService } from '@/modules/partners';
-import { loyaltyService } from '@/modules/loyalty';
+import { queueService } from '@/lib/queueService';
+import {
+  subscriptionSyncService,
+  normalizeStripeSubscription,
+  fromStripeEpoch,
+} from './subscriptionSync';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import type { CartItem } from './types';
+import { couponService } from './couponService';
 
-export type PaymentProvider = 'stripe' | 'iyzico';
+export type PaymentProvider = 'paytr' | 'stripe' | 'iyzico';
 
 /**
  * Ödeme sağlayıcısı seçimi.
- * Öncelik: explicit istek > iyzico (TR için) > Stripe > fallback (ilk yapılandırılmış olan).
+ * Türkiye için PayTR birincil. Stripe/iyzico yalnızca PayTR yoksa (geçiş/test).
  */
 export function selectPaymentProvider(requested?: string | null): PaymentProvider {
   const req = (requested ?? '').toLowerCase();
 
+  // PayTR her zaman öncelikli (TR)
+  if (isPaytrConfigured()) return 'paytr';
+  if (req === 'paytr') return 'paytr';
+
   if (req === 'iyzico' && isIyzicoConfigured()) return 'iyzico';
   if (req === 'stripe' && isStripeConfigured()) return 'stripe';
 
-  // Default: iyzico tercih edilir (TR pazarı), Stripe yoksa
   if (isIyzicoConfigured()) return 'iyzico';
   if (isStripeConfigured()) return 'stripe';
 
-  // Hiçbiri yapılandırılmamışsa stripe default kalsın (mock mode)
-  return 'stripe';
+  // Yapılandırma yoksa mock (paytr path)
+  return 'paytr';
 }
 
 function centsToIyzicoString(cents: number): string {
   return (cents / 100).toFixed(2);
+}
+
+/** PayTR abonelik dönemi bitiş tarihi. */
+function addPlanInterval(from: Date, interval: string): Date {
+  const d = new Date(from);
+  switch (interval) {
+    case 'YEAR':
+      d.setFullYear(d.getFullYear() + 1);
+      break;
+    case 'WEEK':
+      d.setDate(d.getDate() + 7);
+      break;
+    case 'DAY':
+      d.setDate(d.getDate() + 1);
+      break;
+    case 'MONTH':
+    default:
+      d.setMonth(d.getMonth() + 1);
+      break;
+  }
+  return d;
 }
 
 interface OrderWithItems {
@@ -85,7 +113,14 @@ export const commerceService = {
   async createProductCheckout(
     items: CartItem[],
     customerEmail: string,
-    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+    options?: {
+      paymentProvider?: string | null;
+      customerName?: string;
+      customerPhone?: string;
+      customerIp?: string;
+      customerAddress?: string;
+      couponCode?: string | null;
+    }
   ) {
     if (!items.length) throw new ValidationError('Sepet boş');
 
@@ -98,20 +133,110 @@ export const commerceService = {
     }
 
     const subtotal = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
-    const provider = selectPaymentProvider(options?.paymentProvider);
 
-    // --- Mock mode (hiçbir provider yapılandırılmamışsa) ---
-    if (provider === 'stripe' && !isStripeConfigured()) {
-      logger.warn('Stripe not configured, returning mock checkout URL');
+    let discountCents = 0;
+    let couponId: string | undefined;
+    if (options?.couponCode) {
+      const couponResult = await couponService.validate({
+        code: options.couponCode,
+        customerEmail,
+        subtotalCents: subtotal,
+        productIds,
+      });
+      if (!couponResult.valid || !couponResult.coupon) {
+        throw new ValidationError(couponResult.reason ?? 'Kupon geçersiz');
+      }
+      discountCents = couponResult.discountCents;
+      couponId = couponResult.coupon.id;
+    }
+
+    const totalCents = Math.max(0, subtotal - discountCents);
+    const provider = selectPaymentProvider(options?.paymentProvider);
+    const customerName = options?.customerName?.trim() || 'Musteri';
+    const customerPhone = options?.customerPhone?.trim() || '05000000000';
+    const customerIp = options?.customerIp?.trim() || '127.0.0.1';
+
+    // --- PayTR Direkt API (TR birincil) ---
+    if (provider === 'paytr') {
+      if (!isPaytrConfigured()) {
+        logger.warn('[PayTR] Yapılandırılmamış — mock checkout');
+        const orderNumber = await orderRepository.generateOrderNumber();
+        const order = await prisma.order.create({
+          data: {
+            orderNumber,
+            customerEmail,
+            customerName,
+            stripeSessionId: `paytr_mock_${Date.now()}`,
+            status: 'PENDING',
+            subtotalCents: subtotal,
+            discountCents,
+            totalCents,
+            currency: 'try',
+            ...(couponId ? { couponId } : {}),
+            metadata: { provider: 'paytr', mock: true },
+            items: {
+              create: items.map((item) => {
+                const product = validProducts.find((p) => p.id === item.productId)!;
+                return {
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  unitPriceCents: item.priceCents,
+                  totalCents: item.priceCents * item.quantity,
+                  productTitle: product.title,
+                  productSlug: product.slug,
+                };
+              }),
+            },
+          },
+        });
+        if (couponId) {
+          try {
+            await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+          } catch (err) {
+            logger.warn('[coupon] paytr mock redeem failed', { err });
+          }
+        }
+        return {
+          provider: 'paytr' as PaymentProvider,
+          mock: true,
+          url: `/odeme/basarili?session_id=${order.stripeSessionId}&order=${order.orderNumber}&paytr=mock`,
+          sessionId: order.stripeSessionId,
+          orderNumber,
+        };
+      }
+
+      const orderNumber = await orderRepository.generateOrderNumber();
+      const prepared = paytrService.prepareDirectPayment({
+        orderNumber,
+        customerEmail,
+        customerName,
+        customerPhone,
+        customerAddress: options?.customerAddress,
+        userIp: customerIp,
+        totalCents,
+        basket: items.map((item) => {
+          const product = validProducts.find((p) => p.id === item.productId)!;
+          return {
+            name: product.title,
+            priceCents: item.priceCents,
+            quantity: item.quantity,
+          };
+        }),
+      });
+
       const order = await prisma.order.create({
         data: {
-          orderNumber: await orderRepository.generateOrderNumber(),
+          orderNumber,
           customerEmail,
-          stripeSessionId: `mock_${Date.now()}`,
+          customerName,
+          stripeSessionId: prepared.merchantOid,
           status: 'PENDING',
           subtotalCents: subtotal,
-          totalCents: subtotal,
+          discountCents,
+          totalCents,
           currency: 'try',
+          ...(couponId ? { couponId } : {}),
+          metadata: { provider: 'paytr' },
           items: {
             create: items.map((item) => {
               const product = validProducts.find((p) => p.id === item.productId)!;
@@ -128,6 +253,59 @@ export const commerceService = {
         },
       });
 
+      if (couponId) {
+        try {
+          await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+        } catch (err) {
+          logger.warn('[coupon] paytr redeem failed', { err });
+        }
+      }
+
+      return {
+        ...prepared,
+        sessionId: prepared.merchantOid,
+        mock: false,
+      };
+    }
+
+    // --- Legacy mock (stripe unconfigured) ---
+    if (provider === 'stripe' && !isStripeConfigured()) {
+      logger.warn('Stripe not configured, returning mock checkout URL');
+      const order = await prisma.order.create({
+        data: {
+          orderNumber: await orderRepository.generateOrderNumber(),
+          customerEmail,
+          stripeSessionId: `mock_${Date.now()}`,
+          status: 'PENDING',
+          subtotalCents: subtotal,
+          discountCents,
+          totalCents,
+          currency: 'try',
+          ...(couponId ? { couponId } : {}),
+          items: {
+            create: items.map((item) => {
+              const product = validProducts.find((p) => p.id === item.productId)!;
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPriceCents: item.priceCents,
+                totalCents: item.priceCents * item.quantity,
+                productTitle: product.title,
+                productSlug: product.slug,
+              };
+            }),
+          },
+        },
+      });
+
+      if (couponId) {
+        try {
+          await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+        } catch (err) {
+          logger.warn('[coupon] mock redeem failed', { err });
+        }
+      }
+
       return {
         url: `/odeme/basarili?session_id=mock_${order.id}&order=${order.orderNumber}`,
         sessionId: order.stripeSessionId,
@@ -137,18 +315,32 @@ export const commerceService = {
 
     // --- iyzico akışı ---
     if (provider === 'iyzico') {
-      const totalPrice = centsToIyzicoString(subtotal);
+      // İndirim varsa kalem fiyatlarını oransal düşür (basket = paidPrice kuralı)
+      const scale = subtotal > 0 ? totalCents / subtotal : 1;
+      const iyzicoItems = items.map((item) => {
+        const product = validProducts.find((p) => p.id === item.productId)!;
+        const line = Math.max(1, Math.round(item.priceCents * item.quantity * scale));
+        return {
+          id: item.productId,
+          name: product.title,
+          category: product.category ?? 'general',
+          itemType: IYZICO_DIGITAL_ITEM_TYPE,
+          price: centsToIyzicoString(line),
+          _lineCents: line,
+        };
+      });
+      // Yuvarlama farkını son kaleme ekle/çıkar
+      const sumLines = iyzicoItems.reduce((s, i) => s + i._lineCents, 0);
+      if (iyzicoItems.length && sumLines !== totalCents) {
+        iyzicoItems[iyzicoItems.length - 1]._lineCents += totalCents - sumLines;
+        iyzicoItems[iyzicoItems.length - 1].price = centsToIyzicoString(
+          Math.max(1, iyzicoItems[iyzicoItems.length - 1]._lineCents)
+        );
+      }
+
+      const totalPrice = centsToIyzicoString(totalCents);
       const checkout = await iyzicoService.createCheckout({
-        items: items.map((item) => {
-          const product = validProducts.find((p) => p.id === item.productId)!;
-          return {
-            id: item.productId,
-            name: product.title,
-            category: product.category ?? 'general',
-            itemType: 'VIRTUAL',
-            price: centsToIyzicoString(item.priceCents),
-          };
-        }),
+        items: iyzicoItems.map(({ _lineCents: _, ...rest }) => rest),
         totalPrice,
         paidPrice: totalPrice,
         customerEmail,
@@ -165,15 +357,17 @@ export const commerceService = {
         );
       }
 
-      await prisma.order.create({
+      const order = await prisma.order.create({
         data: {
           orderNumber: await orderRepository.generateOrderNumber(),
           customerEmail,
-          stripeSessionId: checkout.token, // token'ı bu alanda tutuyoruz
+          stripeSessionId: checkout.token,
           status: 'PENDING',
           subtotalCents: subtotal,
-          totalCents: subtotal,
+          discountCents,
+          totalCents,
           currency: 'try',
+          ...(couponId ? { couponId } : {}),
           items: {
             create: items.map((item) => {
               const product = validProducts.find((p) => p.id === item.productId)!;
@@ -190,6 +384,14 @@ export const commerceService = {
         },
       });
 
+      if (couponId) {
+        try {
+          await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+        } catch (err) {
+          logger.warn('[coupon] iyzico redeem failed', { err });
+        }
+      }
+
       return {
         url: checkout.paymentPageUrl,
         sessionId: checkout.token,
@@ -198,6 +400,17 @@ export const commerceService = {
     }
 
     // --- Stripe akışı ---
+    let stripeDiscountId: string | undefined;
+    if (discountCents > 0) {
+      const ephemeral = await stripe.coupons.create({
+        amount_off: discountCents,
+        currency: 'try',
+        duration: 'once',
+        name: options?.couponCode?.toUpperCase() ?? 'INDIRIM',
+      });
+      stripeDiscountId = ephemeral.id;
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -216,25 +429,29 @@ export const commerceService = {
           quantity: item.quantity,
         };
       }),
+      ...(stripeDiscountId ? { discounts: [{ coupon: stripeDiscountId }] } : {}),
       customer_email: customerEmail,
       success_url: `${process.env.NEXTAUTH_URL}/odeme/basarili?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/magaza`,
       metadata: {
         customerEmail,
         productIds: items.map((i) => i.productId).join(','),
+        ...(couponId ? { couponId, discountCents: String(discountCents) } : {}),
       },
     });
 
     // Create pending order with items snapshot
-    await prisma.order.create({
+    const order = await prisma.order.create({
       data: {
         orderNumber: await orderRepository.generateOrderNumber(),
         customerEmail,
         stripeSessionId: session.id,
         status: 'PENDING',
         subtotalCents: subtotal,
-        totalCents: subtotal,
+        discountCents,
+        totalCents,
         currency: 'try',
+        ...(couponId ? { couponId } : {}),
         items: {
           create: items.map((item) => {
             const product = validProducts.find((p) => p.id === item.productId)!;
@@ -251,6 +468,14 @@ export const commerceService = {
       },
     });
 
+    if (couponId) {
+      try {
+        await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+      } catch (err) {
+        logger.warn('[coupon] stripe redeem failed', { err });
+      }
+    }
+
     return {
       url: session.url!,
       sessionId: session.id,
@@ -262,15 +487,108 @@ export const commerceService = {
   async createSubscriptionCheckout(
     planSlug: string,
     customerEmail: string,
-    options?: { paymentProvider?: string | null; customerName?: string; customerPhone?: string; customerIp?: string }
+    options?: {
+      paymentProvider?: string | null;
+      customerName?: string;
+      customerPhone?: string;
+      customerIp?: string;
+      customerAddress?: string;
+    }
   ) {
     const plan = await planRepository.findBySlug(planSlug);
     if (!plan) throw new NotFoundError('Plan');
 
     const provider = selectPaymentProvider(options?.paymentProvider);
+    const customerName = options?.customerName?.trim() || 'Musteri';
+    const customerPhone = options?.customerPhone?.trim() || '05000000000';
+    const customerIp = options?.customerIp?.trim() || '127.0.0.1';
 
-    // --- iyzico subscription ---
-    // Email .com.tr uzantılı ise veya explicit iyzico istendiyse iyzico subscription akışı
+    // --- PayTR: dönem ücreti tek çekim (Direkt API recurring desteklemez) ---
+    if (provider === 'paytr') {
+      const orderNumber = await orderRepository.generateOrderNumber();
+
+      if (!isPaytrConfigured()) {
+        logger.warn('[PayTR] Abonelik mock — yapılandırılmamış');
+        const order = await prisma.order.create({
+          data: {
+            orderNumber,
+            customerEmail,
+            customerName,
+            stripeSessionId: `paytr_sub_mock_${Date.now()}`,
+            status: 'PENDING',
+            subtotalCents: plan.priceCents,
+            discountCents: 0,
+            totalCents: plan.priceCents,
+            currency: plan.currency || 'try',
+            metadata: {
+              type: 'subscription',
+              planSlug: plan.slug,
+              planId: plan.id,
+              interval: plan.interval,
+              provider: 'paytr',
+              mock: true,
+            },
+            notes: `Abonelik: ${plan.name}`,
+          },
+        });
+        return {
+          provider: 'paytr' as PaymentProvider,
+          mock: true,
+          url: `/odeme/basarili?session_id=${order.stripeSessionId}&order=${order.orderNumber}&paytr=mock&sub=1`,
+          sessionId: order.stripeSessionId,
+          orderNumber,
+        };
+      }
+
+      const prepared = paytrService.prepareDirectPayment({
+        orderNumber,
+        customerEmail,
+        customerName,
+        customerPhone,
+        customerAddress: options?.customerAddress,
+        userIp: customerIp,
+        totalCents: plan.priceCents,
+        basket: [
+          {
+            name: `${plan.name} (${plan.interval})`,
+            priceCents: plan.priceCents,
+            quantity: 1,
+          },
+        ],
+        okPath: '/odeme/basarili?paytr=1&sub=1',
+        failPath: '/odeme/basarisiz?sub=1',
+      });
+
+      await prisma.order.create({
+        data: {
+          orderNumber,
+          customerEmail,
+          customerName,
+          stripeSessionId: prepared.merchantOid,
+          status: 'PENDING',
+          subtotalCents: plan.priceCents,
+          discountCents: 0,
+          totalCents: plan.priceCents,
+          currency: plan.currency || 'try',
+          metadata: {
+            type: 'subscription',
+            planSlug: plan.slug,
+            planId: plan.id,
+            interval: plan.interval,
+            provider: 'paytr',
+          },
+          notes: `Abonelik: ${plan.name}`,
+        },
+      });
+
+      return {
+        ...prepared,
+        sessionId: prepared.merchantOid,
+        mock: false,
+      };
+    }
+
+    // --- Legacy iyzico subscription ---
     if (
       provider === 'iyzico' ||
       (iyzicoSubscriptionService.shouldUseIyzico(customerEmail) && isIyzicoConfigured())
@@ -292,7 +610,7 @@ export const commerceService = {
       };
     }
 
-    // --- Stripe akışı (veya mock) ---
+    // --- Legacy Stripe ---
     if (!isStripeConfigured()) {
       logger.warn('Stripe not configured, returning mock subscription URL');
       return {
@@ -437,6 +755,15 @@ export const commerceService = {
     }
   },
 
+  /**
+   * Sipariş PAID'e geçirir ve lisansları üretir.
+   *
+   * Yan etkiler (receipt e-postası, giden webhook, notification, affiliate,
+   * loyalty, partner) BURADA BEKLENMEZ — `Jobs.OrderPostCheckout` job'ına
+   * devredilir. Gerekçe ve retry politikası: commerce/postCheckout.ts.
+   *
+   * Idempotent: order PAID ise hiçbir şey yapmaz, tekrar mail göndermez.
+   */
   async handleCheckoutCompleted(session: { id: string; payment_intent?: string }) {
     const order = await orderRepository.findByStripeSession(session.id);
     if (!order || order.status === 'PAID') return;
@@ -447,162 +774,128 @@ export const commerceService = {
       deliveredAt: new Date(),
     });
 
-    // Generate licenses for digital products
-    const licenses = await this.generateLicenseForOrder(order.id);
+    const meta = (order as { metadata?: unknown }).metadata as {
+      type?: string;
+      planSlug?: string;
+      planId?: string;
+      interval?: string;
+    } | null;
+    const isTip = meta?.type === 'tip';
+    const isSubscription = meta?.type === 'subscription';
 
-    // Send receipt email to customer (with license keys if any)
-    try {
-      await emailService.sendReceipt({
-        customerName: order.customer?.name ?? undefined,
-        customerEmail: order.customerEmail,
-        orderNumber: order.orderNumber,
-        items: order.items.map((item) => ({
-          title: item.productTitle,
-          quantity: item.quantity,
-          priceCents: item.unitPriceCents,
-        })),
-        totalCents: order.totalCents,
-        currency: order.currency,
-        licenses: licenses.map((lic) => ({
-          key: lic.key,
-          productTitle:
-            order.items.find((i) => i.productId === lic.productId)?.productTitle ?? 'Ürün',
-        })),
-      });
-    } catch (err) {
-      logger.error('Receipt email send failed in handleCheckoutCompleted', {
-        error: err,
-        orderId: order.id,
-      });
+    if (isSubscription && meta.planSlug) {
+      await this.activatePaytrSubscriptionPeriod(order, meta);
+    } else if (!isTip) {
+      await this.generateLicenseForOrder(order.id);
     }
 
-    logger.info('Order completed', { orderId: order.id, orderNumber: order.orderNumber });
-
-    // Dispatch webhook event (best-effort, internal hata yakalanır)
-    try {
-      await webhookService.dispatchEvent('order.paid', {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        totalCents: order.totalCents,
-        currency: order.currency,
-        customerEmail: order.customerEmail,
-      });
-    } catch (err) {
-      logger.warn('Webhook dispatch (order.paid) failed', {
-        orderId: order.id,
-        error: err,
-      });
-    }
-
-    // In-app notification (Phase 8) — kullanıcıya bildirim gönder
-    await notificationService.dispatch(order.userId, 'order.paid', {
-      title: 'Siparişiniz Tamamlandı',
-      message: `#${order.orderNumber} numaralı siparişiniz başarıyla tamamlandı.`,
-      link: `/dashboard/orders`,
-      icon: '🛒',
-      relatedType: 'Order',
-      relatedId: order.id,
+    logger.info('Order completed', {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      tip: isTip,
+      subscription: isSubscription,
     });
 
-    // Affiliate commission — davet eden kullanicinin komisyonunu olustur
-    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
-    try {
-      await affiliateService.trackConversion(order.id);
-    } catch (err) {
-      logger.warn('Affiliate trackConversion failed', { orderId: order.id, error: err });
-    }
+    await queueService.enqueueOrderPostCheckout({ orderId: order.id });
 
-    // Loyalty puan — siparis tutarina gore puan kazandir
-    // (best-effort: hata olursa siparis tamamlanmasini engellemez)
-    if (order.userId) {
-      try {
-        await loyaltyService.onPurchase(order.id, order.userId, order.totalCents);
-      } catch (err) {
-        logger.warn('Loyalty onPurchase failed', { orderId: order.id, error: err });
-      }
-    }
-
-    // Partner Program — musteri email'i eslesen partner lead'i converted isaretle
-    // (Phase "Partner Program" kapsaminda eklendi, best-effort)
-    try {
-      await partnerService.markLeadConverted({
-        customerEmail: order.customerEmail,
-        orderId: order.id,
-        orderAmountCents: order.totalCents,
-      });
-    } catch (err) {
-      logger.warn('Partner markLeadConverted failed', { orderId: order.id, error: err });
-    }
+    return order;
   },
 
-  async handleSubscriptionChange(sub: Record<string, unknown>) {
-    const customerId = sub.customer as string;
-    const subId = sub.id as string;
-    const status = sub.status as string;
-    const cps = sub.current_period_start as number;
-    const cpe = sub.current_period_end as number;
-    const cape = sub.cancel_at_period_end as boolean;
-    const items = sub.items as { data: Array<{ price: { id: string } }> };
-
-    const customer = await customerRepository.findByStripeId(customerId);
-    if (!customer) {
-      logger.warn('Subscription event for unknown customer', { stripeCustomerId: customerId });
-      return;
-    }
-
-    const plan = await planRepository.findByStripePriceId(items.data[0].price.id);
+  /**
+   * PayTR ile alınan dönem ödemesi → Subscription + UserSubscription aktifleştir.
+   * Otomatik yenileme yok; süre bitince kullanıcı yeniden öder.
+   */
+  async activatePaytrSubscriptionPeriod(
+    order: { id: string; customerEmail: string; customerName?: string | null; stripeSessionId: string | null },
+    meta: { planSlug?: string; planId?: string; interval?: string }
+  ) {
+    const plan = meta.planId
+      ? await prisma.plan.findUnique({ where: { id: meta.planId } })
+      : meta.planSlug
+        ? await planRepository.findBySlug(meta.planSlug)
+        : null;
     if (!plan) {
-      logger.warn('Subscription event for unknown price', { priceId: items.data[0].price.id });
+      logger.error('[PayTR] Abonelik aktivasyonu: plan yok', { orderId: order.id, meta });
       return;
     }
 
-    const trialStart = sub.trial_start ? new Date((sub.trial_start as number) * 1000) : null;
-    const trialEnd = sub.trial_end ? new Date((sub.trial_end as number) * 1000) : null;
+    const customer = await customerRepository.getOrCreate({
+      email: order.customerEmail,
+      name: order.customerName ?? undefined,
+    });
+
+    const periodStart = new Date();
+    const periodEnd = addPlanInterval(periodStart, plan.interval);
+    const paytrSubId = `paytr_sub_${order.stripeSessionId ?? order.id}`;
 
     await prisma.subscription.upsert({
-      where: { stripeSubscriptionId: subId },
+      where: { stripeSubscriptionId: paytrSubId },
       create: {
         customerId: customer.id,
         planId: plan.id,
-        stripeSubscriptionId: subId,
-        stripeStatus: status,
-        status: status.toUpperCase() as
-          | 'ACTIVE'
-          | 'TRIALING'
-          | 'PAST_DUE'
-          | 'CANCELED'
-          | 'INCOMPLETE'
-          | 'INCOMPLETE_EXPIRED'
-          | 'UNPAID'
-          | 'PAUSED',
-        currentPeriodStart: new Date(cps * 1000),
-        currentPeriodEnd: new Date(cpe * 1000),
-        cancelAtPeriodEnd: cape,
-        trialStart,
-        trialEnd,
+        stripeSubscriptionId: paytrSubId,
+        stripeStatus: 'active',
+        status: 'ACTIVE',
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: periodEnd,
+        metadata: { provider: 'paytr', orderId: order.id },
       },
       update: {
-        stripeStatus: status,
-        status: status.toUpperCase() as
-          | 'ACTIVE'
-          | 'TRIALING'
-          | 'PAST_DUE'
-          | 'CANCELED'
-          | 'INCOMPLETE'
-          | 'INCOMPLETE_EXPIRED'
-          | 'UNPAID'
-          | 'PAUSED',
-        currentPeriodStart: new Date(cps * 1000),
-        currentPeriodEnd: new Date(cpe * 1000),
-        cancelAtPeriodEnd: cape,
+        planId: plan.id,
+        stripeStatus: 'active',
+        status: 'ACTIVE',
+        currentPeriodStart: periodStart,
+        currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: false,
+        canceledAt: null,
+        metadata: { provider: 'paytr', orderId: order.id },
       },
+    });
+
+    if (customer.userId) {
+      await subscriptionSyncService.upsertUserSubscription({
+        userId: customer.userId,
+        planSlug: plan.slug,
+        status: 'active',
+        stripeSubscriptionId: paytrSubId,
+        expiresAt: periodEnd,
+        startedAt: periodStart,
+        autoRenew: false,
+        trialEndsAt: null,
+      });
+    }
+
+    logger.info('[PayTR] Abonelik dönemi aktif', {
+      orderId: order.id,
+      planSlug: plan.slug,
+      periodEnd: periodEnd.toISOString(),
     });
   },
 
+  /**
+   * `customer.subscription.created|updated`
+   *
+   * Tüm yazma işi subscriptionSyncService'e devredildi — Subscription ve
+   * UserSubscription tek sözleşmeden geçer (bkz. subscriptionSync.ts).
+   * Payload normalize edilemezse sessizce atlanır: bozuk bir event yüzünden
+   * webhook'a 500 dönüp Stripe'ı sonsuz retry'a sokmak istemiyoruz.
+   */
+  async handleSubscriptionChange(sub: Record<string, unknown>) {
+    const input = normalizeStripeSubscription(sub);
+    if (!input) return;
+    return subscriptionSyncService.syncFromStripe(input);
+  },
+
+  /** `customer.subscription.deleted` */
   async handleSubscriptionCancel(sub: Record<string, unknown>) {
-    await prisma.subscription.update({
-      where: { stripeSubscriptionId: sub.id as string },
-      data: { status: 'CANCELED', canceledAt: new Date() },
+    const stripeSubscriptionId = typeof sub.id === 'string' ? sub.id : null;
+    if (!stripeSubscriptionId) {
+      logger.warn('Subscription cancel event without id');
+      return;
+    }
+    return subscriptionSyncService.cancelFromStripe({
+      stripeSubscriptionId,
+      canceledAt: fromStripeEpoch(sub.canceled_at) ?? new Date(),
     });
   },
 

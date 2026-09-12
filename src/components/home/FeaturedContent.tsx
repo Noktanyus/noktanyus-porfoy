@@ -9,7 +9,6 @@ interface FeaturedContentProps {
   homeSettings: HomeSettings | null;
 }
 
-// YouTube video ID'sini URL'den çıkaran yardımcı fonksiyon
 const getYouTubeId = (url: string): string | null => {
   if (!url) return null;
   const regExp =
@@ -24,69 +23,45 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       ? getYouTubeId(homeSettings.youtubeUrl)
       : null;
 
-  return (
-    <div className="relative flex items-center justify-center min-h-[300px] p-4">
-      {/* Arka plan dekoratif elementler */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200/20 dark:bg-blue-800/10 rounded-full animate-float"></div>
-        <div className="absolute bottom-16 right-8 w-16 h-16 bg-purple-200/20 dark:bg-purple-800/10 rounded-full animate-float" style={{ animationDelay: '0.5s' }}></div>
-        <div className="absolute top-1/2 left-4 w-12 h-12 bg-green-200/20 dark:bg-green-800/10 rounded-full animate-float" style={{ animationDelay: '1s' }}></div>
-      </div>
+  if (!homeSettings?.featuredContentType) return null;
 
-      {/* Video Content */}
+  if (homeSettings.featuredContentType === "video" && !videoId) return null;
+  if (homeSettings.featuredContentType === "text" && !homeSettings.textTitle) return null;
+  if (homeSettings.featuredContentType === "html" && !homeSettings.customHtml) return null;
+
+  return (
+    <div className="relative flex items-center justify-center py-4 sm:py-6">
       {videoId && (
-        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{ animationDelay: '0.2s' }}>
-          <div className="aspect-video rounded-xl overflow-hidden shadow-2xl border-4 border-gray-300 dark:border-gray-700 hover:shadow-blue-500/20 transition-all duration-300">
+        <div className="w-full max-w-2xl relative z-10">
+          <div className="aspect-video rounded-2xl overflow-hidden border border-border shadow-lg">
             <iframe
               className="w-full h-full"
               src={`https://www.youtube.com/embed/${videoId}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title="Öne Çıkan YouTube Videosu"
-            ></iframe>
+            />
           </div>
         </div>
       )}
 
-      {/* Text Content */}
-      {homeSettings?.featuredContentType === "text" && homeSettings?.textTitle && (
-        <div className="w-full max-w-lg glass-card p-6 relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
-          <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+      {homeSettings.featuredContentType === "text" && homeSettings.textTitle && (
+        <div className="w-full max-w-2xl glass-card p-6 sm:p-8 relative z-10 text-center">
+          <h3 className="text-xl sm:text-2xl font-bold mb-3 text-foreground">
             {homeSettings.textTitle}
           </h3>
           {homeSettings.textContent && (
-            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed">
               {homeSettings.textContent}
             </p>
           )}
         </div>
       )}
 
-      {/* HTML Content */}
-      {homeSettings?.featuredContentType === "html" && homeSettings?.customHtml && (
-        <div className="w-full max-w-lg relative z-10 animate-scale-in animate-float" style={{ animationDelay: '0.2s' }}>
+      {homeSettings.featuredContentType === "html" && homeSettings.customHtml && (
+        <div className="w-full max-w-2xl relative z-10">
           <div className="glass-card p-6">
             <ClientOnlyHtml html={homeSettings.customHtml} />
-          </div>
-        </div>
-      )}
-
-      {/* Default Content - Always show if no specific content type */}
-      {(!homeSettings?.featuredContentType || homeSettings?.featuredContentType === "") && (
-        <div className="w-full max-w-lg glass-card p-6 relative z-10 animate-scale-in animate-float text-center" style={{ animationDelay: '0.2s' }}>
-          <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Hoş Geldiniz!
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-            Portföyümde projelerimi, blog yazılarımı ve deneyimlerimi keşfedebilirsiniz.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3">
-            <a href="/projelerim" className="inline-flex items-center justify-center px-6 py-3 bg-brand-primary text-white font-semibold rounded-xl hover:bg-brand-primary/90 transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
-              Projelerimi İncele
-            </a>
-            <a href="/blog" className="inline-flex items-center justify-center px-6 py-3 glass-badge font-semibold text-gray-700 dark:text-gray-200 hover:border-brand-primary/30 transition-all duration-300 hover:-translate-y-0.5">
-              Blog Yazılarım
-            </a>
           </div>
         </div>
       )}

@@ -16,7 +16,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { customerRepository } from './repository';
+import { customerRepository, generateLicenseKeyValue } from './repository';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 
 interface CreateBundleInput {
@@ -153,7 +153,9 @@ export const bundleService = {
       const licenses = [];
 
       for (const productId of productIds) {
-        const key = `BUNDLE_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`.toUpperCase();
+        // Tahmin edilemez anahtar — eskiden `Math.random().toString(36)` ile
+        // üretiliyordu (bkz. repository.generateLicenseKeyValue yorumu).
+        const key = generateLicenseKeyValue('BUNDLE');
         const license = await tx.license.create({
           data: {
             key,

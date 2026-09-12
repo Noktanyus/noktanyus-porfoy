@@ -18,14 +18,21 @@ export const DigitalProductSchema = z.object({
   shortDescription: z.string().min(10).max(300),
   description: z.string().min(50),
   thumbnail: z.string().url().optional().nullable(),
+  images: z.array(z.string().url()).optional(),
   fileUrl: z.string().min(1),
   fileName: z.string().min(1).max(200),
   fileSize: z.number().int().min(0),
   priceCents: z.number().int().min(0),
+  currency: z.string().length(3).default('try'),
   downloadCountMax: z.number().int().min(1).max(100).default(5),
   ttlHours: z.number().int().min(1).max(720).default(72),
   technologies: z.array(z.string()).default([]),
   category: z.string().min(1).max(50).default('general'),
+  version: z.string().max(50).optional().nullable(),
+  requirements: z.array(z.string()).optional().nullable(),
+  active: z.boolean().default(true),
+  featured: z.boolean().default(false),
+  order: z.number().int().default(0),
 });
 
 export const PlanSchema = z.object({

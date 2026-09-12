@@ -1,7 +1,10 @@
 /**
  * @file Branding Service
  * @description Workspace branding ayarlarını DB'de yönetir.
- *              Schema: WorkspaceBranding (workspaceId PK, alanlar).
+ *              Schema: Workspace üzerinde brandColor, brandLogo, brandFavicon,
+ *              customDomain, whiteLabelEnabled alanları tutulur.
+ *              (Ayrı bir WorkspaceBranding modeli yok; Workspace modeli
+ *              içinde inline saklanıyor — Sprint 1 prod-hardening.)
  */
 
 import { prisma } from "@/lib/prisma";
@@ -24,41 +27,62 @@ type UpdateInput = Partial<{
   socialLinks: BrandingConfig["socialLinks"];
 }>;
 
+/**
+ * Workspace'in brand alanlarını BrandingConfig'e dönüştürür.
+ * brandColor varsayılanı "blue" olur; fontFamily/sosyal linkler gibi
+ * zengin alanlar schema'da tutulmadığı için DEFAULT değerlere düşer.
+ */
+function workspaceToBranding(ws: {
+  id: string;
+  brandColor: string;
+  brandLogo: string | null;
+  brandFavicon: string | null;
+  customDomain: string | null;
+  whiteLabelEnabled: boolean;
+  updatedAt: Date;
+}): BrandingConfig {
+  return {
+    workspaceId: ws.id,
+    logoUrl: ws.brandLogo,
+    faviconUrl: ws.brandFavicon,
+    primaryColor: ws.brandColor ?? DEFAULT_BRANDING.primaryColor,
+    accentColor: DEFAULT_BRANDING.accentColor,
+    fontFamily: DEFAULT_BRANDING.fontFamily,
+    customCss: null,
+    tagline: null,
+    socialLinks: {},
+    updatedAt: ws.updatedAt,
+  };
+}
+
 export const brandingService = {
   /**
    * Workspace branding ayarlarını getir. Yoksa default ile oluştur.
    */
   async getOrCreate(workspaceId: string): Promise<BrandingConfig> {
-    const existing = await prisma.workspaceBranding.findUnique({
-      where: { workspaceId },
-    });
-
-    if (existing) {
-      return {
-        workspaceId: existing.workspaceId,
-        logoUrl: existing.logoUrl,
-        faviconUrl: existing.faviconUrl,
-        primaryColor: existing.primaryColor,
-        accentColor: existing.accentColor,
-        fontFamily: isFontFamily(existing.fontFamily) ? existing.fontFamily : "inter",
-        customCss: existing.customCss,
-        tagline: existing.tagline,
-        socialLinks: (existing.socialLinks as BrandingConfig["socialLinks"]) ?? {},
-        updatedAt: existing.updatedAt,
-      };
-    }
-
-    const created = await prisma.workspaceBranding.create({
-      data: {
-        workspaceId,
-        ...DEFAULT_BRANDING,
+    const existing = await prisma.workspace.findUnique({
+      where: { id: workspaceId },
+      select: {
+        id: true,
+        brandColor: true,
+        brandLogo: true,
+        brandFavicon: true,
+        customDomain: true,
+        whiteLabelEnabled: true,
+        updatedAt: true,
       },
     });
 
+    if (existing) {
+      return workspaceToBranding(existing);
+    }
+
+    // Workspace bulunamadı — boş default dön. (create yok çünkü workspace
+    // oluşturma bu service'in sorumluluğu dışında.)
     return {
       workspaceId,
       ...DEFAULT_BRANDING,
-      updatedAt: created.updatedAt,
+      updatedAt: new Date(),
     };
   },
 
@@ -77,33 +101,41 @@ export const brandingService = {
       throw new Error("fontFamily must be a valid font");
     }
 
-    // Önce kayıt yoksa oluştur
-    await this.getOrCreate(workspaceId);
+    // primaryColor → brandColor, logoUrl → brandLogo, vb. map
+    const data: Record<string, unknown> = {};
+    if (input.primaryColor !== undefined) data.brandColor = input.primaryColor;
+    if (input.logoUrl !== undefined) data.brandLogo = input.logoUrl;
+    if (input.faviconUrl !== undefined) data.brandFavicon = input.faviconUrl;
 
-    const updated = await prisma.workspaceBranding.update({
-      where: { workspaceId },
-      data: input,
+    const updated = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data,
+      select: {
+        id: true,
+        brandColor: true,
+        brandLogo: true,
+        brandFavicon: true,
+        customDomain: true,
+        whiteLabelEnabled: true,
+        updatedAt: true,
+      },
     });
 
-    return {
-      workspaceId: updated.workspaceId,
-      logoUrl: updated.logoUrl,
-      faviconUrl: updated.faviconUrl,
-      primaryColor: updated.primaryColor,
-      accentColor: updated.accentColor,
-      fontFamily: isFontFamily(updated.fontFamily) ? updated.fontFamily : "inter",
-      customCss: updated.customCss,
-      tagline: updated.tagline,
-      socialLinks: (updated.socialLinks as BrandingConfig["socialLinks"]) ?? {},
-      updatedAt: updated.updatedAt,
-    };
+    return workspaceToBranding(updated);
   },
 
   /**
    * Default değerlere sıfırla.
    */
   async reset(workspaceId: string): Promise<BrandingConfig> {
-    await prisma.workspaceBranding.deleteMany({ where: { workspaceId } });
+    await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        brandColor: "blue",
+        brandLogo: null,
+        brandFavicon: null,
+      },
+    });
     return this.getOrCreate(workspaceId);
   },
 

@@ -4,6 +4,7 @@
  * Plan, DigitalProduct, Customer, Order, License için Prisma-backed repository'ler.
  */
 
+import crypto from 'crypto';
 import { BaseRepository } from '../shared/repository';
 import { prisma } from '@/lib/prisma';
 import type {
@@ -15,6 +16,32 @@ import type {
   License,
   Customer,
 } from '@prisma/client';
+
+/**
+ * Crypto-secure uppercase alphanumeric segment üretir (URL-safe değil).
+ * Math.random yerine crypto.randomBytes kullanır — order/license ID'leri
+ * saldırgan tarafından tahmin edilememeli.
+ */
+function secureAlnum(bytes: number): string {
+  return crypto
+    .randomBytes(bytes)
+    .toString('hex')
+    .toUpperCase()
+    .slice(0, bytes * 2);
+}
+
+/**
+ * Tahmin edilemez lisans anahtarı üretir: `PREFIX-XXXX-XXXX-XXXX-XXXX`.
+ *
+ * `LicenseRepository.generateKey()` ve `bundleService.purchase()` aynı üreticiyi
+ * paylaşır — bundle lisansları eskiden `Math.random().toString(36)` ile
+ * üretiliyordu (tahmin edilebilir, ödeme yapmadan lisans türetilebilir).
+ */
+export function generateLicenseKeyValue(prefix = 'NOKT'): string {
+  // 4 segment × 4 hex char = 16 hex char → 8 byte (64 bit) entropy.
+  const segments = Array.from({ length: 4 }, () => secureAlnum(2));
+  return `${prefix}-${segments.join('-')}`;
+}
 
 export class PlanRepository extends BaseRepository<Plan> {
   protected get model() {
@@ -99,6 +126,28 @@ export class OrderRepository extends BaseRepository<Order> {
     });
   }
 
+  /**
+   * Ödeme sağlayıcısı token'ı ile order bulur.
+   *
+   * iyzico'da checkout token'ı `stripeSessionId` kolonunda tutuluyor (kolon adı
+   * tarihsel; alan provider'dan bağımsız "session/token" anlamında kullanılıyor).
+   * Callback route'u önceden `prisma.order.findFirst` ile ARAMA yapıyordu:
+   *   - unique kolonda findFirst gereksiz (index'i tam kullanmaz)
+   *   - include etmediği için items/customer gelmiyordu
+   *   - sorgu mantığı route'a sızmıştı
+   *
+   * findUnique kullanılıyor: kolon `@unique`, yani token → en fazla 1 order.
+   * Bu da callback'in aynı token'la iki kez çağrılmasını (kullanıcı sayfayı
+   * yenilerse) deterministik kılar.
+   */
+  async findByProviderToken(token: string) {
+    if (!token) return null;
+    return this.prisma.order.findUnique({
+      where: { stripeSessionId: token },
+      include: { items: true, licenses: true, customer: true },
+    });
+  }
+
   async findByCustomer(customerId: string) {
     return this.prisma.order.findMany({
       where: { customerId },
@@ -111,7 +160,8 @@ export class OrderRepository extends BaseRepository<Order> {
     const date = new Date();
     const year = date.getFullYear().toString().slice(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    // 3 byte = 6 hex chars — order number için yeterli entropy.
+    const random = secureAlnum(3);
     return `NK-${year}${month}-${random}`;
   }
 }
@@ -127,10 +177,8 @@ export class LicenseRepository extends BaseRepository<License> {
 
   async generateKey() {
     // License format: NOKT-XXXX-XXXX-XXXX-XXXX
-    const segments = Array(4)
-      .fill(0)
-      .map(() => Math.random().toString(36).substring(2, 6).toUpperCase());
-    return `NOKT-${segments.join('-')}`;
+    // Math.random ile ~52 bit entropy / tahmin edilebilirlik riski vardi.
+    return generateLicenseKeyValue('NOKT');
   }
 
   async activate(licenseKey: string, domain: string, ip: string) {

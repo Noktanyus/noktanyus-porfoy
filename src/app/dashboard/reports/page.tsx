@@ -11,6 +11,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { reportService } from '@/modules/reports';
 import { ReportBuilder } from '@/components/dashboard/ReportBuilder';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,5 +26,13 @@ export default async function ReportsPage() {
   }
 
   const reports = await reportService.list(userId);
-  return <ReportBuilder initialReports={reports as any} />;
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Raporlar"
+        description="Özel raporlar oluştur, kaydet ve dışa aktar. Verilerini kendi şablonlarınla analiz et."
+      />
+      <ReportBuilder initialReports={reports as any} />
+    </div>
+  );
 }

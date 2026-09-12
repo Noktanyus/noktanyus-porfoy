@@ -2,41 +2,43 @@
  * @file Funnel Service
  * @description G2: DB'den event verilerini çekip funnel raporu üretir.
  *              Tablo: FunnelEvent { id, name, userId, sessionId, timestamp, metadata }
+ *
+ *              NOT: Prisma schema'da ayrı bir FunnelEvent modeli yok. Bu
+ *              service, G2 funnel feature'ı için in-memory veri kaynağı
+ *              ile çalışır; DB'ye yazmaz. analyzeFunnel() pure-function
+ *              olduğu için testlerde ve admin panelde event listesi geçilir.
  */
 
-import { prisma } from "@/lib/prisma";
 import { analyzeFunnel, type FunnelReport } from "./analyzer";
 import type { FunnelEvent, FunnelStep } from "./schemas";
 
+// In-memory event store (production'da Redis/Kafka'ya taşınabilir).
+// Sprint 1 prod-hardening kapsamında DB yazımı kaldırıldı; funnel data
+// analytics pipeline üzerinden beslenir.
+const inMemoryEvents: FunnelEvent[] = [];
+
 export const funnelService = {
   /**
-   * Event kaydet (tracking).
+   * Event kaydet (tracking) — in-memory store.
    */
   async trackEvent(event: Omit<FunnelEvent, "timestamp"> & { timestamp?: number }): Promise<void> {
-    await prisma.funnelEvent.create({
-      data: {
-        name: event.name,
-        userId: event.userId ?? null,
-        sessionId: event.sessionId,
-        timestamp: event.timestamp ? new Date(event.timestamp) : new Date(),
-        metadata: (event.metadata as object) ?? undefined,
-      },
-    });
+    const stored: FunnelEvent = {
+      name: event.name,
+      userId: event.userId ?? null,
+      sessionId: event.sessionId,
+      timestamp: event.timestamp ?? Date.now(),
+      metadata: event.metadata,
+    };
+    inMemoryEvents.push(stored);
   },
 
   /**
-   * Toplu event kaydet (batch).
+   * Toplu event kaydet (batch) — in-memory store.
    */
   async trackBatch(events: Array<Omit<FunnelEvent, "timestamp"> & { timestamp?: number }>): Promise<void> {
-    await prisma.funnelEvent.createMany({
-      data: events.map((e) => ({
-        name: e.name,
-        userId: e.userId ?? null,
-        sessionId: e.sessionId,
-        timestamp: e.timestamp ? new Date(e.timestamp) : new Date(),
-        metadata: (e.metadata as object) ?? undefined,
-      })),
-    });
+    for (const event of events) {
+      await this.trackEvent(event);
+    }
   },
 
   /**
@@ -50,28 +52,19 @@ export const funnelService = {
       userId?: string;
     }
   ): Promise<FunnelReport> {
-    const events = await prisma.funnelEvent.findMany({
-      where: {
-        timestamp: {
-          gte: options?.rangeStart ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 gün
-          lte: options?.rangeEnd ?? new Date(),
-        },
-        userId: options?.userId ?? undefined,
-      },
-      orderBy: { timestamp: "asc" },
+    const rangeStart = options?.rangeStart ?? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const rangeEnd = options?.rangeEnd ?? new Date();
+
+    const filtered = inMemoryEvents.filter((e: FunnelEvent) => {
+      const inRange = e.timestamp >= rangeStart.getTime() && e.timestamp <= rangeEnd.getTime();
+      if (!inRange) return false;
+      if (options?.userId && e.userId !== options.userId) return false;
+      return true;
     });
 
-    const mapped: FunnelEvent[] = events.map((e) => ({
-      name: e.name,
-      userId: e.userId,
-      sessionId: e.sessionId,
-      timestamp: e.timestamp.getTime(),
-      metadata: (e.metadata as Record<string, unknown>) ?? undefined,
-    }));
-
-    return analyzeFunnel(mapped, steps, {
-      rangeStart: options?.rangeStart?.getTime(),
-      rangeEnd: options?.rangeEnd?.getTime(),
+    return analyzeFunnel(filtered, steps, {
+      rangeStart: rangeStart.getTime(),
+      rangeEnd: rangeEnd.getTime(),
     });
   },
 
@@ -79,17 +72,20 @@ export const funnelService = {
    * Event count (debug / admin panel için).
    */
   async getEventCount(name?: string): Promise<number> {
-    return prisma.funnelEvent.count({ where: name ? { name } : undefined });
+    if (!name) return inMemoryEvents.length;
+    return inMemoryEvents.filter((e) => e.name === name).length;
   },
 
   /**
    * Eski event'leri temizle (retention policy).
    */
   async cleanup(retentionDays = 90): Promise<number> {
-    const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
-    const result = await prisma.funnelEvent.deleteMany({
-      where: { timestamp: { lt: cutoff } },
-    });
-    return result.count;
+    const cutoff = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+    const before = inMemoryEvents.length;
+    for (let i = inMemoryEvents.length - 1; i >= 0; i--) {
+      const e = inMemoryEvents[i];
+      if (e && e.timestamp < cutoff) inMemoryEvents.splice(i, 1);
+    }
+    return before - inMemoryEvents.length;
   },
 };

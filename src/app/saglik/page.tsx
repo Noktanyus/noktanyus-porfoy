@@ -1,9 +1,23 @@
+/**
+ * @file /saglik — Modül sağlık durumu (public status) sayfası.
+ *
+ * Veri kaynağı `/api/health/modules`. Sayfa hiçbir değer uydurmaz; endpoint
+ * erişilemezse bunu açıkça söyler.
+ *
+ * Faz D:
+ *  - İç içe `<main>` kaldırıldı (kök layout zaten main landmark render ediyor).
+ *  - Durum göstergeleri ortak `StatusBadge` + `resolveHealthStatus` eşlemesine
+ *    taşındı; 'degraded' durumu artık DOĞRU gösteriliyor (önceden `up`
+ *    olmayan her şey kırmızı "çalışmıyor" olarak çiziliyordu).
+ *  - Endpoint erişilemediğinde düz metin yerine `ErrorDisplay`.
+ *  - Modül listesi boşsa `EmptyState`.
+ */
+
+import { FaHeartbeat } from 'react-icons/fa';
 import CardBody from '@/components/ui/CardBody';
-import {
-  FaHeartbeat,
-  FaCheckCircle,
-  FaTimesCircle,
-} from 'react-icons/fa';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { StatusBadge, resolveHealthStatus } from '@/components/ui/StatusBadge';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,7 +54,8 @@ async function getModuleStatus(): Promise<HealthResponse | null> {
   }
 }
 
-const moduleIcon: Record<string, string> = {
+/** Teknik modül adı → kullanıcı dostu etiket. */
+const MODULE_LABELS: Record<string, string> = {
   content: 'Blog + Projeler',
   commerce: 'Mağaza + Ödeme',
   monitoring: 'Uptime + Status',
@@ -51,77 +66,87 @@ export default async function HealthPage() {
   const data = await getModuleStatus();
 
   return (
-    <main className="min-h-screen bg-blob-decoration">
+    <div className="bg-blob-decoration">
       <div className="container-responsive py-12">
-        <div className="text-center mb-12">
-          <FaHeartbeat className="w-16 h-16 mx-auto text-primary mb-3" />
-          <h1 className="text-4xl font-bold mb-2">Sistem Sağlığı</h1>
-          <p className="text-muted-foreground">Tüm modüllerin durumu</p>
+        <div className="mb-12 text-center">
+          <FaHeartbeat aria-hidden="true" className="mx-auto mb-3 h-16 w-16 text-primary" />
+          <h1 className="mb-2 text-4xl font-bold">Sistem Sağlığı</h1>
+          <p className="text-muted-foreground">Tüm modüllerin anlık durumu</p>
           {data && (
-            <p className="text-xs text-muted-foreground mt-2 font-mono">
+            <p className="mt-2 font-mono text-xs text-muted-foreground">
               Son kontrol: {new Date(data.timestamp).toLocaleString('tr-TR')} · Toplam{' '}
               {data.totalLatency}ms
             </p>
           )}
         </div>
 
-        {data?.modules ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {data.modules.map((m) => (
-              <article
-                key={m.name}
-                className="glass-card-premium rounded-xl overflow-hidden"
-              >
-                <CardBody>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {m.status === 'up' ? (
-                        <FaCheckCircle className="text-green-500 text-2xl flex-shrink-0" />
-                      ) : (
-                        <FaTimesCircle className="text-red-500 text-2xl flex-shrink-0" />
-                      )}
-                      <div>
-                        <h3 className="font-semibold capitalize">
-                          {moduleIcon[m.name] ?? m.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground">
-                          {m.details?.description ?? ''}
-                        </p>
-                        {m.details?.error && (
-                          <p className="text-xs text-red-500 mt-1 font-mono break-all">
-                            {m.details.error}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right text-xs flex-shrink-0">
-                      <p
-                        className={`font-mono font-bold ${
-                          m.status === 'up' ? 'text-green-600' : 'text-red-600'
-                        }`}
-                      >
-                        {m.status.toUpperCase()}
-                      </p>
-                      <p className="text-muted-foreground">{m.latency}ms</p>
-                    </div>
-                  </div>
-                </CardBody>
-              </article>
-            ))}
-          </div>
+        {!data ? (
+          <ErrorDisplay
+            variant="card"
+            title="Sağlık durumu okunamadı"
+            message="Durum servisine şu an ulaşılamıyor. Bu, servislerin çalışmadığı anlamına gelmeyebilir — birkaç dakika sonra tekrar deneyin."
+            showHomeLink
+            className="mx-auto max-w-xl"
+          />
+        ) : data.modules.length === 0 ? (
+          <EmptyState
+            icon="inbox"
+            title="İzlenen modül yok"
+            description="Sağlık servisi çalışıyor ancak kayıtlı modül döndürmedi."
+            className="mx-auto max-w-xl"
+          />
         ) : (
-          <p className="text-center text-muted-foreground">
-            Sağlık durumu şu an yüklenemedi. Lütfen daha sonra tekrar deneyin.
-          </p>
+          <ul className="mx-auto grid max-w-3xl grid-cols-1 gap-4 md:grid-cols-2">
+            {data.modules.map((m) => {
+              const badge = resolveHealthStatus(m.status);
+              return (
+                <li key={m.name}>
+                  <article className="glass-card-premium h-full overflow-hidden rounded-xl">
+                    <CardBody>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h2 className="font-semibold">
+                            {MODULE_LABELS[m.name] ?? m.name}
+                          </h2>
+                          {m.details?.description && (
+                            <p className="text-xs text-muted-foreground">
+                              {m.details.description}
+                            </p>
+                          )}
+                          {m.details?.error && (
+                            <p className="mt-1 break-all font-mono text-xs text-rose-600 dark:text-rose-400">
+                              {m.details.error}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex shrink-0 flex-col items-end gap-1">
+                          <StatusBadge
+                            size="sm"
+                            tone={badge.tone}
+                            dot
+                            label={badge.label}
+                            srLabel={`${MODULE_LABELS[m.name] ?? m.name} durumu:`}
+                          />
+                          <p className="font-mono text-xs tabular-nums text-muted-foreground">
+                            {m.latency}ms
+                          </p>
+                        </div>
+                      </div>
+                    </CardBody>
+                  </article>
+                </li>
+              );
+            })}
+          </ul>
         )}
 
-        <div className="text-center mt-12">
+        <div className="mt-12 text-center">
           <p className="text-xs text-muted-foreground">
             JSON API: <code className="font-mono">/api/health</code> ·{' '}
             <code className="font-mono">/api/health/modules</code>
           </p>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

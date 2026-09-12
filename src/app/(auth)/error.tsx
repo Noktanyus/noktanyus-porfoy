@@ -16,7 +16,7 @@ export default function AuthError({
   }, [error]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-blob-decoration px-4 py-12">
+    <div className="min-h-[70vh] flex items-center justify-center bg-blob-decoration px-4 py-8">
       <div className="w-full max-w-md">
         <div className="glass-card-premium p-8 text-center">
           <FaUserShield className="w-12 h-12 mx-auto text-primary mb-3" />
@@ -37,6 +37,6 @@ export default function AuthError({
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

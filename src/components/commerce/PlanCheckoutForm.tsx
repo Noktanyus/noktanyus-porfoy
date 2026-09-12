@@ -5,11 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { formatCurrency, getButtonClass, cn } from '@/lib/utils';
+import { PaytrCardForm, type PaytrFormPayload } from '@/components/commerce/PaytrCardForm';
 
-// Public-safe plan shape — backend response shape mirror.
-// Plan modelindeki tüm alanlari frontend'e tasimak yerine sadece
-// formun ihtiyac duyduklari yeterli. Stripe customer id gibi backend
-// alanlari response'a dahil edilmez.
 interface PublicPlan {
   id: string;
   slug: string;
@@ -27,9 +24,12 @@ export function PlanCheckoutForm() {
 
   const [plan, setPlan] = useState<PublicPlan | null>(null);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paytrPayload, setPaytrPayload] = useState<PaytrFormPayload | null>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -39,9 +39,6 @@ export function PlanCheckoutForm() {
     let cancelled = false;
     (async () => {
       try {
-        // Server-side Prisma kullanimi yerine public API uzerinden plan cekiyoruz.
-        // Boylece bu 'use client' component tarayicida calistiginda
-        // "PrismaClient is unable to run in this browser environment" hatasi olusmuyor.
         const res = await fetch(`/api/plans/${encodeURIComponent(slug)}`, {
           cache: 'no-store',
         });
@@ -77,7 +74,13 @@ export function PlanCheckoutForm() {
       const response = await fetch('/api/checkout/subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planSlug: slug, customerEmail: email }),
+        body: JSON.stringify({
+          planSlug: slug,
+          customerEmail: email,
+          customerName: name || undefined,
+          customerPhone: phone || undefined,
+          paymentProvider: 'paytr',
+        }),
       });
 
       const result = await response.json();
@@ -85,7 +88,21 @@ export function PlanCheckoutForm() {
         throw new Error(result.error?.message ?? 'Ödeme başlatılamadı');
       }
 
-      window.location.href = result.data.url;
+      const data = result.data;
+      if (data.url && (data.mock || !data.fields)) {
+        window.location.href = data.url;
+        return;
+      }
+      if (data.fields && data.formAction) {
+        setPaytrPayload({
+          formAction: data.formAction,
+          fields: data.fields,
+          orderNumber: data.orderNumber,
+        });
+        setLoading(false);
+        return;
+      }
+      throw new Error('PayTR form yanıtı eksik');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Hata oluştu');
       setLoading(false);
@@ -95,14 +112,11 @@ export function PlanCheckoutForm() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <p className="text-5xl mb-4" aria-hidden="true">
-          ⚠️
-        </p>
         <p className="text-lg mb-6 text-red-600 dark:text-red-400" role="alert">
           {error}
         </p>
         <Link href="/fiyatlandirma" className={getButtonClass('primary', 'lg')}>
-          <span aria-hidden="true">←</span> Planlara Dön
+          Planlara Dön
         </Link>
       </div>
     );
@@ -110,61 +124,72 @@ export function PlanCheckoutForm() {
 
   if (!plan) {
     return (
-      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-        Yükleniyor...
+      <div className="text-center py-12 text-muted-foreground">Yükleniyor...</div>
+    );
+  }
+
+  if (paytrPayload) {
+    return (
+      <div className="max-w-lg mx-auto">
+        <PaytrCardForm payload={paytrPayload} onCancel={() => setPaytrPayload(null)} />
       </div>
     );
   }
 
   return (
     <div className="max-w-md mx-auto">
-      {/* "Planlara Dön" her durumda erişilebilir olmalı — daha önce yalnızca
-          hata ekranında render ediliyordu, bu yüzden normal akışta kullanıcı
-          geri dönemiyordu. <button onClick> yerine <Link>: gerçek navigasyon,
-          klavye/orta tık/yeni sekme desteği ve JS olmadan da çalışır. */}
-      <Link
-        href="/fiyatlandirma"
-        className={cn(getButtonClass('ghost', 'sm'), 'mb-4 -ml-2')}
-      >
-        <span aria-hidden="true">←</span> Planlara Dön
+      <Link href="/fiyatlandirma" className={cn(getButtonClass('ghost', 'sm'), 'mb-4 -ml-2')}>
+        Planlara Dön
       </Link>
 
       <div className="glass-card-premium p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">
-          {plan.name}
-        </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-          {plan.description}
-        </p>
+        <h2 className="text-xl font-semibold mb-2 text-foreground">{plan.name}</h2>
+        <p className="text-sm text-muted-foreground mb-4">{plan.description}</p>
         <div className="text-3xl font-bold text-brand-primary">
           {formatCurrency(plan.priceCents, plan.currency)}
-          <span className="text-base text-gray-500 dark:text-gray-400 font-normal ml-2">
+          <span className="text-base text-muted-foreground font-normal ml-2">
             /{plan.interval.toLowerCase()}
           </span>
         </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Ödeme: PayTR. Dönem ücreti tek çekimdir; otomatik yenileme yoktur.
+        </p>
       </div>
 
       <div className="glass-card-premium p-6">
-        <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
-          E-posta
-        </h2>
+        <h2 className="text-xl font-semibold mb-6 text-foreground">Ödeme Bilgileri</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="plan-email"
-              className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300"
-            >
-              E-posta adresi *
-            </label>
+          <label className="block text-sm">
+            <span className="mb-1 block">E-posta *</span>
             <input
-              id="plan-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              className="w-full px-4 py-2 rounded-xl border border-border bg-background"
               placeholder="ornek@email.com"
             />
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="block text-sm">
+              <span className="mb-1 block">Ad Soyad</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-border bg-background"
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="mb-1 block">Telefon</span>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-4 py-2 rounded-xl border border-border bg-background"
+                placeholder="05xx xxx xx xx"
+              />
+            </label>
           </div>
 
           <label className="flex items-start gap-2 cursor-pointer">
@@ -175,7 +200,7 @@ export function PlanCheckoutForm() {
               className="mt-1"
               required
             />
-            <span className="text-xs text-gray-600 dark:text-gray-400">
+            <span className="text-xs text-muted-foreground">
               <a
                 href="/yasal/mesafeli-satis"
                 target="_blank"
@@ -191,9 +216,9 @@ export function PlanCheckoutForm() {
           <button
             type="submit"
             disabled={loading || !email}
-            className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white disabled:opacity-60 min-h-[44px]"
           >
-            {loading ? 'Yönlendiriliyor...' : '🔒 Aboneliği Başlat'}
+            {loading ? 'Hazırlanıyor…' : `PayTR ile Devam · ${formatCurrency(plan.priceCents, plan.currency)}`}
           </button>
         </form>
       </div>

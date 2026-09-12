@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { NewMonitorForm } from '@/components/dashboard/NewMonitorForm';
 import { prisma } from '@/lib/prisma';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,10 +22,12 @@ export default async function NewMonitorPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold">Yeni Monitör</h1>
-        <p className="text-sm text-muted-foreground">Bir URL/host izlemeye başlayın</p>
-      </div>
+      <PageHeader
+        title="Yeni Monitör"
+        description="Bir URL/host izlemeye başlayın"
+        backHref="/dashboard/monitors"
+        backLabel="Tüm Monitörler"
+      />
       <NewMonitorForm alertChannels={channels} />
     </div>
   );

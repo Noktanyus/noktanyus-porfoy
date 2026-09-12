@@ -14,305 +14,412 @@
 }
 
 @layer components {
-  /* ===== GLASS / BLUR UTILITY CLASSES ===== */
-  .glass {
-    @apply bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  /* ===========================================================
+   * SURFACE TOKENS — tek kaynaktan cikan, kullanicinin hizli
+   * tarayabilecegi yalin yuzey cesitleri.
+   * - .surface           : yalin kart (varsayilan)
+   * - .surface-muted     : muted zemin
+   * - .surface-elevated  : hafif golgeli kart
+   * - .surface-glass     : hafif glass (Modal/Drawer/Popover overlay)
+   * =========================================================== */
+  .surface {
+    @apply bg-card text-card-foreground border border-border;
+  }
+  .surface-muted {
+    @apply bg-muted text-foreground border border-border;
+  }
+  .surface-elevated {
+    @apply bg-card text-card-foreground border border-border shadow-sm;
+  }
+  .surface-glass {
+    @apply bg-card/80 backdrop-blur-md border border-border;
   }
 
-  .glass-card {
-    @apply bg-white/60 dark:bg-gray-900/50 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-lg shadow-black/5 dark:shadow-black/20 rounded-2xl;
+  /* ===========================================================
+   * ADMIN LAYOUT — admin panele ozel yalin utility'ler.
+   * Daha once inline 20+ sinif zinciri olarak yazilan desenler
+   * tek bir class altinda toplandi.
+   * =========================================================== */
+  .admin-page {
+    @apply space-y-6;
+  }
+  .admin-header {
+    @apply flex flex-col gap-3 mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:mb-8;
+  }
+  .admin-title {
+    @apply text-2xl sm:text-3xl font-bold text-foreground;
+  }
+  .admin-subtitle {
+    @apply text-sm sm:text-base text-muted-foreground;
+  }
+  .admin-section {
+    @apply bg-card text-card-foreground border border-border rounded-xl sm:rounded-2xl overflow-hidden shadow-sm;
+  }
+  .admin-section-header {
+    @apply px-4 sm:px-6 py-4 sm:py-5 border-b border-border bg-gradient-to-r from-muted to-accent;
+  }
+  .admin-section-title {
+    @apply text-lg sm:text-xl font-semibold text-foreground;
+  }
+  .admin-section-content {
+    @apply p-4 sm:p-6;
+  }
+  .admin-card {
+    @apply bg-card text-card-foreground border border-border rounded-xl shadow-sm p-4 sm:p-6 transition-shadow hover:shadow-md;
+  }
+  .admin-grid {
+    @apply grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .admin-form-grid {
+    @apply grid gap-4 sm:gap-6 sm:grid-cols-2;
   }
 
-  .glass-card-hover {
-    @apply bg-white/60 dark:bg-gray-900/50 backdrop-blur-lg border border-white/30 dark:border-white/10 shadow-lg shadow-black/5 dark:shadow-black/20 rounded-2xl transition-all duration-500 ease-out;
+  /* ===========================================================
+   * BUTTON — admin varyantlari (primary/secondary/outline/ghost/
+   * danger/success). Hepsinde:
+   *  - min-h-[44px]  (WCAG 2.2 AA - 2.5.8 target size)
+   *  - focus-visible:ring-2 (klavye focus)
+   *  - disabled durumu
+   * =========================================================== */
+  .admin-btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 min-h-[44px] rounded-lg font-semibold text-sm leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-btn-primary {
+    @apply bg-primary text-primary-foreground border border-transparent shadow-sm hover:bg-primary/90;
+  }
+  .admin-btn-secondary {
+    @apply bg-muted text-foreground border border-border hover:bg-muted/80;
+  }
+  .admin-btn-outline {
+    @apply bg-transparent text-primary border-[1.5px] border-primary hover:bg-primary/10;
+  }
+  .admin-btn-ghost {
+    @apply bg-transparent text-foreground border border-transparent hover:bg-muted;
+  }
+  .admin-btn-danger {
+    @apply bg-destructive text-destructive-foreground border border-transparent shadow-sm hover:bg-destructive/90;
+  }
+  .admin-btn-success {
+    @apply bg-success text-success-foreground border border-transparent shadow-sm hover:bg-success/90;
   }
 
-  .glass-card-hover:hover {
-    @apply bg-white/80 dark:bg-gray-900/70 shadow-xl shadow-brand-primary/10 dark:shadow-brand-primary/5 border-brand-primary/20 -translate-y-1;
+  /* ===========================================================
+   * STATUS PILL — inline durum etiketleri.
+   * =========================================================== */
+  .admin-status-active {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/15 text-success;
+  }
+  .admin-status-inactive {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-destructive/15 text-destructive;
+  }
+  .admin-status-pending {
+    @apply inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning/15 text-warning;
   }
 
-  .glass-surface {
-    @apply bg-white/50 dark:bg-gray-800/40 backdrop-blur-md border border-white/20 dark:border-white/5 rounded-2xl;
+  /* ===========================================================
+   * FORM — input/textarea/select.
+   * =========================================================== */
+  .admin-input {
+    @apply w-full min-h-[44px] px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-input bg-background text-foreground rounded-lg placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring/40 aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/30 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .admin-textarea {
+    @apply min-h-[120px] resize-y;
+  }
+  .admin-select {
+    @apply cursor-pointer;
   }
 
-  .glass-footer {
-    @apply bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl border-t border-white/30 dark:border-white/10;
+  /* ===========================================================
+   * RESPONSIVE TYPOGRAPHY
+   * =========================================================== */
+  .text-responsive-display {
+    @apply text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold;
+  }
+  .text-responsive-heading {
+    @apply text-xl sm:text-2xl lg:text-3xl font-semibold;
+  }
+  .text-responsive-body {
+    @apply text-sm sm:text-base lg:text-lg;
   }
 
-  .glass-input {
-    @apply bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-200/60 dark:border-gray-700/60 focus:bg-white/80 dark:focus:bg-gray-800/80 focus:border-brand-primary/50 focus:ring-2 focus:ring-brand-primary/20 transition-all duration-300 rounded-xl;
+  /* ===========================================================
+   * PAGE SECTION HEADER
+   * =========================================================== */
+  .section-header {
+    @apply text-center mb-8 sm:mb-12;
   }
-
-  .glass-section {
-    @apply bg-white/40 dark:bg-gray-900/30 backdrop-blur-lg rounded-2xl border border-white/30 dark:border-white/5 p-6 sm:p-8;
-  }
-
-  .glass-badge {
-    @apply bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border border-white/30 dark:border-white/10 px-3 py-1 rounded-full text-xs sm:text-sm font-medium;
-  }
-
-  /* ===== PREMIUM GLASSMORPHISM CARDS ===== */
-  .glass-card-premium {
-    position: relative;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 1.25rem;
-    overflow: hidden;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.06),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-
-  .glass-card-premium::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    z-index: 1;
-  }
-
-  .glass-card-premium:hover {
-    transform: translateY(-6px);
-    box-shadow:
-      0 20px 60px rgba(0, 120, 212, 0.12),
-      0 0 0 1px rgba(0, 120, 212, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    border-color: rgba(0, 120, 212, 0.25);
-  }
-
-  :is(.dark) .glass-card-premium {
-    background: rgba(17, 24, 39, 0.6);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-
-  :is(.dark) .glass-card-premium:hover {
-    background: rgba(17, 24, 39, 0.8);
-    box-shadow:
-      0 20px 60px rgba(0, 120, 212, 0.1),
-      0 0 0 1px rgba(0, 120, 212, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  }
-
-  /* Premium Search Input */
-  .glass-search {
-    position: relative;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(16px) saturate(150%);
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 9999px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  }
-
-  .glass-search:focus-within {
-    background: rgba(255, 255, 255, 0.85);
-    border-color: rgba(0, 120, 212, 0.4);
-    box-shadow:
-      0 8px 32px rgba(0, 120, 212, 0.08),
-      0 0 0 3px rgba(0, 120, 212, 0.12);
-  }
-
-  :is(.dark) .glass-search {
-    background: rgba(17, 24, 39, 0.5);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  :is(.dark) .glass-search:focus-within {
-    background: rgba(17, 24, 39, 0.7);
-    border-color: rgba(59, 130, 246, 0.4);
-    box-shadow:
-      0 8px 32px rgba(59, 130, 246, 0.08),
-      0 0 0 3px rgba(59, 130, 246, 0.12);
-  }
-
-  /* Premium Filter Pill */
-  .glass-pill {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    padding: 0.5rem 1.25rem;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-  }
-
-  .glass-pill:hover {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(0, 120, 212, 0.2);
-  }
-
-  .glass-pill.active {
-    background: linear-gradient(135deg, #0078D4, #00a0ff);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 4px 16px rgba(0, 120, 212, 0.3);
-  }
-
-  :is(.dark) .glass-pill {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
-    color: #9CA3AF;
-  }
-
-  :is(.dark) .glass-pill:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-  }
-
-  :is(.dark) .glass-pill.active {
-    background: linear-gradient(135deg, #0078D4, #00a0ff);
-    color: white;
-    box-shadow: 0 4px 16px rgba(0, 120, 212, 0.25);
-  }
-
-  /* Premium Tag */
-  .glass-tag {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(147, 51, 234, 0.08));
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(59, 130, 246, 0.15);
-    border-radius: 9999px;
-    padding: 0.25rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #3b82f6;
-    transition: all 0.3s ease;
-  }
-
-  .glass-tag:hover {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(147, 51, 234, 0.15));
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-1px);
-  }
-
-  :is(.dark) .glass-tag {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(147, 51, 234, 0.12));
-    border-color: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
-  }
-
-  /* Page Section with Gradient Background */
-  .section-glass-hero {
-    position: relative;
-    padding: 3rem 0;
-    overflow: hidden;
-  }
-
-  .section-glass-hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -25%;
-    width: 150%;
-    height: 200%;
-    background: radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(147, 51, 234, 0.04) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  :is(.dark) .section-glass-hero::before {
-    background: radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(147, 51, 234, 0.06) 0%, transparent 50%);
-  }
-
-  /* Animated Gradient Text */
-  .text-gradient-animated {
-    background: linear-gradient(135deg, #667eea 0%, #0078D4 25%, #764ba2 50%, #0078D4 75%, #667eea 100%);
-    background-size: 300% 300%;
+  .section-title {
+    @apply text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4;
+    background: linear-gradient(135deg, oklch(var(--foreground)) 0%, oklch(var(--primary)) 60%, oklch(var(--primary) / 0.7) 100%);
     -webkit-background-clip: text;
     background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: gradient-shift 6s ease infinite;
+    color: transparent;
+  }
+  .section-subtitle {
+    @apply text-sm sm:text-base md:text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed;
   }
 
-  /* Premium Image Container with Glass Overlay */
-  .image-glass-overlay {
-    position: relative;
-    overflow: hidden;
+  /* ===========================================================
+   * GLASS / BLUR UTILITIES — opt-in, sadece belirli yerlerde.
+   * =========================================================== */
+  .glass {
+    background-color: oklch(var(--card) / 0.7);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border: 1px solid oklch(var(--border));
+  }
+  .glass-strong {
+    background-color: oklch(var(--popover) / 0.85);
+    backdrop-filter: blur(var(--blur-lg));
+    -webkit-backdrop-filter: blur(var(--blur-lg));
+    border: 1px solid oklch(var(--border));
+  }
+
+  /* Glass card (premium) — landing/marketing yuzeyleri icin. */
+  .glass-card {
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(var(--border) / 0.6);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     border-radius: 1rem;
   }
+  .glass-footer {
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid oklch(var(--border) / 0.6);
+  }
+  .glass-input {
+    background-color: oklch(var(--card) / 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid oklch(var(--input));
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+    border-radius: 0.5rem;
+  }
+  .glass-input:focus {
+    background-color: oklch(var(--card) / 0.8);
+    border-color: oklch(var(--primary) / 0.5);
+    box-shadow: 0 0 0 2px oklch(var(--ring) / 0.2);
+    outline: none;
+  }
 
+  /* ===========================================================
+   * BACKWARD-COMPAT GLASS ALIASES (review fix 2026-09-01)
+   * Once silinen premium/legacy siniflar (glass-card-premium,
+   * glass-pill, glass-tag, glass-badge, glass-search,
+   * glass-badge-overlay, section-glass-hero, text-gradient-animated,
+   * glass-section, glass-surface, glass-card-hover, image-glass-overlay,
+   * admin-content-spacing) 200+ tuketicinin referansi kaldigi icin
+   * alias olarak yeniden tanimlandi. Hepsi yeni semantic token
+   * sistemine bagli, dark/light kontrast OKLCH uzerinden dogru
+   * hesaplanir. prefers-reduced-motion destegi korunur.
+   * =========================================================== */
+  .glass-card-premium {
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(var(--border) / 0.6);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-radius: 1rem;
+  }
+  .glass-section {
+    background-color: oklch(var(--card) / 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(var(--border) / 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+  }
+  .glass-surface {
+    background-color: oklch(var(--card) / 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid oklch(var(--border) / 0.3);
+    border-radius: 1rem;
+  }
+  .glass-card-hover {
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid oklch(var(--border) / 0.6);
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-radius: 1rem;
+    transition: box-shadow 160ms ease;
+  }
+  .glass-card-hover:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+  .glass-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background-color: oklch(var(--card) / 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid oklch(var(--border) / 0.4);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+  .glass-pill:hover {
+    background-color: oklch(var(--card) / 0.7);
+    border-color: oklch(var(--primary) / 0.3);
+  }
+  .glass-pill.active {
+    background-color: oklch(var(--primary));
+    color: oklch(var(--primary-foreground));
+    border-color: oklch(var(--primary));
+  }
+  .glass-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background-color: oklch(var(--primary) / 0.1);
+    color: oklch(var(--primary));
+    border: 1px solid oklch(var(--primary) / 0.2);
+    transition: color 160ms ease, background-color 160ms ease;
+  }
+  .glass-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid oklch(var(--border) / 0.4);
+  }
+  .glass-badge-overlay {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background-color: rgb(0 0 0 / 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgb(255 255 255 / 0.2);
+    color: #fff;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+  .glass-search {
+    width: 100%;
+    background-color: oklch(var(--card) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid oklch(var(--border) / 0.4);
+    border-radius: 9999px;
+    transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  }
+  .glass-search:focus-within {
+    background-color: oklch(var(--card) / 0.8);
+    border-color: oklch(var(--primary) / 0.4);
+    box-shadow: 0 0 0 2px oklch(var(--ring) / 0.2);
+    outline: none;
+  }
+  .section-glass-hero {
+    position: relative;
+    padding: 3rem 1rem;
+  }
+  .image-glass-overlay { position: relative; overflow: hidden; border-radius: 1rem; }
   .image-glass-overlay::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      transparent 40%,
-      rgba(0, 0, 0, 0.02) 60%,
-      rgba(0, 0, 0, 0.4) 85%,
-      rgba(0, 0, 0, 0.7) 100%
-    );
-    transition: all 0.5s ease;
     pointer-events: none;
+    transition: opacity 160ms ease;
+    background: linear-gradient(180deg, transparent 0%, transparent 50%, rgb(0 0 0 / 0.5) 100%);
+  }
+  .text-gradient-animated {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(135deg, oklch(var(--foreground)) 0%, oklch(var(--primary)) 35%, oklch(var(--accent)) 70%, oklch(var(--primary)) 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease-in-out infinite;
+  }
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .text-gradient-animated { animation: none; }
   }
 
-  .image-glass-overlay:hover::after {
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      transparent 30%,
-      rgba(0, 0, 0, 0.05) 50%,
-      rgba(0, 0, 0, 0.5) 80%,
-      rgba(0, 0, 0, 0.8) 100%
-    );
-  }
-
-  /* ===== PAGE SECTION HEADERS ===== */
-  .section-header {
-    @apply text-center mb-8 sm:mb-12;
-  }
-
-  .section-title {
-    @apply text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-gray-900 via-brand-primary to-blue-600 dark:from-white dark:via-blue-300 dark:to-blue-400 bg-clip-text text-transparent;
-  }
-
-  .section-subtitle {
-    @apply text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed;
-  }
-
-  /* Admin Panel Layout Styles */
+  /* Admin utility: page-level spacing wrapper */
   .admin-content-spacing {
     @apply space-y-6;
   }
 
-  .admin-header {
-    @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8;
+  /* Scrollbar hidden */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ===========================================================
+   * MODAL / DRAWER
+   * =========================================================== */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-md;
+    animation: modal-overlay-fade-in 0.2s ease-out;
+  }
+  @keyframes modal-overlay-fade-in {
+    from { background: rgba(0,0,0,0); backdrop-filter: blur(0); }
+    to { background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .modal-overlay { animation: none; }
   }
 
-  .admin-title {
-    @apply text-3xl font-bold text-gray-900 dark:text-white;
+  /* body scroll lock — Modal/Drawer ve mobil menuler icin.
+     iOS Safari scroll'u tamamen kilitlemek icin position: fixed
+     kullanilir. */
+  body.body-scroll-lock {
+    overflow: hidden !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overscroll-behavior: contain;
   }
 
-  .admin-subtitle {
-    @apply text-gray-600 dark:text-gray-400 mt-1;
+  /* ===========================================================
+   * LAYOUT
+   * =========================================================== */
+  .container-responsive {
+    @apply w-full max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  .admin-section {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700;
+  /* ===========================================================
+   * TOUCH TARGET — 44px minimum hedef
+   * =========================================================== */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .admin-card {
-    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6;
-  }
-
-  /* Admin Form Styles */
-  .admin-form-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+  /* ===========================================================
+   * FOCUS RING — klavye focus
+   * =========================================================== */
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px oklch(var(--background)), 0 0 0 4px oklch(var(--ring));
+    border-radius: 0.5rem;
   }
 }
 
@@ -342,7 +449,7 @@
   .bg-blob-decoration::before {
     width: 300px;
     height: 300px;
-    background: rgba(59, 130, 246, 0.15);
+    background: oklch(var(--primary) / 0.15);
     top: -100px;
     right: -50px;
     animation: morph-blob 8s ease-in-out infinite;
@@ -351,60 +458,49 @@
   .bg-blob-decoration::after {
     width: 250px;
     height: 250px;
-    background: rgba(147, 51, 234, 0.1);
+    background: oklch(var(--accent) / 0.1);
     bottom: -80px;
     left: -40px;
     animation: morph-blob 10s ease-in-out infinite reverse;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bg-blob-decoration::before,
+    .bg-blob-decoration::after {
+      animation: none;
+    }
+  }
 }
 
-/* ===== VIEW TRANSITIONS API — THEME TOGGLE CROSS-FADE =====
-   Chrome 111+, Edge 111+, Safari 18+, Firefox 144+ destekler.
-   prefers-reduced-motion kullanıcıları için animasyonlar devre dışı. */
+/* ===========================================================
+ * VIEW TRANSITIONS — tema degisim cross-fade.
+ * =========================================================== */
 @media (prefers-reduced-motion: no-preference) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 0.3s;
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
-
-  ::view-transition-old(root) {
-    animation-name: vt-fade-out;
-  }
-
-  ::view-transition-new(root) {
-    animation-name: vt-fade-in;
-  }
+  ::view-transition-old(root) { animation-name: vt-fade-out; }
+  ::view-transition-new(root) { animation-name: vt-fade-in; }
 }
 
-@keyframes vt-fade-out {
-  to { opacity: 0; }
-}
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; } }
 
-@keyframes vt-fade-in {
-  from { opacity: 0; }
-}
-
-/* Page transitions for smoother navigation */
 ::view-transition-old(main-content),
 ::view-transition-new(main-content) {
   animation-duration: 0.25s;
   animation-timing-function: ease-out;
 }
 
-/* Hero image shared transitions */
-.hero-image {
-  view-transition-name: hero;
-}
-
+.hero-image { view-transition-name: hero; }
 ::view-transition-old(hero),
 ::view-transition-new(hero) {
   animation-duration: 0.4s;
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Respect user preference — reduced motion kullanıcıları için tüm
-   view transition animasyonlarını devre dışı bırak. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(*),
   ::view-transition-new(*) {
@@ -412,252 +508,24 @@
   }
 }
 
-/* ===== UI POLISH ANIMATIONS =====
-   Shimmer, float, pulse, spin, scroll-smooth, focus ring, selection.
-   Tailwind utility class'ları (.shimmer, .animate-float-slow, vb.)
-   sayesinde component seviyesinde de kullanılır. */
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-.shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-@keyframes pulse-slow {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes bounce-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.animate-float-slow {
-  animation: float-slow 4s ease-in-out infinite;
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 3s ease-in-out infinite;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-.animate-bounce-slow {
-  animation: bounce-slow 2.5s ease-in-out infinite;
-}
-
-/* Smooth scroll for anchor nav */
-html {
-  scroll-behavior: smooth;
-}
-
 /* Focus visible enhancement — oklch primary token'a göre */
 *:focus-visible {
-  outline: 2px solid oklch(var(--brand-primary, 0.55 0.18 255));
+  outline: 2px solid oklch(var(--ring));
   outline-offset: 2px;
   transition: outline-offset 0.15s ease;
 }
 
 ::selection {
-  background: rgba(0, 120, 212, 0.2);
+  background: oklch(var(--primary) / 0.2);
   color: inherit;
 }
 
-/* Reduced motion kullanıcıları için yeni animasyonları da devre dışı bırak */
+/* Reduced motion — html scroll-smooth kapat */
 @media (prefers-reduced-motion: reduce) {
-  .shimmer,
-  .animate-float-slow,
-  .animate-pulse-slow,
-  .animate-spin-slow,
-  .animate-bounce-slow {
-    animation: none !important;
-  }
   html { scroll-behavior: auto; }
 }
 
-/* ===== MODAL OVERLAY & BODY SCROLL LOCK =====
-   GlobalSearch, login ve diğer modal'larda kullanılır.
-   - body-scroll-lock: Modal açıkken sayfa scroll'unu kilitler
-   - modal-overlay: Arka planı güçlü blur + koyu overlay ile kapatır
-   - backdrop-blur-strong: Daha agresif blur (20px + saturate)
-*/
-body.body-scroll-lock {
-  overflow: hidden !important;
-  /* iOS Safari için: scroll'u tamamen kilitle */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overscroll-behavior: contain;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  animation: modal-overlay-fade-in 0.2s ease-out;
-  will-change: backdrop-filter, background-color;
-}
-
-@keyframes modal-overlay-fade-in {
-  from {
-    background: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px) saturate(100%);
-    -webkit-backdrop-filter: blur(0px) saturate(100%);
-  }
-  to {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(12px) saturate(160%);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
-  }
-}
-
-.backdrop-blur-strong {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-}
-
-/* Firefox fallback: backdrop-filter desteklemeyen tarayıcılar için */
-@supports not ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
-  .modal-overlay {
-    background: rgba(0, 0, 0, 0.85);
-  }
-}
-
-/* Reduced motion: animasyonları kapat */
-@media (prefers-reduced-motion: reduce) {
-  .modal-overlay {
-    animation: none;
-  }
-}
-
-/* ===== BUTTON CONTRAST & VISIBILITY =====
-   Sorun: butonlar beyaz arka planda kayboluyordu (yetersiz kontrast).
-
-   ÖNEMLİ — token formatı: src/styles/tokens.css değişkenleri BARE CHANNEL
-   tutar (`--primary: 0.55 0.18 255`), tam renk değil (shadcn standardı).
-   Bu yüzden her kullanımda `oklch(var(--primary))` şeklinde sarmalanmalı.
-   Opaklık için `oklch(var(--primary) / 0.9)` veya `color-mix(in oklch, ...)`.
-*/
-
-.admin-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  line-height: 1.25rem;
-  /* Dokunmatik erişilebilirlik: min 44px hedef (WCAG 2.2 AA - 2.5.8) */
-  min-height: 44px;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
-    box-shadow 0.2s ease;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-/* Primary — beyaz arka planda net görünürlük için dolu zemin + gölge */
-button.bg-primary,
-.admin-btn-primary {
-  background: oklch(var(--primary));
-  color: oklch(var(--primary-foreground));
-  font-weight: 600;
-  border: 1px solid transparent;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12);
-}
-
-button.bg-primary:hover:not(:disabled),
-.admin-btn-primary:hover:not(:disabled) {
-  background: color-mix(in oklch, oklch(var(--primary)) 88%, black);
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.16);
-}
-
-/* Secondary — muted zemin + görünür kenarlık */
-.admin-btn-secondary {
-  background: oklch(var(--muted));
-  color: oklch(var(--foreground));
-  border: 1px solid oklch(var(--border));
-}
-
-.admin-btn-secondary:hover:not(:disabled) {
-  background: color-mix(in oklch, oklch(var(--muted)) 85%, oklch(var(--foreground)) 15%);
-  border-color: color-mix(in oklch, oklch(var(--border)) 60%, oklch(var(--foreground)) 40%);
-}
-
-/* Outline — şeffaf zemin, kalın primary kenarlık (beyazda kaybolmaz) */
-.admin-btn-outline {
-  background: transparent;
-  color: oklch(var(--primary));
-  border: 1.5px solid oklch(var(--primary));
-}
-
-.admin-btn-outline:hover:not(:disabled) {
-  background: color-mix(in oklch, oklch(var(--primary)) 12%, transparent);
-  color: color-mix(in oklch, oklch(var(--primary)) 85%, black);
-}
-
-/* Ghost */
-.admin-btn-ghost {
-  background: transparent;
-  color: oklch(var(--foreground));
-  border: 1px solid transparent;
-}
-
-.admin-btn-ghost:hover:not(:disabled) {
-  background: oklch(var(--muted));
-}
-
-/* Danger */
-.admin-btn-danger {
-  background: oklch(var(--destructive, 0.55 0.2 25));
-  color: oklch(var(--destructive-foreground, 0.99 0 0));
-  border: 1px solid transparent;
-  box-shadow: 0 2px 4px rgb(0 0 0 / 0.12);
-}
-
-/* Disabled state — tüm buton varyantları için ortak */
-.admin-btn:disabled,
-.admin-btn[aria-disabled='true'],
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-/* Klavye erişilebilirliği: focus ring her varyantta görünür kalsın */
-.admin-btn:focus-visible {
-  outline: 2px solid oklch(var(--primary));
-  outline-offset: 2px;
-}
-
-/* Yüksek kontrast tercihi olan kullanıcılar için kenarlıkları güçlendir */
+/* Yuksek kontrast kullanicilari icin border'lar guclendirilir */
 @media (prefers-contrast: more) {
   .admin-btn-secondary,
   .admin-btn-outline {

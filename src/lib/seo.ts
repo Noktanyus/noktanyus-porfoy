@@ -13,7 +13,12 @@
  * @see https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data
  */
 
-const DEFAULT_BASE_URL = 'http://localhost:3000';
+/**
+ * Tek tip default base URL — development fallback.
+ * Tüm modüller (iyzico, gumroad, lemonsqueezy, vb.) bu sabiti kullanmalı;
+ * tekrar eden literal `'http://localhost:3000'` magic string'lerini önler.
+ */
+export const DEFAULT_BASE_URL = 'http://localhost:3000';
 
 /**
  * Çevre değişkeninden site ana URL'sini güvenli biçimde çözümler.

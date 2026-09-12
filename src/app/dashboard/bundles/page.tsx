@@ -10,6 +10,7 @@ import { FaPlus } from 'react-icons/fa';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { BundleList } from '@/components/dashboard/BundleList';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,21 +26,19 @@ export default async function BundlesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Bundle Ürünlerim</h1>
-          <p className="text-sm text-muted-foreground">
-            Birden fazla dijital ürünü paketleyip indirimli satışa sunun
-          </p>
-        </div>
-        <Link
-          href="/dashboard/bundles/new"
-          className="admin-btn admin-btn-primary inline-flex items-center gap-2 self-start sm:self-auto"
-        >
-          <FaPlus className="w-3 h-3" />
-          Yeni Bundle
-        </Link>
-      </div>
+      <PageHeader
+        title="Bundle Ürünlerim"
+        description="Birden fazla dijital ürünü paketleyip indirimli satışa sunun"
+        actions={
+          <Link
+            href="/dashboard/bundles/new"
+            className="admin-btn admin-btn-primary inline-flex items-center gap-2 self-start sm:self-auto"
+          >
+            <FaPlus className="w-3 h-3" aria-hidden="true" />
+            Yeni Bundle
+          </Link>
+        }
+      />
       <BundleList bundles={bundles as any} />
     </div>
   );

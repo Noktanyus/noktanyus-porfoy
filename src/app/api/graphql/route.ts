@@ -106,7 +106,7 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   } catch (err) {
-    logger.error("[graphql] POST error:", err);
+    logger.error("[graphql] POST error", { error: err as Error });
     return NextResponse.json(
       { errors: [{ message: "Internal server error" }] },
       { status: 500 }

@@ -8,7 +8,9 @@ import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { TaskBoard } from '@/components/dashboard/TaskBoard';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 import Link from 'next/link';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,15 +30,17 @@ export default async function DashboardTasksPage() {
 
   if (memberships.length === 0) {
     return (
-      <div className="glass-card-premium p-12 text-center">
-        <p className="text-5xl mb-3">🗂️</p>
-        <p className="text-lg font-medium mb-2">Workspace&apos;iniz yok</p>
-        <p className="text-sm text-muted-foreground mb-5">
-          Görev yönetimi için önce bir workspace oluşturun.
-        </p>
-        <Link href="/api/workspaces" className="admin-btn admin-btn-primary inline-flex">
-          Workspace Oluştur
-        </Link>
+      <div className="space-y-6">
+        <PageHeader
+          title="Görevler"
+          description="Workspace'lerinde görevleri yönet"
+        />
+        <EmptyState
+          title="Workspace'iniz yok"
+          description="Görev yönetimi için önce bir workspace oluşturun."
+          icon="🗂️"
+          action={{ label: 'Workspace Oluştur', href: '/api/workspaces' }}
+        />
       </div>
     );
   }
@@ -50,13 +54,19 @@ export default async function DashboardTasksPage() {
   });
 
   return (
-    <TaskBoard
-      workspaceId={workspace.id}
-      workspaceName={workspace.name}
-      members={members.map((m) => ({
-        id: m.userId,
-        name: m.userName ?? m.userEmail,
-      }))}
-    />
+    <div className="space-y-6">
+      <PageHeader
+        title="Görevler"
+        description={workspace.name}
+      />
+      <TaskBoard
+        workspaceId={workspace.id}
+        workspaceName={workspace.name}
+        members={members.map((m) => ({
+          id: m.userId,
+          name: m.userName ?? m.userEmail,
+        }))}
+      />
+    </div>
   );
 }

@@ -11,7 +11,7 @@
 import { useLocale } from 'next-intl';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { locales, localeLabels, localeFlags, type Locale } from '@/i18n/config';
+import { locales, localeLabels, type Locale } from '@/i18n/config';
 
 export function LocaleSwitcher() {
   const currentLocale = useLocale();
@@ -60,7 +60,6 @@ export function LocaleSwitcher() {
     [pathname, router]
   );
 
-  const flag = localeFlags[currentLocale as Locale] ?? '🌐';
   const code = (currentLocale as string | undefined)?.toUpperCase() ?? 'TR';
 
   return (
@@ -71,20 +70,18 @@ export function LocaleSwitcher() {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={open ? 'Close language menu' : 'Open language menu'}
-        className="touch-target p-1.5 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300 focus-ring flex items-center gap-1"
+        aria-label={open ? 'Dil menüsünü kapat' : 'Dil menüsünü aç'}
+        title={localeLabels[currentLocale as Locale] ?? code}
+        className="touch-target p-1.5 rounded-full hover:bg-brand-primary/10 transition-all duration-300 focus-ring inline-flex items-center justify-center min-w-[2.5rem]"
       >
-        <span aria-hidden="true" className="text-base leading-none">
-          {flag}
-        </span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300">
+        <span className="text-xs font-bold uppercase tracking-wide text-slate-700 dark:text-slate-200">
           {code}
         </span>
       </button>
       {open && (
         <div
           role="menu"
-          aria-label="Language selection"
+          aria-label="Dil seçimi"
           className="absolute right-0 mt-2 w-44 glass-card-premium z-50 overflow-hidden fade-in"
         >
           {locales.map((loc) => {
@@ -96,19 +93,16 @@ export function LocaleSwitcher() {
                 role="menuitemradio"
                 aria-checked={active}
                 onClick={() => switchTo(loc)}
-                className={`w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center gap-2 text-sm ${
+                className={`w-full text-left px-3 py-2.5 hover:bg-brand-primary/10 transition-colors flex items-center gap-2 text-sm min-h-[44px] ${
                   active
-                    ? 'bg-blue-50/70 dark:bg-blue-900/20 font-semibold text-blue-700 dark:text-blue-300'
+                    ? 'bg-brand-primary/10 font-semibold text-brand-primary'
                     : 'text-gray-800 dark:text-gray-200'
                 }`}
               >
-                <span aria-hidden="true" className="text-base leading-none">
-                  {localeFlags[loc]}
-                </span>
-                <span>{localeLabels[loc]}</span>
-                <span className="ml-auto text-[10px] uppercase tracking-wide text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wide w-7 shrink-0">
                   {loc}
                 </span>
+                <span>{localeLabels[loc]}</span>
               </button>
             );
           })}

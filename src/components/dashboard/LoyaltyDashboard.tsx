@@ -25,6 +25,7 @@ import {
 } from 'react-icons/fa';
 import { toast } from 'react-hot-toast';
 import { formatDateTime } from '@/lib/utils';
+import { EmptyState } from '@/components/ui/EmptyState';
 
 type TierName = 'bronze' | 'silver' | 'gold' | 'platinum';
 
@@ -237,9 +238,14 @@ export function LoyaltyDashboard({ stats }: Props) {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {stats.availableRewards.length === 0 && (
-            <p className="col-span-full text-sm text-muted-foreground text-center py-8">
-              Henuz odul tanimlanmamis. Yakinda eklenecek.
-            </p>
+            <div className="col-span-full">
+              <EmptyState
+                title="Henüz ödül tanımlanmamış"
+                description="Yakında yeni ödüller eklenecek."
+                icon="🎁"
+                variant="inline"
+              />
+            </div>
           )}
           {stats.availableRewards.map((reward) => (
             <div
@@ -305,9 +311,12 @@ export function LoyaltyDashboard({ stats }: Props) {
           Islem Gecmisi
         </h3>
         {stats.transactions.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">
-            Henuz islem yok. Ilk puanini kazanmak icin bir siparis ver!
-          </p>
+          <EmptyState
+            title="Henüz işlem yok"
+            description="İlk puanını kazanmak için bir sipariş ver."
+            icon="🪙"
+            variant="inline"
+          />
         ) : (
           <div className="divide-y divide-border">
             {stats.transactions.map((txn) => {

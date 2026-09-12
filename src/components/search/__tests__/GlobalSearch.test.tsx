@@ -94,11 +94,12 @@ describe('GlobalSearch', () => {
 
   it('fetches results with debounce when at least 2 chars entered', async () => {
     fetchMock.mockResolvedValueOnce({
+      ok: true,
       json: async () => ({
         success: true,
         data: { blog: [], project: [], product: [], plan: [], total: 0 },
       }),
-    } as Response);
+    } as unknown as Response);
 
     render(<GlobalSearch />);
     fireEvent.click(screen.getByRole('button', { name: /aramayı aç/i }));
@@ -119,11 +120,12 @@ describe('GlobalSearch', () => {
 
   it('shows no-results message when API returns empty', async () => {
     fetchMock.mockResolvedValueOnce({
+      ok: true,
       json: async () => ({
         success: true,
         data: { blog: [], project: [], product: [], plan: [], total: 0 },
       }),
-    } as Response);
+    } as unknown as Response);
 
     render(<GlobalSearch />);
     fireEvent.click(screen.getByRole('button', { name: /aramayı aç/i }));
@@ -138,6 +140,7 @@ describe('GlobalSearch', () => {
 
   it('renders results grouped by section when API returns data', async () => {
     fetchMock.mockResolvedValueOnce({
+      ok: true,
       json: async () => ({
         success: true,
         data: {
@@ -168,7 +171,7 @@ describe('GlobalSearch', () => {
           total: 2,
         },
       }),
-    } as Response);
+    } as unknown as Response);
 
     render(<GlobalSearch />);
     fireEvent.click(screen.getByRole('button', { name: /aramayı aç/i }));
@@ -184,6 +187,7 @@ describe('GlobalSearch', () => {
 
   it('navigates to result URL when clicked', async () => {
     fetchMock.mockResolvedValueOnce({
+      ok: true,
       json: async () => ({
         success: true,
         data: {
@@ -204,7 +208,7 @@ describe('GlobalSearch', () => {
           total: 1,
         },
       }),
-    } as Response);
+    } as unknown as Response);
 
     render(<GlobalSearch />);
     fireEvent.click(screen.getByRole('button', { name: /aramayı aç/i }));

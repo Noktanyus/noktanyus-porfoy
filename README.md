@@ -164,6 +164,60 @@ Modern, full-stack Next.js 14 portföy + SaaS + e-ticaret + uptime monitoring pl
 - API Keys (scoped, rate-limited, usage tracking)
 - Webhooks (user-defined)
 
+### 🤖 AI Quick Wins (Sprint 1) + Provider-Agnostic (Sprint 1.5)
+
+- **AI Blog Writer** — `/admin/blog/new` → "AI ile Yaz" butonu
+- **AI Product Description** — `/admin/products/new` → "AI ile Açıklama Oluştur"
+- **Token-Based Quota** — Plan bazlı aylık AI kullanım limiti (Starter 10K, Pro 100K, Enterprise sınırsız)
+- **Premium Tier Gate** — AI features Pro ve Enterprise plan gerektirir
+- **Provider-Agnostic** — OpenAI uyumlu herhangi bir provider (MiniMax, OpenAI, OpenRouter, Mistral, Groq, vb.)
+- **Mock Mode** — 3 env boşsa mock içerik + token kaydı atlanır
+- **Audit Trail** — Her AI generation `AuditLog`'a kaydedilir (`action: AI_GENERATE`)
+- **Usage Dashboard** — `/admin/analytics` → "AI Kullanımı (Bu Ay)" widget'ı
+
+**Setup (Provider-Agnostic):**
+```bash
+# .env'e ekle — bugün MiniMax, yarın başka bir model, sadece 3 env değiştir.
+# 3 env'nin 3'ü de dolu olmalı (mock mode için hepsini boş bırak).
+
+# Örnek 1: MiniMax (kullanıcının tercihi)
+AI_BASE_URL="https://api.minimaxi.com/v1"
+AI_API_KEY="..."
+AI_MODEL="MiniMax-M3"
+
+# Örnek 2: OpenAI native
+AI_BASE_URL="https://api.openai.com/v1"
+AI_API_KEY="sk-..."
+AI_MODEL="gpt-4o"
+
+# Örnek 3: OpenRouter (100+ model)
+AI_BASE_URL="https://openrouter.ai/api/v1"
+AI_API_KEY="sk-or-..."
+AI_MODEL="anthropic/claude-3.5-sonnet"
+
+# Örnek 4: Mistral
+AI_BASE_URL="https://api.mistral.ai/v1"
+AI_API_KEY="..."
+AI_MODEL="mistral-large-latest"
+
+# Opsiyonel: UI badge (default: AI_MODEL değeri)
+AI_PROVIDER_DISPLAY_NAME="MiniMax M3"
+```
+
+**Desteklenen Provider'lar (OpenAI uyumlu API):**
+- MiniMax (default tercih)
+- OpenAI native (gpt-4o, gpt-4o-mini, o1)
+- OpenRouter (Anthropic, Meta, Mistral, Cohere, vb. 100+ model)
+- Mistral AI
+- Groq
+- Together AI
+- LM Studio / Ollama (local)
+
+**API Endpoints:**
+- `POST /api/admin/blog/ai-generate` — `{ prompt, tone, length, language, keywords? }`
+- `POST /api/admin/products/ai-generate-description` — `{ productName, features, variant, language }`
+- `GET /api/user/ai/usage` — Mevcut kullanıcının aylık kullanım özeti
+
 ---
 
 ## Mimari
@@ -624,6 +678,54 @@ Commit formatı: [Conventional Commits](https://www.conventionalcommits.org/)
 (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`, `perf:`, `ci:`).
 
 PR öncesi `npm run lint && npm run type-check && npm test` çalıştırın.
+
+---
+
+## 🛡️ Production Hardening (Sprint 1)
+
+Production audit kapsamında uygulanan güvenlik ve performans sertleştirmeleri:
+
+### Error Handling
+- Tüm API route'ları `withErrorHandling()` wrapper ile sarılı; beklenmeyen
+  hatalar `fail()` üzerinden standart JSON formatına dönüşür.
+- `AppError`, `ValidationError`, `UnauthorizedError`, `ForbiddenError`,
+  `NotFoundError`, `ConflictError`, `RateLimitError` typed error hiyerarşisi.
+- Audit log'lar fire-and-forget (`.catch(() => undefined)`) — ana işlemi
+  BLOKlamaz, hata loglanır.
+
+### Security Headers (defense-in-depth)
+- `Content-Security-Policy` — script-src, frame-ancestors, object-src 'none'
+- `Strict-Transport-Security` — `max-age=63072000; includeSubDomains; preload`
+- `X-Frame-Options: DENY` + `frame-ancestors 'none'`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()`
+- `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Resource-Policy: same-origin`
+- Header'lar hem `middleware.ts` hem `next.config.mjs` üzerinden set edilir.
+
+### Rate Limiting
+- Token bucket algoritması — Redis (dağıtık) + in-memory fallback.
+- Bucket presetleri: `auth`, `login`, `contactForm`, `api`, `adminApi`.
+- `withRateLimit(RateLimits.X, handler)` wrapper ile route bazlı kontrol.
+
+### Database Indexes (Sprint 1 eklenen)
+- `template_purchases.workspaceId` — workspace dashboard
+- `template_purchases(status, createdAt)` — pending purchase cleanup
+- `OAuthAccessToken.revokedAt` + `expiresAt` — cleanup cron
+- `api_keys.revokedAt` — cleanup cron
+- `api_key_usages.statusCode` — monitoring raporlari
+- `chat_messages(senderId, createdAt)` — kullanıcı bazlı mesaj arama
+
+### Audit Logging
+- `logAudit()` — Admin/marketplace/payment işlemleri
+- `logDataAccess()` (fire-and-forget) — KVKK Madde 11 veri erişim
+- Middleware console.info fallback → admin write'lar izlenebilir
+
+### Migration
+```bash
+# Yeni index migration'ını uygula
+npx prisma migrate deploy
+```
 
 ---
 

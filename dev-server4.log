@@ -1,0 +1,57 @@
+
+> portfolio@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3000
+  - Environments: .env
+  - Experiments (use with caution):
+    · instrumentationHook
+
+ ✓ Starting...
+[@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
+[@sentry/nextjs] It seems like you don't have a global error handler set up. It is recommended that you add a 'global-error.js' file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
+[@sentry/nextjs] It appears you've configured a `sentry.edge.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation file instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside of an instrumentation file. Learn more about setting up an instrumentation file in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.edge.config.ts` file afterward.
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Ready in 7.8s
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+ ○ Compiling /src/middleware ...
+ ✓ Compiled /src/middleware in 2.4s (493 modules)
+ ○ Compiling /_not-found ...
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\DumpStack.log.tmp'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\swapfile.sys'
+ ✓ Compiled /_not-found in 14s (2486 modules)
+prisma:info Starting a postgresql pool with 9 connections.
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET / 404 in 14971ms
+ ✓ Compiled in 1518ms (806 modules)
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /hakkimda 404 in 184ms
+prisma:query SELECT "public"."About"."id", "public"."About"."name", "public"."About"."title", "public"."About"."subTitle", "public"."About"."headerTitle", "public"."About"."profileImage", "public"."About"."aboutImage", "public"."About"."content", "public"."About"."contactEmail", "public"."About"."socialGithub", "public"."About"."socialLinkedin", "public"."About"."socialInstagram", "public"."About"."workingOn" FROM "public"."About" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."SeoSettings"."id", "public"."SeoSettings"."siteTitle", "public"."SeoSettings"."siteDescription", "public"."SeoSettings"."siteKeywords", "public"."SeoSettings"."canonicalUrl", "public"."SeoSettings"."robots", "public"."SeoSettings"."favicon", "public"."SeoSettings"."ogTitle", "public"."SeoSettings"."ogDescription", "public"."SeoSettings"."ogImage", "public"."SeoSettings"."ogType", "public"."SeoSettings"."ogUrl", "public"."SeoSettings"."ogSiteName", "public"."SeoSettings"."twitterCard", "public"."SeoSettings"."twitterSite", "public"."SeoSettings"."twitterCreator", "public"."SeoSettings"."twitterTitle", "public"."SeoSettings"."twitterDescription", "public"."SeoSettings"."twitterImage" FROM "public"."SeoSettings" WHERE 1=1 LIMIT $1 OFFSET $2
+prisma:query SELECT "public"."Experience"."id", "public"."Experience"."title", "public"."Experience"."company", "public"."Experience"."date", "public"."Experience"."description", "public"."Experience"."aboutId" FROM "public"."Experience" WHERE "public"."Experience"."aboutId" IN ($1) OFFSET $2
+prisma:query SELECT "public"."Skill"."id", "public"."Skill"."name", "public"."Skill"."icon", "public"."Skill"."aboutId" FROM "public"."Skill" WHERE "public"."Skill"."aboutId" IN ($1) OFFSET $2
+ GET /blog 404 in 69ms
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Parsing of C:\Users\Administrator\Desktop\noktanyus-porfoy\node_modules\next-intl\dist\esm\production\extractor\format\index.js for build dependencies failed at 'import(t(c).href)'.
+<w> Build dependencies behind this expression are ignored and might cause incorrect cache invalidation.
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (132kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (139kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 741ms (1675 modules)
+ GET /api/auth/session 200 in 1858ms
+ ○ Compiling /api/health ...
+ ✓ Compiled /api/health in 896ms (1699 modules)
+prisma:query SELECT 1
+prisma:query SELECT 1
+ GET /api/health 200 in 1019ms
+[?25h

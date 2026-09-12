@@ -1,0 +1,10 @@
+[    4240ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3000/:0
+[    4611ms] EvalError: Evaluating a string as JavaScript violates the following Content Security Policy directive because 'unsafe-eval' is not an allowed source of script: script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://*.cloudflare.com https://mc.yandex.ru https://*.yandex.ru https://mc.yandex.com https://*.yandex.com".
+
+    at (app-pages-browser)/./node_modules/next/dist/compiled/@next/react-refresh-utils/dist/runtime.js (http://localhost:3000/_next/static/chunks/main-app.js?v=1788990817020:50:26)
+    at options.factory (http://localhost:3000/_next/static/chunks/webpack.js?v=1788990817020:715:31)
+    at __webpack_require__ (http://localhost:3000/_next/static/chunks/webpack.js?v=1788990817020:37:33)
+    at __webpack_exec__ (http://localhost:3000/_next/static/chunks/main-app.js?v=1788990817020:2018:61)
+    at http://localhost:3000/_next/static/chunks/main-app.js?v=1788990817020:2019:37
+    at webpackJsonpCallback (http://localhost:3000/_next/static/chunks/webpack.js?v=1788990817020:1387:39)
+    at http://localhost:3000/_next/static/chunks/main-app.js?v=1788990817020:9:61

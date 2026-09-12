@@ -1,202 +1,516 @@
 /**
- * @file Onboarding Service
- * @description Kullanıcının onboarding ilerlemesini DB'de yönetir.
- *              Schema: OnboardingProgress { id, userId, currentStep,
- *              completedSteps, persona, skipped, startedAt, completedAt }
+ * Onboarding Service — Phase D (SaaS Blockers)
+ *
+ * Self-serve user journey:
+ *   1. Register → email verification token issued
+ *   2. Verify email → trial subscription auto-started
+ *   3. Login (with 2FA if enabled)
+ *   4. Password reset via email link
+ *   5. Account lockout on brute-force attempts
+ *
+ * Pattern references:
+ *   - NewsletterSubscriber.verifyToken + verifiedAt → adapted for User
+ *   - src/lib/auth.ts NextAuth CredentialsProvider
+ *   - src/lib/emailService.ts sendEmail helper
+ *   - src/lib/planGate.ts quota + plan lookup
  */
 
-import { prisma } from "@/lib/prisma";
-import {
-  type OnboardingState,
-  type OnboardingStepId,
-  type UserPersona,
-  type OnboardingProgress,
-  isValidPersona,
-  getStepById,
-  getNextStep,
-} from "./schemas";
+import { randomBytes, createHash } from 'crypto';
+import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
+import { hashPassword, verifyPassword } from '@/lib/auth-utils';
+import { sendEmail } from '@/lib/emailService';
+import { logAudit } from '@/lib/audit';
+import { verifyTotp } from '@/lib/twoFactor';
+import { subscriptionSyncService } from '@/modules/commerce/subscriptionSync';
+import type {
+  OnboardingPayload,
+  OnboardingPlan,
+  VerifyEmailInput,
+  ResendVerificationInput,
+  ForgotPasswordInput,
+  ResetPasswordInput,
+  TwoFactorLoginInput,
+} from './schemas';
 
-export const onboardingService = {
-  /**
-   * Kullanıcının onboarding durumunu getirir. Yoksa yeni oluşturur.
-   */
-  async getOrCreate(userId: string): Promise<OnboardingProgress> {
-    const existing = await prisma.onboardingProgress.findUnique({
-      where: { userId },
+// === Token Generation ===
+
+const VERIFY_TOKEN_TTL_HOURS = 24;
+const PASSWORD_RESET_TTL_HOURS = 1;
+const TRIAL_DAYS = 14;
+const MAX_FAILED_LOGINS = 5;
+const LOCKOUT_MINUTES = 15;
+
+export function generateSecureToken(bytes = 32): string {
+  return randomBytes(bytes).toString('hex');
+}
+
+function hashTokenForStorage(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+function expiryFromNow(hours: number): Date {
+  const d = new Date();
+  // setUTCHours sadece integer saat kabul eder; sub-hour degerler
+  // (orn. 0.25 saat = 15 dakika) icin setUTCMilliseconds kullanilir.
+  // Bu sayede LOCKOUT_MINUTES / 60 gibi kesirli saatler dogru eklenir.
+  d.setUTCMilliseconds(d.getUTCMilliseconds() + Math.round(hours * 60 * 60 * 1000));
+  return d;
+}
+
+// === D.1 — Registration ===
+
+export interface RegisterResult {
+  userId: string;
+  email: string;
+  name: string;
+  emailVerificationRequired: boolean;
+}
+
+export async function registerUser(
+  payload: OnboardingPayload,
+  ctx: { ipAddress?: string; userAgent?: string } = {}
+): Promise<RegisterResult> {
+  const existing = await prisma.user.findUnique({
+    where: { email: payload.email },
+    select: { id: true, emailVerified: true },
+  });
+
+  if (existing) {
+    // Idempotent: if user exists but never verified, allow re-register by re-issuing token
+    if (existing.emailVerified) {
+      throw new Error('Bu e-posta zaten kayıtlı. Giriş sayfasına yönlendiriliyorsunuz.');
+    }
+    const token = generateSecureToken();
+    await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        emailVerifyToken: hashTokenForStorage(token),
+        emailVerifyExpires: expiryFromNow(VERIFY_TOKEN_TTL_HOURS),
+      },
+    });
+    await sendVerificationEmail(payload.email, token);
+    return {
+      userId: existing.id,
+      email: payload.email,
+      name: payload.name,
+      emailVerificationRequired: true,
+    };
+  }
+
+  const passwordHash = await hashPassword(payload.password);
+  const token = generateSecureToken();
+
+  const user = await prisma.user.create({
+    data: {
+      email: payload.email,
+      name: payload.name,
+      password: passwordHash,
+      emailVerifyToken: hashTokenForStorage(token),
+      emailVerifyExpires: expiryFromNow(VERIFY_TOKEN_TTL_HOURS),
+    },
+    select: { id: true, email: true, name: true },
+  });
+
+  await sendVerificationEmail(payload.email, token);
+
+  logAudit({
+    action: 'REGISTER',
+    resource: 'user',
+    resourceId: user.id,
+    details: { email: payload.email, planSlug: payload.planSlug },
+    ipAddress: ctx.ipAddress,
+    userAgent: ctx.userAgent,
+  }).catch(() => undefined);
+
+  return {
+    userId: user.id,
+    email: user.email,
+    name: user.name ?? '',
+    emailVerificationRequired: true,
+  };
+}
+
+// === D.1 — Email Verification ===
+
+export interface VerifyEmailResult {
+  userId: string;
+  email: string;
+  trialStarted: boolean;
+}
+
+export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailResult> {
+  const tokenHash = hashTokenForStorage(input.token);
+
+  const user = await prisma.user.findFirst({
+    where: {
+      emailVerifyToken: tokenHash,
+      emailVerifyExpires: { gt: new Date() },
+    },
+    select: { id: true, email: true, trialStartedAt: true },
+  });
+
+  if (!user) {
+    throw new Error('Doğrulama linki geçersiz veya süresi dolmuş. Yeni link talep edin.');
+  }
+
+  const now = new Date();
+  const trialEndsAt = new Date(now);
+  trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + TRIAL_DAYS);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: now,
+        emailVerifyToken: null,
+        emailVerifyExpires: null,
+        trialStartedAt: now,
+        trialEndsAt,
+      },
     });
 
-    if (existing) {
+    // Idempotent trial kaydı — Stripe webhook'unun kullandığı AYNI sözleşmeden
+    // geçer (subscriptionSync.ts). Böylece ileride Stripe aboneliği geldiğinde
+    // upsertUserSubscription bu satırı devralır, kullanıcıda iki paralel
+    // abonelik oluşmaz.
+    const plan = await tx.plan.findUnique({
+      where: { slug: 'starter' },
+      select: { trialDays: true },
+    });
+
+    await subscriptionSyncService.ensureTrialUserSubscription(
+      {
+        userId: user.id,
+        planSlug: 'starter',
+        trialDays: plan?.trialDays ?? TRIAL_DAYS,
+        now,
+      },
+      tx
+    );
+  });
+
+  return {
+    userId: user.id,
+    email: user.email,
+    trialStarted: true,
+  };
+}
+
+export async function resendVerification(
+  input: ResendVerificationInput
+): Promise<{ sent: boolean }> {
+  const user = await prisma.user.findUnique({
+    where: { email: input.email },
+    select: { id: true, emailVerified: true },
+  });
+
+  if (!user || user.emailVerified) {
+    // Always return sent:true to prevent email enumeration
+    return { sent: true };
+  }
+
+  const token = generateSecureToken();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      emailVerifyToken: hashTokenForStorage(token),
+      emailVerifyExpires: expiryFromNow(VERIFY_TOKEN_TTL_HOURS),
+    },
+  });
+
+  await sendVerificationEmail(input.email, token);
+  return { sent: true };
+}
+
+// === D.2 — Password Reset ===
+
+export async function requestPasswordReset(
+  input: ForgotPasswordInput
+): Promise<{ sent: boolean }> {
+  const user = await prisma.user.findUnique({
+    where: { email: input.email },
+    select: { id: true },
+  });
+
+  // Always return sent:true to prevent email enumeration
+  if (!user) return { sent: true };
+
+  const token = generateSecureToken();
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      passwordResetToken: hashTokenForStorage(token),
+      passwordResetExpires: expiryFromNow(PASSWORD_RESET_TTL_HOURS),
+    },
+  });
+
+  await sendPasswordResetEmail(input.email, token);
+  return { sent: true };
+}
+
+export async function resetPassword(input: ResetPasswordInput): Promise<{ ok: true }> {
+  const tokenHash = hashTokenForStorage(input.token);
+
+  const user = await prisma.user.findFirst({
+    where: {
+      passwordResetToken: tokenHash,
+      passwordResetExpires: { gt: new Date() },
+    },
+    select: { id: true, password: true },
+  });
+
+  if (!user) {
+    throw new Error('Sıfırlama linki geçersiz veya süresi dolmuş. Yeni link talep edin.');
+  }
+
+  const passwordHash = await hashPassword(input.password);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      password: passwordHash,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      // Reset any lockout on successful password reset
+      failedLoginCount: 0,
+      lockedUntil: null,
+    },
+  });
+
+  logAudit({
+    userId: user.id,
+    action: 'PASSWORD_RESET',
+    resource: 'user',
+    resourceId: user.id,
+  }).catch(() => undefined);
+
+  return { ok: true };
+}
+
+// === D.7 — Account Lockout ===
+
+export interface LoginAttemptInput {
+  email: string;
+  password: string;
+  ipAddress?: string;
+  userAgent?: string;
+}
+
+export interface LoginAttemptResult {
+  success: boolean;
+  requiresTwoFactor: boolean;
+  userId?: string;
+  reason?: string;
+}
+
+export async function attemptLogin(input: LoginAttemptInput): Promise<LoginAttemptResult> {
+  const user = await prisma.user.findUnique({
+    where: { email: input.email },
+    select: {
+      id: true,
+      password: true,
+      twoFactorEnabled: true,
+      emailVerified: true,
+      failedLoginCount: true,
+      lockedUntil: true,
+    },
+  });
+
+  if (!user || !user.password) {
+    // Timing-safe: still hash to equalize response time
+    await hashPassword('dummy-password-for-timing');
+    return { success: false, requiresTwoFactor: false, reason: 'Geçersiz e-posta veya şifre' };
+  }
+
+  // Lockout check
+  if (user.lockedUntil && user.lockedUntil > new Date()) {
+    const minutesLeft = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000);
+    return {
+      success: false,
+      requiresTwoFactor: false,
+      reason: `Hesap geçici olarak kilitli. ${minutesLeft} dakika sonra tekrar deneyin.`,
+    };
+  }
+
+  if (!user.emailVerified) {
+    return {
+      success: false,
+      requiresTwoFactor: false,
+      reason: 'E-postanız henüz doğrulanmadı. Doğrulama linki gönderdik.',
+    };
+  }
+
+  const passwordValid = await verifyPassword(input.password, user.password);
+  if (!passwordValid) {
+    const newFailedCount = (user.failedLoginCount ?? 0) + 1;
+    const lockout = newFailedCount >= MAX_FAILED_LOGINS;
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginCount: newFailedCount,
+        lockedUntil: lockout ? expiryFromNow(LOCKOUT_MINUTES / 60) : null,
+      },
+    });
+
+    logAudit({
+      userId: user.id,
+      action: 'LOGIN_FAILED',
+      resource: 'user',
+      resourceId: user.id,
+      status: 'failure',
+      details: { reason: 'invalid_password', attemptCount: newFailedCount },
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+    }).catch(() => undefined);
+
+    if (lockout) {
       return {
-        id: existing.id,
-        userId: existing.userId,
-        currentStep: existing.currentStep as OnboardingStepId,
-        completedSteps: existing.completedSteps as OnboardingStepId[],
-        persona: isValidPersona(existing.persona) ? existing.persona : null,
-        skipped: existing.skipped,
-        startedAt: existing.startedAt,
-        completedAt: existing.completedAt,
-        updatedAt: existing.updatedAt,
+        success: false,
+        requiresTwoFactor: false,
+        reason: `Çok fazla hatalı deneme. Hesap ${LOCKOUT_MINUTES} dakika kilitlendi.`,
       };
     }
 
-    const created = await prisma.onboardingProgress.create({
-      data: {
-        userId,
-        currentStep: "welcome",
-        completedSteps: [],
-        persona: null,
-        skipped: false,
-        startedAt: new Date(),
-      },
+    return { success: false, requiresTwoFactor: false, reason: 'Geçersiz e-posta veya şifre' };
+  }
+
+  // Reset failed count on success
+  if (user.failedLoginCount > 0 || user.lockedUntil) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginCount: 0, lockedUntil: null },
     });
+  }
 
-    return {
-      id: created.id,
-      userId: created.userId,
-      currentStep: "welcome",
-      completedSteps: [],
-      persona: null,
-      skipped: false,
-      startedAt: created.startedAt,
-      completedAt: null,
-      updatedAt: created.updatedAt,
-    };
-  },
+  return {
+    success: true,
+    requiresTwoFactor: user.twoFactorEnabled,
+    userId: user.id,
+  };
+}
 
-  /**
-   * Bir step'i tamamlandı olarak işaretle, sonrakine geç.
-   * required:true olan step'leri skip edemez.
-   */
-  async advance(
-    userId: string,
-    completedStepId: OnboardingStepId
-  ): Promise<OnboardingProgress> {
-    const state = await this.getOrCreate(userId);
-    const completed = Array.from(new Set([...state.completedSteps, completedStepId]));
+// === D.5 — 2FA Login Verification ===
 
-    const nextStep = getNextStep(completedStepId);
-    const nextStepId = nextStep?.id ?? "complete";
+export async function verifyLoginTwoFactor(
+  userId: string,
+  input: TwoFactorLoginInput
+): Promise<{ success: boolean; reason?: string }> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { twoFactorSecret: true, twoFactorBackupCodes: true, twoFactorEnabled: true },
+  });
 
-    const updates: Partial<OnboardingState> = {
-      completedSteps: completed,
-      currentStep: nextStepId,
-    };
+  if (!user || !user.twoFactorEnabled) {
+    return { success: false, reason: '2FA aktif değil' };
+  }
 
-    // Eğer "complete" step'ine geldiyse, completedAt set et
-    if (nextStepId === "complete" && !state.completedAt) {
-      updates.completedAt = new Date();
+  if (input.backupCode) {
+    const valid = await verifyBackupCode(input.backupCode, user.twoFactorBackupCodes);
+    if (valid) {
+      await consumeBackupCode(userId, input.backupCode, user.twoFactorBackupCodes);
+      return { success: true };
     }
+    return { success: false, reason: 'Geçersiz yedek kod' };
+  }
 
-    const updated = await prisma.onboardingProgress.update({
-      where: { userId },
-      data: updates,
-    });
+  if (!user.twoFactorSecret) {
+    return { success: false, reason: '2FA secret eksik' };
+  }
 
-    return {
-      id: updated.id,
-      userId: updated.userId,
-      currentStep: updated.currentStep as OnboardingStepId,
-      completedSteps: updated.completedSteps as OnboardingStepId[],
-      persona: isValidPersona(updated.persona) ? updated.persona : null,
-      skipped: updated.skipped,
-      startedAt: updated.startedAt,
-      completedAt: updated.completedAt,
-      updatedAt: updated.updatedAt,
-    };
-  },
+  const ok = verifyTotp(input.code, user.twoFactorSecret);
+  if (!ok) return { success: false, reason: 'Geçersiz 2FA kodu' };
 
-  /**
-   * Tüm onboarding'i skip et.
-   */
-  async skip(userId: string): Promise<OnboardingProgress> {
-    const updated = await prisma.onboardingProgress.update({
-      where: { userId },
-      data: {
-        skipped: true,
-        completedAt: new Date(),
-      },
-    });
+  await prisma.user.update({
+    where: { id: userId },
+    data: { twoFactorVerifiedAt: new Date() },
+  });
 
-    return {
-      id: updated.id,
-      userId: updated.userId,
-      currentStep: "complete",
-      completedSteps: [],
-      persona: isValidPersona(updated.persona) ? updated.persona : null,
-      skipped: true,
-      startedAt: updated.startedAt,
-      completedAt: updated.completedAt,
-      updatedAt: updated.updatedAt,
-    };
-  },
+  return { success: true };
+}
 
-  /**
-   * Kullanıcının persona'sını kaydet.
-   */
-  async setPersona(
-    userId: string,
-    persona: UserPersona
-  ): Promise<OnboardingProgress> {
-    const updated = await prisma.onboardingProgress.update({
-      where: { userId },
-      data: { persona },
-    });
+async function verifyBackupCode(
+  code: string,
+  backupCodesHashes: unknown
+): Promise<boolean> {
+  if (!Array.isArray(backupCodesHashes)) return false;
+  const { createHash } = await import('crypto');
+  const codeHash = createHash('sha256').update(code).digest('hex');
+  return (backupCodesHashes as string[]).includes(codeHash);
+}
 
-    return {
-      id: updated.id,
-      userId: updated.userId,
-      currentStep: updated.currentStep as OnboardingStepId,
-      completedSteps: updated.completedSteps as OnboardingStepId[],
-      persona,
-      skipped: updated.skipped,
-      startedAt: updated.startedAt,
-      completedAt: updated.completedAt,
-      updatedAt: updated.updatedAt,
-    };
-  },
+async function consumeBackupCode(
+  userId: string,
+  code: string,
+  backupCodesHashes: unknown
+): Promise<void> {
+  if (!Array.isArray(backupCodesHashes)) return;
+  const { createHash } = await import('crypto');
+  const codeHash = createHash('sha256').update(code).digest('hex');
+  const updated = (backupCodesHashes as string[]).filter((h) => h !== codeHash);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { twoFactorBackupCodes: updated },
+  });
+}
 
-  /**
-   * Onboarding tamamlanmış mı kontrol et.
-   */
-  async isCompleted(userId: string): Promise<boolean> {
-    const state = await prisma.onboardingProgress.findUnique({
-      where: { userId },
-      select: { completedAt: true, skipped: true },
-    });
-    return state?.completedAt !== null || state?.skipped === true;
-  },
+// === Email Senders (delegated to emailService with inline templates) ===
 
-  /**
-   * Progress yüzdesini hesapla.
-   */
-  async getProgressPercent(userId: string): Promise<number> {
-    const state = await this.getOrCreate(userId);
-    const totalSteps = 4; // welcome, profile, tour, complete
-    const completed = state.completedSteps.length;
-    return Math.round((completed / totalSteps) * 100);
-  },
+async function sendVerificationEmail(email: string, token: string): Promise<void> {
+  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/email-dogrula?token=${token}`;
+  await sendEmail({
+    to: email,
+    subject: 'E-posta adresinizi doğrulayın',
+    html: `
+      <p>Merhaba,</p>
+      <p>Hesabınızı aktifleştirmek için aşağıdaki linke tıklayın:</p>
+      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">E-postamı doğrula</a></p>
+      <p>Bu link 24 saat geçerlidir.</p>
+      <p>Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelin.</p>
+    `,
+    text: `Hesabınızı doğrulamak için: ${url}`,
+  }).catch((err) => {
+    logger.error('[Onboarding] Verification email failed', { error: err, email });
+  });
+}
 
-  /**
-   * Geçerli step'in meta bilgilerini döner.
-   */
-  async getCurrentStepMeta(userId: string) {
-    const state = await this.getOrCreate(userId);
-    const step = getStepById(state.currentStep);
-    return {
-      step,
-      progressPercent: Math.round(
-        (state.completedSteps.length / 4) * 100
-      ),
-      totalSteps: 4,
-      completedCount: state.completedSteps.length,
-    };
-  },
+async function sendPasswordResetEmail(email: string, token: string): Promise<void> {
+  const url = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/sifremi-sifirla?token=${token}`;
+  await sendEmail({
+    to: email,
+    subject: 'Şifre sıfırlama talebi',
+    html: `
+      <p>Merhaba,</p>
+      <p>Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:</p>
+      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">Şifremi sıfırla</a></p>
+      <p>Bu link 1 saat geçerlidir. Eğer bu talebi siz yapmadıysanız, bu e-postayı görmezden gelin.</p>
+    `,
+    text: `Şifrenizi sıfırlamak için: ${url}`,
+  }).catch((err) => {
+    logger.error('[Onboarding] Password reset email failed', { error: err, email });
+  });
+}
 
-  /**
-   * Test/development için: kullanıcının onboarding state'ini sıfırla.
-   */
-  async reset(userId: string): Promise<OnboardingProgress> {
-    await prisma.onboardingProgress.deleteMany({ where: { userId } });
-    return this.getOrCreate(userId);
-  },
-};
+// === Helpers exported for D.1 trial queries ===
+
+export async function isUserInTrial(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { trialStartedAt: true, trialEndsAt: true },
+  });
+  if (!user?.trialStartedAt || !user.trialEndsAt) return false;
+  return user.trialEndsAt > new Date();
+}
+
+export async function getUserTrialDaysRemaining(userId: string): Promise<number> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { trialEndsAt: true },
+  });
+  if (!user?.trialEndsAt) return 0;
+  const ms = user.trialEndsAt.getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+}
+
+// Re-export type for convenience
+export type { OnboardingPlan };

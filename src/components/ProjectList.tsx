@@ -38,43 +38,59 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
       <div className="flex flex-col items-center gap-5 animate-fade-in">
         {/* Glass Search Bar */}
         <div className="w-full max-w-2xl glass-search">
+          <label htmlFor="project-search" className="sr-only">
+            Proje ara
+          </label>
           <div className="relative flex items-center">
-            <FaSearch className="absolute left-5 text-gray-400 dark:text-gray-500 w-4 h-4" />
+            <FaSearch className="absolute left-5 text-slate-400 dark:text-slate-500 w-4 h-4" aria-hidden="true" />
             <input
-              type="text"
+              id="project-search"
+              type="search"
+              inputMode="search"
               placeholder="Proje adı, teknoloji veya anahtar kelime ara..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-5 py-3.5 bg-transparent text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none text-base"
+              className="w-full min-h-[44px] pl-12 pr-5 py-3.5 bg-transparent text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-lg text-base"
+              aria-label="Proje ara"
             />
           </div>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap justify-center gap-2">
+        <div role="group" aria-label="Proje filtreleri" className="flex flex-wrap justify-center gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`glass-pill ${filter === 'all' ? 'active' : ''}`}
+            aria-pressed={filter === 'all'}
+            className={`glass-pill whitespace-nowrap min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${filter === 'all' ? 'active' : ''}`}
           >
             Tüm Projeler
           </button>
           <button
             onClick={() => setFilter('live')}
-            className={`glass-pill ${filter === 'live' ? 'active' : ''}`}
+            aria-pressed={filter === 'live'}
+            className={`glass-pill whitespace-nowrap min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${filter === 'live' ? 'active' : ''}`}
           >
             Canlı Projeler
           </button>
         </div>
 
         {/* Results count */}
-        {(searchTerm || filter !== 'all') && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {filteredProjects.length} proje bulundu
-            {searchTerm && (
-              <span> &mdash; &ldquo;<span className="font-semibold text-brand-primary">{searchTerm}</span>&rdquo;</span>
-            )}
-          </p>
-        )}
+        <p
+          aria-live="polite"
+          aria-atomic="true"
+          className="text-sm text-slate-500 dark:text-slate-400"
+        >
+          {(searchTerm || filter !== 'all') ? (
+            <>
+              {filteredProjects.length} proje bulundu
+              {searchTerm && (
+                <span> &mdash; &ldquo;<span className="font-semibold text-indigo-600 dark:text-indigo-400">{searchTerm}</span>&rdquo;</span>
+              )}
+            </>
+          ) : (
+            <span>{filteredProjects.length} proje listeleniyor</span>
+          )}
+        </p>
       </div>
 
       {/* Project List */}
@@ -86,13 +102,13 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
         </div>
       ) : (
         <div className="glass-card-premium text-center py-16 px-8">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-100/50 dark:bg-gray-800/50 backdrop-blur-sm flex items-center justify-center">
-            <FaSearch className="w-6 h-6 text-gray-400" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-sm flex items-center justify-center">
+            <FaSearch className="w-6 h-6 text-slate-400" aria-hidden="true" />
           </div>
-          <p className="text-lg font-medium text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-2">
             Proje bulunamadı
           </p>
-          <p className="text-sm text-gray-400 dark:text-gray-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
             Farklı anahtar kelimeler deneyin veya filtreyi değiştirin.
           </p>
           {(searchTerm || filter !== 'all') && (
@@ -101,7 +117,7 @@ export default function ProjectList({ allProjects }: ProjectListProps) {
                 setSearchTerm('');
                 setFilter('all');
               }}
-              className="mt-6 px-6 py-2.5 glass-pill active"
+              className="mt-2 px-6 py-2.5 min-h-[44px] glass-pill active focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
             >
               Filtreleri Temizle
             </button>

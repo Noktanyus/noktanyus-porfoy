@@ -24,7 +24,9 @@ export async function GET() {
     const presetId = await userThemeService.getPreference(userId);
     return NextResponse.json({ presetId });
   } catch (err) {
-    logger.warn("[themes-api] GET failed:", err);
+    logger.warn("[themes-api] GET failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ presetId: "default" });
   }
 }
@@ -50,7 +52,9 @@ export async function POST(req: Request) {
     await userThemeService.setPreference(userId, presetId);
     return NextResponse.json({ success: true, presetId });
   } catch (err) {
-    logger.error("[themes-api] POST failed:", err);
+    logger.error("[themes-api] POST failed", {
+      error: err instanceof Error ? err.message : String(err),
+    });
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

@@ -23,7 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <main className="min-h-screen bg-blob-decoration">
+    <div className="min-h-screen bg-blob-decoration">
       <div className="container-responsive py-8 lg:py-12">
         <div className="flex flex-col lg:flex-row gap-6">
           <DashboardSidebar />
@@ -31,6 +31,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </div>
       <OnboardingFlow />
-    </main>
+    </div>
   );
 }

@@ -6,14 +6,21 @@
  */
 
 import { z } from 'zod';
+import { SAAS_SCOPE_NAMES } from '@/lib/saasScopes';
 
 // --- Scopes ---
+// Legacy scope'lar (geriye uyumluluk) + saasScope kataloğu (SaaS API rotaları).
+// `admin` shortcut tüm scope'ları kapsadığı için ayrıca listelenmiştir.
 export const ApiKeyScopeSchema = z.enum([
+  // Legacy monitoring / profile scopes — geriye uyumluluk
   'read:monitor',
   'write:monitor',
   'delete:monitor',
   'read:profile',
   'write:profile',
+  // SaaS scope'ları — saasScopes.ts SAAS_SCOPES ile senkronize
+  ...SAAS_SCOPE_NAMES,
+  // Admin shortcut — tüm scope'ları kapsar
   'admin',
 ]);
 

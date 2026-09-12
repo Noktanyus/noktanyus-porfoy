@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { NewApiKeyForm } from '@/components/dashboard/NewApiKeyForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,12 +16,12 @@ export default async function NewApiKeyPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold">Yeni API Anahtarı</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Programatik erişim için yeni bir anahtar oluşturun
-        </p>
-      </div>
+      <PageHeader
+        title="Yeni API Anahtarı"
+        description="Programatik erişim için yeni bir anahtar oluşturun"
+        backHref="/dashboard/api-keys"
+        backLabel="API Anahtarları"
+      />
       <NewApiKeyForm />
     </div>
   );

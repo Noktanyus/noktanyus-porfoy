@@ -8,6 +8,7 @@
  *   - Owner'ı da member olarak kabul eder (isMember helper)
  */
 
+import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import type { WorkspaceRole } from '@prisma/client';
 
@@ -83,9 +84,9 @@ export class WorkspaceRepository {
     invitedBy: string;
     expiresInDays?: number;
   }) {
-    // 32 karakterlik URL-safe token (Math.random yeterli — bu davet için crypto-grade güvenlik gerekmez,
-    // gerçek prod'da crypto.randomBytes veya uuid kullanılabilir)
-    const token = `inv_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
+    // 48 karakterlik URL-safe token — crypto.randomBytes ile üretilir
+    // (Math.random tahmin edilebilir, davet token brute-force'a açık).
+    const token = `inv_${crypto.randomBytes(24).toString('hex')}`;
     const expiresAt = new Date(Date.now() + (data.expiresInDays ?? 7) * 24 * 60 * 60 * 1000);
 
     return prisma.workspaceInvitation.create({
