@@ -33,11 +33,11 @@
   "crons": [
     {
       "path": "/api/cron/publish-scheduled",
-      "schedule": "0 * * * *"
+      "schedule": "0 3 * * *"
     },
     {
       "path": "/api/cron/webhook-retry",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 15 * * *"
     }
   ],
   "headers": [
