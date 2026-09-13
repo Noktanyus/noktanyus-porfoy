@@ -12,7 +12,6 @@
   "build": {
     "env": {
       "NEXT_TELEMETRY_DISABLED": "1",
-      "PRISMA_GENERATE_DATAPROXY": "false",
       "NODE_ENV": "production",
       "SKIP_ENV_VALIDATION": "1"
     }
