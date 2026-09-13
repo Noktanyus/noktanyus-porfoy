@@ -29,7 +29,7 @@ export const ApiKeyScopeListSchema = z.array(ApiKeyScopeSchema).min(1, 'En az 1 
 // --- Create ---
 export const CreateApiKeySchema = z.object({
   name: z.string().min(1, 'İsim zorunlu').max(100, 'İsim en fazla 100 karakter'),
-  scopes: ApiKeyScopeListSchema.default(['read:monitor']),
+  scopes: ApiKeyScopeListSchema.default(['ai:describe:write']),
   rateLimit: z.number().int().min(1, 'En az 1 istek/dk').max(10000, 'En fazla 10000 istek/dk').default(60),
   monthlyQuota: z.number().int().min(1, 'En az 1').optional().nullable(),
   expiresAt: z.coerce.date().optional().nullable(),

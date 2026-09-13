@@ -51,10 +51,9 @@ const Footer = ({ aboutData }: FooterProps) => {
             className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400"
           >
             {[
-              { href: '/destek', label: 'Destek Ol' },
-              { href: '/randevu', label: 'Randevu' },
-              { href: '/ortaklik', label: 'Affiliate' },
               { href: '/magaza', label: 'Mağaza' },
+              { href: '/docs', label: 'API Docs' },
+              { href: '/iletisim', label: 'İletişim' },
             ].map((link, i, arr) => (
               <span key={link.href} className="inline-flex items-center gap-x-4">
                 <a

@@ -45,10 +45,9 @@ export const PLAN_OPTIONS: PlanOption[] = [
     currency: "try",
     trialDays: 14,
     features: [
-      "10K AI token / ay",
-      "50 AI üretimi / ay",
-      "Temel monitör & API",
-      "E-posta destek",
+      'API erişimi (başlangıç)',
+      'Temel kota',
+      'E-posta destek',
     ],
   },
   {
@@ -60,10 +59,9 @@ export const PLAN_OPTIONS: PlanOption[] = [
     trialDays: 14,
     isFeatured: true,
     features: [
-      "100K AI token / ay",
-      "500 AI üretimi / ay",
-      "Yüksek API kotası",
-      "Öncelikli destek",
+      'Yüksek API kotası',
+      'Öncelikli destek',
+      'Kolay yükseltme',
     ],
   },
   {

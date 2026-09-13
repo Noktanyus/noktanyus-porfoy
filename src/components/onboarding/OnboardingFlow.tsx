@@ -1,11 +1,5 @@
 /**
- * OnboardingFlow — mevcut OnboardingTour yerine gelen çok adımlı (step wizard)
- * onboarding akışı. Profile → Monitor → API Key → Store adımlarını entegre eder.
- *
- *   - SSR güvenli (localStorage erişimi sadece client-side useEffect'te)
- *   - İlk dashboard girişinden ~600ms sonra otomatik görünür
- *   - Skip/Complete localStorage'a yazılır, bir daha gösterilmez
- *   - Progress bar ve adım göstergesi ile kullanıcı yönlendirilir
+ * OnboardingFlow — profil → API anahtarı → mağaza.
  */
 
 'use client';
@@ -17,34 +11,29 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { useOnboardingState, ONBOARDING_STEPS } from '@/hooks/useOnboardingState';
 import ProfileSetupStep from './steps/ProfileSetupStep';
-import FirstMonitorStep from './steps/FirstMonitorStep';
 import ApiKeyStep from './steps/ApiKeyStep';
 import StoreStep from './steps/StoreStep';
 
 const STEP_LABELS: Record<string, { title: string; desc: string }> = {
   welcome: {
     title: 'Hoş geldin!',
-    desc: 'Hızlı bir turla platformu tanıyalım. İhtiyacın olan her şeyi 5 dakikada kur.',
+    desc: 'Hesabını kur, API anahtarını al ve mağazadan ürün veya plan seç.',
   },
   profile: {
     title: 'Profilini kur',
-    desc: 'Adın ve avatarın dashboardda görünecek.',
-  },
-  monitor: {
-    title: 'İlk monitörünü oluştur',
-    desc: 'Web siteni veya API\'ni izlemeye başla. Her 60 saniyede sağlık kontrolü yapılır.',
+    desc: 'Adın dashboardda görünecek.',
   },
   apiKey: {
-    title: 'İlk API anahtarını oluştur',
-    desc: 'Programatik erişim için anahtar üret. Rate limit ve scope\'lar sana ait.',
+    title: 'API anahtarı oluştur',
+    desc: 'Hizmetlere programatik erişim için anahtar üret.',
   },
   store: {
     title: 'Mağazayı keşfet',
-    desc: 'Dijital ürünler ve abonelik planları burada.',
+    desc: 'Hazır paketler veya aylık API / hizmet planları.',
   },
   done: {
     title: 'Hazırsın!',
-    desc: 'Tüm temel ayarlar tamam. İyi çalışmalar.',
+    desc: 'Siparişlerin ve API anahtarların Hesabım panelinde.',
   },
 };
 
@@ -60,7 +49,6 @@ export function OnboardingFlow() {
       setShow(false);
       return;
     }
-    // İlk dashboard girişinden ~600ms sonra göster
     const t = window.setTimeout(() => setShow(true), 600);
     return () => window.clearTimeout(t);
   }, [hydrated, isOpen]);
@@ -68,7 +56,7 @@ export function OnboardingFlow() {
   const handleClose = () => {
     skip();
     setShow(false);
-    toast('Onboarding atlandı. İstediğin zaman ayarlardan yeniden başlatabilirsin.', {
+    toast('Kurulum atlandı. İstediğin zaman Ayarlar’dan devam edebilirsin.', {
       icon: 'ℹ️',
     });
   };
@@ -76,12 +64,7 @@ export function OnboardingFlow() {
   const handleComplete = () => {
     complete();
     setShow(false);
-    toast.success('Tebrikler! Onboarding tamamlandı.');
-  };
-
-  const handleStepNext = (next?: () => void) => {
-    if (next) next();
-    nextStep();
+    toast.success('Kurulum tamamlandı.');
   };
 
   if (!hydrated || !show || !isOpen) return null;
@@ -106,7 +89,7 @@ export function OnboardingFlow() {
             type="button"
             onClick={handleClose}
             className="text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Onboarding'i atla"
+            aria-label="Kurulumu atla"
           >
             <FaTimes />
           </button>
@@ -117,7 +100,6 @@ export function OnboardingFlow() {
         </h2>
         <p className="text-muted-foreground text-sm mb-4">{labels.desc}</p>
 
-        {/* Progress bar */}
         <div className="h-1 w-full bg-muted rounded mb-5 overflow-hidden">
           <div
             className="h-full bg-primary transition-all duration-300"
@@ -126,14 +108,9 @@ export function OnboardingFlow() {
           />
         </div>
 
-        {/* Step content */}
         {currentStep === 'welcome' && (
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="flex-1 admin-btn admin-btn-outline"
-            >
+            <button type="button" onClick={handleClose} className="flex-1 admin-btn admin-btn-outline">
               Atla
             </button>
             <button
@@ -155,27 +132,18 @@ export function OnboardingFlow() {
           />
         )}
 
-        {currentStep === 'monitor' && (
-          <FirstMonitorStep onNext={() => nextStep()} onSkip={handleClose} />
-        )}
-
         {currentStep === 'apiKey' && (
           <ApiKeyStep onNext={() => nextStep()} onSkip={handleClose} />
         )}
 
         {currentStep === 'store' && (
-          <StoreStep
-            onNext={handleComplete}
-            onSkip={handleClose}
-          />
+          <StoreStep onNext={handleComplete} onSkip={handleClose} />
         )}
 
         {currentStep === 'done' && (
           <div className="text-center py-6 space-y-4">
             <FaCheckCircle className="w-16 h-16 mx-auto text-green-500" />
-            <p className="text-sm text-muted-foreground">
-              Dashboard&apos;a yönlendiriliyorsun...
-            </p>
+            <p className="text-sm text-muted-foreground">Hesabına yönlendiriliyorsun...</p>
             <button
               type="button"
               onClick={() => {
@@ -184,12 +152,11 @@ export function OnboardingFlow() {
               }}
               className="admin-btn admin-btn-primary"
             >
-              Dashboard&apos;a Git
+              Panele Git
             </button>
           </div>
         )}
 
-        {/* Back button — welcome ve done hariç */}
         {currentStep !== 'welcome' && currentStep !== 'done' && (
           <div className="mt-4 text-center">
             <button

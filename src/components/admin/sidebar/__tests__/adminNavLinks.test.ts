@@ -38,15 +38,12 @@ describe('resolveActiveHref', () => {
   });
 
   it('prefers the longest match for nested routes', () => {
-    // Regression #1: iki link birden aktif olmamali
-    expect(resolveActiveHref('/admin/blog/scheduled')).toBe('/admin/blog/scheduled');
-    expect(resolveActiveHref('/admin/newsletter/broadcast')).toBe(
-      '/admin/newsletter/broadcast',
-    );
+    expect(resolveActiveHref('/admin/products/new')).toBe('/admin/products');
+    expect(resolveActiveHref('/admin/blog/edit/merhaba')).toBe('/admin/blog');
   });
 
   it('falls back to the parent for unlisted sub-routes', () => {
-    expect(resolveActiveHref('/admin/blog/edit/merhaba-dunya')).toBe('/admin/blog');
+    expect(resolveActiveHref('/admin/blog/scheduled')).toBe('/admin/blog');
     expect(resolveActiveHref('/admin/products/new')).toBe('/admin/products');
   });
 

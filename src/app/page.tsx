@@ -115,7 +115,7 @@ export default async function Home() {
           <AnimatedHero
             name={aboutData?.name ?? 'Yunus Tuğhan'}
             title={aboutData?.title ?? 'Software Developer'}
-            subtitle="// Portföy · SaaS · E-ticaret"
+            subtitle="// Portföy · Paket · API"
             description={
               aboutData?.content ?? 'Akdeniz Üniversitesi Yazılım Geliştirici'
             }

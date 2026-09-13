@@ -20,10 +20,35 @@ export default async function ProductsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/giris');
   const userId = (session.user as { id: string }).id;
+  const email = session.user.email?.trim().toLowerCase() ?? null;
+
+  const customer = email
+    ? await prisma.customer.findFirst({
+        where: { OR: [{ userId }, { email }] },
+        select: { id: true },
+      })
+    : await prisma.customer.findFirst({
+        where: { userId },
+        select: { id: true },
+      });
+
+  const orderWhere = {
+    OR: [
+      { userId },
+      ...(email ? [{ customerEmail: email }] : []),
+      ...(customer ? [{ customerId: customer.id }] : []),
+    ],
+  };
+  const licenseWhere = {
+    OR: [
+      { userId },
+      ...(customer ? [{ customerId: customer.id }] : []),
+    ],
+  };
 
   const [orders, licenses] = await Promise.all([
     prisma.order.findMany({
-      where: { userId },
+      where: orderWhere,
       include: {
         items: {
           include: { product: true },
@@ -32,7 +57,7 @@ export default async function ProductsPage() {
       orderBy: { createdAt: 'desc' },
     }),
     prisma.license.findMany({
-      where: { userId },
+      where: licenseWhere,
       include: { product: true },
       orderBy: { createdAt: 'desc' },
     }),

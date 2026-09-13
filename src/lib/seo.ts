@@ -297,7 +297,8 @@ export interface OpenGraphData {
   description: string;
   url: string;
   image?: string;
-  type?: 'website' | 'article' | 'product';
+  /** Next.js Metadata OpenGraph — 'product' desteklenmez */
+  type?: 'website' | 'article';
   siteName?: string;
   locale?: string;
 }
@@ -370,7 +371,8 @@ export interface MetadataOptions {
   description: string;
   url: string;
   image?: string;
-  type?: 'website' | 'article' | 'product';
+  /** Next.js OpenGraph — 'product' desteklenmez */
+  type?: 'website' | 'article';
   keywords?: string[];
   publishedTime?: string;
   authors?: string[];

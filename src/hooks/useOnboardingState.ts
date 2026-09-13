@@ -1,20 +1,16 @@
 /**
- * @file useOnboardingState — çok adımlı onboarding akışı için localStorage-tabanlı state hook'u.
- * @description
- *   Adım ilerlemesi, atla/tamamla aksiyonları ve progress yüzdesi bu hook üzerinden yönetilir.
- *   SSR güvenli: window yoksa no-op döner, hydration uyumsuzluğu yaşanmaz.
+ * @file useOnboardingState — satış odaklı kısa onboarding.
  */
 
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 
-const STORAGE_KEY = 'onboarding-flow-v1';
+const STORAGE_KEY = 'onboarding-flow-v2';
 
 export type OnboardingStepId =
   | 'welcome'
   | 'profile'
-  | 'monitor'
   | 'apiKey'
   | 'store'
   | 'done';
@@ -28,7 +24,6 @@ export interface OnboardingFlowState {
 const STEPS: OnboardingStepId[] = [
   'welcome',
   'profile',
-  'monitor',
   'apiKey',
   'store',
   'done',
@@ -70,11 +65,8 @@ function writeState(next: OnboardingFlowState) {
 
 export interface UseOnboardingState {
   state: OnboardingFlowState;
-  /** Açılır mı? (completed/skipped ise false) */
   isOpen: boolean;
-  /** İlk mount'ta initialised mi? */
   hydrated: boolean;
-  /** 0..100 yüzde */
   progress: number;
   setStep: (step: OnboardingStepId) => void;
   nextStep: () => void;

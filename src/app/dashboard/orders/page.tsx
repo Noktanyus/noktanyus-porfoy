@@ -18,9 +18,26 @@ export default async function OrdersPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/giris');
   const userId = (session.user as { id: string }).id;
+  const email = session.user.email?.trim().toLowerCase() ?? null;
+
+  const customer = email
+    ? await prisma.customer.findFirst({
+        where: { OR: [{ userId }, { email }] },
+        select: { id: true },
+      })
+    : await prisma.customer.findFirst({
+        where: { userId },
+        select: { id: true },
+      });
 
   const orders = await prisma.order.findMany({
-    where: { userId },
+    where: {
+      OR: [
+        { userId },
+        ...(email ? [{ customerEmail: email }] : []),
+        ...(customer ? [{ customerId: customer.id }] : []),
+      ],
+    },
     include: {
       items: {
         include: { product: true },

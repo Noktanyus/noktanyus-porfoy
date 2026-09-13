@@ -23,21 +23,45 @@ export default async function BillingPage() {
   if (!session?.user) redirect('/giris?callbackUrl=/dashboard/billing');
 
   const userId = (session.user as { id: string }).id;
-  const userEmail = session.user.email ?? '';
+  const userEmail = session.user.email?.trim().toLowerCase() ?? '';
+
+  const customer = userEmail
+    ? await prisma.customer.findFirst({
+        where: { OR: [{ userId }, { email: userEmail }] },
+        select: { id: true },
+      })
+    : await prisma.customer.findFirst({
+        where: { userId },
+        select: { id: true },
+      });
+
+  const orderWhere = {
+    OR: [
+      { userId },
+      ...(userEmail ? [{ customerEmail: userEmail }] : []),
+      ...(customer ? [{ customerId: customer.id }] : []),
+    ],
+  };
+  const licenseWhere = {
+    OR: [
+      { userId },
+      ...(customer ? [{ customerId: customer.id }] : []),
+    ],
+  };
 
   const [subscription, orders, licenses, plans] = await Promise.all([
     prisma.userSubscription.findFirst({
-      where: { userId, status: 'active' },
+      where: { userId, status: { in: ['active', 'trialing'] } },
       orderBy: { createdAt: 'desc' },
     }),
     prisma.order.findMany({
-      where: { userId },
+      where: orderWhere,
       include: { items: true },
       orderBy: { createdAt: 'desc' },
       take: 20,
     }),
     prisma.license.findMany({
-      where: { userId },
+      where: licenseWhere,
       include: { product: true },
       orderBy: { createdAt: 'desc' },
     }),

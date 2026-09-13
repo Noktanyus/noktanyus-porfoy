@@ -17,17 +17,15 @@ import { FaSearch, FaSignOutAlt } from 'react-icons/fa';
 import { OPEN_EVENT } from '@/components/search/GlobalSearch';
 
 export const MOBILE_NAV_LINKS = [
-  { href: '/hakkimda', label: 'Hakkımda' },
-  { href: '/projelerim', label: 'Projelerim' },
-  { href: '/blog', label: 'Blog' },
   { href: '/magaza', label: 'Mağaza' },
+  { href: '/docs', label: 'API' },
+  { href: '/projelerim', label: 'Projeler' },
+  { href: '/blog', label: 'Blog' },
   { href: '/iletisim', label: 'İletişim' },
 ] as const;
 
 const EXTRA_MOBILE_LINKS = [
-  { href: '/randevu', label: 'Randevu' },
-  { href: '/destek', label: 'Destek Ol' },
-  { href: '/ortaklik', label: 'Affiliate' },
+  { href: '/hakkimda', label: 'Hakkımda' },
 ] as const;
 
 interface MobileMenuProps {
@@ -123,7 +121,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 onClick={onClose}
                 className="text-slate-700 dark:text-slate-300 rounded-xl px-4 py-4 text-lg font-medium min-h-[44px] flex items-center hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors border-t border-slate-200 dark:border-slate-700 mt-2 pt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
               >
-                Dashboard
+                Hesabım
               </Link>
               {session.user.role === 'admin' && (
                 <Link

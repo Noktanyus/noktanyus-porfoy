@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { AddToCartButton } from './AddToCartButton';
+import { BuyNowButton } from './BuyNowButton';
 import { formatCurrency } from '@/lib/utils';
 import { productCategoryLabel } from '@/lib/storeCatalog';
 import type { DigitalProduct } from '@prisma/client';
@@ -81,7 +81,7 @@ export function ProductDetail({ product }: { product: DigitalProduct }) {
           <span className="text-sm text-gray-500 dark:text-gray-400">KDV dahil</span>
         </div>
 
-        <AddToCartButton product={product} />
+        <BuyNowButton product={product} />
 
         <div className="mt-6 space-y-3 text-sm">
           <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">

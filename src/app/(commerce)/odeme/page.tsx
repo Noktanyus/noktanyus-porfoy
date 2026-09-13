@@ -1,20 +1,18 @@
 /**
- * @file /odeme — Tek seferlik ürün ödeme sayfası.
- *
- * Faz D:
- *  - Ortalanmış tek başlık yerine `PageHeader` (breadcrumb + "Mağaza" geri
- *    linki). Checkout akışında kullanıcının sepete/mağazaya dönebilmesi
- *    güvenli bir çıkış yolu sağlar.
- *  - Ödeme mantığı `CheckoutForm` içinde; DEĞİŞTİRİLMEDİ.
+ * /odeme — Tek ürün ödeme (?slug=). Sepet yok.
  */
 
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { CheckoutForm } from '@/components/commerce/CheckoutForm';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
 export const metadata: Metadata = {
   title: 'Ödeme',
 };
+
+export const dynamic = 'force-dynamic';
 
 export default function CheckoutPage() {
   return (
@@ -23,12 +21,22 @@ export default function CheckoutPage() {
         <div className="mx-auto max-w-3xl space-y-6">
           <PageHeader
             title="Ödeme"
-            description="Sipariş bilgilerinizi kontrol edip ödemeyi tamamlayın."
-            backHref="/magaza"
-            backLabel="Mağaza"
-            breadcrumb={<span>Mağaza / Ödeme</span>}
+            description="Ürünü kontrol edip ödemeyi tamamlayın."
+            backHref="/magaza/urunler"
+            backLabel="Hazır paketler"
+            breadcrumb={<span>Mağaza / Hazır paketler / Ödeme</span>}
           />
-          <CheckoutForm />
+          <Suspense
+            fallback={
+              <LoadingSkeleton
+                variant="text-line"
+                count={4}
+                loadingLabel="Ödeme formu yükleniyor"
+              />
+            }
+          >
+            <CheckoutForm />
+          </Suspense>
         </div>
       </div>
     </div>

@@ -97,7 +97,7 @@ export function UserMenu() {
             className={itemClass}
           >
             <FaTachometerAlt className="w-4 h-4 shrink-0" aria-hidden="true" />
-            Dashboard
+            Hesabım
           </Link>
           <Link
             href="/dashboard/settings"

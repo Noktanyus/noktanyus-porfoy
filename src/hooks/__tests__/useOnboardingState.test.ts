@@ -1,12 +1,12 @@
 /**
- * useOnboardingState — localStorage-tabanlı çok adımlı onboarding state hook'u için unit testler.
+ * useOnboardingState — satış odaklı onboarding state testleri.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useOnboardingState, ONBOARDING_STEPS } from '../useOnboardingState';
 
-const STORAGE_KEY = 'onboarding-flow-v1';
+const STORAGE_KEY = 'onboarding-flow-v2';
 
 describe('useOnboardingState', () => {
   beforeEach(() => {
@@ -23,7 +23,6 @@ describe('useOnboardingState', () => {
     expect(result.current.state.step).toBe('welcome');
     expect(result.current.state.completed).toBe(false);
     expect(result.current.state.skipped).toBe(false);
-    // hydration effect henüz çalışmamış olabilir
     expect(typeof result.current.hydrated).toBe('boolean');
   });
 
@@ -34,7 +33,6 @@ describe('useOnboardingState', () => {
     );
     const { result } = renderHook(() => useOnboardingState());
 
-    // hydrate edildikten sonra
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         expect(result.current.state.step).toBe('profile');
@@ -54,8 +52,9 @@ describe('useOnboardingState', () => {
   it('nextStep marks completed when reaching final step', () => {
     const { result } = renderHook(() => useOnboardingState());
     act(() => {
-      // welcome → done (5 ileri)
-      for (let i = 0; i < 5; i++) result.current.nextStep();
+      for (let i = 0; i < ONBOARDING_STEPS.length - 1; i++) {
+        result.current.nextStep();
+      }
     });
     expect(result.current.state.step).toBe('done');
     expect(result.current.state.completed).toBe(true);
@@ -65,13 +64,27 @@ describe('useOnboardingState', () => {
   it('prevStep moves to the previous step', () => {
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ step: 'monitor', completed: false, skipped: false })
+      JSON.stringify({ step: 'apiKey', completed: false, skipped: false })
     );
     const { result } = renderHook(() => useOnboardingState());
     return new Promise<void>((resolve) => {
       setTimeout(() => {
         act(() => result.current.prevStep());
         expect(result.current.state.step).toBe('profile');
+        resolve();
+      }, 10);
+    });
+  });
+
+  it('resets invalid stored steps to default', () => {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ step: 'monitor', completed: false, skipped: false })
+    );
+    const { result } = renderHook(() => useOnboardingState());
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        expect(result.current.state.step).toBe('welcome');
         resolve();
       }, 10);
     });

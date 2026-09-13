@@ -1,6 +1,6 @@
 /**
- * Dashboard Layout — kullanıcıya özel alan (monitörler, alert kanalları, vb.).
- * Auth zorunlu, oturum yoksa /giris'e yönlendir.
+ * Dashboard Layout — satış sonrası hesap alanı.
+ * Siparişler, ürünler, API anahtarları, faturalandırma.
  */
 
 import { redirect } from 'next/navigation';
@@ -16,8 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) {
     redirect('/giris');
   }
-  // Admin kullanıcıyı admin panele yönlendir (karışmasın)
-  const role = (session.user as any).role;
+  const role = (session.user as { role?: string }).role;
   if (role === 'admin') {
     redirect('/admin');
   }

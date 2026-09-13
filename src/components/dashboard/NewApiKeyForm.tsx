@@ -19,29 +19,29 @@ interface ScopeOption {
 
 const SCOPES: ScopeOption[] = [
   {
-    value: 'read:monitor',
-    label: 'Monitör Okuma',
-    description: 'GET /api/monitors',
-  },
-  {
-    value: 'write:monitor',
-    label: 'Monitör Yazma',
-    description: 'POST/PATCH /api/monitors',
-  },
-  {
-    value: 'delete:monitor',
-    label: 'Monitör Silme',
-    description: 'DELETE /api/monitors/:id',
-  },
-  {
     value: 'read:profile',
-    label: 'Profil Okuma',
-    description: 'GET /api/user/profile',
+    label: 'Profil okuma',
+    description: 'Hesap bilgisi',
+  },
+  {
+    value: 'ai:describe:write',
+    label: 'API yazma',
+    description: 'Üretim / açıklama endpoint’leri',
+  },
+  {
+    value: 'ai:describe:read',
+    label: 'API okuma',
+    description: 'Sonuç okuma endpoint’leri',
+  },
+  {
+    value: 'ai:bulk:write',
+    label: 'Toplu işlem',
+    description: 'Toplu üretim işleri',
   },
   {
     value: 'admin',
-    label: 'Tam Erişim',
-    description: 'Tüm API endpointleri (önerilmez)',
+    label: 'Tam erişim',
+    description: 'Tüm endpoint’ler (dikkatli kullanın)',
     dangerous: true,
   },
 ];
@@ -60,7 +60,7 @@ export function NewApiKeyForm() {
   const [createdKey, setCreatedKey] = useState<CreatedKeyResponse | null>(null);
   const [form, setForm] = useState({
     name: '',
-    scopes: ['read:monitor'] as string[],
+    scopes: ['ai:describe:write'] as string[],
     rateLimit: 60,
     monthlyQuota: '' as string | number,
   });
@@ -142,7 +142,7 @@ export function NewApiKeyForm() {
             <strong>Örnek kullanım:</strong>
             <pre className="mt-1 font-mono text-[10px] overflow-x-auto">
 {`curl -H "Authorization: Bearer ${createdKey.key}" \\
-  https://yourdomain.com/api/monitors`}
+  https://yourdomain.com/api/saas/describe`}
             </pre>
           </div>
         </div>
@@ -160,7 +160,7 @@ export function NewApiKeyForm() {
               setCreatedKey(null);
               setForm({
                 name: '',
-                scopes: ['read:monitor'],
+                scopes: ['ai:describe:write'],
                 rateLimit: 60,
                 monthlyQuota: '',
               });

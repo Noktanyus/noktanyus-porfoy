@@ -18,7 +18,6 @@ export const INDIVIDUAL_PLANS = [
     trialDays: 14,
     marketing: [
       '1 kullanıcı',
-      'Temel monitör & uyarı',
       'API erişimi (başlangıç kotası)',
       'E-posta destek',
       'İstediğin zaman iptal',
@@ -41,10 +40,9 @@ export const INDIVIDUAL_PLANS = [
     order: 2,
     trialDays: 14,
     marketing: [
-      '1–2 kullanıcı / workspace',
-      'Yüksek API & AI kotası',
+      '1–2 kullanıcı',
+      'Yüksek API kotası',
       'Öncelikli e-posta destek',
-      'Daha fazla monitör',
       'Kolay yükseltme / iptal',
     ],
     limits: {

@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           description: product.shortDescription,
           url: canonicalUrl,
           image: product.thumbnail ?? undefined,
-          type: 'product',
+          type: 'website',
         }) as any,
         twitter: generateTwitterCard({
           title: product.title,

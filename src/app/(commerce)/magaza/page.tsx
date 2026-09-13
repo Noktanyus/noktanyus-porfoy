@@ -9,7 +9,7 @@ import { StoreChannelCards, StoreTrustStrip } from '@/components/commerce/StoreC
 export const metadata: Metadata = {
   title: 'Mağaza',
   description:
-    'Hazır paketler (template, script) ve aylık hizmetler (Bireysel, Profesyonel, Destek+).',
+    'Portföy paketleri ve aylık API hizmetleri. Tek seferlik ürün veya abonelik planı seçin.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -24,16 +24,16 @@ export default function MagazaHubPage() {
       <div className="container-responsive space-responsive">
         <header className="max-w-3xl mx-auto text-center mb-10 sm:mb-14">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
-            Noktanyus Mağaza
+            Mağaza
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-            Ne almak istiyorsunuz?
+            Paket veya API planı
           </h1>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Bireysel kullanım için iki net yol:{' '}
-            <strong className="text-foreground font-semibold">bir kez alıp indirdiğiniz hazır paketler</strong>
-            {' '}veya{' '}
-            <strong className="text-foreground font-semibold">hesabınızla kullandığınız aylık hizmetler</strong>.
+            <strong className="text-foreground font-semibold">Hazır paketler</strong>
+            {' '}tek seferlik;{' '}
+            <strong className="text-foreground font-semibold">API & hizmetler</strong>
+            {' '}aylık abonelikle hesabına bağlanır.
           </p>
         </header>
 

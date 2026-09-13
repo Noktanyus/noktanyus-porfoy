@@ -1,29 +1,21 @@
 'use client';
 
 /**
- * Dashboard Sidebar — kullanıcı dashboard'u için yan navigasyon.
- * Üst kısımda NotificationBell ile bildirim çanı yer alır.
- *
- * Nav item'lar 44px touch target, focus-visible halka, hover/active
- * durumlarinda `bg-muted` veya `bg-primary/10` tint'i ile belirgin.
+ * Dashboard Sidebar — satış odaklı sade navigasyon.
+ * Sipariş, ürün, API anahtarı, fatura, ayarlar.
  */
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FaSatelliteDish,
-  FaBell,
+import {
   FaChartLine,
-  FaChartBar,
   FaUserCog,
   FaArrowLeft,
   FaCreditCard,
   FaBox,
-  FaBoxOpen,
   FaShoppingCart,
-  FaTasks,
-  FaGift,
   FaKey,
-  FaLayerGroup,
+  FaBook,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -34,23 +26,17 @@ interface NavItem {
   label: string;
   icon: IconType;
   exact?: boolean;
+  external?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
-  { href: '/dashboard/monitors', label: 'Monitörler', icon: FaSatelliteDish },
-  { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
-  { href: '/dashboard/workspaces', label: "Workspace'ler", icon: FaLayerGroup },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Satın Aldıklarım', icon: FaBox },
-  { href: '/dashboard/templates', label: 'Template Lisanslarım', icon: FaKey },
-  { href: '/dashboard/bundles', label: 'Bundle Ürünler', icon: FaBoxOpen },
-  { href: '/dashboard/tasks', label: 'Görevler', icon: FaTasks },
-  { href: '/dashboard/reports', label: 'Raporlar', icon: FaChartBar },
-  { href: '/dashboard/affiliate', label: 'Affiliate', icon: FaGift },
-  { href: '/dashboard/loyalty', label: 'Sadakat', icon: FaCreditCard },
+  { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
+  { href: '/docs', label: 'API Dokümantasyon', icon: FaBook },
 ];
 
 export function DashboardSidebar() {
@@ -74,7 +60,7 @@ export function DashboardSidebar() {
         </Link>
         <NotificationBell />
       </div>
-      <h2 className="text-lg font-semibold mb-4">Dashboard</h2>
+      <h2 className="text-lg font-semibold mb-4">Hesabım</h2>
       <nav aria-label="Dashboard" className="space-y-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
