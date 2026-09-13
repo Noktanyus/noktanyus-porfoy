@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "cross-env PRISMA_CLIENT_ENGINE_TYPE=library node ./node_modules/prisma/build/index.js generate --schema=./prisma/schema.prisma && next build",
+    "build": "PRISMA_CLIENT_ENGINE_TYPE=library node ./node_modules/prisma/build/index.js generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint --fix",
     "type-check": "tsc --noEmit",
