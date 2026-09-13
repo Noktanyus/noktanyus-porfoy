@@ -63,6 +63,7 @@
     "nodemailer": "^6.10.1",
     "openai": "^7.8.0",
     "otpauth": "^9.5.1",
+    "prisma": "^6.19.3",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -89,8 +90,7 @@
     "uuid": "^8.3.2",
     "web-push": "^3.6.7",
     "zod": "^3.25.67",
-    "zustand": "^5.0.15",
-    "prisma": "^6.19.2"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.2.30",
