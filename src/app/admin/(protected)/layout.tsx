@@ -105,7 +105,7 @@ function ProtectedAdminLayoutInner({
         variant="page"
         icon="question"
         title="Yetkisiz erişim"
-        description="Bu sayfa yalnızca yönetici hesaplarına açıktır. Yönetici hesabınızla giriş yaptığınızdan emin olun."
+        description="Bu sayfa yalnızca yönetici yetkisi verilen hesaplara açıktır. Yetkiniz varsa çıkış yapıp kendi hesabınızla tekrar giriş yapın."
         action={{ label: 'Giriş Yap', href: '/giris' }}
         secondaryAction={{ label: 'Ana Sayfa', href: '/' }}
       />

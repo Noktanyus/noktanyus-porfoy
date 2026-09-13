@@ -645,6 +645,11 @@ model User {
   image         String?
   emailVerified DateTime?
 
+  // Uygulama rolü: "user" | "admin". Header hesap menüsündeki Yönetim
+  // linki ve /admin koruması bu alana bakılır. Env ADMIN_EMAIL hâlâ
+  // acil durum / ilk kurulum girişi olarak kalır.
+  role String @default("user")
+
   // 2FA (TOTP) alanlari - Phase 5 auth genisletme kapsaminda eklendi.
   twoFactorEnabled     Boolean   @default(false)
   twoFactorSecret      String?
@@ -772,6 +777,7 @@ model User {
 
   @@index([email])
   @@index([referralCode])
+  @@index([role])
 }
 
 /// Theme Preference

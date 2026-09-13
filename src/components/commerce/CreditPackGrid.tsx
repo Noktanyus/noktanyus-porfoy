@@ -4,42 +4,12 @@
  * Ön ödemeli API kredi paketleri — önce yükle, sonra kullan.
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { API_CREDIT_PACKS } from '@/lib/apiCredits';
+import { DS } from '@/lib/design-system';
 
 export function CreditPackGrid() {
-  const router = useRouter();
-  const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
-
-  async function buy(packSlug: string) {
-    setLoadingSlug(packSlug);
-    try {
-      const res = await fetch('/api/checkout/credits', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ packSlug, paymentProvider: 'paytr' }),
-      });
-      const json = await res.json();
-      if (res.status === 401) {
-        toast.error('Kredi yüklemek için giriş yapın');
-        router.push(`/giris?callbackUrl=/magaza/krediler`);
-        return;
-      }
-      if (!res.ok || !json?.data?.url) {
-        toast.error(json?.error?.message ?? 'Ödeme başlatılamadı');
-        return;
-      }
-      window.location.href = json.data.url;
-    } catch {
-      toast.error('Bağlantı hatası');
-    } finally {
-      setLoadingSlug(null);
-    }
-  }
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
       {API_CREDIT_PACKS.map((pack) => {
@@ -76,14 +46,12 @@ export function CreditPackGrid() {
               <li>✓ Önce ödeme, sonra erişim</li>
               <li>✓ Abonelik zorunlu değil</li>
             </ul>
-            <button
-              type="button"
-              onClick={() => buy(pack.slug)}
-              disabled={loadingSlug === pack.slug}
-              className="w-full rounded-xl bg-brand-primary px-4 py-3 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
+            <Link
+              href={`/odeme/kredi?slug=${pack.slug}`}
+              className={`${DS.button.primary} w-full text-center`}
             >
-              {loadingSlug === pack.slug ? 'Yönlendiriliyor…' : 'Kredi yükle'}
-            </button>
+              Kredi yükle
+            </Link>
           </div>
         );
       })}

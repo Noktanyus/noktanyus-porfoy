@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { validateTckn, validateVkn, validateIban, buildInvoicePdf, validatePhone, validatePostalCode, validatePlate, calculateKdv, resolveIbanBank } from '../validators';
+import { validateTckn, validateVkn, validateIban, buildInvoicePdf, validatePhone, validatePostalCode, validatePlate, calculateKdv, resolveIbanBank, validateCardLuhn, validateEan13 } from '../validators';
 
 describe('validateTckn', () => {
   it('rejects wrong length', () => {
@@ -84,5 +84,18 @@ describe('buildInvoicePdf', () => {
       lines: [{ description: 'Hizmet', quantity: 1, unitPriceCents: 10000, vatRate: 20 }],
     });
     expect(pdf.subarray(0, 4).toString()).toBe('%PDF');
+  });
+});
+
+describe('validateCardLuhn', () => {
+  it('accepts Visa test PAN', () => {
+    // common Luhn-valid test number
+    expect(validateCardLuhn('4111111111111111').valid).toBe(true);
+  });
+});
+
+describe('validateEan13', () => {
+  it('accepts known EAN', () => {
+    expect(validateEan13('5901234123457').valid).toBe(true);
   });
 });

@@ -8,9 +8,7 @@ export const USER_PASSWORD = "TestPass123!";
 
 /**
  * Test ortamında admin kullanıcı oluşturur veya var olanı getirir.
- * Not: User şemasında "role" kolonu yok (NextAuth session role kullanır).
- * Bu fonksiyon sadece şifre ve email doğrular; admin yetkisi middleware
- * tarafından kabul edilir (veya testlerde ilgili API'yi bypass ederiz).
+ * User.role = admin; env ADMIN_EMAIL ile sentetik giriş de hâlâ çalışır.
  */
 export async function ensureAdminUser(opts?: {
   email?: string;
@@ -22,7 +20,12 @@ export async function ensureAdminUser(opts?: {
   const name = opts?.name ?? "Test Admin";
 
   const existing = await db().user.findUnique({ where: { email } });
-  if (existing) return existing;
+  if (existing) {
+    if (existing.role !== "admin") {
+      return db().user.update({ where: { id: existing.id }, data: { role: "admin" } });
+    }
+    return existing;
+  }
 
   const hashed = await bcrypt.hash(password, 4);
   return db().user.create({
@@ -31,6 +34,7 @@ export async function ensureAdminUser(opts?: {
       name,
       password: hashed,
       emailVerified: new Date(),
+      role: "admin",
     },
   });
 }

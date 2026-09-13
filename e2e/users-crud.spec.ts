@@ -1,5 +1,5 @@
 import { test, expect, APIRequestContext } from "@playwright/test";
-import { loginViaApi, ApiClient, expectOk, expectFail } from "./helpers";
+import { loginViaApi, ApiClient, expectOk } from "./helpers";
 import { closeDb, db } from "./helpers/db";
 import { ADMIN_EMAIL, ADMIN_PASSWORD, USER_EMAIL, USER_PASSWORD, deleteUser } from "./helpers/auth-server";
 
@@ -18,11 +18,40 @@ test.describe("User Management E2E", () => {
     await closeDb();
   });
 
-  test("admin can list users (via direct DB introspection)", async () => {
-    // /api/admin/users may not exist; use DB level
-    const users = await db().user.findMany();
-    const admin = users.find((u) => u.email === ADMIN_EMAIL);
-    expect(admin).toBeTruthy();
+  test("admin can list users via API", async () => {
+    const res = await client.get<{ users: { email: string }[]; total: number }>("/api/admin/users");
+    const data = expectOk(res);
+    expect(data.total).toBeGreaterThanOrEqual(0);
+    expect(Array.isArray(data.users)).toBe(true);
+  });
+
+  test("admin can grant and revoke account admin role", async () => {
+    const target = await db().user.upsert({
+      where: { email: "update-target@test.local" },
+      update: { role: "user", name: "Original Name" },
+      create: {
+        email: "update-target@test.local",
+        name: "Original Name",
+        emailVerified: new Date(),
+        role: "user",
+      },
+    });
+
+    const granted = await client.patch<{ user: { id: string; role: string } }>(
+      `/api/admin/users/${target.id}`,
+      { role: "admin" },
+    );
+    const grantedData = expectOk(granted);
+    expect(grantedData.user.role).toBe("admin");
+
+    const fromDb = await db().user.findUnique({ where: { id: target.id } });
+    expect(fromDb?.role).toBe("admin");
+
+    const revoked = await client.patch<{ user: { role: string } }>(
+      `/api/admin/users/${target.id}`,
+      { role: "user" },
+    );
+    expect(expectOk(revoked).user.role).toBe("user");
   });
 
   test("admin can update user name via Prisma", async () => {

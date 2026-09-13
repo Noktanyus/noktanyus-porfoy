@@ -17,7 +17,7 @@ export default function GizlilikPage() {
     <div>
       <h1>Gizlilik Politikası</h1>
       <p className="text-sm text-muted-foreground">
-        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+        Son güncelleme: 13 Eylül 2026
       </p>
 
       <h2>1. Genel Bilgilendirme</h2>
@@ -42,8 +42,8 @@ export default function GizlilikPage() {
           (hash&apos;li)
         </li>
         <li>
-          <strong>Ödeme:</strong> Stripe üzerinden işlenir; tarafımızca
-          saklanmaz
+          <strong>Ödeme:</strong> Birincil olarak PayTR üzerinden işlenir; kart
+          bilgileri tarafımızca saklanmaz
         </li>
       </ul>
 
@@ -63,7 +63,12 @@ export default function GizlilikPage() {
       </p>
       <ul>
         <li>
-          <strong>Stripe:</strong> Güvenli ödeme altyapısı (PCI-DSS sertifikalı)
+          <strong>PayTR:</strong> Birincil ödeme altyapısı (yurt içi, PCI-DSS
+          uyumlu)
+        </li>
+        <li>
+          <strong>iyzico / Stripe:</strong> Yalnızca alternatif veya yedek ödeme
+          yöntemi olarak
         </li>
         <li>
           <strong>Cloudflare:</strong> CDN ve güvenlik

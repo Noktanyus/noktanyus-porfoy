@@ -6,6 +6,7 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { shouldRedirectSyntheticAdminFromDashboard } from '@/lib/appRole';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
@@ -16,8 +17,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) {
     redirect('/giris');
   }
-  const role = (session.user as { role?: string }).role;
-  if (role === 'admin') {
+  // Env ile giren sentetik admin'in müşteri hesabı yoktur.
+  // Hesap bazlı admin'ler dashboard'u da kullanır (header'dan Yönetim).
+  if (shouldRedirectSyntheticAdminFromDashboard(session.user.id)) {
     redirect('/admin');
   }
 

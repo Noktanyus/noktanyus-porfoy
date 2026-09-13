@@ -17,7 +17,7 @@ export default function KvkkPage() {
     <div>
       <h1>KVKK Aydınlatma Metni</h1>
       <p className="text-sm text-muted-foreground">
-        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+        Son güncelleme: 13 Eylül 2026
       </p>
 
       <h2>1. Veri Sorumlusu</h2>
@@ -38,7 +38,7 @@ export default function KvkkPage() {
         </li>
         <li>
           <strong>Hesap (varsa):</strong> E-posta, ad-soyad, ödeme bilgileri
-          (Stripe üzerinden işlenir; tarafımızca saklanmaz)
+          (birincil olarak PayTR üzerinden işlenir; tarafımızca saklanmaz)
         </li>
       </ul>
 
@@ -52,10 +52,17 @@ export default function KvkkPage() {
 
       <h2>4. Verilerin Aktarımı</h2>
       <p>
-        Kişisel verileriniz, yurtdışı merkezli hizmet sağlayıcılarla (Stripe,
-        Cloudflare, hosting) sınırlı olarak paylaşılabilir. Bu aktarımlar KVKK
-        Madde 9 kapsamında açık rıza veya sözleşme zorunluluğu çerçevesinde
-        gerçekleştirilir.
+        Ödeme işlemleri, yurt içinde yerleşik ve BDDK lisanslı ödeme kuruluşu{' '}
+        <strong>PayTR</strong> altyapısı üzerinden gerçekleştirilir; bu nedenle
+        ödeme verileri kural olarak Türkiye&apos;de işlenir. PayTR&apos;nin
+        kullanılamadığı durumlarda alternatif/yedek olarak iyzico (yurt içi)
+        veya Stripe (yurt dışı) altyapısı devreye alınabilir.
+      </p>
+      <p>
+        Kişisel verileriniz ayrıca yurtdışı merkezli hizmet sağlayıcılarla
+        (Cloudflare, hosting, analytics) sınırlı olarak paylaşılabilir. Yurt
+        dışına yapılan aktarımlar KVKK Madde 9 kapsamında açık rıza veya
+        sözleşme zorunluluğu çerçevesinde gerçekleştirilir.
       </p>
 
       <h2>5. Veri Saklama Süresi</h2>

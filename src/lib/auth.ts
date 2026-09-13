@@ -11,11 +11,11 @@
  *              SAML SSO: /api/auth/saml endpoint'i ile ayri sekilde calisir
  *              (Identity Provider'lar standart NextAuth akisina uymadigi icin).
  *
- *              - Admin: env.ADMIN_EMAIL + env.ADMIN_PASSWORD ile giriş yapar.
+ *              - Break-glass admin: env.ADMIN_EMAIL + env.ADMIN_PASSWORD.
  *                Bypass riski: ADMIN_PASSWORD bos/trim-bos ise admin login
- *                kabul edilmez (env bos gelirse Next.js defaults'a düşer,
- *                bu durumda bile credentials eslesme kontrolu basarisiz olur).
- *              - User: Prisma User tablosunda bcrypt ile hash'lenmiş şifre kontrolü.
+ *                kabul edilmez.
+ *              - User: Prisma User tablosu + bcrypt. role="admin" ise aynı
+ *                hesap hem dashboard hem yönetim panelini kullanır.
  */
 
 import NextAuth, { type NextAuthOptions, type User as NextAuthUserType } from "next-auth";
@@ -26,6 +26,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
+import {
+  isSyntheticAdminId,
+  normalizeAppRole,
+  ROLE_REFRESH_INTERVAL_MS,
+  SYNTHETIC_ADMIN_ID,
+  type AppRole,
+} from "@/lib/appRole";
 
 if (!env.NEXTAUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET tanımlı değil");
@@ -77,7 +84,7 @@ const providers: NextAuthOptions["providers"] = [
         credentials.password === adminPassword
       ) {
         const adminUser: AuthorizedUser = {
-          id: "admin",
+          id: SYNTHETIC_ADMIN_ID,
           email: env.ADMIN_EMAIL as string,
           name: "Admin",
           role: "admin",
@@ -95,6 +102,7 @@ const providers: NextAuthOptions["providers"] = [
           image: true,
           password: true,
           emailVerified: true,
+          role: true,
         },
       });
 
@@ -114,7 +122,7 @@ const providers: NextAuthOptions["providers"] = [
         email: user.email,
         name: user.name,
         image: user.image,
-        role: "user",
+        role: normalizeAppRole(user.role),
       };
       return regularUser;
     },
@@ -145,14 +153,12 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   );
 }
 
-// Tip-güvenli rol tipi: callback'lerde `as any` cast'lerini kaldırır.
-type AppRole = "admin" | "user";
-
 interface AppToken {
   id?: string;
   email?: string | null;
   name?: string | null;
   role?: AppRole;
+  roleCheckedAt?: number;
   sub?: string;
   [key: string]: unknown;
 }
@@ -181,17 +187,57 @@ export const authOptions: NextAuthOptions = {
       // İlk giriş — user payload'ından token'a bilgi ekle.
       if (user) {
         const u = user as AuthorizedUser;
-        // NextAuth'in JWT tipi `Record<string, unknown>` üzerine kurulu;
-        // bilinmeyen alanları spread ile ekliyoruz.
+        const id = u.id ?? SYNTHETIC_ADMIN_ID;
+        let role: AppRole = isSyntheticAdminId(id)
+          ? "admin"
+          : normalizeAppRole(u.role);
+
+        if (!isSyntheticAdminId(id)) {
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id },
+              select: { role: true },
+            });
+            if (dbUser) role = normalizeAppRole(dbUser.role);
+          } catch {
+            // Geçici DB hatasında credentials/OAuth payload'ındaki rol kalsın.
+          }
+        }
+
         return {
           ...token,
-          id: u.id,
+          id,
           email: u.email,
           name: u.name ?? undefined,
-          role: u.role,
+          role,
+          roleCheckedAt: Date.now(),
         };
       }
-      return token;
+
+      // Oturum yenilemede DB'den rol çek — yetki verildikten sonra
+      // yeniden giriş zorunlu olmasın.
+      const t = token as AppToken;
+      const tokenId = typeof t.id === "string" ? t.id : undefined;
+      if (tokenId && !isSyntheticAdminId(tokenId)) {
+        const lastCheck =
+          typeof t.roleCheckedAt === "number" ? t.roleCheckedAt : 0;
+        if (Date.now() - lastCheck >= ROLE_REFRESH_INTERVAL_MS) {
+          try {
+            const dbUser = await prisma.user.findUnique({
+              where: { id: tokenId },
+              select: { role: true },
+            });
+            if (dbUser) {
+              t.role = normalizeAppRole(dbUser.role);
+            }
+            t.roleCheckedAt = Date.now();
+          } catch {
+            t.roleCheckedAt = Date.now();
+          }
+        }
+      }
+
+      return t;
     },
     async session({ session, token }) {
       const s = session as AppSession;

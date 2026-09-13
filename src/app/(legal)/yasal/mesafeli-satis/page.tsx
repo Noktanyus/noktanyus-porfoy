@@ -16,12 +16,19 @@ export default function MesafeliSatisPage() {
     <div>
       <h1>Mesafeli Satış Sözleşmesi</h1>
       <p className="text-sm text-muted-foreground">
-        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+        Son güncelleme: 13 Eylül 2026
       </p>
 
       <h2>1. Taraflar</h2>
       <p>
         <strong>Satıcı:</strong> Yunus Tuğhan
+      </p>
+      <p>
+        <strong>Site:</strong> noktanyus.com
+      </p>
+      <p>
+        <strong>E-posta:</strong>{' '}
+        <a href="mailto:info@noktanyus.com">info@noktanyus.com</a>
       </p>
       <p>
         <strong>Alıcı:</strong> Sözleşmeyi elektronik ortamda onaylayan müşteri
@@ -60,9 +67,14 @@ export default function MesafeliSatisPage() {
 
       <h2>5. Ödeme</h2>
       <p>
-        Ödeme Stripe altyapısı ile güvenli olarak gerçekleştirilir. Kredi kartı
-        bilgileri sitemizde saklanmaz; doğrudan Stripe&apos;ın PCI-DSS
-        sertifikalı altyapısına iletilir.
+        Ödemeler, yurt içi ödeme kuruluşu <strong>PayTR</strong> altyapısı ile
+        güvenli olarak gerçekleştirilir. Kredi kartı bilgileri sitemizde
+        saklanmaz; doğrudan PayTR&apos;nin PCI-DSS uyumlu altyapısına iletilir.
+      </p>
+      <p>
+        PayTR&apos;nin kullanılamadığı durumlarda alternatif/yedek ödeme
+        yöntemi olarak iyzico veya Stripe altyapısı sunulabilir. Hangi
+        altyapının kullanıldığı ödeme adımında belirtilir.
       </p>
 
       <h2>6. Cayma Hakkı</h2>
@@ -82,7 +94,9 @@ export default function MesafeliSatisPage() {
       <ul>
         <li>Ürün değişimi</li>
         <li>Alternatif ürün sunumu</li>
-        <li>Para iadesi (Stripe üzerinden, 14 iş günü içinde)</li>
+        <li>
+          Para iadesi (ödemenin yapıldığı altyapı üzerinden, 14 iş günü içinde)
+        </li>
       </ul>
 
       <h2>8. KVKK ve Gizlilik</h2>

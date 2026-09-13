@@ -49,7 +49,7 @@ export default async function BillingPage() {
     ],
   };
 
-  const [subscription, orders, licenses, plans] = await Promise.all([
+  const [subscription, orders, licenses, plans, user] = await Promise.all([
     prisma.userSubscription.findFirst({
       where: { userId, status: { in: ['active', 'trialing'] } },
       orderBy: { createdAt: 'desc' },
@@ -69,13 +69,17 @@ export default async function BillingPage() {
       where: { active: true },
       orderBy: { order: 'asc' },
     }),
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { apiCreditBalance: true },
+    }),
   ]);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Faturalandırma"
-        description="Abonelik ve siparişlerin"
+        description="Abonelik, kredi bakiyesi ve siparişlerin"
       />
       <BillingOverview
         subscription={subscription}
@@ -83,6 +87,7 @@ export default async function BillingPage() {
         licenses={licenses}
         plans={plans}
         userEmail={userEmail}
+        apiCreditBalance={user?.apiCreditBalance ?? 0}
       />
     </div>
   );

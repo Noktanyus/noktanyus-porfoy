@@ -1,15 +1,17 @@
 /**
  * /magaza — Satış hub’ı (bireysel kullanıcı odaklı).
- * İki kanal: Hazır paketler (tek sefer) + Aylık hizmetler (abonelik).
+ * Birincil teklif: TR yardımcı API — aylık plan veya ön ödemeli kredi.
+ * İkincil kanal: hazır dijital paketler.
  */
 
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { StoreChannelCards, StoreTrustStrip } from '@/components/commerce/StoreChannelCards';
 
 export const metadata: Metadata = {
   title: 'Mağaza',
   description:
-    'Portföy paketleri ve aylık API hizmetleri. Tek seferlik ürün veya abonelik planı seçin.',
+    'TR yardımcı API’yi aylık planla veya ön ödemeli kredi ile kullan. Hazır dijital paketler ikincil kanal olarak sunulur.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -27,13 +29,21 @@ export default function MagazaHubPage() {
             Mağaza
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-            Paket veya API planı
+            TR yardımcı API — plan veya kredi
           </h1>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            <strong className="text-foreground font-semibold">Hazır paketler</strong>
-            {' '}tek seferlik;{' '}
-            <strong className="text-foreground font-semibold">API & hizmetler</strong>
-            {' '}aylık abonelikle hesabına bağlanır.
+            Doğrulama, KDV/tevkifat, kıdem, iş günü ve PDF uçları tek bir API key ile açılır. İki
+            ödeme yolu var:{' '}
+            <strong className="text-foreground font-semibold">aylık plan</strong> ile sabit kota,{' '}
+            <strong className="text-foreground font-semibold">API kredisi</strong> ile kullandığın
+            kadar.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            API dışında küçük bir{' '}
+            <Link href="/magaza/urunler" className="text-brand-primary font-medium hover:underline">
+              hazır paket
+            </Link>{' '}
+            kanalı da var — şablon ve script’ler için.
           </p>
         </header>
 

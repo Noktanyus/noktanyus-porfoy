@@ -1,83 +1,130 @@
-'use client';
-
 /**
- * Mağaza iki satış kanalı — bireysel kullanıcıya net dil.
- * Hazır paketler (tek sefer) | Aylık hizmetler (abonelik)
+ * Mağaza satış kanalları.
+ * Birincil teklif: TR yardımcı API — aylık plan (Bireysel/Profesyonel) veya ön ödemeli kredi.
+ * İkincil kanal: hazır dijital paketler.
  */
 
 import Link from 'next/link';
-import { FaBoxOpen, FaCalendarCheck, FaArrowRight, FaDownload, FaKey, FaHeadset } from 'react-icons/fa';
+import { FaBoxOpen, FaCalendarCheck, FaCoins, FaArrowRight, FaKey, FaHeadset } from 'react-icons/fa';
+import { INDIVIDUAL_PLANS } from '@/lib/individualPlans';
+import { API_CREDIT_PACKS } from '@/lib/apiCredits';
+import { formatCurrency } from '@/lib/utils';
 
-const CHANNELS = [
-  {
-    href: '/magaza/urunler',
-    title: 'Hazır paketler',
-    eyebrow: 'Tek seferlik',
-    description:
-      'Portföy şablonları, script ve dijital paketler. Bir kez al, indir, kullan.',
-    points: ['Şablon & PayTR starter', 'TR SDK & KVKK metinleri', 'Anında indirme + lisans'],
-    icon: FaBoxOpen,
-    accent: 'from-slate-900 via-sky-900 to-teal-800',
-    cta: 'Paketlere bak',
-  },
+const trNumber = (value: number) => value.toLocaleString('tr-TR');
+
+/** Kotalı planlar (Destek+ sınırsız olduğu için vitrin özetinde yer almaz) */
+const QUOTA_PLANS = INDIVIDUAL_PLANS.filter(
+  (plan) => typeof (plan.limits as Record<string, number>).apiRequestsPerMonth === 'number'
+);
+
+const planEntryPrice = Math.min(...INDIVIDUAL_PLANS.map((plan) => plan.priceCents));
+const creditEntryPack = API_CREDIT_PACKS.reduce((cheapest, pack) =>
+  pack.priceCents < cheapest.priceCents ? pack : cheapest
+);
+
+const PRIMARY_CHANNELS = [
   {
     href: '/magaza/abonelikler',
-    title: 'API & hizmetler',
-    eyebrow: 'Aylık abonelik',
+    title: 'Aylık API planı',
+    eyebrow: 'Sabit kota · en çok tercih edilen',
+    price: `${formatCurrency(planEntryPrice, 'try')} / ay’dan başlar`,
     description:
-      'API erişimi ve hesap özellikleri. Bireysel, Profesyonel veya Destek+ seç.',
-    points: ['Tevkifat · kıdem · iş günü', 'E-posta MX & fatura PDF', 'İstediğin zaman iptal'],
+      'TR yardımcı API’ye tek bir API key ile bağlan: doğrulama, KDV/tevkifat, kıdem, iş günü ve PDF. Kotan her ay yenilenir.',
+    points: [
+      ...QUOTA_PLANS.map(
+        (plan) =>
+          `${plan.name}: ${trNumber(
+            (plan.limits as Record<string, number>).apiRequestsPerMonth
+          )} istek / ay`
+      ),
+      'API key ödeme sonrası açılır',
+      'İstediğin zaman iptal',
+    ],
     icon: FaCalendarCheck,
-    accent: 'from-slate-900 via-emerald-900 to-lime-800',
-    cta: 'Planları gör',
+    accent: 'from-slate-900 via-emerald-900 to-teal-800',
+    cta: 'Planları karşılaştır',
+  },
+  {
+    href: '/magaza/krediler',
+    title: 'API kredisi',
+    eyebrow: 'Kullandığın kadar · aboneliksiz',
+    price: `${formatCurrency(creditEntryPack.priceCents, creditEntryPack.currency)}’dan başlar`,
+    description:
+      'Düzenli kotaya ihtiyacın yoksa bakiye yükle, aynı API’yi istek başına kullan. Bakiyenin süresi dolmaz.',
+    points: [
+      `En küçük paket: ${trNumber(creditEntryPack.credits)} kredi`,
+      '1 kredi = 1 başarılı istek',
+      'Abonelik zorunlu değil',
+    ],
+    icon: FaCoins,
+    accent: 'from-slate-900 via-amber-900 to-orange-800',
+    cta: 'Kredi yükle',
   },
 ] as const;
 
 export function StoreChannelCards() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-      {CHANNELS.map((ch) => {
-        const Icon = ch.icon;
-        return (
-          <Link
-            key={ch.href}
-            href={ch.href}
-            className="group relative overflow-hidden rounded-3xl min-h-[320px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-          >
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${ch.accent} transition-transform duration-500 group-hover:scale-[1.02]`}
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.12),transparent_55%)]" aria-hidden="true" />
-            <div className="relative z-10 flex h-full flex-col p-7 sm:p-9 text-white">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-xs font-semibold uppercase tracking-[0.14em] text-white/70">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {PRIMARY_CHANNELS.map((ch) => {
+          const Icon = ch.icon;
+          const PointIcon = ch.href.includes('kredi') ? FaCoins : FaKey;
+          return (
+            <Link
+              key={ch.href}
+              href={ch.href}
+              className="group relative overflow-hidden rounded-3xl min-h-[300px] flex flex-col justify-end p-6 sm:p-8 text-white shadow-lg transition hover:scale-[1.01] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${ch.accent}`} aria-hidden />
+              <div className="absolute inset-0 bg-black/20" aria-hidden />
+              <div className="relative z-10">
+                <p className="text-xs font-semibold uppercase tracking-wider text-white/80 mb-2 flex items-center gap-2">
+                  <Icon className="opacity-90" aria-hidden />
                   {ch.eyebrow}
-                </span>
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-1">{ch.title}</h2>
+                <p className="text-sm font-semibold text-white mb-3">{ch.price}</p>
+                <p className="text-sm text-white/85 mb-4 max-w-sm">{ch.description}</p>
+                <ul className="space-y-1.5 text-sm text-white/90 mb-5">
+                  {ch.points.map((p) => (
+                    <li key={p} className="flex items-center gap-2">
+                      <PointIcon className="shrink-0 opacity-70" aria-hidden />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+                <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                  {ch.cta}
+                  <FaArrowRight className="transition group-hover:translate-x-1" aria-hidden />
                 </span>
               </div>
-              <h2 className="mt-6 text-3xl sm:text-4xl font-bold tracking-tight">{ch.title}</h2>
-              <p className="mt-3 text-sm sm:text-base text-white/80 max-w-md leading-relaxed">
-                {ch.description}
-              </p>
-              <ul className="mt-6 space-y-2 text-sm text-white/85">
-                {ch.points.map((p) => (
-                  <li key={p} className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-white/80" aria-hidden="true" />
-                    {p}
-                  </li>
-                ))}
-              </ul>
-              <span className="mt-auto pt-8 inline-flex items-center gap-2 text-sm font-semibold">
-                {ch.cta}
-                <FaArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
-              </span>
-            </div>
-          </Link>
-        );
-      })}
+            </Link>
+          );
+        })}
+      </div>
+
+      <Link
+        href="/magaza/urunler"
+        className="group flex flex-col sm:flex-row sm:items-center gap-4 rounded-2xl border border-border/60 bg-background/60 px-5 py-4 transition hover:border-brand-primary/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
+      >
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted">
+          <FaBoxOpen className="h-4 w-4 text-foreground" aria-hidden />
+        </span>
+        <span className="flex-1 min-w-0">
+          <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            İkincil kanal · tek seferlik
+          </span>
+          <span className="block font-semibold text-foreground">Hazır paketler</span>
+          <span className="block text-sm text-muted-foreground mt-0.5">
+            API dışında kalan küçük dijital paketler: şablon, script ve hazır metin setleri. Bir kez
+            al, indir, kullan.
+          </span>
+        </span>
+        <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary shrink-0">
+          Paketlere bak
+          <FaArrowRight className="transition group-hover:translate-x-1" aria-hidden />
+        </span>
+      </Link>
     </div>
   );
 }
@@ -87,19 +134,19 @@ export function StoreTrustStrip() {
     <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
       {[
         {
-          icon: FaDownload,
-          title: 'Anında teslim',
-          text: 'Hazır paketlerde lisans ve indirme linki ödeme sonrası gelir.',
+          icon: FaKey,
+          title: 'Aynı API, iki ödeme yolu',
+          text: 'Aylık plan sabit kota verir, kredi istek başına düşer. İkisi birlikte de çalışır.',
         },
         {
-          icon: FaKey,
-          title: 'Kolay erişim',
-          text: 'Aylık hizmetlerde API key ve özellikler hesabına bağlanır.',
+          icon: FaCoins,
+          title: 'Önce yükle, sonra kullan',
+          text: 'Plan kotası veya kredi bakiyesi olmadan API isteği açılmaz.',
         },
         {
           icon: FaHeadset,
           title: 'Tek satıcı',
-          text: 'Tüm paket ve hizmetler Noktanyus tarafından yayınlanır.',
+          text: 'Planlar, krediler ve hazır paketler Noktanyus tarafından yayınlanır.',
         },
       ].map((item) => {
         const Icon = item.icon;
@@ -116,5 +163,3 @@ export function StoreTrustStrip() {
     </div>
   );
 }
-
-export default StoreChannelCards;

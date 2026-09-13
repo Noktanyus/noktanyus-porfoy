@@ -19,9 +19,9 @@
  *  - src/modules/shared/errors → ValidationError, NotFoundError, ...
  *
  * NOT: Admin rolu "user.role === 'admin'" semasi ile kontrol edilir.
- * Session katmanindan gelen user objesinin sahip oldugu rol (NextAuth
- * credentials provider uzerinden env.ADMIN_EMAIL match) "admin" string'i
- * olarak tasinir. rbac.ts workspace rolleri ile karismamalidir.
+ * Session katmanindan gelen user objesinin sahip oldugu rol (User.role
+ * veya env ADMIN_EMAIL break-glass girisi) "admin" string'i olarak tasinir.
+ * rbac.ts workspace rolleri ile karismamalidir.
  */
 
 import { randomBytes } from 'crypto';

@@ -19,6 +19,7 @@ interface PageProps {
     tip?: string;
     sub?: string;
     mock_sub?: string;
+    credits?: string;
   };
 }
 
@@ -39,6 +40,7 @@ export default function SuccessPage({ searchParams }: PageProps) {
   const isPaytr = Boolean(searchParams.paytr);
   const isTip = searchParams.tip === '1';
   const isSub = searchParams.sub === '1' || searchParams.mock_sub === '1';
+  const isCredits = Boolean(searchParams.credits);
 
   if (iyzicoError) {
     return (
@@ -68,17 +70,21 @@ export default function SuccessPage({ searchParams }: PageProps) {
     ? 'Desteğiniz Alındı'
     : isSub
       ? 'Abonelik Ödemesi Alındı'
-      : 'Ödemeniz Başarılı';
+      : isCredits
+        ? 'Kredi Yüklemeniz Alındı'
+        : 'Ödemeniz Başarılı';
 
   const description = isTip
     ? 'Teşekkürler. Destek ödemeniz PayTR üzerinden alındı.'
     : isSub
-      ? 'Dönem ödemeniz alındı. Aboneliğiniz aktifleştirildi. Otomatik yenileme yoktur; süre bitince yeniden ödeme yapabilirsiniz.'
-      : iyzicoSuccess
-        ? 'iyzico üzerinden ödemeniz tamamlandı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'
-        : isPaytr
-          ? 'PayTR üzerinden ödemeniz alındı. Sipariş onayı e-posta ile gelir; lisanslar kısa sürede hesabınıza yansır.'
-          : 'Siparişiniz alındı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.';
+      ? 'Dönem ödemeniz PayTR üzerinden alındı. Aboneliğiniz aktifleştirildi. Otomatik yenileme yoktur; süre bitince yeniden ödeme yapabilirsiniz.'
+      : isCredits
+        ? 'PayTR üzerinden ödemeniz alındı. API kredileriniz hesabınıza tanımlandı; bakiyenizi faturalandırma sayfasından takip edebilirsiniz.'
+        : iyzicoSuccess
+          ? 'iyzico üzerinden ödemeniz tamamlandı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.'
+          : isPaytr
+            ? 'PayTR üzerinden ödemeniz alındı. Sipariş onayı e-posta ile gelir; lisanslar kısa sürede hesabınıza yansır.'
+            : 'Siparişiniz alındı. Lisans anahtarları ve fatura e-posta adresinize gönderildi.';
 
   return (
     <div className="container-responsive">
@@ -91,8 +97,20 @@ export default function SuccessPage({ searchParams }: PageProps) {
             title={title}
             description={description}
             action={{
-              label: isTip ? 'Ana Sayfa' : isSub ? 'Dashboard' : 'Siparişlerime Git',
-              href: isTip ? '/' : isSub ? '/dashboard' : '/dashboard/orders',
+              label: isTip
+                ? 'Ana Sayfa'
+                : isSub
+                  ? 'Dashboard'
+                  : isCredits
+                    ? 'Kredi Bakiyem'
+                    : 'Siparişlerime Git',
+              href: isTip
+                ? '/'
+                : isSub
+                  ? '/dashboard'
+                  : isCredits
+                    ? '/dashboard/billing'
+                    : '/dashboard/orders',
             }}
             secondaryAction={{ label: 'Alışverişe Devam', href: '/magaza' }}
             className="w-full"

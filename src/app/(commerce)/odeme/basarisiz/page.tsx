@@ -14,18 +14,22 @@ interface PageProps {
   searchParams: {
     tip?: string;
     sub?: string;
+    credits?: string;
   };
 }
 
 export default function FailPage({ searchParams }: PageProps) {
   const isTip = searchParams.tip === '1';
   const isSub = searchParams.sub === '1';
+  const isCredits = searchParams.credits === '1';
 
   const description = isTip
     ? 'Destek ödemesi tamamlanamadı. Kartınızdan çekim olmadıysa tekrar deneyebilirsiniz.'
     : isSub
       ? 'Abonelik ödemesi tamamlanamadı. Tekrar deneyebilir veya fiyatlandırma sayfasından plan seçebilirsiniz.'
-      : 'Ödeme tamamlanamadı. 3D Secure iptal edilmiş veya banka işlemi reddetmiş olabilir.';
+      : isCredits
+        ? 'Kredi yükleme tamamlanamadı. Krediniz hesabınıza tanımlanmadı; kartınızdan çekim olmadıysa tekrar deneyebilirsiniz.'
+        : 'Ödeme tamamlanamadı. 3D Secure iptal edilmiş veya banka işlemi reddetmiş olabilir.';
 
   return (
     <div className="container-responsive">
@@ -38,8 +42,20 @@ export default function FailPage({ searchParams }: PageProps) {
             title="Ödeme Tamamlanamadı"
             description={description}
             action={{
-              label: isTip ? 'Destek Sayfası' : isSub ? 'Aylık hizmetler' : 'Ürüne dön',
-              href: isTip ? '/destek' : isSub ? '/magaza/abonelikler' : '/magaza/urunler',
+              label: isTip
+                ? 'Destek Sayfası'
+                : isSub
+                  ? 'Aylık hizmetler'
+                  : isCredits
+                    ? 'Kredilere dön'
+                    : 'Ürüne dön',
+              href: isTip
+                ? '/destek'
+                : isSub
+                  ? '/magaza/abonelikler'
+                  : isCredits
+                    ? '/magaza/krediler'
+                    : '/magaza/urunler',
             }}
             secondaryAction={{ label: 'Mağaza', href: '/magaza' }}
             className="w-full"

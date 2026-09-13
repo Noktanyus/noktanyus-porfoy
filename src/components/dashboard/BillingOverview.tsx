@@ -72,6 +72,7 @@ interface BillingOverviewProps {
   licenses: License[];
   plans: Plan[];
   userEmail: string;
+  apiCreditBalance?: number;
 }
 
 const TABS: ReadonlyArray<{ id: Tab; label: string }> = [
@@ -86,6 +87,7 @@ export function BillingOverview({
   licenses,
   plans,
   userEmail,
+  apiCreditBalance = 0,
 }: BillingOverviewProps) {
   const [selectedTab, setSelectedTab] = useState<Tab>('overview');
 
@@ -163,6 +165,26 @@ export function BillingOverview({
 
       {selectedTab === 'overview' && (
         <div id="panel-overview" role="tabpanel" className="space-y-6">
+          <div className="glass-card-premium p-5 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400">
+                API kredi bakiyesi
+              </p>
+              <p className="text-2xl font-bold tabular-nums mt-1">
+                {apiCreditBalance.toLocaleString('tr-TR')} kredi
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                1 kredi = 1 istek · önce yükle, sonra kullan
+              </p>
+            </div>
+            <a
+              href="/magaza/krediler"
+              className="rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              Kredi yükle
+            </a>
+          </div>
+
           {subscription && <ActiveSubscriptionCard subscription={subscription} onManage={handleManageSubscription} />}
 
           <div>

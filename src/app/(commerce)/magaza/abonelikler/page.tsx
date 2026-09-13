@@ -1,5 +1,6 @@
 /**
- * /magaza/abonelikler — Aylık hizmetler (Bireysel / Profesyonel / Destek+).
+ * /magaza/abonelikler — TR yardımcı API aylık planları.
+ * Vitrin sırası: Bireysel → Profesyonel (Destek+ ek hizmet olarak sunulur).
  */
 
 import { Metadata } from 'next';
@@ -10,8 +11,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const metadata: Metadata = {
-  title: 'Aylık Hizmetler',
-  description: 'Bireysel, Profesyonel ve Destek+ planları — kolay abonelik, istediğin zaman iptal.',
+  title: 'API Planları',
+  description:
+    'TR yardımcı API aylık planları: Bireysel 1.000, Profesyonel 10.000 istek. API key anında açılır, istediğin zaman iptal.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -30,8 +32,8 @@ export default async function MagazaAboneliklerPage() {
   return (
     <div className="container-responsive space-responsive">
       <PageHeader
-        title="Aylık hizmetler"
-        description="Tek kişi veya küçük iş için sade paketler. Kartla başla, istediğin zaman iptal et."
+        title="API planları"
+        description="TR yardımcı API için aylık sabit kota. Ödeme sonrası API key açılır, istediğin zaman iptal edersin."
         backHref="/magaza"
         backLabel="Mağaza"
         breadcrumb={
@@ -40,23 +42,25 @@ export default async function MagazaAboneliklerPage() {
               Mağaza
             </Link>
             <span className="mx-1.5 opacity-60">/</span>
-            <span className="text-foreground">Aylık hizmetler</span>
+            <span className="text-foreground">API planları</span>
           </span>
         }
       />
 
       <div className="rounded-2xl border border-border/60 bg-muted/20 px-5 py-4 mb-8 text-sm text-muted-foreground max-w-3xl">
         <p>
-          <strong className="text-foreground font-medium">Bireysel</strong> ile başlayın, ihtiyaç
-          artınca <strong className="text-foreground font-medium">Profesyonel</strong> veya kurulum
-          yardımı için <strong className="text-foreground font-medium">Destek+</strong> seçin.
+          <strong className="text-foreground font-medium">Bireysel</strong> aylık 1.000 istekle
+          başlar; hacim artınca{' '}
+          <strong className="text-foreground font-medium">Profesyonel</strong> 10.000 isteğe çıkarır.
+          Kurulum yardımı ve danışmanlık gerekiyorsa{' '}
+          <strong className="text-foreground font-medium">Destek+</strong> ek hizmet olarak eklenir.
         </p>
         <p className="mt-2">
-          İndirmeli template / script için{' '}
-          <Link href="/magaza/urunler" className="text-brand-primary font-medium hover:underline">
-            Hazır paketler
-          </Link>
-          .
+          Düzenli kota yerine istek başına ödemeyi tercih ediyorsan{' '}
+          <Link href="/magaza/krediler" className="text-brand-primary font-medium hover:underline">
+            API kredisi
+          </Link>{' '}
+          al. Plan kotası bitince krediler devreye girer.
         </p>
       </div>
 
@@ -69,20 +73,20 @@ export default async function MagazaAboneliklerPage() {
           description={
             loadFailed
               ? 'Liste geçici olarak alınamadı. Biraz sonra tekrar deneyin.'
-              : 'Şu an yayında aylık plan yok. İletişime geçerek özel teklif alabilirsiniz.'
+              : 'Şu an yayında aylık plan yok. Aynı API’yi ön ödemeli kredi ile kullanmaya devam edebilirsiniz.'
           }
-          action={{ label: 'İletişim', href: '/iletisim' }}
-          secondaryAction={{ label: 'Hazır paketler', href: '/magaza/urunler' }}
+          action={{ label: 'API kredisi al', href: '/magaza/krediler' }}
+          secondaryAction={{ label: 'İletişim', href: '/iletisim' }}
           className="max-w-xl mx-auto"
         />
       )}
 
       <p className="mt-10 text-center text-sm text-muted-foreground max-w-xl mx-auto">
-        Kurumsal / özel SLA ihtiyacınız mı var?{' '}
+        Vitrinde yalnızca bireysel ve küçük ekip planları yer alır. Özel kota veya SLA gerekiyorsa{' '}
         <Link href="/iletisim" className="text-brand-primary font-medium hover:underline">
-          İletişime geçin
+          iletişime geçin
         </Link>
-        — vitrinde yalnızca bireysel ve kolay hizmet paketleri yer alır.
+        .
       </p>
     </div>
   );

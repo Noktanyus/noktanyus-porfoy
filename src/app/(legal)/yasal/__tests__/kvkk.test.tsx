@@ -33,4 +33,23 @@ describe('KVKK Page', () => {
     render(<KvkkPage />);
     expect(screen.getByText(/Son güncelleme:/i)).toBeInTheDocument();
   });
+
+  it('renders a fixed last-updated date instead of the current date', () => {
+    render(<KvkkPage />);
+    expect(
+      screen.getByText('Son güncelleme: 13 Eylül 2026')
+    ).toBeInTheDocument();
+  });
+
+  it('names PayTR as the primary payment processor', () => {
+    const { container } = render(<KvkkPage />);
+    expect(container.textContent).toMatch(/birincil olarak PayTR/);
+  });
+
+  it('mentions iyzico and Stripe only as fallback processors', () => {
+    const { container } = render(<KvkkPage />);
+    expect(container.textContent).toMatch(
+      /alternatif\/yedek olarak iyzico .* veya Stripe/
+    );
+  });
 });

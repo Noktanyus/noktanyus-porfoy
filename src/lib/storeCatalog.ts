@@ -1,5 +1,7 @@
 /**
- * Mağaza katalog sabitleri — sanal ürün + API abonelik.
+ * Mağaza katalog sabitleri.
+ * Vitrin birincil teklifi: TR yardımcı API — aylık plan (Bireysel/Profesyonel) + ön ödemeli kredi.
+ * Sanal ürün kategorileri ikincil "hazır paket" kanalını besler; backend tipleri korunur.
  */
 
 export type ProductCategoryValue =
@@ -18,24 +20,27 @@ export interface StoreCategoryOption {
   channel: 'product' | 'subscription';
 }
 
-/** Sanal ürün (tek seferlik) kategorileri */
+/**
+ * Hazır paket (tek seferlik, indirmeli) kategorileri — ikincil kanal.
+ * Hiçbiri API kotası içermez; API erişimi plan veya kredi ile satılır.
+ */
 export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
   {
     value: 'template',
-    label: 'Template',
-    description: 'Hazır proje / UI template’leri',
+    label: 'Şablon',
+    description: 'Hazır proje / UI şablonu — indirilir, API kotası yok',
     channel: 'product',
   },
   {
     value: 'script',
     label: 'Script',
-    description: 'Tek dosya veya küçük araç script’leri',
+    description: 'Tek dosya veya küçük araç script’i',
     channel: 'product',
   },
   {
     value: 'starter',
-    label: 'Starter',
-    description: 'PayTR / mağaza başlangıç kitleri',
+    label: 'Başlangıç kiti',
+    description: 'Ödeme / mağaza kurulumu için başlangıç kiti',
     channel: 'product',
   },
   {
@@ -46,40 +51,49 @@ export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
   },
   {
     value: 'boilerplate',
-    label: 'Boilerplate',
-    description: 'Çoklu katmanlı hazır iskelet',
+    label: 'İskelet proje',
+    description: 'Çoklu katmanlı hazır proje iskeleti',
     channel: 'product',
   },
   {
     value: 'api',
-    label: 'API paketi',
-    description: 'İndirmeli SDK / entegrasyon paketleri',
+    label: 'SDK paketi',
+    description: 'İndirmeli SDK / örnek entegrasyon — API kotası ayrı satılır',
     channel: 'product',
   },
   {
     value: 'general',
     label: 'Genel',
-    description: 'Diğer dijital ürünler',
+    description: 'Diğer dijital paketler',
     channel: 'product',
   },
 ];
 
-/** Abonelik hizmet türleri */
+/**
+ * Abonelik hizmet türleri — vitrin sırası birincil teklifi yansıtır.
+ * api_access + api_credits ana teklif; support/consulting ek hizmettir.
+ */
 export const SUBSCRIPTION_SERVICE_TYPES = [
   {
     value: 'api_access',
-    label: 'TR yardımcı API',
-    description: 'Doğrulama · KDV/tevkifat · kıdem · iş günü · PDF — API key + kota',
+    label: 'TR yardımcı API planı',
+    description:
+      'Ana teklif — API key + aylık sabit kota (Bireysel 1.000 / Profesyonel 10.000 istek)',
+  },
+  {
+    value: 'api_credits',
+    label: 'API kredisi',
+    description: 'Ana teklif — ön ödemeli bakiye, 1 kredi = 1 istek, aboneliksiz',
   },
   {
     value: 'support',
     label: 'Destek+',
-    description: 'Öncelikli destek ve kurulum yardımı',
+    description: 'Ek hizmet — öncelikli destek ve kurulum yardımı',
   },
   {
     value: 'consulting',
     label: 'Danışmanlık',
-    description: 'Aylık danışmanlık saati (Destek+)',
+    description: 'Ek hizmet — aylık danışmanlık saati (Destek+)',
   },
 ] as const;
 

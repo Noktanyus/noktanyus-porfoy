@@ -72,7 +72,7 @@ export async function creditApiBalance(input: {
         balanceAfter: updated.apiCreditBalance,
         reason: input.reason,
         orderId: input.orderId ?? null,
-        metadata: input.metadata ?? undefined,
+        metadata: (input.metadata as object | undefined) ?? undefined,
       },
     });
     return { balanceAfter: updated.apiCreditBalance, ledgerId: ledger.id };

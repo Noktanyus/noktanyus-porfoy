@@ -17,7 +17,7 @@ export default function CerezPolitikasiPage() {
     <div>
       <h1>Çerez Politikası</h1>
       <p className="text-sm text-muted-foreground">
-        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+        Son güncelleme: 13 Eylül 2026
       </p>
 
       <h2>1. Çerez Nedir?</h2>
@@ -53,7 +53,12 @@ export default function CerezPolitikasiPage() {
       </p>
       <ul>
         <li>
-          <strong>Stripe:</strong> Güvenli ödeme için zorunlu çerezler
+          <strong>PayTR:</strong> Güvenli ödeme için zorunlu çerezler (birincil
+          ödeme altyapısı)
+        </li>
+        <li>
+          <strong>iyzico / Stripe:</strong> Yalnızca alternatif/yedek ödeme
+          yöntemi kullanıldığında
         </li>
         <li>
           <strong>Cloudflare:</strong> Güvenlik ve performans çerezleri

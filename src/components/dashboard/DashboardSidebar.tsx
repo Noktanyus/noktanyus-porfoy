@@ -7,6 +7,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   FaChartLine,
   FaUserCog,
@@ -16,6 +17,7 @@ import {
   FaShoppingCart,
   FaKey,
   FaBook,
+  FaShieldAlt,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -41,6 +43,8 @@ const NAV_ITEMS: NavItem[] = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === 'admin';
 
   return (
     <aside
@@ -85,6 +89,19 @@ export function DashboardSidebar() {
             </Link>
           );
         })}
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className={cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg text-sm min-h-[44px] transition-colors mt-2',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+              'text-indigo-700 dark:text-indigo-300 font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/30',
+            )}
+          >
+            <FaShieldAlt className="w-4 h-4" aria-hidden="true" />
+            Yönetim
+          </Link>
+        )}
       </nav>
     </aside>
   );

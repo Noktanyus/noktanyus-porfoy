@@ -9,6 +9,7 @@ import { DS } from '@/lib/design-system';
 import { FormField } from '@/components/ui/FormField';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
+import { postLoginRedirect } from '@/lib/appRole';
 
 export function LoginForm() {
   const router = useRouter();
@@ -63,15 +64,10 @@ export function LoginForm() {
 
       // Session'ı yeniden oku çünkü signIn callback'inde JWT yeni oluşmuş olabilir.
       const session = await getSession();
-      const role = (session?.user as { role?: string } | undefined)?.role;
+      const userId = session?.user?.id;
 
       toast.success('Başarıyla giriş yaptınız!');
-
-      if (role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push(callbackUrl);
-      }
+      router.push(postLoginRedirect(userId, callbackUrl));
       router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Giriş başarısız';

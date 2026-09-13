@@ -496,9 +496,85 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
     }),
   ]);
 
-  // ====== Digital Products (hibrit katalog — paket + TR API tamamlayıcıları) ======
+  // ====== Digital Products ======
+  //
+  // Mağaza vitrini (/magaza/urunler) bilinçli olarak DAR tutuluyor: sadece
+  // satışa hazır 2 ürün `active: true`. Sebep — ProductRepository.findActive
+  // yalnızca active kayıtları listeler, dolayısıyla vitrinde ne varsa
+  // "satın alınabilir ve teslim edilebilir" olmak zorunda.
+  //
+  // Yayında olan 2 ürün:
+  //   1. paytr-checkout-starter  (₺149, category: starter)
+  //   2. tr-validation-sdk       (₺79,  category: api)
+  //
+  // Kalan kayıtlar `active: false` ile duruyor — silinmediler ki geçmiş
+  // sipariş/lisans referansları ve ürün metinleri kaybolmasın. Dosyası R2'ye
+  // yüklenip fiyatı netleşen ürün admin panelinden (veya buradan) aktif edilir.
   await prisma.digitalProduct.createMany({
     data: [
+      // --- YAYINDA: 1/2 — PayTR başlangıç kiti ---
+      {
+        slug: 'paytr-checkout-starter',
+        title: 'PayTR Checkout Starter',
+        shortDescription: 'Next.js + PayTR Direkt API örnek akış. Hash, callback, başarılı/başarısız sayfalar.',
+        description: `Türkiye pazarı için PayTR entegrasyon starter paketi.
+
+## Dahil
+- PayTR Direkt API hash / token örnekleri
+- Checkout + callback route iskeleti
+- Başarılı / başarısız sayfa şablonları
+- .env.example ve kurulum README (TR)
+- KVKK çerez banner iskeleti
+
+PayTR hesabı ve canlı anahtarlar dahil değildir.`,
+        thumbnail: '/images/products/paytr-starter.webp',
+        fileUrl: 'r2:noktanyus/products/paytr-checkout-starter.zip',
+        fileName: 'paytr-checkout-starter.zip',
+        fileSize: 1843200,
+        priceCents: 14900,
+        currency: 'try',
+        technologies: ['Next.js', 'PayTR', 'TypeScript'],
+        category: 'starter',
+        version: '1.0.0',
+        active: true,
+        featured: true,
+        order: 1,
+        downloadCountMax: 5,
+        ttlHours: 168,
+      },
+      // --- YAYINDA: 2/2 — TR API/SDK paketi ---
+      {
+        slug: 'tr-validation-sdk',
+        title: 'TR Validation SDK (TypeScript)',
+        shortDescription: 'TCKN, VKN, IBAN, telefon, posta, plaka, KDV — zero-dep TypeScript paket.',
+        description: `Self-host veya npm’e alabileceğin TR doğrulama kütüphanesi.
+
+## Fonksiyonlar
+- validateTckn / validateVkn / validateIban
+- validatePhone / validatePostalCode / validatePlate
+- calculateKdv / resolveIbanBank
+- Vitest suite + TypeScript types
+
+Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
+        thumbnail: '/images/products/tr-sdk.webp',
+        fileUrl: 'r2:noktanyus/products/tr-validation-sdk.zip',
+        fileName: 'tr-validation-sdk.zip',
+        fileSize: 524288,
+        priceCents: 7900,
+        currency: 'try',
+        technologies: ['TypeScript', 'Vitest'],
+        // 'api' = "API paketi / indirmeli SDK" (src/lib/storeCatalog.ts).
+        // Vitrindeki iki ürünün kategorisi böylece ayrışıyor: starter + api.
+        category: 'api',
+        version: '1.0.0',
+        active: true,
+        featured: true,
+        order: 2,
+        downloadCountMax: 10,
+        ttlHours: 336,
+      },
+
+      // --- PASİF: aşağıdakiler vitrinde görünmez (active: false) ---
       {
         slug: 'nextjs-saas-starter',
         title: 'Next.js 14 SaaS Starter Kit',
@@ -524,34 +600,8 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         technologies: ['Next.js', 'TypeScript', 'Prisma', 'PostgreSQL', 'Stripe'],
         category: 'starter',
         version: '1.0.0',
-        featured: true,
-        downloadCountMax: 5,
-        ttlHours: 168,
-      },
-      {
-        slug: 'paytr-checkout-starter',
-        title: 'PayTR Checkout Starter',
-        shortDescription: 'Next.js + PayTR Direkt API örnek akış. Hash, callback, başarılı/başarısız sayfalar.',
-        description: `Türkiye pazarı için PayTR entegrasyon starter paketi.
-
-## Dahil
-- PayTR Direkt API hash / token örnekleri
-- Checkout + callback route iskeleti
-- Başarılı / başarısız sayfa şablonları
-- .env.example ve kurulum README (TR)
-- KVKK çerez banner iskeleti
-
-PayTR hesabı ve canlı anahtarlar dahil değildir.`,
-        thumbnail: '/images/products/paytr-starter.webp',
-        fileUrl: 'r2:noktanyus/products/paytr-checkout-starter.zip',
-        fileName: 'paytr-checkout-starter.zip',
-        fileSize: 1843200,
-        priceCents: 14900,
-        currency: 'try',
-        technologies: ['Next.js', 'PayTR', 'TypeScript'],
-        category: 'starter',
-        version: '1.0.0',
-        featured: true,
+        active: false,
+        featured: false,
         downloadCountMax: 5,
         ttlHours: 168,
       },
@@ -569,35 +619,10 @@ PayTR hesabı ve canlı anahtarlar dahil değildir.`,
         technologies: ['Next.js', 'Tailwind CSS', 'Framer Motion'],
         category: 'template',
         version: '2.1.0',
-        featured: true,
+        active: false,
+        featured: false,
         downloadCountMax: 3,
         ttlHours: 168,
-      },
-      {
-        slug: 'tr-validation-sdk',
-        title: 'TR Validation SDK (TypeScript)',
-        shortDescription: 'TCKN, VKN, IBAN, telefon, posta, plaka, KDV — zero-dep TypeScript paket.',
-        description: `Self-host veya npm’e alabileceğin TR doğrulama kütüphanesi.
-
-## Fonksiyonlar
-- validateTckn / validateVkn / validateIban
-- validatePhone / validatePostalCode / validatePlate
-- calculateKdv / resolveIbanBank
-- Vitest suite + TypeScript types
-
-Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
-        thumbnail: '/images/products/tr-sdk.webp',
-        fileUrl: 'r2:noktanyus/products/tr-validation-sdk.zip',
-        fileName: 'tr-validation-sdk.zip',
-        fileSize: 524288,
-        priceCents: 7900,
-        currency: 'try',
-        technologies: ['TypeScript', 'Vitest'],
-        category: 'library',
-        version: '1.0.0',
-        featured: true,
-        downloadCountMax: 10,
-        ttlHours: 336,
       },
       {
         slug: 'kvkk-legal-pack',
@@ -621,6 +646,7 @@ Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
         technologies: ['Markdown'],
         category: 'general',
         version: '1.0.0',
+        active: false,
         featured: false,
         downloadCountMax: 10,
         ttlHours: 720,
@@ -639,6 +665,7 @@ Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
         technologies: ['React', 'TypeScript', 'Tailwind CSS'],
         category: 'library',
         version: '3.0.0',
+        active: false,
         featured: false,
         downloadCountMax: 5,
         ttlHours: 168,
@@ -657,6 +684,7 @@ Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
         technologies: ['Node.js', 'Express', 'TypeScript', 'Prisma'],
         category: 'boilerplate',
         version: '1.5.0',
+        active: false,
         featured: false,
         downloadCountMax: 5,
         ttlHours: 168,
@@ -679,12 +707,26 @@ Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
         technologies: ['TypeScript', 'Node.js'],
         category: 'script',
         version: '1.0.0',
+        active: false,
         featured: false,
         downloadCountMax: 8,
         ttlHours: 336,
       },
     ],
   });
+
+  // ====== TemplateListing (/marketplace) — bilinçli olarak seed edilmiyor ======
+  //
+  // /marketplace vitrini TemplateListing okur, ama oradaki satın alma akışı
+  // (POST /api/templates/checkout) slug → Gumroad product_id / Lemon Squeezy
+  // variant_id eşlemesini GUMROAD_PRODUCT_MAP veya LEMONSQUEEZY_PRODUCT_MAP
+  // env'inden çözer. Eşleme yoksa checkout "ürün eşlemesi yok" ile düşer.
+  //
+  // Yani buraya template kaydı eklemek, satın alınamayan bir vitrin üretir.
+  // Gerçek Gumroad/Lemon ürünü açılıp product map env'i doldurulduktan sonra
+  // template'ler admin panelinden (/admin/templates/new) eklenmeli.
+  // Şu an satılabilir template teklifi DigitalProduct olarak /magaza/urunler
+  // üzerinden sunuluyor (yukarıdaki 2 aktif ürün).
 
   // ====== Plans — bireysel merdiven (slug'lar onboarding ile uyumlu) ======
   for (const plan of INDIVIDUAL_PLANS) {
@@ -821,7 +863,7 @@ Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
   console.log(`   - Skill: 10`);
   console.log(`   - Project: ${projects.length} (featured: ${projects.filter(p => p.featured).length})`);
   console.log(`   - Blog: ${blogs.length}`);
-  console.log(`   - DigitalProduct: 4`);
+  console.log(`   - DigitalProduct: 9 (yayında 2: paytr-checkout-starter, tr-validation-sdk)`);
   console.log(`   - Plan: 3`);
   console.log(`   - Testimonial: 3`);
   console.log(`   - Coupon: 2`);

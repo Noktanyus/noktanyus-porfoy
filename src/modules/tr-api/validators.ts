@@ -308,3 +308,77 @@ function textToSimplePdf(text: string): Buffer {
   pdf += `startxref\n${xrefPos}\n%%EOF`;
   return Buffer.from(pdf, 'utf8');
 }
+
+/** Kart numarası Luhn (PAN) — kart tipi tahmini yok, CVV yok */
+export function validateCardLuhn(raw: string): {
+  valid: boolean;
+  normalized: string;
+  reason?: string;
+} {
+  const normalized = raw.replace(/[\s-]/g, '');
+  if (!/^\d{13,19}$/.test(normalized)) {
+    return { valid: false, normalized, reason: 'Kart numarası 13–19 haneli olmalıdır' };
+  }
+  let sum = 0;
+  let alt = false;
+  for (let i = normalized.length - 1; i >= 0; i--) {
+    let n = Number(normalized[i]);
+    if (alt) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+    alt = !alt;
+  }
+  if (sum % 10 !== 0) {
+    return { valid: false, normalized, reason: 'Luhn kontrolü başarısız' };
+  }
+  return { valid: true, normalized };
+}
+
+/** IMEI: 15 hane Luhn */
+export function validateImei(raw: string): { valid: boolean; normalized: string; reason?: string } {
+  const normalized = raw.replace(/\s+/g, '');
+  if (!/^\d{15}$/.test(normalized)) {
+    return { valid: false, normalized, reason: 'IMEI 15 haneli olmalıdır' };
+  }
+  const body = normalized.slice(0, 14);
+  const check = Number(normalized[14]);
+  let sum = 0;
+  for (let i = 0; i < 14; i++) {
+    let n = Number(body[i]);
+    if (i % 2 === 1) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+  }
+  const expected = (10 - (sum % 10)) % 10;
+  if (expected !== check) {
+    return { valid: false, normalized, reason: 'IMEI kontrol hanesi geçersiz' };
+  }
+  return { valid: true, normalized };
+}
+
+/** EAN-13 barkod checksum */
+export function validateEan13(raw: string): {
+  valid: boolean;
+  normalized: string;
+  reason?: string;
+} {
+  const normalized = raw.replace(/\s+/g, '');
+  if (!/^\d{13}$/.test(normalized)) {
+    return { valid: false, normalized, reason: 'EAN-13 13 haneli olmalıdır' };
+  }
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    const n = Number(normalized[i]);
+    sum += i % 2 === 0 ? n : n * 3;
+  }
+  const expected = (10 - (sum % 10)) % 10;
+  if (expected !== Number(normalized[12])) {
+    return { valid: false, normalized, reason: 'EAN-13 kontrol hanesi geçersiz' };
+  }
+  return { valid: true, normalized };
+}
+

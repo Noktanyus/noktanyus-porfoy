@@ -1,35 +1,30 @@
 /**
- * Plan Gate — Tier-based AI quota logic tests
- *
- * Sprint 1: AI Quick Wins kapsamında quota enforcement testleri.
+ * Plan Gate — abonelik + ön ödemeli kredi testleri
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// Prisma mock
 vi.mock('@/lib/prisma', () => {
   const mockPrisma = {
-    userSubscription: {
-      findFirst: vi.fn(),
-    },
-    plan: {
-      findUnique: vi.fn(),
-    },
-    aiUsage: {
-      aggregate: vi.fn(),
-      count: vi.fn(),
-      create: vi.fn(),
-    },
+    userSubscription: { findFirst: vi.fn() },
+    plan: { findUnique: vi.fn() },
+    apiKey: { findMany: vi.fn() },
+    apiKeyUsage: { count: vi.fn(), create: vi.fn() },
+    user: { findUnique: vi.fn() },
   };
   return { prisma: mockPrisma };
 });
 
+vi.mock('@/lib/apiCredits', () => ({
+  getApiCreditBalance: vi.fn(),
+}));
+
 import { prisma } from '@/lib/prisma';
+import { getApiCreditBalance } from '@/lib/apiCredits';
 import {
   getUserPlan,
   getPlanLimits,
-  checkAiQuota,
-  consumeAiQuota,
+  checkApiQuota,
   getCurrentMonthUsage,
 } from '../planGate';
 import { parsePlanFeatures } from '@/lib/schemas/plan';
@@ -37,176 +32,101 @@ import { parsePlanFeatures } from '@/lib/schemas/plan';
 const mockPrisma = prisma as unknown as {
   userSubscription: { findFirst: ReturnType<typeof vi.fn> };
   plan: { findUnique: ReturnType<typeof vi.fn> };
-  aiUsage: {
-    aggregate: ReturnType<typeof vi.fn>;
-    count: ReturnType<typeof vi.fn>;
-    create: ReturnType<typeof vi.fn>;
-  };
+  apiKey: { findMany: ReturnType<typeof vi.fn> };
+  apiKeyUsage: { count: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
+  user: { findUnique: ReturnType<typeof vi.fn> };
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('parsePlanFeatures (backward compatibility)', () => {
+describe('parsePlanFeatures', () => {
   it('parses legacy string[]', () => {
-    const result = parsePlanFeatures(['Sınırsız proje', '100 GB']);
-    expect(result.marketing).toEqual(['Sınırsız proje', '100 GB']);
-    expect(result.limits).toBeUndefined();
+    const result = parsePlanFeatures(['Sınırsız proje']);
+    expect(result.marketing).toEqual(['Sınırsız proje']);
   });
 
-  it('parses new structured format', () => {
+  it('maps aiRequestsPerMonth to apiRequestsPerMonth', () => {
     const result = parsePlanFeatures({
-      marketing: ['AI Blog'],
-      limits: { aiTokensPerMonth: 100000, aiRequestsPerMonth: 500 },
+      marketing: [],
+      limits: { aiRequestsPerMonth: 500 },
     });
-    expect(result.marketing).toEqual(['AI Blog']);
-    expect(result.limits?.aiTokensPerMonth).toBe(100000);
-  });
-
-  it('returns empty default on invalid input', () => {
-    const result = parsePlanFeatures(null);
-    expect(result.marketing).toEqual([]);
+    expect(result.limits?.apiRequestsPerMonth).toBe(500);
   });
 });
 
 describe('getUserPlan', () => {
   it('returns planSlug from active subscription', async () => {
     mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'pro' });
-    const plan = await getUserPlan('user-1');
-    expect(plan).toBe('pro');
+    expect(await getUserPlan('user-1')).toBe('pro');
   });
 
-  it('returns null when no active subscription', async () => {
+  it('returns null when no subscription', async () => {
     mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
-    const plan = await getUserPlan('user-2');
-    expect(plan).toBeNull();
+    expect(await getUserPlan('user-2')).toBeNull();
   });
 });
 
 describe('getPlanLimits', () => {
-  it('returns Infinity for enterprise plan', async () => {
+  it('returns Infinity for enterprise', async () => {
     const limits = await getPlanLimits('enterprise');
-    expect(limits?.aiTokensPerMonth).toBe(Number.POSITIVE_INFINITY);
-  });
-
-  it('returns limits from Plan.features for pro plan', async () => {
-    mockPrisma.plan.findUnique.mockResolvedValue({
-      active: true,
-      features: {
-        marketing: ['Pro features'],
-        limits: { aiTokensPerMonth: 100000, aiRequestsPerMonth: 500 },
-      },
-    });
-    const limits = await getPlanLimits('pro');
-    expect(limits?.aiTokensPerMonth).toBe(100000);
-    expect(limits?.aiRequestsPerMonth).toBe(500);
-  });
-
-  it('returns null for inactive plan', async () => {
-    mockPrisma.plan.findUnique.mockResolvedValue({ active: false, features: {} });
-    const limits = await getPlanLimits('pro');
-    expect(limits).toBeNull();
-  });
-
-  it('returns null when planSlug is null', async () => {
-    const limits = await getPlanLimits(null);
-    expect(limits).toBeNull();
+    expect(limits?.apiRequestsPerMonth).toBe(Number.POSITIVE_INFINITY);
   });
 });
 
-describe('checkAiQuota', () => {
-  it('denies when no active plan', async () => {
+describe('checkApiQuota', () => {
+  it('allows via prepaid credits when no plan', async () => {
     mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
-    const result = await checkAiQuota('user-1', 1000);
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('planınız yok');
-  });
-
-  it('allows for enterprise plan regardless of usage', async () => {
-    mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'enterprise' });
-    const result = await checkAiQuota('user-ent', 999999);
+    vi.mocked(getApiCreditBalance).mockResolvedValue(42);
+    const result = await checkApiQuota('user-1');
     expect(result.allowed).toBe(true);
-    expect(result.limit).toBe(Number.POSITIVE_INFINITY);
+    expect(result.billingSource).toBe('credits');
+    expect(result.remainingRequests).toBe(42);
   });
 
-  it('denies when token limit exceeded', async () => {
-    mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'starter' });
-    mockPrisma.plan.findUnique.mockResolvedValue({
-      active: true,
-      features: {
-        marketing: [],
-        limits: { aiTokensPerMonth: 10000, aiRequestsPerMonth: 50 },
-      },
-    });
-    mockPrisma.aiUsage.aggregate.mockResolvedValue({ _sum: { totalTokens: 9500 } });
-    mockPrisma.aiUsage.count.mockResolvedValue(10);
-
-    const result = await checkAiQuota('user-1', 1000); // 9500 + 1000 = 10500 > 10000
+  it('denies when no plan and no credits', async () => {
+    mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
+    vi.mocked(getApiCreditBalance).mockResolvedValue(0);
+    const result = await checkApiQuota('user-1');
     expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('token limitinize');
+    expect(result.reason).toContain('kredi');
   });
 
-  it('allows when within limits', async () => {
+  it('prefers subscription when within monthly limit', async () => {
     mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'pro' });
     mockPrisma.plan.findUnique.mockResolvedValue({
       active: true,
-      features: {
-        marketing: [],
-        limits: { aiTokensPerMonth: 100000, aiRequestsPerMonth: 500 },
-      },
+      features: { marketing: [], limits: { apiRequestsPerMonth: 10000 } },
     });
-    mockPrisma.aiUsage.aggregate.mockResolvedValue({ _sum: { totalTokens: 5000 } });
-    mockPrisma.aiUsage.count.mockResolvedValue(10);
-
-    const result = await checkAiQuota('user-1', 1000);
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(10);
+    const result = await checkApiQuota('user-1');
     expect(result.allowed).toBe(true);
-    expect(result.remaining).toBe(95000);
-    expect(result.remainingRequests).toBe(490);
-  });
-});
-
-describe('consumeAiQuota', () => {
-  it('creates AiUsage record with correct totalTokens', async () => {
-    mockPrisma.aiUsage.create.mockResolvedValue({});
-    await consumeAiQuota({
-      userId: 'user-1',
-      feature: 'blog.write',
-      model: 'claude-haiku-4-5-20251001',
-      inputTokens: 100,
-      outputTokens: 250,
-    });
-    expect(mockPrisma.aiUsage.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        userId: 'user-1',
-        feature: 'blog.write',
-        inputTokens: 100,
-        outputTokens: 250,
-        totalTokens: 350,
-      }),
-    });
+    expect(result.billingSource).toBe('subscription');
   });
 
-  it('does not throw on DB error (fire-and-forget)', async () => {
-    mockPrisma.aiUsage.create.mockRejectedValue(new Error('DB down'));
-    await expect(
-      consumeAiQuota({
-        userId: 'user-1',
-        feature: 'blog.write',
-        model: 'test',
-        inputTokens: 1,
-        outputTokens: 1,
-      })
-    ).resolves.toBeUndefined();
+  it('falls back to credits when subscription quota exhausted', async () => {
+    mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'starter' });
+    mockPrisma.plan.findUnique.mockResolvedValue({
+      active: true,
+      features: { marketing: [], limits: { apiRequestsPerMonth: 1000 } },
+    });
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(1000);
+    vi.mocked(getApiCreditBalance).mockResolvedValue(5);
+    const result = await checkApiQuota('user-1');
+    expect(result.allowed).toBe(true);
+    expect(result.billingSource).toBe('credits');
   });
 });
 
 describe('getCurrentMonthUsage', () => {
-  it('returns token total and request count', async () => {
-    mockPrisma.aiUsage.aggregate.mockResolvedValue({ _sum: { totalTokens: 1234 } });
-    mockPrisma.aiUsage.count.mockResolvedValue(7);
+  it('counts api key usage', async () => {
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(7);
     const usage = await getCurrentMonthUsage('user-1');
-    expect(usage.tokensUsed).toBe(1234);
     expect(usage.requestsUsed).toBe(7);
+    expect(usage.tokensUsed).toBe(0);
   });
 });

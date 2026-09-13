@@ -1,5 +1,6 @@
 /**
- * /magaza/urunler — Sanal ürün kataloğu (template, script, paket).
+ * /magaza/urunler — İkincil kanal: hazır dijital paketler (template, script, metin seti).
+ * Ana teklif API planı + kredidir; burada yalnızca tek seferlik indirmeli paketler listelenir.
  * Yalnızca admin tarafından yayınlanan DigitalProduct kayıtları.
  */
 
@@ -13,7 +14,8 @@ import { productCategoryLabel } from '@/lib/storeCatalog';
 
 export const metadata: Metadata = {
   title: 'Hazır Paketler',
-  description: 'Template, script ve dijital paketler — bir kez satın al, indir, kullan.',
+  description:
+    'Tek seferlik indirmeli şablon ve script paketleri. API kullanımı için aylık plan veya kredi tercih edin.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -61,7 +63,7 @@ export default async function MagazaUrunlerPage({
     <div className="container-responsive space-responsive">
       <PageHeader
         title="Hazır paketler"
-        description="Template’ler, script’ler ve indirmeli dijital paketler. Tek seferlik ödeme — hemen kullan."
+        description="Küçük, tek seferlik indirmeli paketler: şablon, script ve hazır metin setleri. API erişimi içermez."
         backHref="/magaza"
         backLabel="Mağaza"
         breadcrumb={
@@ -74,6 +76,20 @@ export default async function MagazaUrunlerPage({
           </span>
         }
       />
+
+      <div className="rounded-2xl border border-border/60 bg-muted/20 px-5 py-4 mb-8 text-sm text-muted-foreground max-w-3xl">
+        <p>
+          Bu sayfa ikincil kanaldır. TR yardımcı API’yi kullanmak istiyorsan{' '}
+          <Link href="/magaza/abonelikler" className="text-brand-primary font-medium hover:underline">
+            aylık plan
+          </Link>{' '}
+          veya{' '}
+          <Link href="/magaza/krediler" className="text-brand-primary font-medium hover:underline">
+            API kredisi
+          </Link>{' '}
+          al — buradaki paketler API kotası içermez.
+        </p>
+      </div>
 
       {categories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-2" role="navigation" aria-label="Kategoriler">
@@ -111,10 +127,11 @@ export default async function MagazaUrunlerPage({
 
       {!error && filtered.length === 0 && (
         <EmptyState
-          title="Bu kategoride ürün yok"
-          description="Yakında yeni template ve script’ler eklenecek."
+          title="Bu kategoride paket yok"
+          description="Hazır paket kanalı sınırlı tutuluyor. Ana teklif TR yardımcı API planları ve kredilerdir."
           icon="box"
-          action={{ label: 'Mağazaya dön', href: '/magaza' }}
+          action={{ label: 'API planları', href: '/magaza/abonelikler' }}
+          secondaryAction={{ label: 'API kredisi', href: '/magaza/krediler' }}
         />
       )}
 

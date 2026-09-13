@@ -1,9 +1,10 @@
 /**
  * Template Purchase Email — Phase 3 B.4
  *
- * Gumroad / Lemon Squeezy / Stripe webhook'u basariyla islenip
- * TemplatePurchase + TemplateLicense kayitlari olusturulduktan sonra
- * aliciya gonderilen "satin alma basarili" mail'i.
+ * Odeme saglayicisi webhook'u (birincil: PayTR; ayrica iyzico / Gumroad /
+ * Lemon Squeezy / Stripe) basariyla islenip TemplatePurchase +
+ * TemplateLicense kayitlari olusturulduktan sonra aliciya gonderilen
+ * "satin alma basarili" mail'i.
  *
  * Subject: "Template satın alımınız başarılı"
  * Icerik: template adı, lisans anahtarı, download URL, kurulum adımları.
@@ -39,7 +40,7 @@ export interface TemplatePurchaseEmailProps {
   orderNumber: string;     // purchaseId veya externalId
   dashboardUrl: string;    // /dashboard/templates
   installUrl: string;      // /dashboard/templates/install?key=<license>
-  source: string;          // "gumroad" | "lemonsqueezy" | "stripe" | "manual"
+  source: string;          // "paytr" | "iyzico" | "gumroad" | "lemonsqueezy" | "stripe" | "manual"
 }
 
 export default function TemplatePurchaseEmail({
@@ -150,12 +151,18 @@ function licenseTypeDisplay(type: string): string {
 
 function sourceDisplay(source: string): string {
   switch (source) {
+    case 'paytr':
+      return 'PayTR';
+    case 'iyzico':
+      return 'iyzico';
     case 'gumroad':
       return 'Gumroad';
     case 'lemonsqueezy':
       return 'Lemon Squeezy';
     case 'stripe':
       return 'Stripe';
+    case 'manual':
+      return 'Manuel Islem';
     default:
       return source;
   }

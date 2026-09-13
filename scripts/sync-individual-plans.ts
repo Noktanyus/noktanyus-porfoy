@@ -33,6 +33,9 @@ async function main() {
       update: {
         name: plan.name,
         description: plan.description,
+        stripePriceId: plan.stripePriceId,
+        stripeProductId: plan.stripeProductId,
+        interval: plan.interval,
         priceCents: plan.priceCents,
         currency: plan.currency,
         features: {

@@ -9,7 +9,8 @@ import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const metadata: Metadata = {
   title: 'API Kredileri',
-  description: 'Önce kredi yükle, sonra TR yardımcı API’yi kullandığın kadar öde. Süresi dolmaz.',
+  description:
+    'TR yardımcı API için ön ödemeli kredi: 1 kredi = 1 istek, abonelik zorunlu değil, bakiyenin süresi dolmaz.',
 };
 
 export default function MagazaKredilerPage() {
@@ -17,7 +18,7 @@ export default function MagazaKredilerPage() {
     <div className="container-responsive space-responsive">
       <PageHeader
         title="API kredileri"
-        description="Önce ödeme yapılır, bakiye açılır. Her istek 1 kredi düşer. Süresi dolmaz."
+        description="TR yardımcı API’yi aboneliksiz kullan: önce bakiye yükle, her istek 1 kredi düşer, süresi dolmaz."
         backHref="/magaza"
         backLabel="Mağaza"
         breadcrumb={
@@ -33,16 +34,16 @@ export default function MagazaKredilerPage() {
 
       <div className="rounded-2xl border border-border/60 bg-muted/20 px-5 py-4 mb-8 text-sm text-muted-foreground max-w-3xl">
         <p>
-          <strong className="text-foreground font-medium">Kullandığın kadar öde:</strong> kredi
-          yüklemeden API çağrıları 402 döner. Aylık planın varsa önce plan kotası kullanılır; kota
-          dolunca bakiyeden düşülür.
+          <strong className="text-foreground font-medium">Aylık planla aynı API:</strong> tek fark
+          ödeme şekli. Kredi yüklenmeden API çağrıları 402 döner. Aylık planın varsa önce plan kotası
+          kullanılır, kota dolunca bakiyeden düşülür.
         </p>
         <p className="mt-2">
-          Sabit aylık kota için{' '}
+          Her ay düzenli istek atıyorsan sabit kotalı{' '}
           <Link href="/magaza/abonelikler" className="text-brand-primary font-medium hover:underline">
-            abonelikler
-          </Link>
-          .
+            API planları
+          </Link>{' '}
+          genelde daha ucuza gelir.
         </p>
       </div>
 

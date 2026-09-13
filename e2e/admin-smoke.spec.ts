@@ -36,6 +36,7 @@ const ADMIN_ROUTES = [
   '/admin/home-settings',
   '/admin/history',
   '/admin/coupons',
+  '/admin/users',
   '/admin/templates',
   '/admin/hakkimda',
 ];

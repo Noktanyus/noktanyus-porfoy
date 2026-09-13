@@ -297,6 +297,126 @@ export function calculateBusinessDays(input: {
   };
 }
 
+export function isTurkishBusinessDay(date: string): {
+  date: string;
+  isBusinessDay: boolean;
+  isWeekend: boolean;
+  isHoliday: boolean;
+} {
+  const d = new Date(date + 'T00:00:00.000Z');
+  if (Number.isNaN(d.getTime())) throw new Error('date geçersiz (YYYY-MM-DD)');
+  const ymd = toYmd(d);
+  const holidays = holidaySet(d, d);
+  const dow = d.getUTCDay();
+  const isWeekend = dow === 0 || dow === 6;
+  const isHoliday = holidays.has(ymd);
+  return {
+    date: ymd,
+    isBusinessDay: !isWeekend && !isHoliday,
+    isWeekend,
+    isHoliday,
+  };
+}
+
+export function nextBusinessDay(input: {
+  date: string;
+  count?: number;
+}): { startDate: string; resultDate: string; steps: number } {
+  const count = Math.max(1, Math.min(3650, input.count ?? 1));
+  let d = new Date(input.date + 'T00:00:00.000Z');
+  if (Number.isNaN(d.getTime())) throw new Error('date geçersiz');
+  let added = 0;
+  let guard = 0;
+  while (added < count && guard < 10000) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    const ymd = toYmd(d);
+    if (isTurkishBusinessDay(ymd).isBusinessDay) added += 1;
+    guard += 1;
+  }
+  return { startDate: input.date, resultDate: toYmd(d), steps: added };
+}
+
+export function addBusinessDays(input: {
+  date: string;
+  days: number;
+}): { startDate: string; resultDate: string; businessDaysAdded: number } {
+  const days = Math.trunc(input.days);
+  if (days === 0) return { startDate: input.date, resultDate: input.date, businessDaysAdded: 0 };
+  if (days > 0) {
+    const r = nextBusinessDay({ date: input.date, count: days });
+    return { startDate: input.date, resultDate: r.resultDate, businessDaysAdded: days };
+  }
+  let d = new Date(input.date + 'T00:00:00.000Z');
+  let left = Math.abs(days);
+  let guard = 0;
+  while (left > 0 && guard < 10000) {
+    d.setUTCDate(d.getUTCDate() - 1);
+    if (isTurkishBusinessDay(toYmd(d)).isBusinessDay) left -= 1;
+    guard += 1;
+  }
+  return { startDate: input.date, resultDate: toYmd(d), businessDaysAdded: days };
+}
+
+export function bistTradingDays(input: { year: number }): {
+  year: number;
+  tradingDays: string[];
+  count: number;
+} {
+  const year = input.year;
+  if (year < 2000 || year > 2100) throw new Error('year 2000–2100');
+  const start = new Date(Date.UTC(year, 0, 1));
+  const end = new Date(Date.UTC(year, 11, 31));
+  const days: string[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    const ymd = toYmd(cursor);
+    if (isTurkishBusinessDay(ymd).isBusinessDay) days.push(ymd);
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return { year, tradingDays: days, count: days.length };
+}
+
+export function calculateTebligatClock(input: {
+  notifiedAt: string;
+  days?: number;
+  mode?: 'calendar' | 'business';
+}): {
+  notifiedAt: string;
+  deadline: string;
+  days: number;
+  mode: string;
+  note: string;
+} {
+  const days = Math.max(1, Math.min(365, input.days ?? 15));
+  const mode = input.mode ?? 'calendar';
+  const start = new Date(input.notifiedAt + 'T00:00:00.000Z');
+  if (Number.isNaN(start.getTime())) throw new Error('notifiedAt geçersiz');
+
+  let deadline: string;
+  if (mode === 'business') {
+    deadline = nextBusinessDay({ date: toYmd(start), count: days }).resultDate;
+  } else {
+    const d = new Date(start);
+    d.setUTCDate(d.getUTCDate() + days);
+    let ymd = toYmd(d);
+    let guard = 0;
+    while (!isTurkishBusinessDay(ymd).isBusinessDay && guard < 14) {
+      d.setUTCDate(d.getUTCDate() + 1);
+      ymd = toYmd(d);
+      guard += 1;
+    }
+    deadline = ymd;
+  }
+
+  return {
+    notifiedAt: toYmd(start),
+    deadline,
+    days,
+    mode,
+    note: 'Basitleştirilmiş tebligat saati; somut uyuşmazlık için hukuki değerlendirme gerekir.',
+  };
+}
+
 const ONES = ['', 'bir', 'iki', 'üç', 'dört', 'beş', 'altı', 'yedi', 'sekiz', 'dokuz'];
 const TENS = ['', 'on', 'yirmi', 'otuz', 'kırk', 'elli', 'altmış', 'yetmiş', 'seksen', 'doksan'];
 const SCALES = ['', 'bin', 'milyon', 'milyar', 'trilyon'];

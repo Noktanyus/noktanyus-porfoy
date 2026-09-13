@@ -3,6 +3,19 @@
 Kod yüzeyi temizlendi; Prisma şemasında aşağıdaki modeller hâlâ duruyor.
 Bunları **ayrı bir migration** ile silin — aksi halde CI `schema.ci.prisma` ve mevcut DB kırılır.
 
+## Yeni (API kredisi) — uygulanmalı
+
+Ön ödemeli API için şemaya eklendi:
+
+- `User.apiCreditBalance` (Int, default 0)
+- `ApiCreditLedger` modeli
+
+```bash
+npx prisma db push
+# veya
+npx prisma migrate dev --name add_api_credits
+```
+
 ## Silinecek aday modeller (ürün dışı)
 
 - Monitoring: `Monitor`, `MonitorCheck`, `Incident`, `AlertChannel`, `StatusPage`, …

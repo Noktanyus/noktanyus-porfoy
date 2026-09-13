@@ -1,6 +1,8 @@
 'use client';
 
-import { FaEye, FaSignOutAlt } from 'react-icons/fa';
+import { FaEye, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { isSyntheticAdminId } from '@/lib/appRole';
 
 interface AdminSidebarFooterProps {
   onSignOut: () => void;
@@ -9,12 +11,28 @@ interface AdminSidebarFooterProps {
 }
 
 /**
- * Admin sidebar altindaki iki aksiyon: siteyi goruntule + cikis.
+ * Admin sidebar alt aksiyonlar: hesabıma dön (hesap-admin), siteyi görüntüle, çıkış.
  * 48px touch target, primary tint'li iki CTA.
  */
 export function AdminSidebarFooter({ onSignOut, onNavigate, disabled }: AdminSidebarFooterProps) {
+  const { data: session, status } = useSession();
+  const showAccountLink =
+    status !== 'loading' && Boolean(session?.user) && !isSyntheticAdminId(session?.user?.id);
+
   return (
     <div className="px-4 py-6 border-t border-border space-y-3 flex-shrink-0 bg-muted/50">
+      {showAccountLink && (
+        <a
+          href="/dashboard"
+          onClick={onNavigate}
+          className="w-full flex items-center space-x-4 px-4 py-3 min-h-[48px] rounded-xl text-left bg-indigo-600 text-white font-medium hover:bg-indigo-700 active:bg-indigo-800 transition-colors touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 shadow-sm"
+        >
+          <span className="text-lg flex-shrink-0 min-w-[20px] flex items-center justify-center">
+            <FaTachometerAlt aria-hidden="true" />
+          </span>
+          <span className="text-sm font-medium flex-1 leading-tight">Hesabıma Dön</span>
+        </a>
+      )}
       <a
         href="/"
         target="_blank"

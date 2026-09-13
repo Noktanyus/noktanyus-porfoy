@@ -17,7 +17,7 @@ export default function CaymaHakkiPage() {
     <div>
       <h1>Cayma Hakkı</h1>
       <p className="text-sm text-muted-foreground">
-        Son güncelleme: {new Date().toLocaleDateString('tr-TR')}
+        Son güncelleme: 13 Eylül 2026
       </p>
 
       <h2>1. Cayma Hakkının Kapsamı</h2>
@@ -60,8 +60,10 @@ export default function CaymaHakkiPage() {
       <h2>4. İade Bedeli</h2>
       <p>
         Cayma hakkı kullanıldığında, ödeme bedeli{' '}
-        <strong>14 iş günü içinde</strong> iade edilir. Stripe üzerinden
+        <strong>14 iş günü içinde</strong> iade edilir. PayTR üzerinden
         gerçekleştirilen ödemelerde iade, aynı ödeme yöntemiyle yapılır.
+        Alternatif/yedek altyapı (iyzico veya Stripe) ile yapılan ödemelerde de
+        iade, ödemenin alındığı yönteme uygulanır.
       </p>
 
       <h2>5. Cayma Hakkı Kullanılamayacak Durumlar</h2>
@@ -81,7 +83,9 @@ export default function CaymaHakkiPage() {
       <ul>
         <li>Ürün değişimi</li>
         <li>Alternatif ürün sunumu</li>
-        <li>Para iadesi (Stripe üzerinden, 14 iş günü içinde)</li>
+        <li>
+          Para iadesi (ödemenin yapıldığı altyapı üzerinden, 14 iş günü içinde)
+        </li>
       </ul>
 
       <h2>7. İletişim</h2>
