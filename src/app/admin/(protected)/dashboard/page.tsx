@@ -47,9 +47,6 @@ export default async function AdminDashboardPage() {
     paidOrders,
     revenueAgg,
     monthRevenueAgg,
-    totalMonitors,
-    upMonitors,
-    downMonitors,
     totalApiKeys,
     activeSubscriptions,
     newsletterSubscribers,
@@ -79,9 +76,6 @@ export default async function AdminDashboardPage() {
       where: { status: 'PAID', createdAt: { gte: monthStart } },
       _sum: { totalCents: true },
     }),
-    prisma.monitor.count(),
-    prisma.monitor.count({ where: { status: 'UP' } }),
-    prisma.monitor.count({ where: { status: 'DOWN' } }),
     prisma.apiKey.count({ where: { revokedAt: null } }),
     prisma.userSubscription.count({ where: { status: 'active' } }),
     prisma.newsletterSubscriber.count(),
@@ -153,7 +147,6 @@ export default async function AdminDashboardPage() {
           totalRevenueCents,
           monthRevenueCents,
         }}
-        monitoring={{ total: totalMonitors, up: upMonitors, down: downMonitors }}
         api={{ keys: totalApiKeys, subscriptions: activeSubscriptions }}
         newsletter={{ total: newsletterSubscribers, verified: activeNewsletter }}
         licenses={totalLicenses}

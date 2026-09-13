@@ -15,7 +15,7 @@ const CHANNELS = [
     eyebrow: 'Tek seferlik',
     description:
       'Portföy şablonları, script ve dijital paketler. Bir kez al, indir, kullan.',
-    points: ['Şablon & starter paketler', 'Script ve araçlar', 'Anında indirme + lisans'],
+    points: ['Şablon & PayTR starter', 'TR SDK & KVKK metinleri', 'Anında indirme + lisans'],
     icon: FaBoxOpen,
     accent: 'from-slate-900 via-sky-900 to-teal-800',
     cta: 'Paketlere bak',
@@ -26,7 +26,7 @@ const CHANNELS = [
     eyebrow: 'Aylık abonelik',
     description:
       'API erişimi ve hesap özellikleri. Bireysel, Profesyonel veya Destek+ seç.',
-    points: ['API anahtarı & kota', 'Dokümantasyon erişimi', 'İstediğin zaman iptal'],
+    points: ['Tevkifat · kıdem · iş günü', 'E-posta MX & fatura PDF', 'İstediğin zaman iptal'],
     icon: FaCalendarCheck,
     accent: 'from-slate-900 via-emerald-900 to-lime-800',
     cta: 'Planları gör',

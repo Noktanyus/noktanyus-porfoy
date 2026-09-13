@@ -36,14 +36,10 @@ const PAGE_PROTECTED = [
   '/dashboard/projects',
   '/admin',
   '/admin/users',
-  '/saas/billing',
-  '/marketplace/dashboard',
 ];
 
 const API_PROTECTED = [
   '/api/user/profile',
-  '/api/saas/quota',
-  '/api/compliance/logs',
   '/api/templates/list',
 ];
 
@@ -118,14 +114,13 @@ describe('middleware — protected route WITH session cookie (allow)', () => {
     expect(res.headers.get('x-frame-options')).toBe('DENY');
   });
 
-  it('passes through /api/saas when __Secure-next-auth.session-token present', async () => {
+  it('passes through /api/user when __Secure-next-auth.session-token present', async () => {
     const res = await middleware(
-      makeRequest('/api/saas/quota', {
+      makeRequest('/api/user/profile', {
         cookieNames: ['__Secure-next-auth.session-token=xyz'],
         method: 'GET',
       })
     );
-    // Pass-through returns NextResponse.next()
     expect([200, 307]).toContain(res.status);
     expect(res.headers.get('x-content-type-options')).toBe('nosniff');
   });
@@ -143,6 +138,11 @@ describe('middleware — public whitelist (no auth required)', () => {
     const res = await middleware(makeRequest('/api/openapi'));
     expect([200, 307]).toContain(res.status);
     expect(res.headers.get('x-frame-options')).toBe('DENY');
+  });
+
+  it('/api/v1 passes through (public API key auth on route)', async () => {
+    const res = await middleware(makeRequest('/api/v1/validate/iban'));
+    expect([200, 307]).toContain(res.status);
   });
 });
 

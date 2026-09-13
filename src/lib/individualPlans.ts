@@ -1,13 +1,13 @@
 /**
- * Bireysel odaklı abonelik merdiveni.
- * Slug'lar onboarding / planGate ile uyumlu kalır: starter | pro | enterprise
+ * Bireysel odaklı abonelik merdiveni — TR e-ticaret yardımcı API kotası.
+ * Slug'lar onboarding / planGate ile uyumlu: starter | pro | enterprise
  */
 
 export const INDIVIDUAL_PLANS = [
   {
     slug: 'starter' as const,
     name: 'Bireysel',
-    description: 'Tek kişi için kolay başlangıç. Hesabını aç, kullanmaya başla.',
+    description: 'TR yardımcı API: doğrulama, KDV/tevkifat, kıdem, iş günü, PDF.',
     priceCents: 9900,
     currency: 'try',
     interval: 'MONTH' as const,
@@ -17,20 +17,20 @@ export const INDIVIDUAL_PLANS = [
     order: 1,
     trialDays: 14,
     marketing: [
-      '1 kullanıcı',
-      'API erişimi (başlangıç kotası)',
+      '1.000 API isteği / ay',
+      'VKN · IBAN · telefon · e-posta MX',
+      'KDV + tevkifat · sayıdan yazıya',
       'E-posta destek',
       'İstediğin zaman iptal',
     ],
     limits: {
-      aiTokensPerMonth: 10000,
-      aiRequestsPerMonth: 50,
+      apiRequestsPerMonth: 1000,
     },
   },
   {
     slug: 'pro' as const,
     name: 'Profesyonel',
-    description: 'Daha yüksek kota ve öncelikli destek — solo veya küçük iş için.',
+    description: 'Yüksek kota ve öncelikli destek — mağaza / entegrasyon için.',
     priceCents: 29900,
     currency: 'try',
     interval: 'MONTH' as const,
@@ -40,20 +40,20 @@ export const INDIVIDUAL_PLANS = [
     order: 2,
     trialDays: 14,
     marketing: [
-      '1–2 kullanıcı',
-      'Yüksek API kotası',
+      '10.000 API isteği / ay',
+      'Kıdem/ihbar + iş günü takvimi',
+      'Tüm doğrulama + tevkifat + PDF',
       'Öncelikli e-posta destek',
       'Kolay yükseltme / iptal',
     ],
     limits: {
-      aiTokensPerMonth: 100000,
-      aiRequestsPerMonth: 500,
+      apiRequestsPerMonth: 10000,
     },
   },
   {
     slug: 'enterprise' as const,
     name: 'Destek+',
-    description: 'Kurulum yardımı ve danışmanlık — takıldığın yerde yanındayız.',
+    description: 'Sınırsız kota + kurulum yardımı ve danışmanlık.',
     priceCents: 49900,
     currency: 'try',
     interval: 'MONTH' as const,
@@ -63,13 +63,13 @@ export const INDIVIDUAL_PLANS = [
     order: 3,
     trialDays: 14,
     marketing: [
+      'Sınırsız API isteği',
       'Profesyonel tüm özellikler',
       'Aylık danışmanlık saati',
       'Kurulum & entegrasyon yardımı',
       'Öncelikli yanıt',
-      'Özel ihtiyaçlar için iletişim',
     ],
-    // Destek+ → yüksek kota (planGate boş limits = sınırsız)
+    // Destek+ → sınırsız (planGate Infinity)
     limits: {} as Record<string, never>,
   },
 ] as const;

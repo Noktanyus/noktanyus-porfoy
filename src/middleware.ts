@@ -74,28 +74,18 @@ function attachSecurityHeaders(response: NextResponse): void {
 const PROTECTED_PREFIXES = [
   '/dashboard',
   '/admin',
-  '/saas',
-  '/marketplace/dashboard',
   '/api/user',
-  '/api/saas',
-  '/api/compliance',
   '/api/templates',
-  // '/docs',            ← Phase D.4: kaldırıldı, artık public
-  // '/api/openapi',     ← Phase D.4: whitelist (aşağıda)
 ];
 
 /**
  * Whitelist — auth kontrolü ATLANAN public endpointler.
- * Phase D.4: OpenAPI spec public yayınlanıyor.
- * Phase 4 C.8: KVKK/GDPR cookie consent anonim ziyaretçi tarafından
- *   kullanılabilmeli (KVKK Madde 5/2 — anonim onay hakkı).
- * Yeni public endpoint eklerken BURAYA ekleyin, PROTECTED_PREFIXES'ten
- * ÇIKARMAYIN — defence-in-depth için ayrı tutuluyor.
  */
 const PUBLIC_WHITELIST: string[] = [
-  '/docs',                          // Redoc UI
-  '/api/openapi',                   // OpenAPI 3.1.0 JSON spec
-  '/api/user/cookie-consent',       // KVKK/GDPR consent (anonim + auth)
+  '/docs',
+  '/api/openapi',
+  '/api/user/cookie-consent',
+  '/api/v1',
 ];
 
 function hasAuthSessionCookie(request: NextRequest): boolean {

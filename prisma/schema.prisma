@@ -676,6 +676,9 @@ model User {
   // Video Calls (Phase "Video Calls + Affiliate" kapsaminda eklendi)
   videoCallCredits Int @default(60) // Dakika cinsinden
 
+  // TR API — ön ödemeli istek kredisi (kullandığın kadar öde)
+  apiCreditBalance Int @default(0)
+
   // Affiliate / Referral Commission (Phase "Video Calls + Affiliate" kapsaminda eklendi)
   affiliateBalanceCents Int     @default(0)
   affiliatePercent      Float   @default(20.0) // Default %20 komisyon
@@ -716,6 +719,9 @@ model User {
   affiliateReferrals AffiliateCommission[] @relation("AffiliateReferrer")
   affiliateReferred  AffiliateCommission[] @relation("AffiliateReferred")
   affiliatePayouts   AffiliatePayout[]
+
+  // API kredi ledger
+  apiCreditLedgers ApiCreditLedger[]
 
   // Partner Program relations (Phase "Partner Program" kapsaminda eklendi)
   partner Partner?
@@ -1411,6 +1417,26 @@ model UserSubscription {
 
   @@index([userId])
   @@index([status, expiresAt])
+}
+
+/// TR API ön ödemeli kredi hareketleri (yükleme / kullanım / iade)
+model ApiCreditLedger {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// positive = yükleme / iade, negative = kullanım
+  delta     Int
+  balanceAfter Int
+  reason    String // topup | api_call | refund | admin
+  orderId   String?
+  endpoint  String?
+  metadata  Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([orderId])
 }
 
 /// Newsletter Subscriber

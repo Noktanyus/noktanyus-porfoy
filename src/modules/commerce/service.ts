@@ -633,6 +633,139 @@ export const commerceService = {
     return { url: session.url!, sessionId: session.id, provider: 'stripe' as PaymentProvider };
   },
 
+  /**
+   * Ön ödemeli API kredi yükleme — önce öde, sonra kullan.
+   * Kullanıcı hesabı zorunlu (kredi User.apiCreditBalance'a yazılır).
+   */
+  async createCreditTopupCheckout(
+    packSlug: string,
+    customerEmail: string,
+    options?: {
+      paymentProvider?: string | null;
+      customerName?: string;
+      customerPhone?: string;
+      customerIp?: string;
+      customerAddress?: string;
+      userId?: string;
+    }
+  ) {
+    const { getCreditPack } = await import('@/lib/apiCredits');
+    const pack = getCreditPack(packSlug);
+    if (!pack) throw new NotFoundError('Kredi paketi');
+
+    const provider = selectPaymentProvider(options?.paymentProvider);
+    const customerName = options?.customerName?.trim() || 'Musteri';
+    const customerPhone = options?.customerPhone?.trim() || '05000000000';
+    const customerIp = options?.customerIp?.trim() || '127.0.0.1';
+    const orderNumber = await orderRepository.generateOrderNumber();
+
+    const metadata = {
+      type: 'api_topup' as const,
+      packSlug: pack.slug,
+      credits: pack.credits,
+      provider,
+    };
+
+    if (provider === 'paytr') {
+      if (!isPaytrConfigured()) {
+        logger.warn('[PayTR] Kredi top-up mock — yapılandırılmamış');
+        const order = await prisma.order.create({
+          data: {
+            orderNumber,
+            customerEmail,
+            customerName,
+            userId: options?.userId ?? null,
+            stripeSessionId: `paytr_credit_mock_${Date.now()}`,
+            status: 'PENDING',
+            subtotalCents: pack.priceCents,
+            discountCents: 0,
+            totalCents: pack.priceCents,
+            currency: pack.currency,
+            metadata: { ...metadata, mock: true },
+            notes: `API kredi: ${pack.name}`,
+          },
+        });
+        await this.handleCheckoutCompleted({ id: order.stripeSessionId });
+        return {
+          provider: 'paytr' as PaymentProvider,
+          mock: true,
+          url: `/odeme/basarili?session_id=${order.stripeSessionId}&order=${order.orderNumber}&paytr=mock&credits=1`,
+          sessionId: order.stripeSessionId,
+          orderNumber,
+        };
+      }
+
+      const prepared = paytrService.prepareDirectPayment({
+        orderNumber,
+        customerEmail,
+        customerName,
+        customerPhone,
+        customerAddress: options?.customerAddress,
+        userIp: customerIp,
+        totalCents: pack.priceCents,
+        basket: [
+          {
+            name: `API ${pack.name} (${pack.credits} kredi)`,
+            priceCents: pack.priceCents,
+            quantity: 1,
+          },
+        ],
+        okPath: '/odeme/basarili?paytr=1&credits=1',
+        failPath: '/odeme/basarisiz?credits=1',
+      });
+
+      await prisma.order.create({
+        data: {
+          orderNumber,
+          customerEmail,
+          customerName,
+          userId: options?.userId ?? null,
+          stripeSessionId: prepared.merchantOid,
+          status: 'PENDING',
+          subtotalCents: pack.priceCents,
+          discountCents: 0,
+          totalCents: pack.priceCents,
+          currency: pack.currency,
+          metadata,
+          notes: `API kredi: ${pack.name}`,
+        },
+      });
+
+      return {
+        ...prepared,
+        sessionId: prepared.merchantOid,
+        mock: false,
+      };
+    }
+
+    // Fallback: mock URL (Stripe/iyzico kredi top-up için sade path)
+    const order = await prisma.order.create({
+      data: {
+        orderNumber,
+        customerEmail,
+        customerName,
+        userId: options?.userId ?? null,
+        stripeSessionId: `credit_mock_${Date.now()}`,
+        status: 'PENDING',
+        subtotalCents: pack.priceCents,
+        discountCents: 0,
+        totalCents: pack.priceCents,
+        currency: pack.currency,
+        metadata: { ...metadata, mock: true },
+        notes: `API kredi: ${pack.name}`,
+      },
+    });
+    await this.handleCheckoutCompleted({ id: order.stripeSessionId });
+
+    return {
+      provider,
+      mock: true,
+      url: `/odeme/basarili?session_id=${order.stripeSessionId}&order=${order.orderNumber}&credits=mock`,
+      sessionId: order.stripeSessionId,
+      orderNumber,
+    };
+  },
+
   // --- Customer portal ---
   async createPortalSession(customerEmail: string) {
     if (!isStripeConfigured()) {
@@ -779,12 +912,22 @@ export const commerceService = {
       planSlug?: string;
       planId?: string;
       interval?: string;
+      packSlug?: string;
     } | null;
     const isTip = meta?.type === 'tip';
     const isSubscription = meta?.type === 'subscription';
+    const isCreditTopup = meta?.type === 'api_topup';
 
     if (isSubscription && meta.planSlug) {
       await this.activatePaytrSubscriptionPeriod(order, meta);
+    } else if (isCreditTopup && meta.packSlug) {
+      const { fulfillCreditTopupOrder } = await import('@/lib/apiCredits');
+      await fulfillCreditTopupOrder({
+        orderId: order.id,
+        customerEmail: order.customerEmail,
+        packSlug: meta.packSlug,
+        userId: (order as { userId?: string | null }).userId,
+      });
     } else if (!isTip) {
       await this.generateLicenseForOrder(order.id);
     }
@@ -794,6 +937,7 @@ export const commerceService = {
       orderNumber: order.orderNumber,
       tip: isTip,
       subscription: isSubscription,
+      creditTopup: isCreditTopup,
     });
 
     await queueService.enqueueOrderPostCheckout({ orderId: order.id });

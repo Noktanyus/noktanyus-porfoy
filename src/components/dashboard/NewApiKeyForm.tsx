@@ -1,6 +1,5 @@
 /**
- * @file Yeni API Anahtarı Form Bileşeni
- * @description Scope seçimi, rate limit ayarı, isim verme. Oluşturulan full key sadece 1 kez gösterilir.
+ * @file Yeni API Anahtarı Formu — TR yardımcı API scope'ları.
  */
 
 'use client';
@@ -19,24 +18,19 @@ interface ScopeOption {
 
 const SCOPES: ScopeOption[] = [
   {
+    value: 'tr:validate:write',
+    label: 'TR doğrulama',
+    description: 'VKN / TCKN / IBAN / telefon / e-posta / KDV / tevkifat / kıdem',
+  },
+  {
+    value: 'tr:invoice:write',
+    label: 'Fatura PDF',
+    description: 'Teklif / fatura PDF üretimi',
+  },
+  {
     value: 'read:profile',
     label: 'Profil okuma',
     description: 'Hesap bilgisi',
-  },
-  {
-    value: 'ai:describe:write',
-    label: 'API yazma',
-    description: 'Üretim / açıklama endpoint’leri',
-  },
-  {
-    value: 'ai:describe:read',
-    label: 'API okuma',
-    description: 'Sonuç okuma endpoint’leri',
-  },
-  {
-    value: 'ai:bulk:write',
-    label: 'Toplu işlem',
-    description: 'Toplu üretim işleri',
   },
   {
     value: 'admin',
@@ -60,7 +54,7 @@ export function NewApiKeyForm() {
   const [createdKey, setCreatedKey] = useState<CreatedKeyResponse | null>(null);
   const [form, setForm] = useState({
     name: '',
-    scopes: ['ai:describe:write'] as string[],
+    scopes: ['tr:validate:write'] as string[],
     rateLimit: 60,
     monthlyQuota: '' as string | number,
   });
@@ -115,12 +109,10 @@ export function NewApiKeyForm() {
       <div className="space-y-4">
         <div className="glass-card-premium p-6 border-2 border-green-500 bg-green-50 dark:bg-green-900/20">
           <h2 className="text-lg font-bold text-green-800 dark:text-green-200 mb-2">
-            ✅ API Anahtarı Oluşturuldu
+            API Anahtarı Oluşturuldu
           </h2>
           <p className="text-sm text-green-700 dark:text-green-300 mb-4">
-            <strong>Bu anahtarı şimdi kopyalayın.</strong> Bir daha
-            gösterilmeyecek — güvenlik nedeniyle sadece bu sefer tam halini
-            görüyorsunuz.
+            <strong>Bu anahtarı şimdi kopyalayın.</strong> Bir daha gösterilmeyecek.
           </p>
           <div className="flex items-center gap-2 p-3 bg-background rounded-lg border">
             <code className="text-xs flex-1 overflow-x-auto font-mono break-all">
@@ -139,10 +131,12 @@ export function NewApiKeyForm() {
             </button>
           </div>
           <div className="mt-4 text-xs text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40 p-3 rounded">
-            <strong>Örnek kullanım:</strong>
+            <strong>Örnek:</strong>
             <pre className="mt-1 font-mono text-[10px] overflow-x-auto">
-{`curl -H "Authorization: Bearer ${createdKey.key}" \\
-  https://yourdomain.com/api/saas/describe`}
+{`curl -X POST https://yourdomain.com/api/v1/validate/iban \\
+  -H "Authorization: Bearer ${createdKey.key}" \\
+  -H "Content-Type: application/json" \\
+  -d '{"iban":"TR330006100519786457841326"}'`}
             </pre>
           </div>
         </div>
@@ -160,7 +154,7 @@ export function NewApiKeyForm() {
               setCreatedKey(null);
               setForm({
                 name: '',
-                scopes: ['ai:describe:write'],
+                scopes: ['tr:validate:write'],
                 rateLimit: 60,
                 monthlyQuota: '',
               });
@@ -188,11 +182,8 @@ export function NewApiKeyForm() {
           minLength={2}
           maxLength={100}
           className="admin-input"
-          placeholder="Production Server, Mobile App, vb."
+          placeholder="Production, Staging, vb."
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          Anahtarı tanımlamanız için bir isim (gösterim amaçlı)
-        </p>
       </div>
 
       <div>
@@ -223,9 +214,7 @@ export function NewApiKeyForm() {
                 >
                   {scope.label}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  {scope.description}
-                </p>
+                <p className="text-xs text-muted-foreground">{scope.description}</p>
               </div>
             </label>
           ))}
@@ -234,9 +223,7 @@ export function NewApiKeyForm() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Rate Limit (istek/dk)
-          </label>
+          <label className="block text-sm font-medium mb-2">Rate Limit (istek/dk)</label>
           <input
             type="number"
             value={form.rateLimit}
@@ -247,9 +234,7 @@ export function NewApiKeyForm() {
             max="10000"
             className="admin-input"
           />
-          <p className="text-xs text-muted-foreground mt-1">1-10000 arası</p>
         </div>
-
         <div>
           <label className="block text-sm font-medium mb-2">
             Aylık Kota <span className="text-xs text-muted-foreground">(opsiyonel)</span>
@@ -257,16 +242,11 @@ export function NewApiKeyForm() {
           <input
             type="number"
             value={form.monthlyQuota}
-            onChange={(e) =>
-              setForm({ ...form, monthlyQuota: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, monthlyQuota: e.target.value })}
             min="1"
             className="admin-input"
             placeholder="Limitsiz"
           />
-          <p className="text-xs text-muted-foreground mt-1">
-            Boş bırakırsanız limitsiz
-          </p>
         </div>
       </div>
 

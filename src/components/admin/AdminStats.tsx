@@ -16,7 +16,6 @@ import {
   FaStore,
   FaShoppingCart,
   FaMoneyBillWave,
-  FaHeartbeat,
   FaKey,
   FaEnvelope,
   FaCertificate,
@@ -118,11 +117,6 @@ export interface AdminStatsProps {
     totalRevenueCents: number;
     monthRevenueCents: number;
   };
-  monitoring: {
-    total: number;
-    up: number;
-    down: number;
-  };
   api: {
     keys: number;
     subscriptions: number;
@@ -138,7 +132,6 @@ export function AdminStats({
   users,
   content,
   commerce,
-  monitoring,
   api,
   newsletter,
   licenses,
@@ -266,28 +259,6 @@ export function AdminStats({
         </div>
       </section>
 
-      {/* MONİTORİNG */}
-      <Section title="Monitoring" icon="📡">
-        <StatCard
-          label="Toplam Monitör"
-          value={monitoring.total}
-          icon={FaHeartbeat}
-          color="text-blue-500"
-        />
-        <StatCard
-          label="Çalışıyor"
-          value={monitoring.up}
-          icon={FaHeartbeat}
-          color="text-green-500"
-        />
-        <StatCard
-          label="Çalışmıyor"
-          value={monitoring.down}
-          icon={FaHeartbeat}
-          color="text-red-500"
-        />
-      </Section>
-
       {/* API & ABONELİKLER + NEWSLETTER + LİSANSLAR */}
       <Section title="API, Abonelikler, Newsletter ve Lisanslar" icon="🔌">
         <StatCard
@@ -307,14 +278,12 @@ export function AdminStats({
           value={newsletter.total}
           icon={FaEnvelope}
           color="text-pink-500"
-          href="/admin/newsletter"
         />
         <StatCard
           label="Doğrulanmış Abone"
           value={newsletter.verified}
           icon={FaEnvelope}
           color="text-rose-500"
-          href="/admin/newsletter"
         />
         <StatCard
           label="Toplam Lisans"

@@ -11,7 +11,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import type { About } from '@prisma/client';
 
-const BARE_PREFIXES = ['/saas', '/admin', '/call'] as const;
+const BARE_PREFIXES = ['/admin'] as const;
 
 function isBareRoute(pathname: string): boolean {
   return BARE_PREFIXES.some(

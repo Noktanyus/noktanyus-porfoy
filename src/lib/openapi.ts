@@ -142,9 +142,354 @@ const Pagination: SchemaObject = {
 // Path registry — keep flat & alphabetical-by-tag for predictable docs
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TAGS = ['Auth', 'OAuth 2.0', 'AI', 'Products', 'Blog', 'API Keys', 'Newsletter', 'Plans', 'System'] as const;
+const TAGS = ['TR API', 'Auth', 'OAuth 2.0', 'Products', 'Blog', 'API Keys', 'Newsletter', 'Plans', 'System'] as const;
 
 const paths: PathsObject = {
+  '/api/v1/validate/identity': {
+    post: {
+      tags: ['TR API'],
+      summary: 'TCKN veya VKN format doğrulama',
+      description: 'Türkiye kimlik / vergi numarası format ve checksum kontrolü. Abonelik kotası gerekir.',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['type', 'value'],
+              properties: {
+                type: { type: 'string', enum: ['tckn', 'vkn'] },
+                value: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Doğrulama sonucu' },
+        '401': { description: 'API key geçersiz' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/validate/iban': {
+    post: {
+      tags: ['TR API'],
+      summary: 'TR IBAN doğrulama',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['iban'],
+              properties: { iban: { type: 'string' } },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Doğrulama sonucu' },
+        '401': { description: 'API key geçersiz' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/invoice/pdf': {
+    post: {
+      tags: ['TR API'],
+      summary: 'Fatura / teklif PDF üretimi',
+      description: 'GIB e-fatura değildir. Bilgilendirme / teklif PDF döner (application/pdf).',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['sellerName', 'buyerName', 'invoiceNumber', 'lines'],
+              properties: {
+                sellerName: { type: 'string' },
+                buyerName: { type: 'string' },
+                invoiceNumber: { type: 'string' },
+                lines: { type: 'array', items: { type: 'object' } },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'PDF binary' },
+        '401': { description: 'API key geçersiz' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/validate/phone': {
+    post: {
+      tags: ['TR API'],
+      summary: 'TR telefon doğrulama',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['phone'],
+              properties: {
+                phone: { type: 'string' },
+                type: { type: 'string', enum: ['any', 'mobile', 'landline'] },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Doğrulama sonucu + e164' },
+        '401': { description: 'API key geçersiz' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/validate/postal': {
+    post: {
+      tags: ['TR API'],
+      summary: 'Posta kodu doğrulama',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['postalCode'],
+              properties: { postalCode: { type: 'string' } },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Doğrulama + il kodu' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/validate/plate': {
+    post: {
+      tags: ['TR API'],
+      summary: 'Plaka format doğrulama',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['plate'],
+              properties: { plate: { type: 'string' } },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Doğrulama sonucu' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/finance/kdv': {
+    post: {
+      tags: ['TR API'],
+      summary: 'KDV hesaplama (net/brüt)',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['amountCents'],
+              properties: {
+                amountCents: { type: 'integer' },
+                vatRate: { type: 'number' },
+                mode: { type: 'string', enum: ['net', 'gross'] },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'net / KDV / brüt kuruş' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/iban/bank': {
+    post: {
+      tags: ['TR API'],
+      summary: 'IBAN banka kodu çözümü',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['iban'],
+              properties: { iban: { type: 'string' } },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Banka kodu + adı' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/finance/tevkifat': {
+    post: {
+      tags: ['TR API'],
+      summary: 'KDV + tevkifat hesabı',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['amountCents'],
+              properties: {
+                amountCents: { type: 'integer' },
+                vatRate: { type: 'integer', enum: [0, 1, 10, 20] },
+                mode: { type: 'string', enum: ['net', 'gross'] },
+                withholding: {
+                  oneOf: [
+                    { type: 'string', enum: ['2/10', '3/10', '4/10', '5/10', '7/10', '9/10', '10/10'] },
+                    { type: 'number', minimum: 0, maximum: 1 },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Net / KDV / tevkifat / satıcıya ödenen' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/labor/severance': {
+    post: {
+      tags: ['TR API'],
+      summary: 'Kıdem + ihbar tazminatı hesabı',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['monthlyGrossCents', 'startDate', 'endDate'],
+              properties: {
+                monthlyGrossCents: { type: 'integer' },
+                startDate: { type: 'string' },
+                endDate: { type: 'string' },
+                severanceCeilingCents: { type: 'integer' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Kıdem net/brüt + ihbar brüt' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/calendar/business-days': {
+    post: {
+      tags: ['TR API'],
+      summary: 'TR iş günü hesabı',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['startDate', 'endDate'],
+              properties: {
+                startDate: { type: 'string', format: 'date' },
+                endDate: { type: 'string', format: 'date' },
+                includeStart: { type: 'boolean' },
+                includeEnd: { type: 'boolean' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'İş / tatil / hafta sonu gün sayıları' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/finance/to-words': {
+    post: {
+      tags: ['TR API'],
+      summary: 'Tutarı Türkçe yazıya çevir',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['amountCents'],
+              properties: {
+                amountCents: { type: 'integer' },
+                currency: { type: 'string', enum: ['TRY', 'USD', 'EUR', 'GBP'] },
+                uppercaseCompact: { type: 'boolean' },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Türkçe yazı + opsiyonel çek biçimi' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+  '/api/v1/validate/email': {
+    post: {
+      tags: ['TR API'],
+      summary: 'E-posta format + MX doğrulama',
+      security: [{ ApiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['email'],
+              properties: { email: { type: 'string' } },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': { description: 'Format + MX sonucu' },
+        '402': { description: 'Aylık kota aşıldı' },
+      },
+    },
+  },
+
   // ─── Auth ────────────────────────────────────────────────────────────────
   '/api/auth/register': {
     post: {
@@ -847,10 +1192,10 @@ const SERVER_URL =
 export const OPENAPI_SPEC: Document = {
   openapi: '3.1.0',
   info: {
-    title: 'Noktanyus Portfolio & SaaS API',
+    title: 'Noktanyus Mağaza & TR Yardımcı API',
     version: '1.0.0',
     description:
-      'Public REST API surface for the Noktanyus portfolio + SaaS platform. Covers authentication (NextAuth + OAuth 2.0 PKCE), AI generation with plan-based quota enforcement, the digital product catalog, blog CMS, API key management and newsletter.',
+      'Hazır paket satışı + TR e-ticaret yardımcı API (doğrulama, KDV/tevkifat, kıdem, iş günü, sayıdan yazıya, e-posta MX, fatura PDF). Auth, ürün kataloğu, API key ve abonelik kotası.',
     contact: { name: 'API Support', email: 'api@noktanyus.local' },
     license: { name: 'Proprietary' },
   },

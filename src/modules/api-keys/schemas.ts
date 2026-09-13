@@ -1,41 +1,35 @@
 /**
- * API Key Module — Zod Schemas
- *
- * API anahtarları için input validation şemaları.
- * Generate / revoke / update / scope yönetimi için.
+ * API Key Module — Zod Schemas (TR yardımcı API odaklı).
  */
 
 import { z } from 'zod';
-import { SAAS_SCOPE_NAMES } from '@/lib/saasScopes';
 
-// --- Scopes ---
-// Legacy scope'lar (geriye uyumluluk) + saasScope kataloğu (SaaS API rotaları).
-// `admin` shortcut tüm scope'ları kapsadığı için ayrıca listelenmiştir.
 export const ApiKeyScopeSchema = z.enum([
-  // Legacy monitoring / profile scopes — geriye uyumluluk
+  'tr:validate:write',
+  'tr:invoice:write',
+  'read:profile',
+  'write:profile',
+  // Legacy (eski anahtarlar)
   'read:monitor',
   'write:monitor',
   'delete:monitor',
-  'read:profile',
-  'write:profile',
-  // SaaS scope'ları — saasScopes.ts SAAS_SCOPES ile senkronize
-  ...SAAS_SCOPE_NAMES,
-  // Admin shortcut — tüm scope'ları kapsar
+  'ai:describe:read',
+  'ai:describe:write',
+  'ai:bulk:write',
+  'ai:brand-voice:write',
   'admin',
 ]);
 
 export const ApiKeyScopeListSchema = z.array(ApiKeyScopeSchema).min(1, 'En az 1 izin seçilmeli');
 
-// --- Create ---
 export const CreateApiKeySchema = z.object({
   name: z.string().min(1, 'İsim zorunlu').max(100, 'İsim en fazla 100 karakter'),
-  scopes: ApiKeyScopeListSchema.default(['ai:describe:write']),
+  scopes: ApiKeyScopeListSchema.default(['tr:validate:write']),
   rateLimit: z.number().int().min(1, 'En az 1 istek/dk').max(10000, 'En fazla 10000 istek/dk').default(60),
   monthlyQuota: z.number().int().min(1, 'En az 1').optional().nullable(),
   expiresAt: z.coerce.date().optional().nullable(),
 });
 
-// --- Update ---
 export const UpdateApiKeySchema = z.object({
   name: z.string().min(1).max(100).optional(),
   scopes: ApiKeyScopeListSchema.optional(),
@@ -44,12 +38,10 @@ export const UpdateApiKeySchema = z.object({
   expiresAt: z.coerce.date().nullable().optional(),
 });
 
-// --- Revoke ---
 export const RevokeApiKeySchema = z.object({
   reason: z.string().max(500).optional(),
 });
 
-// --- Type exports ---
 export type ApiKeyScope = z.infer<typeof ApiKeyScopeSchema>;
 export type CreateApiKeyInput = z.infer<typeof CreateApiKeySchema>;
 export type UpdateApiKeyInput = z.infer<typeof UpdateApiKeySchema>;

@@ -1,29 +1,26 @@
 /**
- * Plan features Zod schema — Sprint 1 typed limits.
+ * Plan features Zod schema — API istek kotası.
  *
- * Backward compatible: eski `string[]` kayıtları otomatik `{ marketing: [...] }` formatına
- * dönüştürülür. Yeni kayıtlar `{ marketing, limits }` structured objesi olarak saklanır.
- *
- * - marketing: string[] — UI'da gösterilen özellik listesi
- * - limits.aiTokensPerMonth: number — Plan bazlı aylık AI token kotası
- * - limits.aiRequestsPerMonth: number — Plan bazlı aylık AI request kotası
+ * Backward compatible: eski string[] → { marketing }.
+ * Eski aiTokensPerMonth alanları yok sayılır; apiRequestsPerMonth kullanılır.
  */
 
 import { z } from 'zod';
 
 export const PlanLimitsSchema = z.object({
+  apiRequestsPerMonth: z.number().int().nonnegative().optional(),
+  /** @deprecated AI ürünü kaldırıldı; parse için tutuluyor */
   aiTokensPerMonth: z.number().int().nonnegative().optional(),
+  /** @deprecated AI ürünü kaldırıldı; apiRequestsPerMonth tercih edilir */
   aiRequestsPerMonth: z.number().int().nonnegative().optional(),
 });
 export type PlanLimits = z.infer<typeof PlanLimitsSchema>;
 
 export const PlanFeaturesSchema = z.union([
-  // Eski format: string[] → { marketing: [...] }
   z
     .array(z.string())
     .transform((arr) => ({ marketing: arr, limits: undefined as PlanLimits | undefined })),
 
-  // Yeni format: { marketing, limits? }
   z.object({
     marketing: z.array(z.string()),
     limits: PlanLimitsSchema.optional(),
@@ -32,12 +29,25 @@ export const PlanFeaturesSchema = z.union([
 
 export type PlanFeatures = z.infer<typeof PlanFeaturesSchema>;
 
-/**
- * DB'den gelen Prisma JsonValue'yu güvenli parse eder.
- * Hata durumunda default (boş marketing listesi) döner.
- */
 export function parsePlanFeatures(raw: unknown): PlanFeatures {
   const result = PlanFeaturesSchema.safeParse(raw);
-  if (result.success) return result.data;
+  if (result.success) {
+    const data = result.data;
+    if (data.limits) {
+      const api =
+        data.limits.apiRequestsPerMonth ?? data.limits.aiRequestsPerMonth;
+      return {
+        marketing: data.marketing,
+        limits: api !== undefined ? { apiRequestsPerMonth: api } : data.limits,
+      };
+    }
+    return data;
+  }
   return { marketing: [], limits: undefined };
+}
+
+/** Plan limitinden etkili aylık API istek kotasını çıkarır. */
+export function effectiveApiRequestLimit(limits: PlanLimits | null | undefined): number | undefined {
+  if (!limits) return undefined;
+  return limits.apiRequestsPerMonth ?? limits.aiRequestsPerMonth;
 }

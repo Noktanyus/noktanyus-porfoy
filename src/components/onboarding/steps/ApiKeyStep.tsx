@@ -15,14 +15,14 @@ interface ApiKeyStepProps {
 }
 
 const SCOPES = [
-  { id: 'ai:describe:write', label: 'API yazma' },
-  { id: 'ai:describe:read', label: 'API okuma' },
+  { id: 'tr:validate:write', label: 'Doğrulama' },
+  { id: 'tr:invoice:write', label: 'PDF' },
   { id: 'read:profile', label: 'Profil' },
 ];
 
 export function ApiKeyStep({ onNext, onSkip }: ApiKeyStepProps) {
   const [name, setName] = useState('İlk API Key');
-  const [scopes, setScopes] = useState<string[]>(['ai:describe:write']);
+  const [scopes, setScopes] = useState<string[]>(['tr:validate:write']);
   const [rateLimit, setRateLimit] = useState(60);
   const [pending, setPending] = useState(false);
   const [createdKey, setCreatedKey] = useState<string | null>(null);

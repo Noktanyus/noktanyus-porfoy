@@ -1,7 +1,5 @@
 /**
- * Mağaza katalog sabitleri — sanal ürün kategorileri + abonelik hizmet türleri.
- * Admin formları ve vitrin filtreleri bu listeyi kullanır.
- * (Category tablosu yok; DigitalProduct.category string alanına yazılır.)
+ * Mağaza katalog sabitleri — sanal ürün + API abonelik.
  */
 
 export type ProductCategoryValue =
@@ -37,7 +35,7 @@ export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
   {
     value: 'starter',
     label: 'Starter',
-    description: 'Başlangıç kitleri ve iskelet projeler',
+    description: 'PayTR / mağaza başlangıç kitleri',
     channel: 'product',
   },
   {
@@ -55,7 +53,7 @@ export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
   {
     value: 'api',
     label: 'API paketi',
-    description: 'İndirmeli API örnekleri / SDK paketleri',
+    description: 'İndirmeli SDK / entegrasyon paketleri',
     channel: 'product',
   },
   {
@@ -66,17 +64,12 @@ export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
   },
 ];
 
-/** Abonelik / aylık hizmet türleri (rehber) */
+/** Abonelik hizmet türleri */
 export const SUBSCRIPTION_SERVICE_TYPES = [
   {
     value: 'api_access',
-    label: 'API erişimi',
-    description: 'Bireysel kullanım için API key ve kota',
-  },
-  {
-    value: 'monitoring',
-    label: 'İzleme',
-    description: 'Monitör, uyarı — kolay başlangıç',
+    label: 'TR yardımcı API',
+    description: 'Doğrulama · KDV/tevkifat · kıdem · iş günü · PDF — API key + kota',
   },
   {
     value: 'support',

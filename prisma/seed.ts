@@ -496,7 +496,7 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
     }),
   ]);
 
-  // ====== Digital Products (4 ürün) ======
+  // ====== Digital Products (hibrit katalog — paket + TR API tamamlayıcıları) ======
   await prisma.digitalProduct.createMany({
     data: [
       {
@@ -512,23 +512,9 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
 - i18n (TR/EN)
 - Dark mode
 - Responsive tasarım
-- Glassmorphism UI
 
 ## Teknolojiler
-- Next.js 14 (App Router)
-- TypeScript
-- Prisma + PostgreSQL
-- Tailwind CSS
-- Framer Motion
-
-## Dahil Olanlar
-- 50+ shadcn component
-- 20+ page template
-- API endpoints
-- Database schema
-- Email templates
-- 30+ test
-- Dokümantasyon`,
+- Next.js 14 (App Router), TypeScript, Prisma, Tailwind CSS`,
         thumbnail: '/images/products/saas-starter.webp',
         fileUrl: 'r2:noktanyus/products/nextjs-saas-starter.zip',
         fileName: 'nextjs-saas-starter.zip',
@@ -543,26 +529,37 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         ttlHours: 168,
       },
       {
+        slug: 'paytr-checkout-starter',
+        title: 'PayTR Checkout Starter',
+        shortDescription: 'Next.js + PayTR Direkt API örnek akış. Hash, callback, başarılı/başarısız sayfalar.',
+        description: `Türkiye pazarı için PayTR entegrasyon starter paketi.
+
+## Dahil
+- PayTR Direkt API hash / token örnekleri
+- Checkout + callback route iskeleti
+- Başarılı / başarısız sayfa şablonları
+- .env.example ve kurulum README (TR)
+- KVKK çerez banner iskeleti
+
+PayTR hesabı ve canlı anahtarlar dahil değildir.`,
+        thumbnail: '/images/products/paytr-starter.webp',
+        fileUrl: 'r2:noktanyus/products/paytr-checkout-starter.zip',
+        fileName: 'paytr-checkout-starter.zip',
+        fileSize: 1843200,
+        priceCents: 14900,
+        currency: 'try',
+        technologies: ['Next.js', 'PayTR', 'TypeScript'],
+        category: 'starter',
+        version: '1.0.0',
+        featured: true,
+        downloadCountMax: 5,
+        ttlHours: 168,
+      },
+      {
         slug: 'portfolio-template',
         title: 'Modern Portfolio Template',
         shortDescription: 'Glassmorphism tasarımlı kişisel portfolyo template. Light + Dark, animasyonlar, blog.',
-        description: `Modern, glassmorphism tasarımlı kişisel portfolyo template.
-
-## Özellikler
-- Light + Dark theme (OKLCH)
-- Glassmorphism UI
-- Framer Motion animasyonlar
-- Blog sistemi
-- SEO optimized
-- Responsive
-- Admin panel
-
-## Dahil Olanlar
-- 20+ component
-- 15+ sayfa template
-- Blog sistemi
-- İletişim formu
-- Admin panel`,
+        description: `Modern portfolyo template: light/dark, blog, iletişim, SEO.`,
         thumbnail: '/images/products/portfolio-template.webp',
         fileUrl: 'r2:noktanyus/products/portfolio-template.zip',
         fileName: 'portfolio-template.zip',
@@ -577,18 +574,62 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         ttlHours: 168,
       },
       {
-        slug: 'ui-component-library',
-        title: 'UI Component Library',
-        shortDescription: '50+ modern React component. shadcn tabanlı, Tailwind, Framer Motion.',
-        description: `Modern UI component library.
+        slug: 'tr-validation-sdk',
+        title: 'TR Validation SDK (TypeScript)',
+        shortDescription: 'TCKN, VKN, IBAN, telefon, posta, plaka, KDV — zero-dep TypeScript paket.',
+        description: `Self-host veya npm’e alabileceğin TR doğrulama kütüphanesi.
+
+## Fonksiyonlar
+- validateTckn / validateVkn / validateIban
+- validatePhone / validatePostalCode / validatePlate
+- calculateKdv / resolveIbanBank
+- Vitest suite + TypeScript types
+
+Hosted API’ye ihtiyaç duymayan offline senaryolar için.`,
+        thumbnail: '/images/products/tr-sdk.webp',
+        fileUrl: 'r2:noktanyus/products/tr-validation-sdk.zip',
+        fileName: 'tr-validation-sdk.zip',
+        fileSize: 524288,
+        priceCents: 7900,
+        currency: 'try',
+        technologies: ['TypeScript', 'Vitest'],
+        category: 'library',
+        version: '1.0.0',
+        featured: true,
+        downloadCountMax: 10,
+        ttlHours: 336,
+      },
+      {
+        slug: 'kvkk-legal-pack',
+        title: 'KVKK & Mesafeli Satış Metin Paketi',
+        shortDescription: 'KVKK, gizlilik, çerez, mesafeli satış, cayma — düzenlenebilir Markdown taslakları.',
+        description: `E-ticaret / SaaS için hukuki metin taslakları (avukat onayı gerekir).
 
 ## İçerik
-- 50+ component (Button, Card, Modal, Form, Table, vb.)
-- TypeScript tip güvenli
-- Tailwind CSS
-- Framer Motion animasyonlar
-- Accessibility (WCAG 2.2 AA)
-- Dark mode desteği`,
+- KVKK aydınlatma metni
+- Gizlilik politikası
+- Çerez politikası
+- Mesafeli satış sözleşmesi
+- Cayma hakkı formu
+- Uygulama kontrol listesi`,
+        thumbnail: '/images/products/kvkk-pack.webp',
+        fileUrl: 'r2:noktanyus/products/kvkk-legal-pack.zip',
+        fileName: 'kvkk-legal-pack.zip',
+        fileSize: 256000,
+        priceCents: 3900,
+        currency: 'try',
+        technologies: ['Markdown'],
+        category: 'general',
+        version: '1.0.0',
+        featured: false,
+        downloadCountMax: 10,
+        ttlHours: 720,
+      },
+      {
+        slug: 'ui-component-library',
+        title: 'UI Component Library',
+        shortDescription: '50+ modern React component. Tailwind, Framer Motion.',
+        description: `50+ React component: Button, Card, Modal, Form, Table. TypeScript + a11y.`,
         thumbnail: '/images/products/ui-library.webp',
         fileUrl: 'r2:noktanyus/products/ui-library.zip',
         fileName: 'ui-library.zip',
@@ -605,18 +646,8 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
       {
         slug: 'api-boilerplate',
         title: 'Node.js API Boilerplate',
-        shortDescription: 'Express + TypeScript + Prisma API starter. JWT auth, rate limiting, logging.',
-        description: `Production-ready Node.js API boilerplate.
-
-## Özellikler
-- Express + TypeScript
-- Prisma ORM
-- JWT authentication
-- Rate limiting
-- Winston logging
-- Error handling
-- Validation (Zod)
-- Tests (Vitest)`,
+        shortDescription: 'Express + TypeScript + Prisma API starter. JWT, rate limit, Zod.',
+        description: `Express + TS + Prisma API iskeleti: JWT, rate limit, logging, Vitest.`,
         thumbnail: '/images/products/api-boilerplate.webp',
         fileUrl: 'r2:noktanyus/products/api-boilerplate.zip',
         fileName: 'api-boilerplate.zip',
@@ -629,6 +660,28 @@ v3'ten v4'e geçiş kolay, breaking change'ler minimal.`,
         featured: false,
         downloadCountMax: 5,
         ttlHours: 168,
+      },
+      {
+        slug: 'trendyol-invoice-helper',
+        title: 'Pazaryeri Fatura PDF Helper',
+        shortDescription: 'Sipariş satırlarından teklif/fatura PDF üreten script + örnek CLI.',
+        description: `Trendyol / Hepsiburada sipariş JSON’undan PDF üretme örneği.
+
+## Not
+GİB e-fatura değildir. Pazaryeri fatura dosyası yükleme öncesi PDF üretimi için yardımcıdır.
+Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
+        thumbnail: '/images/products/invoice-helper.webp',
+        fileUrl: 'r2:noktanyus/products/trendyol-invoice-helper.zip',
+        fileName: 'trendyol-invoice-helper.zip',
+        fileSize: 384000,
+        priceCents: 5900,
+        currency: 'try',
+        technologies: ['TypeScript', 'Node.js'],
+        category: 'script',
+        version: '1.0.0',
+        featured: false,
+        downloadCountMax: 8,
+        ttlHours: 336,
       },
     ],
   });

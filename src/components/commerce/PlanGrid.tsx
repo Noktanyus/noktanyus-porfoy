@@ -21,8 +21,8 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
       {plans.map((plan) => {
         const features = parsePlanFeatures(plan.features);
         const marketing = features.marketing ?? [];
-        const aiTokens = features.limits?.aiTokensPerMonth;
-        const aiRequests = features.limits?.aiRequestsPerMonth;
+        const apiRequests =
+          features.limits?.apiRequestsPerMonth ?? features.limits?.aiRequestsPerMonth;
         return (
           <div
             key={plan.id}
@@ -36,7 +36,7 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
               </span>
             )}
             <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 mb-2">
-              Aylık hizmet
+              TR yardımcı API
             </p>
             <h3 className="text-2xl font-bold mb-2 text-slate-900 dark:text-white break-words">
               {plan.name}
@@ -67,25 +67,17 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
               </ul>
             )}
 
-            {(aiTokens !== undefined || aiRequests !== undefined) && (
+            {apiRequests !== undefined && (
               <div className="mb-4 px-3 py-2 rounded-lg bg-muted/50 border border-border text-xs text-slate-700 dark:text-slate-300">
                 <p className="font-semibold mb-1 text-foreground">Kota (aylık)</p>
-                {aiTokens !== undefined && (
-                  <p>
-                    AI token:{' '}
-                    <span className="tabular-nums font-medium">
-                      {Number.isFinite(aiTokens) ? `${(aiTokens / 1000).toFixed(0)}K` : 'Sınırsız'}
-                    </span>
-                  </p>
-                )}
-                {aiRequests !== undefined && (
-                  <p>
-                    AI istek:{' '}
-                    <span className="tabular-nums font-medium">
-                      {Number.isFinite(aiRequests) ? aiRequests : 'Sınırsız'}
-                    </span>
-                  </p>
-                )}
+                <p>
+                  API istek:{' '}
+                  <span className="tabular-nums font-medium">
+                    {Number.isFinite(apiRequests)
+                      ? apiRequests.toLocaleString('tr-TR')
+                      : 'Sınırsız'}
+                  </span>
+                </p>
               </div>
             )}
 

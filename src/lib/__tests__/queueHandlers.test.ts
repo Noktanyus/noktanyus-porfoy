@@ -309,10 +309,13 @@ describe('Handler delegasyonu', () => {
     ).rejects.toThrow('SMTP down');
   });
 
-  it('MonitorCheck → processMonitorCheck çağırır', async () => {
+  it('MonitorCheck kaldırıldı — notImplemented loglar', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.MonitorCheck]({ monitorId: 'm1' });
-    expect(mockProcessMonitorCheck).toHaveBeenCalledWith('m1');
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.MonitorCheck })
+    );
   });
 
   it('OrderPostCheckout → runPostCheckoutSideEffects çağırır', async () => {
@@ -321,28 +324,31 @@ describe('Handler delegasyonu', () => {
     expect(mockRunPostCheckout).toHaveBeenCalledWith('order_1');
   });
 
-  it('AiBulkGenerate → processBulkGeneration çağırır', async () => {
+  it('AiBulkGenerate kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.AiBulkGenerate]({ jobId: 'j1', userId: 'u1' });
-    expect(mockProcessBulkGeneration).toHaveBeenCalledWith('j1');
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.AiBulkGenerate })
+    );
   });
 
-  it('AiBulkRowRetry → processRowRetry çağırır', async () => {
+  it('AiBulkRowRetry kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.AiBulkRowRetry]({ jobId: 'j1', rowIndex: 4 });
-    expect(mockProcessRowRetry).toHaveBeenCalledWith('j1', 4);
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.AiBulkRowRetry })
+    );
   });
 
-  it('AiBulkRowRetry rowIndex=0 geçerlidir (falsy tuzağı)', async () => {
-    const handlers = buildJobHandlers();
-    await handlers[Jobs.AiBulkRowRetry]({ jobId: 'j1', rowIndex: 0 });
-    expect(mockProcessRowRetry).toHaveBeenCalledWith('j1', 0);
-  });
-
-  it('AiBulkGenerateDeadLetter → processDeadLetterNotification çağırır', async () => {
+  it('AiBulkGenerateDeadLetter kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.AiBulkGenerateDeadLetter]({ jobId: 'j1' });
-    expect(mockProcessDeadLetter).toHaveBeenCalledWith('j1');
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.AiBulkGenerateDeadLetter })
+    );
   });
 
   it('TemplateDemoDeploy → demoService.deploy çağırır', async () => {
@@ -367,50 +373,30 @@ describe('Handler delegasyonu', () => {
     ).rejects.toThrow('vercel down');
   });
 
-  it('ComplianceScan → runComplianceScan çağırır', async () => {
+  it('ComplianceScan kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.ComplianceScan]({ scanId: 's1', siteId: 'site1' });
-    expect(mockRunComplianceScan).toHaveBeenCalledWith('s1');
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.ComplianceScan })
+    );
   });
 
-  it('ComplianceScan hata FIRLATIR (retry tetiklensin)', async () => {
-    mockRunComplianceScan.mockRejectedValueOnce(new Error('playwright fail'));
-    const handlers = buildJobHandlers();
-    await expect(
-      handlers[Jobs.ComplianceScan]({ scanId: 's1', siteId: 'site1' })
-    ).rejects.toThrow('playwright fail');
-  });
-
-  it('ComplianceMonitor → runScheduledScans çağırır', async () => {
+  it('ComplianceMonitor kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.ComplianceMonitor]({ triggeredAt: 'now' });
-    expect(mockRunScheduledScans).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('implementasyon yok'),
+      expect.objectContaining({ job: Jobs.ComplianceMonitor })
+    );
   });
 
-  it('BreachDeadlineReminder → breach.i bulup notifyAffectedUsers çağırır', async () => {
+  it('Breach job.ları kaldırıldı — notImplemented', async () => {
     const handlers = buildJobHandlers();
     await handlers[Jobs.BreachDeadlineReminder]({ breachId: 'b1' });
-    expect(mockBreachFindUnique).toHaveBeenCalled();
-    expect(mockNotifyAffectedUsers).toHaveBeenCalledWith('ws1', 'b1');
-  });
-
-  it('BreachDeadlineReminder → breach yoksa uyarır, notify çağırmaz', async () => {
-    mockBreachFindUnique.mockResolvedValueOnce(null as any);
-    const handlers = buildJobHandlers();
-    await handlers[Jobs.BreachDeadlineReminder]({ breachId: 'yok' });
-    expect(mockNotifyAffectedUsers).not.toHaveBeenCalled();
-  });
-
-  it('AutoSubmitBreachToVerbis → maybeAutoSubmitToVerbis çağırır', async () => {
-    const handlers = buildJobHandlers();
     await handlers[Jobs.AutoSubmitBreachToVerbis]({ breachId: 'b1' });
-    expect(mockMaybeAutoSubmit).toHaveBeenCalledWith('b1');
-  });
-
-  it('BreachDeadlineCron → processCheckBreaches çağırır', async () => {
-    const handlers = buildJobHandlers();
     await handlers[Jobs.BreachDeadlineCron](undefined);
-    expect(mockProcessCheckBreaches).toHaveBeenCalled();
+    expect(logger.error).toHaveBeenCalled();
   });
 });
 
@@ -581,9 +567,12 @@ describe('Implementasyonu olmayan job.lar', () => {
     for (const name of UNIMPLEMENTED_JOBS) {
       expect(ALL_JOB_NAMES).toContain(name);
     }
-    expect([...UNIMPLEMENTED_JOBS].sort()).toEqual(
-      [Jobs.ImageOptimize, Jobs.OrderExpire, Jobs.templateInstall].sort()
-    );
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.ImageOptimize);
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.OrderExpire);
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.templateInstall);
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.MonitorCheck);
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.AiBulkGenerate);
+    expect(UNIMPLEMENTED_JOBS).toContain(Jobs.ComplianceScan);
   });
 
   it('sessizce düşmez — error seviyesinde loglar', async () => {
@@ -618,47 +607,33 @@ describe('Handler guard.ları — eksik parametre', () => {
     vi.clearAllMocks();
   });
 
-  const cases: Array<[string, JobName, unknown, string]> = [
-    ['AiBulkGenerate', Jobs.AiBulkGenerate, {}, 'AiBulkGenerate'],
-    ['AiBulkRowRetry', Jobs.AiBulkRowRetry, { jobId: 'j1' }, 'AiBulkRowRetry'],
-    ['AiBulkGenerateDeadLetter', Jobs.AiBulkGenerateDeadLetter, {}, 'AiBulkGenerateDeadLetter'],
-    ['OrderPostCheckout', Jobs.OrderPostCheckout, {}, 'OrderPostCheckout'],
-    ['BreachDeadlineReminder', Jobs.BreachDeadlineReminder, {}, 'BreachDeadlineReminder'],
-    ['AutoSubmitBreachToVerbis', Jobs.AutoSubmitBreachToVerbis, {}, 'AutoSubmitBreachToVerbis'],
-    ['TemplateDemoDeploy', Jobs.TemplateDemoDeploy, { templateSlug: 'x' }, 'TemplateDemoDeploy'],
-    ['ComplianceScan', Jobs.ComplianceScan, {}, 'ComplianceScan'],
-  ];
-
-  for (const [label, jobName, data, expectedLog] of cases) {
-    it(`${label} eksik parametre ile çağrılırsa loglar ve servisi ÇAĞIRMAZ`, async () => {
-      const handlers = buildJobHandlers();
-      await expect(handlers[jobName](data)).resolves.toBeUndefined();
-      expect(logger.error).toHaveBeenCalledWith(
-        expect.stringContaining(expectedLog),
-        expect.anything()
-      );
-    });
-  }
-
-  it('eksik parametrede ilgili servis fonksiyonu hiç çağrılmaz', async () => {
+  it('OrderPostCheckout orderId yoksa loglar ve side-effect çağırmaz', async () => {
     const handlers = buildJobHandlers();
-    await handlers[Jobs.AiBulkGenerate]({});
-    await handlers[Jobs.OrderPostCheckout]({});
-    await handlers[Jobs.ComplianceScan]({});
-
-    expect(mockProcessBulkGeneration).not.toHaveBeenCalled();
+    await expect(handlers[Jobs.OrderPostCheckout]({})).resolves.toBeUndefined();
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('OrderPostCheckout'),
+      expect.anything()
+    );
     expect(mockRunPostCheckout).not.toHaveBeenCalled();
-    expect(mockRunComplianceScan).not.toHaveBeenCalled();
   });
 
-  it('AiBrandVoiceTrain no-op stub olarak çalışır', async () => {
+  it('TemplateDemoDeploy eksik data ile loglar', async () => {
     const handlers = buildJobHandlers();
     await expect(
-      handlers[Jobs.AiBrandVoiceTrain]({ brandVoiceId: 'bv1' })
+      handlers[Jobs.TemplateDemoDeploy]({ templateSlug: 'x' })
     ).resolves.toBeUndefined();
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('AiBrandVoiceTrain'),
-      expect.objectContaining({ brandVoiceId: 'bv1' })
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('TemplateDemoDeploy'),
+      expect.anything()
     );
+    expect(mockDemoDeploy).not.toHaveBeenCalled();
+  });
+
+  it('kaldırılan job.lar notImplemented olarak loglar', async () => {
+    const handlers = buildJobHandlers();
+    await handlers[Jobs.AiBulkGenerate]({});
+    await handlers[Jobs.ComplianceScan]({});
+    await handlers[Jobs.AiBrandVoiceTrain]({ brandVoiceId: 'bv1' });
+    expect(logger.error).toHaveBeenCalled();
   });
 });
