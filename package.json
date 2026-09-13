@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate --schema=./prisma/schema.prisma && next build",
+    "build": "node ./node_modules/prisma/build/index.js generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint --fix",
     "type-check": "tsc --noEmit",
@@ -89,7 +89,8 @@
     "uuid": "^8.3.2",
     "web-push": "^3.6.7",
     "zod": "^3.25.67",
-    "zustand": "^5.0.15"
+    "zustand": "^5.0.15",
+    "prisma": "^6.19.2"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^14.2.30",
@@ -113,7 +114,6 @@
     "jsdom": "^30.0.1",
     "postcss": "^8",
     "postcss-import": "^17.0.0",
-    "prisma": "^6.19.2",
     "tailwindcss": "^3",
     "tsx": "^4.20.3",
     "typescript": "5.4.5",
