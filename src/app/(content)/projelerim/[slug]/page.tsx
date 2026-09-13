@@ -124,7 +124,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/20 hover:shadow-xl hover:shadow-brand-primary/30 transition-all duration-300 hover:-translate-y-0.5"
               >
                 <FaExternalLinkAlt size={13} />
-                Canlı Demo
+                Canlı Sistem
               </a>
             )}
             {project.githubRepo && (
@@ -138,6 +138,15 @@ async function ProjectPageContent({ slug }: { slug: string }) {
                 Kaynak Kodu
               </a>
             )}
+            <Link
+              href="/iletisim"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Benzer Proje İçin İletişim
+            </Link>
           </div>
 
           {/* Technologies */}
@@ -172,6 +181,42 @@ async function ProjectPageContent({ slug }: { slug: string }) {
             dangerouslySetInnerHTML={{ __html: cleanHtml }}
           />
         </div>
+
+        {/* Sales CTA Card - Case Study projects için */}
+        {(project.slug === 'estm-spor-tesisleri' || project.featured) && (
+          <div className="glass-card-premium p-6 sm:p-8 bg-gradient-to-br from-brand-primary/5 via-transparent to-emerald-500/5 border-brand-primary/20">
+            <div className="text-center space-y-4">
+              <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Benzer Bir Çözüm mü Arıyorsunuz?
+              </h3>
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Kurumunuz için özelleştirilmiş yazılım çözümleri geliştiriyoruz. Demo talebi ve ön görüşme için iletişime geçin.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2">
+                <Link
+                  href="/iletisim"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white hover:bg-brand-primary/90 shadow-lg shadow-brand-primary/20 hover:shadow-xl hover:shadow-brand-primary/30 transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  İletişime Geç
+                </Link>
+                {project.liveDemo && (
+                  <a
+                    href={project.liveDemo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base font-semibold text-gray-700 dark:text-gray-300 hover:text-brand-primary dark:hover:text-brand-primary transition-colors duration-300"
+                  >
+                    <FaExternalLinkAlt size={14} />
+                    Canlı Sistemi İncele
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </article>
   );
