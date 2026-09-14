@@ -12,7 +12,7 @@
  */
 
 import { useTheme as useNextTheme } from 'next-themes';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   ACCENT_COLORS,
   AccentColor,
@@ -85,12 +85,12 @@ interface UseThemeReturn {
 export function useTheme({ themeKey, overrides }: UseThemeArgs = {}): UseThemeReturn {
   const key: ThemePresetKey = isThemePresetKey(themeKey) ? themeKey : 'modern';
   const base = getThemePreset(key);
-  const config: ThemePresetConfig = {
+  const config: ThemePresetConfig = useMemo(() => ({
     primary: overrides?.primary ?? base.primary,
     accent: overrides?.accent ?? base.accent,
     bg: overrides?.bg ?? base.bg,
     text: overrides?.text ?? base.text,
-  };
+  }), [base.accent, base.bg, base.primary, base.text, overrides?.accent, overrides?.bg, overrides?.primary, overrides?.text]);
 
   const apply = useCallback(() => {
     if (typeof document === 'undefined') return;

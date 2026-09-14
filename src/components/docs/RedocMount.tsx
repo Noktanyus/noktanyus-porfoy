@@ -59,11 +59,12 @@ export default function RedocMount() {
 
   useEffect(() => {
     let cancelled = false;
+    const container = mountRef.current;
 
     (async () => {
       try {
         const Redoc = await loadRedocScript();
-        if (cancelled || !mountRef.current) return;
+        if (cancelled || !container) return;
 
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
@@ -80,7 +81,12 @@ export default function RedocMount() {
             theme: isDark ? darkTheme : lightTheme,
             nativeScrollbars: false,
           },
-          mountRef.current,
+          container,
+          (err?: unknown) => {
+            if (err && !cancelled) {
+              setError(err instanceof Error ? err.message : 'Redoc başlatılamadı');
+            }
+          }
         );
       } catch (err) {
         if (!cancelled) {
@@ -91,7 +97,7 @@ export default function RedocMount() {
 
     return () => {
       cancelled = true;
-      if (mountRef.current) mountRef.current.innerHTML = '';
+      if (container) container.innerHTML = '';
     };
   }, []);
 
