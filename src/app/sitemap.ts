@@ -19,11 +19,11 @@ import { prisma } from '@/lib/prisma';
 // içeriği yansıtmasını sağlar.
 export const revalidate = 0;
 
-// .env dosyasından sitenin ana URL'sini al, yoksa localhost kullan
+// .env dosyasından sitenin ana URL'sini al, yoksa noktanyus.com kullan
 const BASE_URL = (
   process.env.NEXT_PUBLIC_BASE_URL ||
   process.env.NEXTAUTH_URL ||
-  'http://localhost:3000'
+  'https://noktanyus.com'
 ).replace(/\/+$/, '');
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

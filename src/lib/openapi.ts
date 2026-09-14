@@ -1279,8 +1279,9 @@ const paths: PathsObject = {
 
 const SERVER_URL =
   process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_BASE_URL ||
   process.env.NEXTAUTH_URL ||
-  'http://localhost:3000';
+  'https://noktanyus.com';
 
 export const OPENAPI_SPEC: Document = {
   openapi: '3.1.0',
