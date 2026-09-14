@@ -18,7 +18,12 @@ import { useEffect, useRef, useState } from 'react';
 const REDOC_CDN = 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js';
 
 interface RedocGlobal {
-  init: (specUrlOrObject: string | object, mountEl: HTMLElement, opts?: Record<string, unknown>) => void;
+  init: (
+    specUrlOrObject: string | object,
+    opts: Record<string, unknown>,
+    mountEl: HTMLElement,
+    callback?: () => void
+  ) => void;
 }
 
 declare global {
@@ -62,9 +67,9 @@ export default function RedocMount() {
 
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+        // Redoc.init signature: (spec, options, element, callback)
         Redoc.init(
           '/api/openapi',
-          mountRef.current,
           {
             scrollYOffset: 0,
             hideDownloadButton: false,
@@ -75,6 +80,7 @@ export default function RedocMount() {
             theme: isDark ? darkTheme : lightTheme,
             nativeScrollbars: false,
           },
+          mountRef.current,
         );
       } catch (err) {
         if (!cancelled) {
