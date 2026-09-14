@@ -22,9 +22,7 @@ async function safeQuery<T>(fn: () => Promise<T>): Promise<T | null> {
   try {
     return await fn();
   } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn('[contentService] Query failed (returning null):', (error as Error)?.message);
-    }
+    console.error('[contentService] Query failed (returning null):', error);
     return null;
   }
 }

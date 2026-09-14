@@ -260,6 +260,7 @@ Henüz geliştirme aşamasında.`,
         description: 'Üniversite spor tesislerinin yönetiminde dijitalleşme sürecini nasıl yönettik?',
         author: 'Yunus Tuğhan',
         category: 'Software Development',
+        thumbnail: '/images/projects/estm.webp',
         content: `# ESTM İle Dijital Dönüşüm
 
 Akdeniz Üniversitesi spor tesisleri yönetim sisteminin geliştirilme sürecinden bahsedeceğim.
@@ -289,6 +290,7 @@ Sistem artık tüm üniversite tarafından aktif olarak kullanılıyor.`,
         description: 'Next.js 14 ile gelen yenilikler, Server Components, Streaming ve en iyi pratikler.',
         author: 'Yunus Tuğhan',
         category: 'Frontend',
+        thumbnail: '/images/projects/portal.webp',
         content: `# Next.js 14 App Router
 
 Next.js 14 App Router, modern web geliştirmede yeni bir çağ açtı.
@@ -319,6 +321,7 @@ Lighthouse skoru %30 arttı, bundle size %40 azaldı.`,
         description: 'İki popüler TypeScript ORM arasındaki farklar, performans karşılaştırması ve kullanım senaryoları.',
         author: 'Yunus Tuğhan',
         category: 'Backend',
+        thumbnail: '/images/projects/portfolio.webp',
         content: `# Prisma vs Drizzle
 
 Her iki ORM de TypeScript-first yaklaşım sunuyor.
@@ -348,6 +351,7 @@ Her iki ORM de TypeScript-first yaklaşım sunuyor.
         description: 'Cam efektli tasarım trendi, nerede kullanılmalı, performans ipuçları.',
         author: 'Yunus Tuğhan',
         category: 'Design',
+        thumbnail: '/images/01d7e936-6698-4271-8087-855b92bf9771.webp',
         content: `# Glassmorphism
 
 Apple, Stripe, Linear gibi şirketlerin popülerleştirdiği glassmorphism, 2026'da da güçlü bir trend.
@@ -377,6 +381,7 @@ Yeterli contrast ratio sağlamak önemli. WCAG AA minimum.`,
         description: 'Stripe Checkout, Webhooks, Subscription modeli kurulumu ve Türkiye özel notlar.',
         author: 'Yunus Tuğhan',
         category: 'Backend',
+        thumbnail: '/images/2e6068a2-7738-4b32-bd42-a475ca5dffea.webp',
         content: `# Stripe Entegrasyonu
 
 Stripe, global ödeme altyapısında lider.
@@ -407,6 +412,7 @@ iyzico TR müşteriler için daha iyi başarı oranı sunuyor. Provider abstract
         description: 'JSON alanlarında tip güvenliği, form validasyonu, API contract validation.',
         author: 'Yunus Tuğhan',
         category: 'TypeScript',
+        thumbnail: '/images/b94746f0-1857-4257-978c-198368832a5c.webp',
         content: `# Zod ile Runtime Type Safety
 
 TypeScript sadece compile-time güvenliği sağlar. Runtime'da hâlâ 'any' olabilir.
@@ -441,6 +447,7 @@ type User = z.infer<typeof UserSchema>;
         description: 'PostgreSQL + Docker Compose, volume yönetimi, production benzeri dev ortamı.',
         author: 'Yunus Tuğhan',
         category: 'DevOps',
+        thumbnail: '/images/projects/mobile.webp',
         content: `# Docker ile Geliştirme
 
 Local'de PostgreSQL kurmak yerine Docker kullanmak pratik.
@@ -475,6 +482,7 @@ services:
         description: 'Tailwind v4 yenilikleri, OKLCH renkler, native CSS variables, performans iyileştirmeleri.',
         author: 'Yunus Tuğhan',
         category: 'Frontend',
+        thumbnail: '/images/bfadcce2-585a-49e4-8807-9c9ea0d076b6.webp',
         content: `# Tailwind v4
 
 Tailwind v4, native CSS variable desteği ve OKLCH renk uzayı ile geliyor.

@@ -68,20 +68,7 @@ vi.mock('openai', () => ({
   },
 }));
 
-// isomorphic-dompurify root-cause fix:
-// Production'da isomorphic-dompurify → jsdom@28 → undici@7 kullanır.
-// Vitest ise jsdom@30 → undici@8 kullanır. Bu versiyon çakışması
-// Node.js'in internal `webidl.util.markAsUncloneable`'ını override edip
-// undici'nin WebCrypto API'sini bozuyordu.
-//
-// Çözüm: Test ortamında isomorphic-dompurify'i no-op mock ile bypass et.
-// Production build'de normal çalışır (Next.js serverComponentsExternalPackages).
-vi.mock('isomorphic-dompurify', () => ({
-  default: {
-    sanitize: (html: string) => html,
-    setConfig: () => undefined,
-  },
-}));
+
 
 // Her testten sonra DOM temizliği
 afterEach(() => {

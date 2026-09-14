@@ -4,8 +4,6 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import MarkdownIt from 'markdown-it';
-import DOMPurify from 'isomorphic-dompurify';
 import { FaArrowLeft, FaCalendarAlt, FaUser, FaTag, FaEye, FaClock } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
@@ -13,13 +11,12 @@ import { CommentsSection } from '@/components/blog/CommentsSection';
 import { locales, defaultLocale } from '@/i18n/config';
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, generateOpenGraph, generateTwitterCard, getBaseUrl } from '@/components/seo/JsonLd';
 import { safeMetadata } from '@/lib/pageMetadata';
+import { renderSafeMarkdown } from '@/lib/safeMarkdown';
 import {
   calculateReadingTime,
   trackBlogView,
   getRelatedBlogs,
 } from '@/lib/blogAnalytics';
-
-const md = new MarkdownIt({ html: true });
 
 // Her istekte fresh data + view tracking (server component).
 // generateStaticParams ile birlikte calismaz; analytics guncel kalsin.
@@ -139,8 +136,7 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
     console.warn('getRelatedBlogs failed', e);
   }
 
-  const dirtyHtml = md.render(post.content);
-  const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+  const cleanHtml = renderSafeMarkdown(post.content);
 
   const imageUrl = post.thumbnail?.startsWith('/images/')
     ? `/api/static${post.thumbnail}`

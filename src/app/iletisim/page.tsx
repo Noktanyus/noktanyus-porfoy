@@ -21,13 +21,14 @@ export default function IletisimPage() {
   useEffect(() => {
     const fetchAboutData = async () => {
       try {
-        const response = await fetch('/api/about');
+        const response = await fetch('/api/about', { cache: 'no-store' });
         if (!response.ok) {
-          throw new Error('Veri yüklenemedi');
+          throw new Error(`Veri yüklenemedi (HTTP ${response.status})`);
         }
         const data = await response.json();
         setAboutData(data);
       } catch (err) {
+        console.error('[IletisimPage] fetchAboutData error:', err);
         setError(err instanceof Error ? err.message : 'Bir hata oluştu');
       } finally {
         setLoading(false);

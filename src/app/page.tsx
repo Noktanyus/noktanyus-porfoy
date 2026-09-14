@@ -22,6 +22,16 @@ import { safeMetadata } from "@/lib/pageMetadata";
 // Force dynamic rendering to prevent build-time database errors
 export const dynamic = 'force-dynamic';
 
+function normalizeInstagramUrl(handleOrUrl?: string | null): string | undefined {
+  if (!handleOrUrl) return undefined;
+  const trimmed = handleOrUrl.trim();
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://instagram.com/${trimmed.replace(/^@/, '')}`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   return safeMetadata(
     async () => {
@@ -89,9 +99,7 @@ export default async function Home() {
     sameAs: [
       aboutData?.socialGithub || 'https://github.com/Noktanyus',
       aboutData?.socialLinkedin || 'https://linkedin.com/in/yunus-tughan',
-      aboutData?.socialInstagram
-        ? `https://instagram.com/${aboutData.socialInstagram.replace(/^@/, '')}`
-        : undefined,
+      normalizeInstagramUrl(aboutData?.socialInstagram),
     ].filter(Boolean) as string[],
     email: aboutData?.contactEmail ?? undefined,
   });
@@ -102,9 +110,7 @@ export default async function Home() {
   const githubUrl = aboutData?.socialGithub || 'https://github.com/Noktanyus';
   const linkedinUrl =
     aboutData?.socialLinkedin || 'https://linkedin.com/in/yunus-tughan';
-  const instagramUrl = aboutData?.socialInstagram
-    ? `https://instagram.com/${aboutData.socialInstagram.replace(/^@/, '')}`
-    : undefined;
+  const instagramUrl = normalizeInstagramUrl(aboutData?.socialInstagram);
 
   return (
     <>

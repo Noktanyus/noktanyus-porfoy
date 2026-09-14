@@ -46,3 +46,7 @@ next-env.d.ts
 verify-*.png
 phase1-*.png
 phase2-*.png
+
+noktanyus-local.dump
+.vercel-nextauth-secret.tmp
+

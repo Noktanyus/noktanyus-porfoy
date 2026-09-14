@@ -5,11 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FaGithub, FaExternalLinkAlt, FaArrowLeft } from 'react-icons/fa';
-import MarkdownIt from 'markdown-it';
-import DOMPurify from 'isomorphic-dompurify';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { safeMetadata } from '@/lib/pageMetadata';
+import { renderSafeMarkdown } from '@/lib/safeMarkdown';
 
 // Prisma-backed page: server-side dynamic data fetch.
 // force-dynamic prevents Next.js from trying to statically render
@@ -17,8 +16,6 @@ import { safeMetadata } from '@/lib/pageMetadata';
 // generateStaticParams returns [] when DB is unreachable).
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
-
-const md = new MarkdownIt({ html: true });
 
 type PageProps = {
   params: {
@@ -71,8 +68,7 @@ async function ProjectPageContent({ slug }: { slug: string }) {
     notFound();
   }
 
-  const dirtyHtml = md.render(project.content);
-  const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+  const cleanHtml = renderSafeMarkdown(project.content);
 
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`

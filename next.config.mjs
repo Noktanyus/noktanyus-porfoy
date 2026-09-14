@@ -22,15 +22,8 @@ const nextConfig = {
     // iyzipay dynamic fs.readdirSync + require pattern'i webpack/turbopack
     // tarafindan takip edilemiyor. Server Components bunlari external olarak
     // native require ile yukler.
-    // jsdom (isomorphic-dompurify dependency'si) build artifact konumundan
-    // browser/default-stylesheet.css'i relative path ile arar, bu da
-    // 'Failed to collect page data' ENOENT hatasina yol acar.
-    // Opsiyonel native ve runtime servis bagimliliklari build sirasinda
-    // disarida tutulur; gercek kullanici isteklerinde runtime'da yuklenir.
     serverComponentsExternalPackages: [
       'iyzipay',
-      'jsdom',
-      'isomorphic-dompurify',
       '@react-pdf/renderer',
     ],
   },
@@ -184,13 +177,14 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://mc.yandex.ru https://www.youtube.com https://youtube.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://mc.yandex.ru https://www.youtube.com https://youtube.com https://cdn.redocly.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https: http:",
               "media-src 'self' https: http:",
               "frame-src 'self' https://www.youtube.com https://youtube.com https://challenges.cloudflare.com",
-              "connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://mc.yandex.ru",
+              "connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://mc.yandex.ru https://cdn.redocly.com",
+              "worker-src 'self' blob: https://cdn.redocly.com",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",

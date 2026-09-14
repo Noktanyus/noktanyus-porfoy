@@ -80,11 +80,11 @@ describe('Performance checks', () => {
       );
     });
 
-    it('ProductGrid is loaded via next/dynamic in the magaza page', async () => {
+    it('ProductGrid is loaded via next/dynamic in the magaza urunler page', async () => {
       const { readFile } = await import('fs/promises');
       const path = await import('path');
       const page = await readFile(
-        path.resolve(process.cwd(), 'src/app/(commerce)/magaza/page.tsx'),
+        path.resolve(process.cwd(), 'src/app/(commerce)/magaza/urunler/page.tsx'),
         'utf8'
       );
       expect(page).toMatch(/ProductGrid/);

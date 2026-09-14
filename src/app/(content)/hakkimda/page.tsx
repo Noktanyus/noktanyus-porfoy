@@ -11,13 +11,12 @@ export const dynamic = 'force-dynamic';
 import { getAbout, getSeoSettings } from '@/services/contentService';
 import Image from 'next/image';
 import { FaBriefcase, FaGithub, FaLinkedin, FaInstagram } from 'react-icons/fa';
-import MarkdownIt from 'markdown-it';
-import DOMPurify from 'isomorphic-dompurify';
 import { createElement } from 'react';
 import { iconComponents } from '@/lib/icon-map';
 import { Metadata } from 'next';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { safeMetadata } from '@/lib/pageMetadata';
+import { renderSafeMarkdown } from '@/lib/safeMarkdown';
 
 /**
  * Hakkımda sayfası için dinamik metadata oluşturur.
@@ -55,15 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
-// Markdown-it ve DOMPurify'ı yapılandır
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
-const defaultRender = md.renderer.rules.link_open || function(tokens, idx, options, env, self) {
-  return self.renderToken(tokens, idx, options);
-};
-md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-  tokens[idx].attrPush(['rel', 'noopener noreferrer']);
-  return defaultRender(tokens, idx, options, env, self);
-};
+
 
 export default async function HakkimdaPage() {
   const aboutData = await getAbout();
@@ -77,8 +68,7 @@ export default async function HakkimdaPage() {
     );
   }
 
-  const dirtyHtml = md.render(aboutData.content);
-  const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+  const cleanHtml = renderSafeMarkdown(aboutData.content);
   const { experiences, skills } = aboutData;
 
   const profileImageUrl = aboutData.aboutImage?.startsWith('/images/')

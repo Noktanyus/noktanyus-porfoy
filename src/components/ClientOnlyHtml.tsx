@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import DOMPurify from 'isomorphic-dompurify';
+import { sanitizeRawHtml } from '@/lib/safeMarkdown';
 
 interface ClientOnlyHtmlProps {
   html: string;
@@ -20,9 +20,9 @@ export default function ClientOnlyHtml({ html, className }: ClientOnlyHtmlProps)
     setIsClient(true);
   }, []);
 
-  // HTML'i DOM'a yazdırmadan önce DOMPurify ile temizle.
+  // HTML'i DOM'a yazdırmadan önce güvenli hale getir.
   // Bu, <script> etiketleri gibi zararlı içerikleri kaldırarak XSS'i önler.
-  const cleanHtml = DOMPurify.sanitize(html);
+  const cleanHtml = sanitizeRawHtml(html);
 
   // Sadece istemci tarafında ve temizlenmiş HTML'i render et.
   return isClient ? <div className={className} dangerouslySetInnerHTML={{ __html: cleanHtml }} /> : null;
