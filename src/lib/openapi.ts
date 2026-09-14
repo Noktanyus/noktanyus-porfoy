@@ -142,7 +142,7 @@ const Pagination: SchemaObject = {
 // Path registry — keep flat & alphabetical-by-tag for predictable docs
 // ─────────────────────────────────────────────────────────────────────────────
 
-const TAGS = ['TR API', 'Auth', 'OAuth 2.0', 'Products', 'Blog', 'API Keys', 'Newsletter', 'Plans', 'System'] as const;
+const TAGS = ['TR API', 'API Keys', 'Plans'] as const;
 
 const paths: PathsObject = {
   '/api/v1/validate/identity': {
@@ -1283,52 +1283,55 @@ const SERVER_URL =
   process.env.NEXTAUTH_URL ||
   'https://noktanyus.com';
 
+const PUBLIC_TAG_SET = new Set<string>(TAGS);
+
+function getPublicPaths(allPaths: PathsObject): PathsObject {
+  const filtered: PathsObject = {};
+  for (const [pathKey, methodMap] of Object.entries(allPaths)) {
+    const validMethods: Record<string, OperationObject> = {};
+    for (const [method, op] of Object.entries(methodMap as Record<string, OperationObject>)) {
+      if (op?.tags?.some((t) => PUBLIC_TAG_SET.has(t))) {
+        validMethods[method] = op;
+      }
+    }
+    if (Object.keys(validMethods).length > 0) {
+      filtered[pathKey] = validMethods;
+    }
+  }
+  return filtered;
+}
+
 export const OPENAPI_SPEC: Document = {
   openapi: '3.1.0',
   info: {
-    title: 'Noktanyus Mağaza & TR Yardımcı API',
+    title: 'Noktanyus TR Yardımcı API Referansı',
     version: '1.0.0',
     description:
-      'Hazır paket satışı + TR e-ticaret yardımcı API (doğrulama, KDV/tevkifat, kıdem, iş günü, sayıdan yazıya, e-posta MX, fatura PDF). Auth, ürün kataloğu, API key ve abonelik kotası.',
-    contact: { name: 'API Support', email: 'api@noktanyus.local' },
+      'TR e-ticaret ve yazılım geliştirme yardımcı API servisleri (doğrulama, KDV/tevkifat, kıdem tazminatı, iş günü hesabı, sayıdan yazıya, e-posta MX, fatura PDF). Tüm uçlar x-api-key başlığı ile çağrılır; kota abonelikten veya krediden düşer.',
+    contact: { name: 'API Support', email: 'destek@noktanyus.com' },
     license: { name: 'Proprietary' },
   },
   servers: [
-    { url: SERVER_URL, description: 'Current deployment' },
-    { url: 'http://localhost:3000', description: 'Local development' },
+    { url: SERVER_URL, description: 'Canlı Sunucu (Production)' },
+    { url: 'http://localhost:3000', description: 'Yerel Geliştirme (Local)' },
   ],
-  tags: TAGS.map((name) => ({ name })),
-  paths,
+  tags: TAGS.map((name) => ({
+    name,
+    description:
+      name === 'TR API'
+        ? 'Doğrulama, finans, takvim, coğrafya ve fatura yardımcı API uçları (x-api-key gerektirir)'
+        : name === 'API Keys'
+          ? 'Geliştirici API anahtarı yönetimi'
+          : 'Abonelik planları ve kredi paketleri',
+  })),
+  paths: getPublicPaths(paths),
   components: {
     securitySchemes: {
       ApiKeyAuth: {
         type: 'apiKey',
         in: 'header',
-        name: 'X-API-Key',
-        description: 'Machine-to-machine API anahtarı. /api/user/api-keys ile üretilir.',
-      },
-      OAuth2Auth: {
-        type: 'oauth2',
-        description:
-          'OAuth 2.0 Authorization Code with PKCE (RFC 7636, S256). Akış: /api/auth/oauth/authorize → consent → code → /api/auth/oauth/token.',
-        flows: {
-          authorizationCode: {
-            authorizationUrl: '/api/auth/oauth/authorize',
-            tokenUrl: '/api/auth/oauth/token',
-            refreshUrl: '/api/auth/oauth/token',
-            scopes: {
-              'read:profile': 'Kullanıcı profil bilgilerini oku',
-              'read:orders': 'Sipariş geçmişini oku',
-              'write:products': 'Ürün oluştur / güncelle (admin)',
-            },
-          },
-        },
-      },
-      SessionCookie: {
-        type: 'apiKey',
-        in: 'cookie',
-        name: 'next-auth.session-token',
-        description: 'NextAuth session cookie (browser tabanlı admin/SSR akışları için).',
+        name: 'x-api-key',
+        description: 'Machine-to-machine API anahtarı. /dashboard/api-keys üzerinden üretilir.',
       },
     },
     schemas: {
