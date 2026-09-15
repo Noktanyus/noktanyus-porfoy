@@ -94,7 +94,8 @@ async function main() {
   }
 
   const projects = [
-    ['estm.webp', 'ESTM Spor Tesisleri', '#0369a1'],
+    ['esas.webp', 'eSAS Spor Tesisleri', '#0369a1'],
+    ['estm.webp', 'eSAS Spor Tesisleri', '#0369a1'],
     ['portfolio.webp', 'Noktanyus Portfolio', '#4338ca'],
     ['portal.webp', 'Üniversite Portal', '#047857'],
     ['mobile.webp', 'Mobil Uygulama', '#be123c'],

@@ -10,6 +10,7 @@ import { AnimatedHero } from "@/components/landing/AnimatedHero";
 import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
+import ApiShowcase from "@/components/home/ApiShowcase";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import {
   JsonLd,
@@ -142,6 +143,9 @@ export default async function Home() {
 
           {/* Featured Projects */}
           <FeaturedProjects projects={featuredProjects} />
+
+          {/* TR API & Microservices Showcase */}
+          <ApiShowcase />
 
           {/* Latest Blogs */}
           <LatestBlogs blogs={latestPosts} />

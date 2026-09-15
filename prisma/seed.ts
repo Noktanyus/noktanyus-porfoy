@@ -94,13 +94,13 @@ async function main() {
       title: 'Software Developer',
       subTitle: 'Akdeniz Üniversitesi bünyesinde yazılım çözümleri üretiyorum.',
       headerTitle: 'Yunus Tuğhan',
-      content: 'Akdeniz Üniversitesi Bilgi İşlem Daire Başkanlığı bünyesinde stajyerlik sürecimi tamamladıktan sonra şu an aktif olarak yazılım geliştirici olarak görev yapıyorum. ESTM Spor Tesisleri başta olmak üzere üniversite genelindeki dijital dönüşüm süreçlerine katkı sağlıyorum.',
+      content: 'Akdeniz Üniversitesi Bilgi İşlem Daire Başkanlığı bünyesinde stajyerlik sürecimi tamamladıktan sonra şu an aktif olarak yazılım geliştirici olarak görev yapıyorum. eSAS (Eğitim ve Sosyal Tesisler) başta olmak üzere üniversite genelindeki dijital dönüşüm süreçlerine katkı sağlıyorum.',
       profileImage: '/images/profile.webp',
       contactEmail: 'tughan@akdeniz.edu.tr',
       socialGithub: 'https://github.com/Noktanyus',
       socialLinkedin: 'https://linkedin.com/in/yunus-tughan',
       socialInstagram: 'https://instagram.com/noktanyus',
-      workingOn: 'ESTM Spor Tesisleri Yazılımı',
+      workingOn: 'eSAS Tesis Yönetim Yazılımı',
     },
   });
 
@@ -111,7 +111,7 @@ async function main() {
         title: 'Yazılım Geliştirici',
         company: 'Akdeniz Üniversitesi',
         date: '2024 - Günümüz',
-        description: 'ESTM Spor Tesisleri (sporalanlari.akdeniz.edu.tr) yazılımının geliştirilmesi, bakımı ve yeni özelliklerin entegrasyonu.',
+        description: 'eSAS - Eğitim ve Sosyal Tesisler (sporalanlari.akdeniz.edu.tr) yazılımının geliştirilmesi, bakımı ve yeni özelliklerin entegrasyonu.',
         aboutId: about.id,
       },
       {
@@ -144,16 +144,16 @@ async function main() {
   const projects = await Promise.all([
     prisma.project.create({
       data: {
-        slug: 'estm-spor-tesisleri',
-        title: 'ESTM Spor Tesisleri',
-        description: 'Akdeniz Üniversitesi Spor Tesisleri Rezervasyon ve Yönetim Sistemi. Öğrenciler ve personeller için spor alanlarının kullanımını dijitalleştiren kapsamlı bir yazılım.',
-        mainImage: '/images/projects/estm.webp',
+        slug: 'esas-spor-tesisleri',
+        title: 'eSAS Spor Tesisleri',
+        description: 'Akdeniz Üniversitesi Eğitim ve Sosyal Tesisler (eSAS) Rezervasyon ve Yönetim Sistemi. Öğrenciler ve personeller için spor alanlarının kullanımını dijitalleştiren kapsamlı bir yazılım.',
+        mainImage: '/images/projects/esas.webp',
         technologies: ['.NET', 'ASP.NET MVC', 'C#', 'SQL Server', 'JavaScript'],
         liveDemo: 'https://sporalanlari.akdeniz.edu.tr',
         order: 1,
         featured: true,
         isLive: true,
-        content: `Akdeniz Üniversitesi spor alanlarının (tenis kortları, halı sahalar, salonlar vb.) online rezervasyon, ödeme ve yönetim süreçlerini kapsayan projedir.
+        content: `Akdeniz Üniversitesi eSAS spor alanlarının (tenis kortları, halı sahalar, salonlar vb.) online rezervasyon, ödeme ve yönetim süreçlerini kapsayan projedir.
 
 ## Özellikler
 - Online rezervasyon sistemi
@@ -255,15 +255,15 @@ Henüz geliştirme aşamasında.`,
   const blogs = await Promise.all([
     prisma.blog.create({
       data: {
-        slug: 'estm-dijital-donusum',
-        title: 'ESTM İle Dijital Dönüşüm',
-        description: 'Üniversite spor tesislerinin yönetiminde dijitalleşme sürecini nasıl yönettik?',
+        slug: 'esas-dijital-donusum',
+        title: 'eSAS İle Dijital Dönüşüm',
+        description: 'Üniversite eğitim ve sosyal tesislerinin yönetiminde dijitalleşme sürecini nasıl yönettik?',
         author: 'Yunus Tuğhan',
         category: 'Software Development',
-        thumbnail: '/images/projects/estm.webp',
-        content: `# ESTM İle Dijital Dönüşüm
+        thumbnail: '/images/projects/esas.webp',
+        content: `# eSAS İle Dijital Dönüşüm
 
-Akdeniz Üniversitesi spor tesisleri yönetim sisteminin geliştirilme sürecinden bahsedeceğim.
+Akdeniz Üniversitesi Eğitim ve Sosyal Tesisler Müdürlüğü (eSAS) spor alanları yönetim sisteminin geliştirilme sürecinden bahsedeceğim.
 
 ## Başlangıç
 Spor tesisleri rezervasyonu manuel olarak yapılıyordu. Telefon, kağıt, Excel...
@@ -781,7 +781,7 @@ Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
       featuredContentType: 'project',
       youtubeUrl: '',
       textTitle: 'Yunus Tuğhan',
-      textContent: 'Akdeniz Üniversitesi Yazılım Geliştirici | ESTM Spor Tesisleri Yazılım Sorumlusu',
+      textContent: 'Akdeniz Üniversitesi Yazılım Geliştirici | eSAS Spor Tesisleri Yazılım Sorumlusu',
     },
   });
 
@@ -816,7 +816,7 @@ Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
         title: 'Proje Yöneticisi',
         company: 'Akdeniz Üniversitesi',
         avatar: '/images/testimonials/mehmet.webp',
-        comment: 'Yunus, ESTM projesinde gösterdiği performans ve problem çözme becerisiyle ekibimize büyük katkı sağladı.',
+        comment: 'Yunus, eSAS projesinde gösterdiği performans ve problem çözme becerisiyle ekibimize büyük katkı sağladı.',
       },
       {
         name: 'Ayşe Kaya',

@@ -1,4 +1,12 @@
 /**
+ * Script to generate src/lib/openapi.ts with complete request examples and comprehensive error documentation.
+ */
+import { writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+const outputPath = resolve('src/lib/openapi.ts');
+
+const code = `/**
  * OpenAPI 3.1.0 Specification Builder — Public API Reference
  *
  * Single source of truth for the Redoc / Swagger UI surface at /docs and
@@ -1966,9 +1974,9 @@ function generateCodeSamples(endpointPath: string, bodyExample: Record<string, u
       source:
         'curl -X POST "https://noktanyus.com' +
         endpointPath +
-        '" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d \'' +
-        compactJson.replace(/'/g, "\\'") +
-        '\'',
+        '" \\\\\\n  -H "x-api-key: YOUR_API_KEY" \\\\\\n  -H "Content-Type: application/json" \\\\\\n  -d \\'' +
+        compactJson.replace(/'/g, "\\\\'") +
+        '\\'',
     },
     {
       lang: 'JavaScript',
@@ -1976,29 +1984,29 @@ function generateCodeSamples(endpointPath: string, bodyExample: Record<string, u
       source:
         'const response = await fetch("https://noktanyus.com' +
         endpointPath +
-        '", {\n  method: "POST",\n  headers: {\n    "x-api-key": "YOUR_API_KEY",\n    "Content-Type": "application/json"\n  },\n  body: JSON.stringify(' +
+        '", {\\n  method: "POST",\\n  headers: {\\n    "x-api-key": "YOUR_API_KEY",\\n    "Content-Type": "application/json"\\n  },\\n  body: JSON.stringify(' +
         compactJson +
-        ')\n});\nconst result = await response.json();\nconsole.log(result);',
+        ')\\n});\\nconst result = await response.json();\\nconsole.log(result);',
     },
     {
       lang: 'Python',
       label: 'Python',
       source:
-        'import requests\n\nurl = "https://noktanyus.com' +
+        'import requests\\n\\nurl = "https://noktanyus.com' +
         endpointPath +
-        '"\nheaders = {\n    "x-api-key": "YOUR_API_KEY",\n    "Content-Type": "application/json"\n}\npayload = ' +
+        '"\\nheaders = {\\n    "x-api-key": "YOUR_API_KEY",\\n    "Content-Type": "application/json"\\n}\\npayload = ' +
         compactJson.replace(/true/g, 'True').replace(/false/g, 'False').replace(/null/g, 'None') +
-        '\n\nresponse = requests.post(url, json=payload, headers=headers)\nprint(response.json())',
+        '\\n\\nresponse = requests.post(url, json=payload, headers=headers)\\nprint(response.json())',
     },
     {
       lang: 'PHP',
       label: 'PHP',
       source:
-        '<?php\n$ch = curl_init("https://noktanyus.com' +
+        '<?php\\n$ch = curl_init("https://noktanyus.com' +
         endpointPath +
-        '");\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\ncurl_setopt($ch, CURLOPT_POST, true);\ncurl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(' +
+        '");\\ncurl_setopt($ch, CURLOPT_RETURNTRANSFER, true);\\ncurl_setopt($ch, CURLOPT_POST, true);\\ncurl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(' +
         compactJson +
-        '));\ncurl_setopt($ch, CURLOPT_HTTPHEADER, [\n    "Content-Type: application/json",\n    "x-api-key: YOUR_API_KEY"\n]);\n$res = curl_exec($ch);\ncurl_close($ch);\necho $res;',
+        '));\\ncurl_setopt($ch, CURLOPT_HTTPHEADER, [\\n    "Content-Type: application/json",\\n    "x-api-key: YOUR_API_KEY"\\n]);\\n$res = curl_exec($ch);\\ncurl_close($ch);\\necho $res;',
     },
   ];
 }
@@ -2037,8 +2045,8 @@ const API_DESCRIPTION = [
   'Tüm API uçları **makineler arası (machine-to-machine)** entegrasyon için tasarlanmıştır.',
   '',
   'İsteklerinizi aşağıdaki HTTP başlıklarından biriyle gönderiniz:',
-  "- `x-api-key: nokt_live_...` *(Önerilen)*",
-  "- `Authorization: Bearer nokt_live_...`",
+  "- \`x-api-key: nokt_live_...\` *(Önerilen)*",
+  "- \`Authorization: Bearer nokt_live_...\`",
   '',
   '> **API Anahtarı Edinme**: Dashboard üzerinde yer alan **[API Anahtarları](/dashboard/api-keys)** sayfasından anında yeni bir anahtar üretebilirsiniz.',
   '',
@@ -2049,7 +2057,7 @@ const API_DESCRIPTION = [
   'Her API çağrısı hesap kotanızdan düşülür. Sistem iki aşamalı esnek faturalandırma modelini destekler:',
   '',
   '1. **Abonelik Modeli**: Seçtiğiniz plana göre (Free: 1.000 istek/ay, Pro: 50.000 istek/ay vb.) aylık istek kotanız tanımlanır. Kota her fatura döneminde sıfırlanır.',
-  '2. **Ön Ödemeli Kredi Modeli**: Kota dolduğunda veya abonelik dışı kullanımda, hesabınızdaki kredi bakiyesinden **1 istek = 1 kredi** olarak düşülür (`/validate/batch` toplu doğrulama ucunda doğrulanan öğe adedi kadar kredi düşer).',
+  '2. **Ön Ödemeli Kredi Modeli**: Kota dolduğunda veya abonelik dışı kullanımda, hesabınızdaki kredi bakiyesinden **1 istek = 1 kredi** olarak düşülür (\`/validate/batch\` toplu doğrulama ucunda doğrulanan öğe adedi kadar kredi düşer).',
   '3. **Sıfır Risk - Otomatik Kredi İadesi**: Bir API çağrısı sistem kaynaklı 5xx hatasıyla sonuçlanırsa, düşülen kredi **anında otomatik olarak hesabınıza iade edilir**.',
   '',
   '---',
@@ -2060,25 +2068,25 @@ const API_DESCRIPTION = [
   '',
   '### Durum Kodları ve Hata Çözüm Tablosu:',
   '',
-  '| HTTP Kodu | Hata Kodu (`error.code`) | Neden / Tetiklenme Durumu | Çözüm ve İstemci Döngüsü |',
+  '| HTTP Kodu | Hata Kodu (\`error.code\`) | Neden / Tetiklenme Durumu | Çözüm ve İstemci Döngüsü |',
   '| :--- | :--- | :--- | :--- |',
-  '| **200 OK / 201 Created** | — | İşlem başarıyla tamamlandı (`success: true`). | `data` nesnesindeki sonucu işleyin. |',
-  '| **400 Bad Request** | `VALIDATION` | İstek gövdesi eksik, hatalı veya Zod şemasına uymuyor. | `message.fieldErrors` alanını kontrol edip parametreleri düzeltin. |',
-  '| **401 Unauthorized** | `UNAUTHORIZED` | `x-api-key` veya `Authorization` başlığı eksik. | İstek başlığına geçerli API anahtarınızı ekleyin. |',
-  '| **401 Unauthorized** | `INVALID_KEY` | API anahtarı geçersiz, iptal edilmiş veya süresi dolmuş. | Dashboard üzerinden yeni bir API anahtarı üretip güncelleyin. |',
-  '| **402 Payment Required** | `QUOTA_EXCEEDED` | Aylık istek kotanız doldu veya kredi bakiyeniz yetersiz. | Planınızı yükseltin veya /magaza/krediler üzerinden bakiye yükleyin. |',
-  '| **429 Too Many Requests** | `RATE_LIMITED` | Dakika başına izin verilen hız sınırı aşıldı. | `Retry-After` başlığındaki süre kadar bekleyin (Exponential Backoff). |',
-  '| **500 Internal Error** | `INTERNAL_ERROR` | Beklenmeyen sunucu hatası oluştu. | Harcanan kredi anında iade edilmiştir. Kısa süre sonra tekrar deneyin. |',
+  '| **200 OK / 201 Created** | — | İşlem başarıyla tamamlandı (\`success: true\`). | \`data\` nesnesindeki sonucu işleyin. |',
+  '| **400 Bad Request** | \`VALIDATION\` | İstek gövdesi eksik, hatalı veya Zod şemasına uymuyor. | \`message.fieldErrors\` alanını kontrol edip parametreleri düzeltin. |',
+  '| **401 Unauthorized** | \`UNAUTHORIZED\` | \`x-api-key\` veya \`Authorization\` başlığı eksik. | İstek başlığına geçerli API anahtarınızı ekleyin. |',
+  '| **401 Unauthorized** | \`INVALID_KEY\` | API anahtarı geçersiz, iptal edilmiş veya süresi dolmuş. | Dashboard üzerinden yeni bir API anahtarı üretip güncelleyin. |',
+  '| **402 Payment Required** | \`QUOTA_EXCEEDED\` | Aylık istek kotanız doldu veya kredi bakiyeniz yetersiz. | Planınızı yükseltin veya /magaza/krediler üzerinden bakiye yükleyin. |',
+  '| **429 Too Many Requests** | \`RATE_LIMITED\` | Dakika başına izin verilen hız sınırı aşıldı. | \`Retry-After\` başlığındaki süre kadar bekleyin (Exponential Backoff). |',
+  '| **500 Internal Error** | \`INTERNAL_ERROR\` | Beklenmeyen sunucu hatası oluştu. | Harcanan kredi anında iade edilmiştir. Kısa süre sonra tekrar deneyin. |',
   '',
   '---',
   '',
   '## 4. Hız Sınırları ve Yanıt Başlıkları (Rate Limiting)',
   '',
   'Her başarılı veya sınıra takılan yanıtta hız limitinizin durumunu gösteren başlıklar iletilir:',
-  '- `X-RateLimit-Limit`: Dakika başına izin verilen maksimum istek sayısı.',
-  '- `X-RateLimit-Remaining`: Mevcut dakikalık pencerede kalan istek hakkınız.',
-  '- `Retry-After`: 429 yanıtlarında tekrar istek yapmadan önce beklemeniz gereken saniye.',
-].join('\n');
+  '- \`X-RateLimit-Limit\`: Dakika başına izin verilen maksimum istek sayısı.',
+  '- \`X-RateLimit-Remaining\`: Mevcut dakikalık pencerede kalan istek hakkınız.',
+  '- \`Retry-After\`: 429 yanıtlarında tekrar istek yapmadan önce beklemeniz gereken saniye.',
+].join('\\n');
 
 export const OPENAPI_SPEC: Document = {
   openapi: '3.1.0',
@@ -2131,3 +2139,7 @@ export const OPENAPI_SPEC: Document = {
  * JSON string export — Redoc + /api/openapi/route.ts bunu kullanır.
  */
 export const OPENAPI_SPEC_JSON = JSON.stringify(OPENAPI_SPEC);
+`;
+
+writeFileSync(outputPath, code, 'utf8');
+console.log('Successfully generated', outputPath);
