@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaCalendarAlt, FaCopy, FaCheck, FaCode, FaArrowLeft, FaBriefcase, FaSun } from 'react-icons/fa';
-import { calculateBusinessDays } from '@/modules/tr-api';
+import { calculateBusinessDays } from '@/modules/tr-api/extras';
 
 export default function BusinessDaysToolClient() {
   const [startDate, setStartDate] = useState('2026-10-01');

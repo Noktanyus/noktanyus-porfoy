@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaShieldAlt } from 'react-icons/fa';
-import { resolveIbanBank } from '@/modules/tr-api';
+import { resolveIbanBank } from '@/modules/tr-api/validators';
 
 const SAMPLES = [
   { label: 'Garanti BBVA', iban: 'TR330006100511123456789012' },

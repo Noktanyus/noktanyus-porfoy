@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaCalculator, FaCopy, FaCheck, FaCode, FaArrowLeft } from 'react-icons/fa';
-import { calculateKdvWithholding, type WithholdingFraction } from '@/modules/tr-api';
+import { calculateKdvWithholding, type WithholdingFraction } from '@/modules/tr-api/extras';
 
 export default function KdvToolClient() {
   const [amountStr, setAmountStr] = useState('1000');

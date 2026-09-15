@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaIdCard } from 'react-icons/fa';
-import { validateTckn, validateVkn } from '@/modules/tr-api';
+import { validateTckn, validateVkn } from '@/modules/tr-api/validators';
 
 export default function TcknVknToolClient() {
   const [type, setType] = useState<'tckn' | 'vkn'>('tckn');
