@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { withTrApi } from '@/modules/tr-api/routeHelper';
-import { validateEmailMx } from '@/modules/tr-api';
+import { validateEmailMx } from '@/modules/tr-api/emailMx';
 
 const BodySchema = z.object({
   email: z.string().min(3).max(254),

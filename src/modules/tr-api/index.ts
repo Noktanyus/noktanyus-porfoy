@@ -25,10 +25,11 @@ export {
   bistTradingDays,
   calculateTebligatClock,
   amountToTurkishWords,
-  validateEmailMx,
   DEFAULT_SEVERANCE_CEILING_CENTS,
   type WithholdingFraction,
 } from './extras';
+
+export { validateEmailMx } from './emailMx';
 
 export {
   validateVin,

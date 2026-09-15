@@ -8,8 +8,8 @@ import {
   calculateSeverance,
   calculateBusinessDays,
   amountToTurkishWords,
-  validateEmailMx,
 } from '../extras';
+import { validateEmailMx } from '../emailMx';
 
 describe('calculateKdvWithholding', () => {
   it('splits 5/10 withholding on 20% VAT', () => {

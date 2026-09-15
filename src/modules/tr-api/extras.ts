@@ -490,5 +490,4 @@ export function amountToTurkishWords(input: {
   return { amountCents: amount, currency, words, ...(compact ? { compact } : {}) };
 }
 
-export { validateEmailMx } from './emailMx';
 
