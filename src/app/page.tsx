@@ -141,11 +141,11 @@ export default async function Home() {
               </section>
             )}
 
-          {/* Featured Projects */}
-          <FeaturedProjects projects={featuredProjects} />
-
           {/* TR API & Microservices Showcase */}
           <ApiShowcase />
+
+          {/* Featured Projects */}
+          <FeaturedProjects projects={featuredProjects} />
 
           {/* Latest Blogs */}
           <LatestBlogs blogs={latestPosts} />

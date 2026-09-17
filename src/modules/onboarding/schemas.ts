@@ -12,7 +12,7 @@ import { z } from 'zod';
  * Plan tier selection during signup.
  * Free → 14-day Pro trial (full feature access during trial).
  */
-export const OnboardingPlanSchema = z.enum(['starter', 'pro', 'enterprise']);
+export const OnboardingPlanSchema = z.enum(['starter', 'pro', 'business', 'enterprise']);
 export type OnboardingPlan = z.infer<typeof OnboardingPlanSchema>;
 
 /**

@@ -37,7 +37,7 @@ export default function EmailDogrulaPage() {
         if (res.type === 'opaqueredirect' || (res.status >= 200 && res.status < 400)) {
           if (!cancelled) {
             setStatus('success');
-            setMessage('E-postanız doğrulandı! Dashboard\'a yönlendiriliyorsunuz...');
+            setMessage('E-postanız başarıyla doğrulandı ve 100 ücretsiz API kredisi hesabınıza yüklendi! Dashboard\'a yönlendiriliyorsunuz...');
             setTimeout(() => router.push('/dashboard?verified=true'), 1500);
           }
         } else {

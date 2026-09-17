@@ -11,34 +11,37 @@ export const API_CREDIT_PACKS = [
     slug: 'credits-1k',
     name: '1.000 kredi',
     credits: 1000,
-    priceCents: 4900,
+    priceCents: 7900,
     currency: 'try',
-    description: 'Küçük entegrasyon ve test için.',
+    description: 'Düşük hacimli, taahhütsüz deneme ve test.',
     featured: false,
   },
   {
     slug: 'credits-5k',
     name: '5.000 kredi',
     credits: 5000,
-    priceCents: 19900,
+    priceCents: 29900,
     currency: 'try',
-    description: 'Canlı mağaza / form doğrulama için.',
+    description: 'Ara ihtiyaçlar için esnek paket.',
     featured: true,
   },
   {
-    slug: 'credits-25k',
-    name: '25.000 kredi',
-    credits: 25000,
-    priceCents: 79900,
+    slug: 'credits-20k',
+    name: '20.000 kredi',
+    credits: 20000,
+    priceCents: 89900,
     currency: 'try',
-    description: 'Yüksek hacim — birim fiyat düşük.',
+    description: 'Toplu alım indirimi — birim fiyat avantajı.',
     featured: false,
   },
 ] as const;
 
-export type ApiCreditPackSlug = (typeof API_CREDIT_PACKS)[number]['slug'];
+export type ApiCreditPackSlug = (typeof API_CREDIT_PACKS)[number]['slug'] | 'credits-25k';
 
 export function getCreditPack(slug: string) {
+  if (slug === 'credits-25k') {
+    return API_CREDIT_PACKS.find((p) => p.slug === 'credits-20k') ?? null;
+  }
   return API_CREDIT_PACKS.find((p) => p.slug === slug) ?? null;
 }
 
@@ -50,10 +53,65 @@ export async function getApiCreditBalance(userId: string): Promise<number> {
   return user?.apiCreditBalance ?? 0;
 }
 
+export const WELCOME_CREDITS = 100;
+
+export async function grantEmailVerifiedCredits(
+  userId: string,
+  customTx?: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+): Promise<{ granted: boolean; balanceAfter: number; ledgerId?: string }> {
+  const run = async (tx: any) => {
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { id: true, emailVerified: true, apiCreditBalance: true },
+    });
+
+    if (!user || !user.emailVerified) {
+      return { granted: false, balanceAfter: user?.apiCreditBalance ?? 0 };
+    }
+
+    // Idempotent: kullanıcı daha önce welcome_bonus aldıysa tekrar verme
+    if (tx.apiCreditLedger) {
+      const existing = await tx.apiCreditLedger.findFirst({
+        where: { userId, reason: 'welcome_bonus' },
+      });
+      if (existing) {
+        return { granted: false, balanceAfter: user.apiCreditBalance, ledgerId: existing.id };
+      }
+    }
+
+    const updated = await tx.user.update({
+      where: { id: userId },
+      data: { apiCreditBalance: { increment: WELCOME_CREDITS } },
+      select: { apiCreditBalance: true },
+    });
+
+    let ledgerId: string | undefined;
+    if (tx.apiCreditLedger) {
+      const ledger = await tx.apiCreditLedger.create({
+        data: {
+          userId,
+          delta: WELCOME_CREDITS,
+          balanceAfter: updated.apiCreditBalance,
+          reason: 'welcome_bonus',
+          metadata: { note: 'E-posta onaylı kullanıcı hoş geldin kredisi' },
+        },
+      });
+      ledgerId = ledger.id;
+    }
+
+    return { granted: true, balanceAfter: updated.apiCreditBalance, ledgerId };
+  };
+
+  if (customTx) {
+    return run(customTx);
+  }
+  return prisma.$transaction(run);
+}
+
 export async function creditApiBalance(input: {
   userId: string;
   credits: number;
-  reason: 'topup' | 'refund' | 'admin';
+  reason: 'topup' | 'refund' | 'admin' | 'welcome_bonus';
   orderId?: string;
   metadata?: Record<string, unknown>;
 }): Promise<{ balanceAfter: number; ledgerId: string }> {

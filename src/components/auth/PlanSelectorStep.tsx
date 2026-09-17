@@ -17,9 +17,15 @@ import { cn } from "@/lib/utils";
  * Plan tanımı - şimdilik hardcoded. İleride API'den dinamik çekilebilir.
  * features JSON array olarak ileride schema'dan parse edilebilir.
  */
+import type { OnboardingPlan } from "@/modules/onboarding/schemas";
+
+/**
+ * Plan tanımı - şimdilik hardcoded. İleride API'den dinamik çekilebilir.
+ * features JSON array olarak ileride schema'dan parse edilebilir.
+ */
 export interface PlanOption {
-  /** Plan slug - Zod OnboardingPlanSchema ile uyumlu: 'starter' | 'pro' | 'enterprise' */
-  slug: "starter" | "pro" | "enterprise";
+  /** Plan slug - Zod OnboardingPlanSchema ile uyumlu */
+  slug: OnboardingPlan;
   /** Görünür isim */
   name: string;
   /** Kısa açıklama */
@@ -39,20 +45,20 @@ export interface PlanOption {
 export const PLAN_OPTIONS: PlanOption[] = [
   {
     slug: "starter",
-    name: "Bireysel",
-    description: "TR yardımcı API — başlangıç kotası.",
-    priceCents: 0,
+    name: "Starter",
+    description: "TR yardımcı API — 2.000 aylık kota.",
+    priceCents: 9900,
     currency: "try",
     trialDays: 14,
     features: [
-      "1.000 API isteği / ay",
+      "2.000 API isteği / ay",
       "VKN · IBAN · telefon · KDV",
       "E-posta destek",
     ],
   },
   {
     slug: "pro",
-    name: "Profesyonel",
+    name: "Pro",
     description: "Yüksek kota ve öncelikli destek.",
     priceCents: 29900,
     currency: "try",
@@ -65,26 +71,38 @@ export const PLAN_OPTIONS: PlanOption[] = [
     ],
   },
   {
-    slug: "enterprise",
-    name: "Destek+",
-    description: "Sınırsız kota + kurulum yardımı.",
-    priceCents: 49900,
+    slug: "business",
+    name: "Business",
+    description: "Gelişmiş operasyon ve yüksek kota.",
+    priceCents: 99900,
     currency: "try",
     trialDays: 14,
     features: [
-      "Sınırsız API",
-      "Danışmanlık saati",
-      "Kurulum yardımı",
-      "Öncelikli yanıt",
+      "50.000 API isteği / ay",
+      "Öncelikli SLA desteği",
+      "Gelişmiş webhooklar",
+    ],
+  },
+  {
+    slug: "enterprise",
+    name: "Enterprise",
+    description: "Özel kota + SLA + Danışmanlık.",
+    priceCents: 0,
+    currency: "try",
+    trialDays: 0,
+    features: [
+      "Özel API kotası",
+      "Birebir mimari destek",
+      "7/24 SLA",
     ],
   },
 ];
 
 export interface PlanSelectorStepProps {
   /** Şu an seçili plan slug'ı */
-  value: "starter" | "pro" | "enterprise";
+  value: OnboardingPlan;
   /** Plan değiştiğinde çağrılır */
-  onChange: (slug: "starter" | "pro" | "enterprise") => void;
+  onChange: (slug: OnboardingPlan) => void;
   /** Kullanım koşulları kabul durumu */
   acceptTerms: boolean;
   /** acceptTerms değiştiğinde çağrılır */

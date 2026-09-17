@@ -24,6 +24,7 @@ import {
   RegisterStepSchema,
   PlanSelectStepSchema,
   OnboardingPlanSchema,
+  type OnboardingPlan,
 } from "@/modules/onboarding/schemas";
 import { PlanSelectorStep } from "./PlanSelectorStep";
 
@@ -38,7 +39,7 @@ interface AccountData {
 }
 
 interface PlanData {
-  planSlug: "starter" | "pro" | "enterprise";
+  planSlug: OnboardingPlan;
   acceptTerms: boolean;
 }
 

@@ -26,9 +26,11 @@ vi.mock('next/cache', () => ({
 }));
 
 const setUserAppRole = vi.hoisted(() => vi.fn());
+const updateUserApiLimit = vi.hoisted(() => vi.fn());
 
 vi.mock('@/modules/admin/userRoleService', () => ({
   setUserAppRole,
+  updateUserApiLimit,
 }));
 
 describe('PATCH /api/admin/users/[id]', () => {
@@ -44,6 +46,17 @@ describe('PATCH /api/admin/users/[id]', () => {
       role: 'admin',
       emailVerified: null,
       createdAt: new Date(),
+    });
+    updateUserApiLimit.mockResolvedValue({
+      id: 'u1',
+      email: 'ali@example.com',
+      name: 'Ali',
+      role: 'user',
+      emailVerified: null,
+      createdAt: new Date(),
+      customApiMonthlyLimit: 50000,
+      customApiLimitExpiresAt: new Date('2026-12-31'),
+      apiCreditBalance: 2500,
     });
   });
 
@@ -62,6 +75,86 @@ describe('PATCH /api/admin/users/[id]', () => {
       targetId: 'u1',
       role: 'admin',
     });
+  });
+
+  it('özel limit ekler (action: add)', async () => {
+    const { PATCH } = await import('../route');
+    const req = new NextRequest('http://localhost/api/admin/users/u1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        action: 'add',
+        additionalLimit: 10000,
+        customApiLimitNotes: 'Müşteri ek kotası',
+      }),
+    });
+    const res = await PATCH(req, { params: { id: 'u1' } });
+    expect(res.status).toBe(200);
+    expect(updateUserApiLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targetId: 'u1',
+        action: 'add',
+        additionalLimit: 10000,
+        customApiLimitNotes: 'Müşteri ek kotası',
+      })
+    );
+  });
+
+  it('özel limiti keser (action: revoke)', async () => {
+    const { PATCH } = await import('../route');
+    const req = new NextRequest('http://localhost/api/admin/users/u1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        action: 'revoke',
+        customApiLimitNotes: 'Limit iptali',
+      }),
+    });
+    const res = await PATCH(req, { params: { id: 'u1' } });
+    expect(res.status).toBe(200);
+    expect(updateUserApiLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targetId: 'u1',
+        action: 'revoke',
+        customApiLimitNotes: 'Limit iptali',
+      })
+    );
+  });
+
+  it('özel limit süresini doldurur (action: expire)', async () => {
+    const { PATCH } = await import('../route');
+    const req = new NextRequest('http://localhost/api/admin/users/u1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        action: 'expire',
+      }),
+    });
+    const res = await PATCH(req, { params: { id: 'u1' } });
+    expect(res.status).toBe(200);
+    expect(updateUserApiLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targetId: 'u1',
+        action: 'expire',
+      })
+    );
+  });
+
+  it('kredi yükler (addCredits)', async () => {
+    const { PATCH } = await import('../route');
+    const req = new NextRequest('http://localhost/api/admin/users/u1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        addCredits: 5000,
+        customApiLimitNotes: 'Destek hediyesi',
+      }),
+    });
+    const res = await PATCH(req, { params: { id: 'u1' } });
+    expect(res.status).toBe(200);
+    expect(updateUserApiLimit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        targetId: 'u1',
+        addCredits: 5000,
+        customApiLimitNotes: 'Destek hediyesi',
+      })
+    );
   });
 
   it('geçersiz gövdede 400 döner', async () => {

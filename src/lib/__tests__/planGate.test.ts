@@ -1,5 +1,5 @@
 /**
- * Plan Gate — abonelik + ön ödemeli kredi testleri
+ * Plan Gate — abonelik + ön ödemeli kredi + özel kullanıcı kotası (Enterprise / Custom) testleri
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -69,14 +69,25 @@ describe('getUserPlan', () => {
 });
 
 describe('getPlanLimits', () => {
-  it('returns Infinity for enterprise', async () => {
-    const limits = await getPlanLimits('enterprise');
-    expect(limits?.apiRequestsPerMonth).toBe(Number.POSITIVE_INFINITY);
+  it('returns null when plan not found or inactive', async () => {
+    mockPrisma.plan.findUnique.mockResolvedValue(null);
+    const limits = await getPlanLimits('unknown');
+    expect(limits).toBeNull();
+  });
+
+  it('returns plan limits from db when active', async () => {
+    mockPrisma.plan.findUnique.mockResolvedValue({
+      active: true,
+      features: { marketing: [], limits: { apiRequestsPerMonth: 50000 } },
+    });
+    const limits = await getPlanLimits('business');
+    expect(limits?.apiRequestsPerMonth).toBe(50000);
   });
 });
 
 describe('checkApiQuota', () => {
   it('allows via prepaid credits when no plan', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
     mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
     vi.mocked(getApiCreditBalance).mockResolvedValue(42);
     const result = await checkApiQuota('user-1');
@@ -86,6 +97,7 @@ describe('checkApiQuota', () => {
   });
 
   it('denies when no plan and no credits', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
     mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
     vi.mocked(getApiCreditBalance).mockResolvedValue(0);
     const result = await checkApiQuota('user-1');
@@ -94,6 +106,7 @@ describe('checkApiQuota', () => {
   });
 
   it('prefers subscription when within monthly limit', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
     mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'pro' });
     mockPrisma.plan.findUnique.mockResolvedValue({
       active: true,
@@ -107,6 +120,7 @@ describe('checkApiQuota', () => {
   });
 
   it('falls back to credits when subscription quota exhausted', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
     mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'starter' });
     mockPrisma.plan.findUnique.mockResolvedValue({
       active: true,
@@ -118,6 +132,58 @@ describe('checkApiQuota', () => {
     const result = await checkApiQuota('user-1');
     expect(result.allowed).toBe(true);
     expect(result.billingSource).toBe('credits');
+  });
+
+  it('prioritizes custom user limit over subscription plan', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue({
+      customApiMonthlyLimit: 50000,
+      customApiLimitExpiresAt: new Date(Date.now() + 86400000), // tomorrow
+    });
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(100);
+
+    const result = await checkApiQuota('user-1');
+    expect(result.allowed).toBe(true);
+    expect(result.limit).toBe(50000);
+    expect(result.remainingRequests).toBe(49900);
+    expect(result.planSlug).toBe('custom');
+    expect(result.billingSource).toBe('subscription');
+  });
+
+  it('ignores expired custom limit and falls back to subscription', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue({
+      customApiMonthlyLimit: 50000,
+      customApiLimitExpiresAt: new Date(Date.now() - 86400000), // yesterday
+    });
+    mockPrisma.userSubscription.findFirst.mockResolvedValue({ planSlug: 'pro' });
+    mockPrisma.plan.findUnique.mockResolvedValue({
+      active: true,
+      features: { marketing: [], limits: { apiRequestsPerMonth: 10000 } },
+    });
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(100);
+
+    const result = await checkApiQuota('user-1');
+    expect(result.allowed).toBe(true);
+    expect(result.limit).toBe(10000);
+    expect(result.remainingRequests).toBe(9900);
+    expect(result.planSlug).toBe('pro');
+  });
+
+  it('falls back to credits when custom user limit is exhausted', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue({
+      customApiMonthlyLimit: 5000,
+      customApiLimitExpiresAt: null,
+    });
+    mockPrisma.apiKey.findMany.mockResolvedValue([{ id: 'k1' }]);
+    mockPrisma.apiKeyUsage.count.mockResolvedValue(5000);
+    mockPrisma.userSubscription.findFirst.mockResolvedValue(null);
+    vi.mocked(getApiCreditBalance).mockResolvedValue(200);
+
+    const result = await checkApiQuota('user-1');
+    expect(result.allowed).toBe(true);
+    expect(result.billingSource).toBe('credits');
+    expect(result.remainingRequests).toBe(200);
   });
 });
 

@@ -325,3 +325,94 @@ export function ButtonSpinner({ size = 'medium' }: { size?: 'small' | 'medium' }
     />
   );
 }
+
+/**
+ * İletişim sayfası için özel 2 sütunlu skeleton layout
+ */
+export function ContactSkeleton({ className = "" }: { className?: string }) {
+  return (
+    <div
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+      aria-label="İletişim sayfası yükleniyor"
+      className={`container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12 ${className}`}
+    >
+      <span className="sr-only">İletişim sayfası yükleniyor</span>
+
+      {/* Header Skeleton */}
+      <div className="section-header text-center mb-8 sm:mb-12 animate-pulse" aria-hidden="true">
+        <div className="h-9 sm:h-11 w-56 sm:w-72 bg-gray-200/60 dark:bg-gray-700/40 rounded-xl mx-auto mb-3" />
+        <div className="h-4 sm:h-5 w-full max-w-xl bg-gray-200/50 dark:bg-gray-700/30 rounded-lg mx-auto" />
+      </div>
+
+      {/* Main Glass-Card Layout: Left contact info, Right contact form */}
+      <div className="max-w-7xl mx-auto">
+        <div
+          className="flex flex-col lg:grid lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12 glass-card p-4 sm:p-6 md:p-8 animate-pulse"
+          aria-hidden="true"
+        >
+          {/* Left Column: Contact info */}
+          <div className="lg:col-span-1 order-2 lg:order-1 space-y-5">
+            <div className="h-7 w-44 bg-gray-200/60 dark:bg-gray-700/40 rounded-lg" />
+            <div className="space-y-2">
+              <div className="h-4 w-full bg-gray-200/50 dark:bg-gray-700/30 rounded" />
+              <div className="h-4 w-5/6 bg-gray-200/50 dark:bg-gray-700/30 rounded" />
+            </div>
+
+            {/* Email item */}
+            <div className="pt-2">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-gray-100/40 dark:bg-gray-800/40 border border-gray-200/30 dark:border-gray-700/30">
+                <div className="w-5 h-5 bg-gray-200/70 dark:bg-gray-700/50 rounded-full flex-shrink-0" />
+                <div className="h-4 w-44 bg-gray-200/70 dark:bg-gray-700/50 rounded" />
+              </div>
+            </div>
+
+            {/* Social media links */}
+            <div className="pt-4 border-t border-white/30 dark:border-white/10 space-y-3">
+              <div className="h-5 w-32 bg-gray-200/60 dark:bg-gray-700/40 rounded" />
+              <div className="flex gap-3">
+                <div className="w-12 h-12 bg-gray-200/50 dark:bg-gray-700/30 rounded-lg" />
+                <div className="w-12 h-12 bg-gray-200/50 dark:bg-gray-700/30 rounded-lg" />
+                <div className="w-12 h-12 bg-gray-200/50 dark:bg-gray-700/30 rounded-lg" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Contact form */}
+          <div className="lg:col-span-2 order-1 lg:order-2 space-y-5">
+            {/* Name and Email Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-2">
+                <div className="h-4 w-28 bg-gray-200/60 dark:bg-gray-700/40 rounded" />
+                <div className="h-12 w-full bg-gray-200/40 dark:bg-gray-800/40 rounded-lg border border-gray-200/30 dark:border-gray-700/30" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 w-32 bg-gray-200/60 dark:bg-gray-700/40 rounded" />
+                <div className="h-12 w-full bg-gray-200/40 dark:bg-gray-800/40 rounded-lg border border-gray-200/30 dark:border-gray-700/30" />
+              </div>
+            </div>
+
+            {/* Subject field */}
+            <div className="space-y-2">
+              <div className="h-4 w-20 bg-gray-200/60 dark:bg-gray-700/40 rounded" />
+              <div className="h-12 w-full bg-gray-200/40 dark:bg-gray-800/40 rounded-lg border border-gray-200/30 dark:border-gray-700/30" />
+            </div>
+
+            {/* Message field */}
+            <div className="space-y-2">
+              <div className="h-4 w-24 bg-gray-200/60 dark:bg-gray-700/40 rounded" />
+              <div className="h-32 w-full bg-gray-200/40 dark:bg-gray-800/40 rounded-lg border border-gray-200/30 dark:border-gray-700/30" />
+            </div>
+
+            {/* Turnstile + Submit Button row */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+              <div className="h-14 w-60 bg-gray-200/40 dark:bg-gray-800/40 rounded-lg border border-gray-200/30 dark:border-gray-700/30" />
+              <div className="h-12 w-40 bg-brand-primary/40 rounded-xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

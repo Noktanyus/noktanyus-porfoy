@@ -283,6 +283,53 @@ describe('verifyEmail', () => {
     );
   });
 
+  it('awards 100 welcome credits on email verification and logs welcome_bonus', async () => {
+    const user = {
+      id: 'user-credit-1',
+      email: 'credit@test.com',
+      trialStartedAt: null,
+    };
+    mockPrisma.user.findFirst.mockResolvedValue(user);
+
+    const txMock = {
+      user: {
+        update: vi.fn().mockResolvedValue({ id: 'user-credit-1', apiCreditBalance: 100 }),
+        findUnique: vi.fn().mockResolvedValue({ id: 'user-credit-1', apiCreditBalance: 100 }),
+      },
+      userSubscription: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({}),
+      },
+      plan: {
+        findUnique: vi.fn().mockResolvedValue({ trialDays: 14 }),
+      },
+      apiCreditLedger: {
+        findFirst: vi.fn().mockResolvedValue(null),
+        create: vi.fn().mockResolvedValue({ id: 'ledger-1' }),
+      },
+    };
+    mockPrisma.$transaction.mockImplementationOnce(
+      async (cb: (tx: typeof txMock) => Promise<unknown>) => cb(txMock)
+    );
+
+    const result = await verifyEmail(tokenInput);
+    expect(result.creditsGranted).toBe(100);
+    expect(txMock.user.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          apiCreditBalance: { increment: 100 },
+        }),
+      })
+    );
+    expect(txMock.apiCreditLedger.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        userId: 'user-credit-1',
+        delta: 100,
+        reason: 'welcome_bonus',
+      }),
+    });
+  });
+
   it('skips subscription creation if active subscription already exists', async () => {
     mockPrisma.user.findFirst.mockResolvedValue({
       id: 'user-1',

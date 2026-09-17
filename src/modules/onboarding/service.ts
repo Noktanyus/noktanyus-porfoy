@@ -137,6 +137,7 @@ export interface VerifyEmailResult {
   userId: string;
   email: string;
   trialStarted: boolean;
+  creditsGranted?: number;
 }
 
 export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailResult> {
@@ -158,7 +159,17 @@ export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailR
   const trialEndsAt = new Date(now);
   trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + TRIAL_DAYS);
 
+  let creditsAwarded = 0;
+
   await prisma.$transaction(async (tx) => {
+    let alreadyCredited = false;
+    if (tx.apiCreditLedger) {
+      const existingLedger = await tx.apiCreditLedger.findFirst({
+        where: { userId: user.id, reason: 'welcome_bonus' },
+      });
+      if (existingLedger) alreadyCredited = true;
+    }
+
     await tx.user.update({
       where: { id: user.id },
       data: {
@@ -167,8 +178,28 @@ export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailR
         emailVerifyExpires: null,
         trialStartedAt: now,
         trialEndsAt,
+        ...(alreadyCredited ? {} : { apiCreditBalance: { increment: 100 } }),
       },
     });
+
+    if (!alreadyCredited) {
+      creditsAwarded = 100;
+      if (tx.apiCreditLedger) {
+        const updatedUser = await tx.user.findUnique({
+          where: { id: user.id },
+          select: { apiCreditBalance: true },
+        });
+        await tx.apiCreditLedger.create({
+          data: {
+            userId: user.id,
+            delta: 100,
+            balanceAfter: updatedUser?.apiCreditBalance ?? 100,
+            reason: 'welcome_bonus',
+            metadata: { note: 'E-posta onaylı kullanıcı hoş geldin kredisi' },
+          },
+        });
+      }
+    }
 
     // Idempotent trial kaydı — Stripe webhook'unun kullandığı AYNI sözleşmeden
     // geçer (subscriptionSync.ts). Böylece ileride Stripe aboneliği geldiğinde
@@ -194,6 +225,7 @@ export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailR
     userId: user.id,
     email: user.email,
     trialStarted: true,
+    creditsGranted: creditsAwarded,
   };
 }
 
@@ -460,15 +492,15 @@ async function sendVerificationEmail(email: string, token: string): Promise<void
   const url = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/email-dogrula?token=${token}`;
   await sendEmail({
     to: email,
-    subject: 'E-posta adresinizi doğrulayın',
+    subject: 'E-posta adresinizi doğrulayın — 100 Ücretsiz API Kredisi',
     html: `
       <p>Merhaba,</p>
-      <p>Hesabınızı aktifleştirmek için aşağıdaki linke tıklayın:</p>
-      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">E-postamı doğrula</a></p>
+      <p>Hesabınızı aktifleştirmek ve hesabınıza <strong>100 ücretsiz API kredisi</strong> yüklemek için aşağıdaki linke tıklayın:</p>
+      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">E-postamı Doğrula ve 100 Kredimi Al</a></p>
       <p>Bu link 24 saat geçerlidir.</p>
       <p>Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelin.</p>
     `,
-    text: `Hesabınızı doğrulamak için: ${url}`,
+    text: `Hesabınızı doğrulamak ve 100 ücretsiz API kredinizi almak için: ${url}`,
   }).catch((err) => {
     logger.error('[Onboarding] Verification email failed', { error: err, email });
   });

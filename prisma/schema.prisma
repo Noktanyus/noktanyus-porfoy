@@ -684,6 +684,12 @@ model User {
   // TR API — ön ödemeli istek kredisi (kullandığın kadar öde)
   apiCreditBalance Int @default(0)
 
+  // TR API — Kullanıcıya / Enterprise'a özel tanımlanan dinamik kota ve yaşam döngüsü
+  customApiMonthlyLimit   Int?      // Özel tanımlı aylık API istek limiti (null ise plan kotası geçerlidir)
+  customApiLimitExpiresAt DateTime? // Özel limitin geçerlilik bitiş tarihi (null ise süresiz)
+  customApiLimitNotes     String?   // Özel limit gerekçesi / sözleşme notu
+  customApiRateLimit      Int?      // Özel dakika başına rate limit (opsiyonel)
+
   // Affiliate / Referral Commission (Phase "Video Calls + Affiliate" kapsaminda eklendi)
   affiliateBalanceCents Int     @default(0)
   affiliatePercent      Float   @default(20.0) // Default %20 komisyon

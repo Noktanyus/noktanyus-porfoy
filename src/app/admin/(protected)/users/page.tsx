@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { UserRoleToggle } from '@/components/admin/UserRoleToggle';
+import { UserLimitActions } from '@/components/admin/UserLimitActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,6 +127,9 @@ export default async function AdminUsersPage({
                   Rol
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  API Kotası & Kredi
+                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
                   Kayıt
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-semibold">
@@ -154,6 +158,9 @@ export default async function AdminUsersPage({
                         label={isAdmin ? 'Yönetici' : 'Kullanıcı'}
                         dot
                       />
+                    </td>
+                    <td className="px-4 py-3">
+                      <UserLimitActions user={user} />
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground whitespace-nowrap">
                       {formatDate(user.createdAt)}

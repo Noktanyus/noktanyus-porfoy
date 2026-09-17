@@ -20,6 +20,8 @@ async function main() {
   await prisma.digitalProduct.deleteMany();
   await prisma.plan.deleteMany();
   await prisma.subscription.deleteMany();
+  await prisma.userSubscription.deleteMany();
+  await prisma.apiCreditLedger.deleteMany();
   await prisma.order.deleteMany();
   await prisma.orderItem.deleteMany();
   await prisma.license.deleteMany();
@@ -31,6 +33,7 @@ async function main() {
   // Auth: NextAuth Credentials provider, src/lib/auth.ts
   // Şifreler bcrypt 12 round ile hash'lendi. Plain text asla DB'ye yazılmaz.
   // Demo amaçlı: emailVerified = now, referralCode = benzersiz.
+  // Her onaylı kullanıcıya başlangıçta 100 ücretsiz API kredisi tanımlanır.
   // upsert kullanıyoruz ki seed'i birden fazla kez çalıştırınca duplicate olmasın.
   const now = new Date();
   const usersData = [
@@ -70,6 +73,7 @@ async function main() {
         password: hashed,
         emailVerified: now,
         referralCode: u.referralCode,
+        apiCreditBalance: 100,
       },
       create: {
         email: u.email,
@@ -77,14 +81,27 @@ async function main() {
         password: hashed,
         emailVerified: now,
         referralCode: u.referralCode,
+        apiCreditBalance: 100,
       },
     });
+
+    // 100 hoş geldin kredisi ledger kaydı
+    await prisma.apiCreditLedger.create({
+      data: {
+        userId: user.id,
+        delta: 100,
+        balanceAfter: 100,
+        reason: 'welcome_bonus',
+        metadata: { note: 'E-posta onaylı kullanıcı hoş geldin kredisi' },
+      },
+    });
+
     users.push({ user, plainPassword: u.password });
   }
 
-  console.log(`   - User: ${users.length} normal kullanıcı oluşturuldu`);
+  console.log(`   - User: ${users.length} normal kullanıcı oluşturuldu (her birine 100 hoş geldin kredisi tanımlandı)`);
   users.forEach(({ user, plainPassword }) =>
-    console.log(`     · ${user.email} / ${plainPassword}`)
+    console.log(`     · ${user.email} / ${plainPassword} (100 kredi)`)
   );
 
   // ====== About ======
@@ -771,6 +788,40 @@ Hosted API: POST /api/v1/invoice/pdf ile aynı mantık.`,
         isFeatured: plan.isFeatured,
         order: plan.order,
         trialDays: plan.trialDays,
+      },
+    });
+  }
+
+  // ====== User Subscriptions (Örnek abonelikler) ======
+  if (users.length >= 2) {
+    const trialEnd = new Date(now);
+    trialEnd.setDate(trialEnd.getDate() + 14);
+
+    const monthEnd = new Date(now);
+    monthEnd.setDate(monthEnd.getDate() + 30);
+
+    // Ahmet: 14 günlük Starter denemesinde
+    await prisma.userSubscription.create({
+      data: {
+        userId: users[0].user.id,
+        planSlug: 'starter',
+        status: 'trialing',
+        startedAt: now,
+        expiresAt: trialEnd,
+        trialEndsAt: trialEnd,
+        autoRenew: false,
+      },
+    });
+
+    // Zeynep: Aktif Pro aboneliğinde
+    await prisma.userSubscription.create({
+      data: {
+        userId: users[1].user.id,
+        planSlug: 'pro',
+        status: 'active',
+        startedAt: now,
+        expiresAt: monthEnd,
+        autoRenew: true,
       },
     });
   }

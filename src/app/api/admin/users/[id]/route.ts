@@ -10,13 +10,20 @@ import { authOptions } from '@/lib/auth';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { logAudit } from '@/lib/audit';
 import { UnauthorizedError, ForbiddenError, ValidationError } from '@/modules/shared/errors';
-import { setUserAppRole } from '@/modules/admin/userRoleService';
+import { setUserAppRole, updateUserApiLimit } from '@/modules/admin/userRoleService';
 import { isSyntheticAdminId } from '@/lib/appRole';
 
 export const dynamic = 'force-dynamic';
 
 const BodySchema = z.object({
-  role: z.enum(['admin', 'user']),
+  role: z.enum(['admin', 'user']).optional(),
+  action: z.enum(['set', 'add', 'revoke', 'expire', 'extend']).optional(),
+  customApiMonthlyLimit: z.number().int().min(0).nullable().optional(),
+  additionalLimit: z.number().int().min(1).optional(),
+  customApiLimitExpiresAt: z.string().nullable().optional(),
+  customApiLimitNotes: z.string().max(500).optional(),
+  apiCreditBalance: z.number().int().min(0).optional(),
+  addCredits: z.number().int().optional(),
 });
 
 export async function PATCH(
@@ -30,17 +37,52 @@ export async function PATCH(
       throw new ForbiddenError('Bu işlem sadece admin rolü için geçerlidir');
     }
 
-    const parsed = BodySchema.safeParse(await req.json().catch(() => ({})));
+    const body = await req.json().catch(() => ({}));
+    const parsed = BodySchema.safeParse(body);
     if (!parsed.success) {
-      throw new ValidationError('Geçersiz rol', parsed.error.flatten());
+      throw new ValidationError('Geçersiz parametreler', parsed.error.flatten());
     }
 
     const actorId = session.user.id;
-    const updated = await setUserAppRole({
-      actorId,
-      targetId: params.id,
-      role: parsed.data.role,
-    });
+    let updated: any = null;
+
+    if (parsed.data.role) {
+      updated = await setUserAppRole({
+        actorId,
+        targetId: params.id,
+        role: parsed.data.role,
+      });
+    }
+
+    const hasLimitUpdates =
+      parsed.data.action !== undefined ||
+      parsed.data.customApiMonthlyLimit !== undefined ||
+      parsed.data.additionalLimit !== undefined ||
+      parsed.data.customApiLimitExpiresAt !== undefined ||
+      parsed.data.customApiLimitNotes !== undefined ||
+      parsed.data.apiCreditBalance !== undefined ||
+      parsed.data.addCredits !== undefined;
+
+    if (hasLimitUpdates) {
+      updated = await updateUserApiLimit({
+        targetId: params.id,
+        action: parsed.data.action,
+        customApiMonthlyLimit: parsed.data.customApiMonthlyLimit,
+        additionalLimit: parsed.data.additionalLimit,
+        customApiLimitExpiresAt: parsed.data.customApiLimitExpiresAt
+          ? new Date(parsed.data.customApiLimitExpiresAt)
+          : parsed.data.customApiLimitExpiresAt === null
+          ? null
+          : undefined,
+        customApiLimitNotes: parsed.data.customApiLimitNotes,
+        apiCreditBalance: parsed.data.apiCreditBalance,
+        addCredits: parsed.data.addCredits,
+      });
+    }
+
+    if (!updated) {
+      throw new ValidationError('Güncellenecek en az bir alan belirtilmelidir.');
+    }
 
     revalidatePath('/admin/users');
 
@@ -50,7 +92,14 @@ export async function PATCH(
       action: 'UPDATE',
       resource: 'User',
       resourceId: updated.id,
-      details: { field: 'role', to: updated.role, email: updated.email },
+      details: {
+        role: updated.role,
+        customApiMonthlyLimit: updated.customApiMonthlyLimit,
+        customApiLimitExpiresAt: updated.customApiLimitExpiresAt,
+        apiCreditBalance: updated.apiCreditBalance,
+        action: parsed.data.action,
+        email: updated.email,
+      },
       ipAddress: req.headers.get('x-forwarded-for') ?? undefined,
       userAgent: req.headers.get('user-agent') ?? undefined,
     });

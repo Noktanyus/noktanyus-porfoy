@@ -22,9 +22,6 @@ export async function getUserPlan(userId: string): Promise<string | null> {
 
 export async function getPlanLimits(planSlug: string | null): Promise<PlanLimits | null> {
   if (!planSlug) return null;
-  if (planSlug === 'enterprise') {
-    return { apiRequestsPerMonth: Number.POSITIVE_INFINITY };
-  }
   const plan = await prisma.plan.findUnique({
     where: { slug: planSlug },
     select: { features: true, active: true },
@@ -75,23 +72,56 @@ export async function getCurrentMonthUsage(userId: string): Promise<{
 }
 
 export async function checkApiQuota(userId: string): Promise<QuotaCheckResult> {
-  const planSlug = await getUserPlan(userId);
-  const limits = await getPlanLimits(planSlug);
+  // 0) Kullanıcıya / Enterprise'a özel dinamik limit kontrolü
+  let user: {
+    customApiMonthlyLimit: number | null;
+    customApiLimitExpiresAt: Date | null;
+  } | null = null;
 
-  // 1) Aktif abonelik + kota
-  if (planSlug && limits) {
-    if (planSlug === 'enterprise') {
+  try {
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        customApiMonthlyLimit: true,
+        customApiLimitExpiresAt: true,
+      },
+    });
+  } catch (err) {
+    logger.error('[checkApiQuota] user fetch error', { err, userId });
+  }
+
+  const now = new Date();
+  const hasCustomLimit =
+    typeof user?.customApiMonthlyLimit === 'number' && user.customApiMonthlyLimit > 0;
+  const isCustomLimitExpired = Boolean(
+    user?.customApiLimitExpiresAt && user.customApiLimitExpiresAt < now
+  );
+
+  // Özel limit geçerli mi ve süresi dolmamış mı?
+  if (hasCustomLimit && !isCustomLimitExpired) {
+    const customLimit = user!.customApiMonthlyLimit!;
+    const usage = await getCurrentMonthUsage(userId);
+    const remainingRequests = Math.max(0, customLimit - usage.requestsUsed);
+
+    if (usage.requestsUsed + 1 <= customLimit) {
       return {
         allowed: true,
-        remaining: Number.POSITIVE_INFINITY,
-        remainingRequests: Number.POSITIVE_INFINITY,
-        limit: Number.POSITIVE_INFINITY,
-        limitRequests: Number.POSITIVE_INFINITY,
-        planSlug,
+        remaining: remainingRequests,
+        remainingRequests,
+        limit: customLimit,
+        limitRequests: customLimit,
+        planSlug: 'custom',
         billingSource: 'subscription',
       };
     }
+    // Özel limit kotası doldu → kredilere düş
+  }
 
+  // 1) Standart aktif abonelik + kota
+  const planSlug = await getUserPlan(userId);
+  const limits = await getPlanLimits(planSlug);
+
+  if (planSlug && limits) {
     const requestLimit = effectiveApiRequestLimit(limits) ?? 0;
     const usage = await getCurrentMonthUsage(userId);
     const remainingRequests = Math.max(0, requestLimit - usage.requestsUsed);
@@ -132,8 +162,9 @@ export async function checkApiQuota(userId: string): Promise<QuotaCheckResult> {
     limitRequests: 0,
     planSlug,
     billingSource: null,
-    reason:
-      'API erişimi için kredi yükleyin veya aylık plana geçin. Önce ödeme → sonra istek.',
+    reason: isCustomLimitExpired
+      ? 'Özel tanımlı API limitinizin süresi dolmuştur. Yeni limit için destek ile iletişime geçin veya kredi yükleyin.'
+      : 'API erişimi için kredi yükleyin veya aylık plana geçin. Önce ödeme → sonra istek.',
   };
 }
 

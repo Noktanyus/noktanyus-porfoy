@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import IletisimForm from "./IletisimForm";
 import { About } from "@/types/content";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
-import { SpinnerLoading } from "@/components/ui/LoadingSkeleton";
+import { ContactSkeleton } from "@/components/ui/LoadingSkeleton";
 
 export default function IletisimPage() {
   const [aboutData, setAboutData] = useState<About | null>(null);
@@ -39,11 +39,7 @@ export default function IletisimPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 md:py-8 lg:py-12">
-        <SpinnerLoading text="İletişim bilgileri yükleniyor..." />
-      </div>
-    );
+    return <ContactSkeleton />;
   }
 
   if (error) {

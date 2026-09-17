@@ -33,6 +33,7 @@ import {
   SYNTHETIC_ADMIN_ID,
   type AppRole,
 } from "@/lib/appRole";
+import { grantEmailVerifiedCredits } from "@/lib/apiCredits";
 
 if (!env.NEXTAUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET tanımlı değil");
@@ -247,6 +248,26 @@ export const authOptions: NextAuthOptions = {
         s.user.role = t.role;
       }
       return s;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      if (user?.id && !isSyntheticAdminId(user.id)) {
+        try {
+          await grantEmailVerifiedCredits(user.id);
+        } catch {
+          // non-blocking
+        }
+      }
+    },
+    async signIn({ user }) {
+      if (user?.id && !isSyntheticAdminId(user.id)) {
+        try {
+          await grantEmailVerifiedCredits(user.id);
+        } catch {
+          // non-blocking
+        }
+      }
     },
   },
   pages: {

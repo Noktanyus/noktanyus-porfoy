@@ -46,12 +46,20 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
             </p>
 
             <div className="mb-6 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-3xl sm:text-4xl font-bold text-brand-primary break-words">
-                {formatCurrency(plan.priceCents, plan.currency)}
-              </span>
-              <span className="text-slate-500 dark:text-slate-400">
-                / {intervalLabel(plan.interval)}
-              </span>
+              {plan.priceCents > 0 ? (
+                <>
+                  <span className="text-3xl sm:text-4xl font-bold text-brand-primary break-words">
+                    {formatCurrency(plan.priceCents, plan.currency)}
+                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    / {intervalLabel(plan.interval)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-2xl sm:text-3xl font-bold text-brand-primary break-words">
+                  Teklif Usulü
+                </span>
+              )}
             </div>
 
             {marketing.length > 0 && (
@@ -75,19 +83,29 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
                   <span className="tabular-nums font-medium">
                     {Number.isFinite(apiRequests)
                       ? apiRequests.toLocaleString('tr-TR')
-                      : 'Sınırsız'}
+                      : 'Özel Kurumsal Kota'}
                   </span>
                 </p>
               </div>
             )}
 
-            <Link
-              href={`/odeme/plan?slug=${plan.slug}`}
-              aria-label={`${plan.name} planına başla`}
-              className={`${DS.button.primary} w-full`}
-            >
-              Kolayca başla
-            </Link>
+            {plan.slug === 'enterprise' || plan.priceCents === 0 ? (
+              <Link
+                href="/iletisim"
+                aria-label={`${plan.name} için teklif alın`}
+                className={`${DS.button.primary} w-full text-center`}
+              >
+                Teklif Alın & İletişim
+              </Link>
+            ) : (
+              <Link
+                href={`/odeme/plan?slug=${plan.slug}`}
+                aria-label={`${plan.name} planına başla`}
+                className={`${DS.button.primary} w-full text-center`}
+              >
+                Kolayca başla
+              </Link>
+            )}
           </div>
         );
       })}
