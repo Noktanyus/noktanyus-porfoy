@@ -79,13 +79,19 @@ export async function checkApiQuota(userId: string): Promise<QuotaCheckResult> {
   } | null = null;
 
   try {
-    user = await prisma.user.findUnique({
+    const dbUser = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         customApiMonthlyLimit: true,
         customApiLimitExpiresAt: true,
       },
     });
+    if (dbUser) {
+      user = {
+        customApiMonthlyLimit: dbUser.customApiMonthlyLimit,
+        customApiLimitExpiresAt: dbUser.customApiLimitExpiresAt,
+      };
+    }
   } catch (err) {
     logger.error('[checkApiQuota] user fetch error', { err, userId });
   }
