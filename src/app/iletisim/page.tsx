@@ -7,7 +7,7 @@
  *              için tüm veri çekme işlemleri client-side yapılır.
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import IletisimForm from "./IletisimForm";
 import { About } from "@/types/content";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
@@ -65,12 +65,14 @@ export default function IletisimPage() {
       </div>
 
       <div className="max-w-7xl mx-auto">
-        <IletisimForm
-          contactEmail={aboutData?.contactEmail}
-          socialGithub={aboutData?.socialGithub}
-          socialLinkedin={aboutData?.socialLinkedin}
-          socialInstagram={aboutData?.socialInstagram}
-        />
+        <Suspense fallback={<ContactSkeleton />}>
+          <IletisimForm
+            contactEmail={aboutData?.contactEmail}
+            socialGithub={aboutData?.socialGithub}
+            socialLinkedin={aboutData?.socialLinkedin}
+            socialInstagram={aboutData?.socialInstagram}
+          />
+        </Suspense>
       </div>
     </div>
   );

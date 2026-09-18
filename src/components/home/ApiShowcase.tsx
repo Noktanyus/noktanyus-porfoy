@@ -53,8 +53,8 @@ console.log(result.bankName); // 'Türkiye Garanti Bankası A.Ş.'`;
 
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
-                <span className="block text-xl font-extrabold text-white">1.000 İstek</span>
-                <span className="text-xs text-slate-400">Her ay tamamen ücretsiz</span>
+                <span className="block text-xl font-extrabold text-white">100 Kredi</span>
+                <span className="text-xs text-slate-400">Kayıt olan herkese anında hediye</span>
               </div>
               <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700/60">
                 <span className="block text-xl font-extrabold text-emerald-400">&lt; 1 ms</span>
@@ -71,10 +71,16 @@ console.log(result.bankName); // 'Türkiye Garanti Bankası A.Ş.'`;
                 <FaArrowRight className="w-3 h-3" />
               </Link>
               <Link
+                href="/magaza/abonelikler"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 text-indigo-200 text-sm font-bold border border-indigo-500/40 transition-colors inline-flex items-center gap-2"
+              >
+                <span>Fiyatlar & Planlar</span>
+              </Link>
+              <Link
                 href="/araclar"
                 className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-bold border border-slate-700 transition-colors inline-flex items-center gap-2"
               >
-                <span>Canlı Araçları Dene</span>
+                <span>Canlı Araçlar</span>
               </Link>
             </div>
           </div>

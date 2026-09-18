@@ -91,7 +91,7 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
 
             {plan.slug === 'enterprise' || plan.priceCents === 0 ? (
               <Link
-                href="/iletisim"
+                href="/iletisim?plan=enterprise"
                 aria-label={`${plan.name} için teklif alın`}
                 className={`${DS.button.primary} w-full text-center`}
               >

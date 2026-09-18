@@ -116,8 +116,8 @@ export interface PlanSelectorStepProps {
  * Bu küçük helper component'in içinde tutulur; tekrar kullanım gerektiğinde
  * `@/lib/utils` içine taşınabilir.
  */
-function formatPrice(priceCents: number, currency: string): string {
-  if (priceCents === 0) return "Ücretsiz";
+function formatPrice(priceCents: number, currency: string, slug?: string): string {
+  if (slug === "enterprise" || priceCents === 0) return "Teklif Usulü";
   const amount = (priceCents / 100).toFixed(2).replace(".", ",");
   const symbols: Record<string, string> = { try: "₺", usd: "$", eur: "€" };
   return `${amount} ${symbols[currency.toLowerCase()] ?? currency.toUpperCase()}`;
@@ -140,7 +140,7 @@ export function PlanSelectorStep({
           Planını seç
         </h2>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Tüm planlar {PLAN_OPTIONS[0].trialDays} gün ücretsiz dene ile başlar.
+          Starter, Pro ve Business planları {PLAN_OPTIONS[0].trialDays} gün ücretsiz deneme ile başlar.
           İstediğin zaman iptal edebilirsin.
         </p>
       </div>
@@ -149,7 +149,7 @@ export function PlanSelectorStep({
       <div
         role="radiogroup"
         aria-label="Plan seçimi"
-        className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
       >
         {PLAN_OPTIONS.map((plan) => {
           const isSelected = value === plan.slug;
@@ -212,7 +212,7 @@ export function PlanSelectorStep({
 
               <div className="mb-3">
                 <span className="text-lg font-bold text-slate-900 dark:text-white">
-                  {formatPrice(plan.priceCents, plan.currency)}
+                  {formatPrice(plan.priceCents, plan.currency, plan.slug)}
                 </span>
                 {plan.priceCents > 0 && (
                   <span className="text-xs text-slate-500 dark:text-slate-400">

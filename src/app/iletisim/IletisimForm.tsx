@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import toast from "react-hot-toast";
-import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaInstagram } from "react-icons/fa";
+import { FaEnvelope, FaGithub, FaLinkedin, FaPaperPlane, FaInstagram, FaShieldAlt } from "react-icons/fa";
 import CloudflareTurnstile from "@/components/CloudflareTurnstile";
 
 const schema = z.object({
@@ -25,14 +26,28 @@ interface IletisimFormProps {
 }
 
 export default function IletisimForm({ contactEmail, socialGithub, socialLinkedin, socialInstagram }: IletisimFormProps) {
+  const searchParams = useSearchParams();
+  const planParam = searchParams?.get('plan');
+  const isEnterpriseInquiry = planParam === 'enterprise';
+
   const { 
     register, 
     handleSubmit, 
+    setValue,
     formState: { errors, isSubmitting }, 
     reset 
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      subject: isEnterpriseInquiry ? "Kurumsal (Enterprise) API Teklifi Talebi" : "",
+    },
   });
+
+  useEffect(() => {
+    if (isEnterpriseInquiry) {
+      setValue("subject", "Kurumsal (Enterprise) API Teklifi Talebi");
+    }
+  }, [isEnterpriseInquiry, setValue]);
   
   const isProduction = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? true : false;
   const [turnstileToken, setTurnstileToken] = useState<string>(isProduction ? "" : "dev-mode-bypass");
@@ -163,6 +178,18 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
 
       {/* Contact Form Section */}
       <div className="lg:col-span-2 order-1 lg:order-2">
+        {isEnterpriseInquiry && (
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl border border-brand-primary/40 bg-brand-primary/10 text-slate-800 dark:text-slate-200 shadow-sm">
+            <div className="flex items-center gap-2 font-bold text-brand-primary text-base sm:text-lg">
+              <FaShieldAlt className="w-5 h-5" />
+              Kurumsal (Enterprise) API & Özel Kota Başvurusu
+            </div>
+            <p className="text-xs sm:text-sm mt-1.5 text-slate-600 dark:text-slate-300 leading-relaxed">
+              Özel aylık istek kotası, kurumsal SLA sözleşmesi, yerinde entegrasyon desteği veya kurumsal faturalandırma ihtiyaçlarınızı lütfen aşağıdaki formda belirtin. Ekibimiz başvurunuzu inceleyerek en geç 24 saat içinde sizinle iletişime geçecektir.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-5 md:space-y-6">
           {/* Name and Email Row - Stack on mobile, side by side on larger screens */}
           <div className="flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-6">
@@ -238,7 +265,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
               id="message" 
               rows={5} 
               className="w-full px-4 py-3 sm:py-4 text-base rounded-lg glass-input min-h-[120px] sm:min-h-[140px] resize-y touch-manipulation placeholder:text-gray-500 dark:placeholder:text-gray-400" 
-              placeholder="Mesajınızı buraya yazın..."
+              placeholder={isEnterpriseInquiry ? "Tahmini aylık istek hacminiz, entegre etmek istediğiniz mikroservisler (IBAN, TCKN, KDV vb.) ve firmanız hakkında detaylar..." : "Mesajınızı buraya yazın..."}
             />
             {errors.message && (
               <div className="mt-1 sm:mt-2 p-2 sm:p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">

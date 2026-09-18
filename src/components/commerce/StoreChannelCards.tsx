@@ -17,7 +17,10 @@ const QUOTA_PLANS = INDIVIDUAL_PLANS.filter(
   (plan) => typeof (plan.limits as Record<string, number>).apiRequestsPerMonth === 'number'
 );
 
-const planEntryPrice = Math.min(...INDIVIDUAL_PLANS.map((plan) => plan.priceCents));
+const pricedPlans = INDIVIDUAL_PLANS.filter((plan) => plan.priceCents > 0);
+const planEntryPrice = pricedPlans.length > 0
+  ? Math.min(...pricedPlans.map((plan) => plan.priceCents))
+  : 9900;
 const creditEntryPack = API_CREDIT_PACKS.reduce((cheapest, pack) =>
   pack.priceCents < cheapest.priceCents ? pack : cheapest
 );

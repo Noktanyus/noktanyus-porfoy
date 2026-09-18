@@ -11,9 +11,9 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 
 export const metadata: Metadata = {
-  title: 'API Planları',
+  title: 'API Planları & Abonelikler',
   description:
-    'TR yardımcı API aylık planları: Bireysel 1.000, Profesyonel 10.000 istek. API key anında açılır, istediğin zaman iptal.',
+    'TR yardımcı API aylık planları: Starter 2.000, Pro 10.000, Business 50.000 istek ve Kurumsal Özel Kota. API key anında açılır, istediğin zaman iptal.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +33,7 @@ export default async function MagazaAboneliklerPage() {
     <div className="container-responsive space-responsive">
       <PageHeader
         title="API planları"
-        description="TR yardımcı API için aylık sabit kota. Ödeme sonrası API key açılır, istediğin zaman iptal edersin."
+        description="TR yardımcı API için aylık sabit kota. Ödeme sonrası API key anında açılır, istediğin zaman iptal edebilirsin."
         backHref="/magaza"
         backLabel="Mağaza"
         breadcrumb={
@@ -49,18 +49,17 @@ export default async function MagazaAboneliklerPage() {
 
       <div className="rounded-2xl border border-border/60 bg-muted/20 px-5 py-4 mb-8 text-sm text-muted-foreground max-w-3xl">
         <p>
-          <strong className="text-foreground font-medium">Bireysel</strong> aylık 1.000 istekle
-          başlar; hacim artınca{' '}
-          <strong className="text-foreground font-medium">Profesyonel</strong> 10.000 isteğe çıkarır.
-          Kurulum yardımı ve danışmanlık gerekiyorsa{' '}
-          <strong className="text-foreground font-medium">Destek+</strong> ek hizmet olarak eklenir.
+          <strong className="text-foreground font-medium">Starter</strong> paketi aylık 2.000 istekle başlar;
+          büyüyen projeler için <strong className="text-foreground font-medium">Pro</strong> (10.000 istek) ve
+          yüksek hacimli operasyonlar için <strong className="text-foreground font-medium">Business</strong> (50.000 istek + Öncelikli Destek) sunulur.
+          Büyük ölçekli kurumsal altyapılar için <strong className="text-foreground font-medium">Enterprise</strong> özel kota ve SLA anlaşmasıyla sağlanır.
         </p>
         <p className="mt-2">
-          Düzenli kota yerine istek başına ödemeyi tercih ediyorsan{' '}
+          Düzenli kota yerine kullandığın kadar ödemeyi tercih ediyorsan{' '}
           <Link href="/magaza/krediler" className="text-brand-primary font-medium hover:underline">
             API kredisi
           </Link>{' '}
-          al. Plan kotası bitince krediler devreye girer.
+          satın alabilirsin. Plan kotası bittiğinde hesabındaki krediler otomatik olarak devreye girer.
         </p>
       </div>
 
