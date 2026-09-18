@@ -67,11 +67,47 @@ describe('calculateKdv', () => {
 });
 
 describe('resolveIbanBank', () => {
-  it('resolves Garanti-like code from valid IBAN structure', () => {
-    // Uses same valid IBAN; bank code from digits 5-9
+  it('resolves Garanti code 00061 from valid IBAN structure', () => {
     const r = resolveIbanBank('TR33 0006 1005 1978 6457 8413 26');
     expect(r.valid).toBe(true);
-    expect(r.bankCode).toBeTruthy();
+    expect(r.bankCode).toBe('00061');
+    expect(r.bankName).toBe('Garanti BBVA');
+    expect(r.isKnown).toBe(true);
+  });
+
+  it('resolves Garanti code 00062', () => {
+    const r = resolveIbanBank('TR600006201234567890123456');
+    expect(r.valid).toBe(true);
+    expect(r.bankCode).toBe('00062');
+    expect(r.bankName).toBe('Garanti BBVA');
+    expect(r.isKnown).toBe(true);
+  });
+
+  it('resolves İş Bankası, Katılım, Enpara and Papara correctly', () => {
+    const isBank = resolveIbanBank('TR450006401234567890123456');
+    expect(isBank.bankName).toBe('Türkiye İş Bankası');
+    expect(isBank.isKnown).toBe(true);
+
+    const katilim = resolveIbanBank('TR730020901234567890123456');
+    expect(katilim.bankName).toBe('Ziraat Katılım Bankası');
+    expect(katilim.isKnown).toBe(true);
+
+    const enpara = resolveIbanBank('TR750015701234567890123456');
+    expect(enpara.bankName).toBe('Enpara Bank');
+    expect(enpara.isKnown).toBe(true);
+
+    const papara = resolveIbanBank('TR790082901234567890123456');
+    expect(papara.bankName).toBe('Papara Elektronik Para');
+    expect(papara.isKnown).toBe(true);
+  });
+
+  it('handles unlisted bank code gracefully with isKnown = false', () => {
+    // 99999 is unlisted bank code with valid MOD-97 check digits (TR039999901234567890123456)
+    const r = resolveIbanBank('TR039999901234567890123456');
+    expect(r.valid).toBe(true);
+    expect(r.bankCode).toBe('99999');
+    expect(r.bankName).toBe('Bilinmeyen / diğer banka');
+    expect(r.isKnown).toBe(false);
   });
 });
 

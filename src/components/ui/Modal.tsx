@@ -21,7 +21,8 @@
  * ```
  */
 
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { FaTimes } from 'react-icons/fa';
 
 interface ModalProps {
@@ -74,14 +75,19 @@ export function Modal({
   footer,
   className = '',
 }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const titleId = title ? 'modal-title' : undefined;
   const descId = description ? 'modal-desc' : undefined;
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Body scroll lock + ESC handler
   useEffect(() => {
-    if (!open) return;
+    if (!open || !mounted) return;
 
     previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
     document.body.classList.add('body-scroll-lock');
@@ -100,11 +106,11 @@ export function Modal({
     return () => {
       document.body.classList.remove('body-scroll-lock');
     };
-  }, [open, closeOnEsc, onClose]);
+  }, [open, mounted, closeOnEsc, onClose]);
 
   // Auto-focus first focusable element + restore focus on close
   useEffect(() => {
-    if (!open) return;
+    if (!open || !mounted) return;
     const panel = panelRef.current;
     if (!panel) return;
     const firstFocusable = panel.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
@@ -117,7 +123,7 @@ export function Modal({
         prev.focus();
       }
     };
-  }, [open]);
+  }, [open, mounted]);
 
   // Focus trap: Tab/Shift+Tab panel icinde tutar
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -139,11 +145,11 @@ export function Modal({
     }
   };
 
-  if (!open) return null;
+  if (!open || !mounted) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4"
+      className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-4 overflow-y-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
@@ -151,7 +157,7 @@ export function Modal({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 modal-overlay"
+        className="fixed inset-0 modal-overlay"
         onClick={closeOnBackdrop ? onClose : undefined}
         aria-hidden="true"
       />
@@ -160,7 +166,7 @@ export function Modal({
       <div
         ref={panelRef}
         onKeyDown={handleKeyDown}
-        className={`relative w-full max-w-full ${SIZE_CLASSES[size]} bg-white dark:bg-slate-900 rounded-t-2xl md:rounded-2xl shadow-2xl border border-slate-200/50 dark:border-slate-700/50 max-h-[90vh] flex flex-col animate-slide-up ${className}`}
+        className={`relative z-10 w-full max-w-full ${SIZE_CLASSES[size]} bg-white dark:bg-slate-900 rounded-t-2xl md:rounded-2xl shadow-2xl border border-slate-200/50 dark:border-slate-700/50 max-h-[90vh] flex flex-col my-auto animate-slide-up ${className}`}
       >
         {/* Header */}
         {(title || !hideCloseButton) && (
@@ -202,7 +208,8 @@ export function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

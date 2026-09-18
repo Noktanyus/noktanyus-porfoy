@@ -223,11 +223,11 @@ export function UserLimitModal({ user, open, onClose }: UserLimitModalProps) {
         </div>
 
         {/* Tab Butonları */}
-        <div className="flex border-b border-border gap-2">
+        <div className="flex border-b border-border gap-2 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab('add')}
-            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'add'
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -239,7 +239,7 @@ export function UserLimitModal({ user, open, onClose }: UserLimitModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab('set')}
-            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'set'
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -251,7 +251,7 @@ export function UserLimitModal({ user, open, onClose }: UserLimitModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab('credits')}
-            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'credits'
                 ? 'border-brand-primary text-brand-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -263,7 +263,7 @@ export function UserLimitModal({ user, open, onClose }: UserLimitModalProps) {
           <button
             type="button"
             onClick={() => setActiveTab('danger')}
-            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 pb-2.5 px-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'danger'
                 ? 'border-rose-500 text-rose-500'
                 : 'border-transparent text-muted-foreground hover:text-rose-500'

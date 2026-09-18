@@ -6,14 +6,17 @@ import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaS
 import { resolveIbanBank } from '@/modules/tr-api/validators';
 
 const SAMPLES = [
-  { label: 'Garanti BBVA', iban: 'TR330006100511123456789012' },
-  { label: 'İş Bankası', iban: 'TR620006400000112345678901' },
-  { label: 'Ziraat Bankası', iban: 'TR560001000001123456789012' },
+  { label: 'Garanti BBVA', iban: 'TR600006201234567890123456' },
+  { label: 'İş Bankası', iban: 'TR450006401234567890123456' },
+  { label: 'Ziraat Bankası', iban: 'TR620001001234567890123456' },
+  { label: 'Ziraat Katılım', iban: 'TR730020901234567890123456' },
+  { label: 'Enpara Bank', iban: 'TR750015701234567890123456' },
+  { label: 'Papara', iban: 'TR790082901234567890123456' },
   { label: 'Hatalı IBAN (Test)', iban: 'TR330006100511123456789099' },
 ];
 
 export default function IbanToolClient() {
-  const [ibanInput, setIbanInput] = useState('TR330006100511123456789012');
+  const [ibanInput, setIbanInput] = useState('TR600006201234567890123456');
   const [copied, setCopied] = useState(false);
 
   const cleanIban = ibanInput.trim().replace(/\s+/g, '').toUpperCase();
@@ -26,7 +29,7 @@ export default function IbanToolClient() {
     : null;
 
   const handleCopyCurl = () => {
-    const curl = `curl -X POST "https://noktanyus.com/api/v1/validate/iban" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${cleanIban || 'TR330006100511123456789012'}'}'`;
+    const curl = `curl -X POST "https://noktanyus.com/api/v1/validate/iban" \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${cleanIban || 'TR600006201234567890123456'}'}'`;
     navigator.clipboard.writeText(curl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

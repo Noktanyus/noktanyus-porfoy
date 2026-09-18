@@ -7,6 +7,7 @@ export {
   validatePlate,
   calculateKdv,
   resolveIbanBank,
+  IBAN_BANKS,
   buildInvoicePdf,
   validateCardLuhn,
   validateImei,

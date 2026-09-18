@@ -165,27 +165,94 @@ export function calculateKdv(input: {
   return { vatRate, mode, netCents, vatCents, grossCents };
 }
 
-/** IBAN banka kodu → yaygın TR bankaları (statik liste) */
-const IBAN_BANKS: Record<string, string> = {
+/** IBAN banka kodu → Türkiye bankaları ve FAST lisanslı kuruluşlar */
+export const IBAN_BANKS: Record<string, string> = {
+  // Merkez & Kamu / Kalkınma Bankaları
   '00001': 'T.C. Merkez Bankası',
-  '00010': 'Ziraat Bankası',
-  '00012': 'Halkbank',
-  '00015': 'VakıfBank',
-  '00032': 'TEB',
+  '00004': 'İller Bankası (İLBANK)',
+  '00010': 'T.C. Ziraat Bankası',
+  '00012': 'Türkiye Halk Bankası (Halkbank)',
+  '00013': 'Türkiye Kalkınma ve Yatırım Bankası',
+  '00015': 'Türkiye Vakıflar Bankası (VakıfBank)',
+  '00029': 'Türk Eximbank',
+
+  // Özel & Yabancı Sermayeli Mevduat Bankaları
+  '00032': 'Türk Ekonomi Bankası (TEB)',
   '00046': 'Akbank',
   '00059': 'Şekerbank',
+  '00060': 'Türk Ticaret Bankası',
+  '00061': 'Garanti BBVA',
   '00062': 'Garanti BBVA',
-  '00064': 'İş Bankası',
-  '00067': 'Yapı Kredi',
+  '00064': 'Türkiye İş Bankası',
+  '00067': 'Yapı ve Kredi Bankası',
+  '00091': 'Arap Türk Bankası',
+  '00092': 'Citibank',
+  '00096': 'Bank Mellat',
   '00099': 'ING',
-  '00111': 'QNB Finansbank',
-  '00123': 'HSBC',
+  '00100': 'JPMorgan Chase Bank',
+  '00103': 'Fibabanka',
+  '00108': 'Turkland Bank (T-Bank)',
+  '00109': 'ICBC Turkey Bank',
+  '00111': 'QNB Bank (QNB Finansbank)',
+  '00115': 'Deutsche Bank',
+  '00116': 'Societe Generale',
+  '00121': 'Standard Chartered Yatırım Bankası',
+  '00122': 'Habib Bank Limited',
+  '00123': 'HSBC Bank',
+  '00124': 'Alternatifbank',
+  '00125': 'Burgan Bank',
   '00134': 'Denizbank',
   '00135': 'Anadolubank',
   '00146': 'Odea Bank',
-  '00203': 'Albaraka Türk',
-  '00205': 'Kuveyt Türk',
-  '00206': 'Türkiye Finans',
+
+  // Yatırım ve Kalkınma Bankaları
+  '00138': 'Diler Yatırım Bankası',
+  '00139': 'GSD Yatırım Bankası',
+  '00141': 'Nurol Yatırım Bankası',
+  '00142': 'BankPozitif Kredi ve Kalkınma Bankası',
+  '00143': 'Aktif Yatırım Bankası (Aktif Bank / N Kolay)',
+  '00144': 'Rabobank',
+  '00145': 'PASHA Yatırım Bankası',
+  '00147': 'MUFG Bank Turkey',
+  '00148': 'Bank of China Turkey',
+  '00150': 'Golden Global Yatırım Bankası',
+  '00152': 'Destek Yatırım Bankası',
+  '00153': 'Misyon Yatırım Bankası',
+  '00154': 'Tera Yatırım Bankası',
+
+  // Dijital Bankalar (BDDK Lisanslı)
+  '00157': 'Enpara Bank',
+  '00158': 'Colendi Bank',
+  '00159': 'FUPS Bank',
+  '00160': 'Ziraat Dinamik Banka',
+
+  // Katılım Bankaları
+  '00203': 'Albaraka Türk Katılım Bankası',
+  '00205': 'Kuveyt Türk Katılım Bankası',
+  '00206': 'Türkiye Finans Katılım Bankası',
+  '00209': 'Ziraat Katılım Bankası',
+  '00210': 'Vakıf Katılım Bankası',
+  '00211': 'Türkiye Emlak Katılım Bankası',
+  '00212': 'Hayat Finans Katılım Bankası',
+  '00213': 'T.O.M. Katılım Bankası (TOM Bank)',
+  '00214': 'Dünya Katılım Bankası',
+
+  // Takas, Saklama & Posta Kuruluşları
+  '00800': 'İstanbul Takas ve Saklama Bankası (Takasbank)',
+  '00807': 'PTT (Posta ve Telgraf Teşkilatı)',
+
+  // TCMB FAST Doğrudan Katılımcısı Ödeme ve Elektronik Para Kuruluşları
+  '00825': 'Moka United Ödeme Kuruluşu',
+  '00827': 'Param (Turk Elektronik Para)',
+  '00828': 'Belbim Elektronik Para (İstanbulkart)',
+  '00829': 'Papara Elektronik Para',
+  '00838': 'Sipay Elektronik Para',
+  '00850': 'BPN Ödeme ve Elektronik Para',
+  '00864': 'İyzico (İyzi Ödeme)',
+  '00869': 'Paycell (Turkcell Ödeme)',
+  '00890': 'Lydians Elektronik Para',
+  '00894': 'Ahlatcı Ödeme ve Elektronik Para',
+  '00911': 'AS Ödeme Hizmetleri',
 };
 
 export function resolveIbanBank(raw: string): {
@@ -193,6 +260,7 @@ export function resolveIbanBank(raw: string): {
   normalized: string;
   bankCode?: string;
   bankName?: string;
+  isKnown?: boolean;
   reason?: string;
 } {
   const check = validateIban(raw);
@@ -200,8 +268,10 @@ export function resolveIbanBank(raw: string): {
     return { valid: false, normalized: check.normalized, reason: check.reason };
   }
   const bankCode = check.normalized.slice(4, 9);
-  const bankName = IBAN_BANKS[bankCode] ?? 'Bilinmeyen / diğer banka';
-  return { valid: true, normalized: check.normalized, bankCode, bankName };
+  const matched = IBAN_BANKS[bankCode];
+  const bankName = matched ?? 'Bilinmeyen / diğer banka';
+  const isKnown = Boolean(matched);
+  return { valid: true, normalized: check.normalized, bankCode, bankName, isKnown };
 }
 
 export interface InvoiceLine {
