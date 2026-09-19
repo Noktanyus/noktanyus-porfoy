@@ -15,10 +15,12 @@ describe('appRole', () => {
     expect(isSyntheticAdminId(undefined)).toBe(false);
   });
 
-  it('normalizeAppRole yalnızca admin stringini admin yapar', () => {
+  it('normalizeAppRole yalnızca admin stringini (büyük/küçük harf duyarsız) admin yapar', () => {
     expect(normalizeAppRole('admin')).toBe('admin');
+    expect(normalizeAppRole('ADMIN')).toBe('admin');
+    expect(normalizeAppRole(' Admin ')).toBe('admin');
     expect(normalizeAppRole('user')).toBe('user');
-    expect(normalizeAppRole('ADMIN')).toBe('user');
+    expect(normalizeAppRole('manager')).toBe('user');
     expect(normalizeAppRole(null)).toBe('user');
   });
 

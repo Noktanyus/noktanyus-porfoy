@@ -18,7 +18,10 @@ export function isSyntheticAdminId(id: string | null | undefined): boolean {
 }
 
 export function normalizeAppRole(role: unknown): AppRole {
-  return role === 'admin' ? 'admin' : 'user';
+  if (typeof role === 'string' && role.trim().toLowerCase() === 'admin') {
+    return 'admin';
+  }
+  return 'user';
 }
 
 export function isAppAdminRole(role: unknown): boolean {

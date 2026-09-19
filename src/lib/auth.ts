@@ -185,15 +185,20 @@ export const authOptions: NextAuthOptions = {
   providers,
   callbacks: {
     async jwt({ token, user }) {
+      const adminEmail = env.ADMIN_EMAIL?.toLowerCase().trim();
+
       // İlk giriş — user payload'ından token'a bilgi ekle.
       if (user) {
         const u = user as AuthorizedUser;
         const id = u.id ?? SYNTHETIC_ADMIN_ID;
-        let role: AppRole = isSyntheticAdminId(id)
+        const isUserAdminEmail = Boolean(
+          adminEmail && u.email && (u.email.toLowerCase().trim() === adminEmail)
+        );
+        let role: AppRole = (isSyntheticAdminId(id) || isUserAdminEmail)
           ? "admin"
           : normalizeAppRole(u.role);
 
-        if (!isSyntheticAdminId(id)) {
+        if (!isSyntheticAdminId(id) && !isUserAdminEmail) {
           try {
             const dbUser = await prisma.user.findUnique({
               where: { id },
@@ -219,7 +224,13 @@ export const authOptions: NextAuthOptions = {
       // yeniden giriş zorunlu olmasın.
       const t = token as AppToken;
       const tokenId = typeof t.id === "string" ? t.id : undefined;
-      if (tokenId && !isSyntheticAdminId(tokenId)) {
+      const isTokenAdminEmail = Boolean(
+        adminEmail && t.email && (t.email.toLowerCase().trim() === adminEmail)
+      );
+
+      if (isTokenAdminEmail || isSyntheticAdminId(tokenId)) {
+        t.role = "admin";
+      } else if (tokenId) {
         const lastCheck =
           typeof t.roleCheckedAt === "number" ? t.roleCheckedAt : 0;
         if (Date.now() - lastCheck >= ROLE_REFRESH_INTERVAL_MS) {
