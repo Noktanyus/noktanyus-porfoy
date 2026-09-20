@@ -43,15 +43,16 @@ export function OnboardingFlow() {
   const [show, setShow] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
 
   useEffect(() => {
-    if (!hydrated || !isOpen) {
+    if (!hydrated || !isOpen || isAdmin) {
       setShow(false);
       return;
     }
     const t = window.setTimeout(() => setShow(true), 600);
     return () => window.clearTimeout(t);
-  }, [hydrated, isOpen]);
+  }, [hydrated, isOpen, isAdmin]);
 
   const handleClose = () => {
     skip();
@@ -67,7 +68,7 @@ export function OnboardingFlow() {
     toast.success('Kurulum tamamlandı.');
   };
 
-  if (!hydrated || !show || !isOpen) return null;
+  if (!hydrated || !show || !isOpen || isAdmin) return null;
 
   const currentStep = state.step;
   const labels = STEP_LABELS[currentStep];

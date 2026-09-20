@@ -3,18 +3,19 @@
  * Vitrin sırası: Bireysel → Profesyonel (Destek+ ek hizmet olarak sunulur).
  */
 
-import { Metadata } from 'next';
 import Link from 'next/link';
 import { commerceService } from '@/modules/commerce';
 import { PlanGrid } from '@/components/commerce/PlanGrid';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { staticMetadata } from '@/lib/pageMetadata';
 
-export const metadata: Metadata = {
-  title: 'API Planları & Abonelikler',
+export const metadata = staticMetadata({
+  title: 'API Planları & Abonelikler | Noktanyus',
   description:
     'TR yardımcı API aylık planları: Starter 2.000, Pro 10.000, Business 50.000 istek ve Kurumsal Özel Kota. API key anında açılır, istediğin zaman iptal.',
-};
+  path: '/magaza/abonelikler',
+});
 
 export const dynamic = 'force-dynamic';
 

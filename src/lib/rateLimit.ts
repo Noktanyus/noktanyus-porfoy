@@ -53,8 +53,18 @@ export interface RateLimiterDriver {
 // In-memory driver
 // ============================================================================
 
+const globalForRateLimit = globalThis as unknown as {
+  __rateLimitBuckets?: Map<string, Bucket>;
+  __rateLimiterInstance?: RateLimiterDriver;
+};
+
 class InMemoryRateLimiter implements RateLimiterDriver {
-  private buckets = new Map<string, Bucket>();
+  private get buckets(): Map<string, Bucket> {
+    if (!globalForRateLimit.__rateLimitBuckets) {
+      globalForRateLimit.__rateLimitBuckets = new Map<string, Bucket>();
+    }
+    return globalForRateLimit.__rateLimitBuckets;
+  }
 
   check(
     key: string,
@@ -254,27 +264,95 @@ return { allowed, remaining, resetIn }
 }
 
 // ============================================================================
+// Upstash / Vercel KV REST driver (Zero external dependencies)
+// ============================================================================
+
+class UpstashRestRateLimiter implements RateLimiterDriver {
+  private url: string;
+  private token: string;
+
+  constructor(url: string, token: string) {
+    this.url = url.replace(/\/$/, '');
+    this.token = token;
+  }
+
+  async check(key: string, config: RateLimitConfig): Promise<RateLimitResult> {
+    const fullKey = `${config.keyPrefix ?? 'default'}:${key}`;
+    const windowSec = Math.max(1, Math.round(config.capacity / (config.refillRate || 1)));
+
+    try {
+      const res = await fetch(`${this.url}/pipeline`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify([
+          ['INCR', fullKey],
+          ['EXPIRE', fullKey, windowSec],
+        ]),
+      });
+
+      if (!res.ok) {
+        return inMemoryLimiter.check(key, config);
+      }
+
+      const data = await res.json();
+      const count = Number(data?.[0]?.result ?? 1);
+      const allowed = count <= config.capacity;
+      const remaining = Math.max(0, config.capacity - count);
+
+      return {
+        allowed,
+        remaining,
+        resetIn: windowSec,
+      };
+    } catch {
+      return inMemoryLimiter.check(key, config);
+    }
+  }
+
+  async cleanup() {
+    return;
+  }
+}
+
+// ============================================================================
 // Factory + Singleton
 // ============================================================================
 
-/** Redis konfigure edilmis mi? (env + ioredis yuklenebilir mi) */
+/** Redis konfigure edilmis mi? (env + ioredis yuklenebilir mi veya Upstash REST) */
 function isRedisConfigured(): boolean {
-  return Boolean(process.env.REDIS_URL?.trim());
+  return Boolean(
+    process.env.REDIS_URL?.trim() ||
+    (process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()) ||
+    (process.env.KV_REST_API_URL?.trim() && process.env.KV_REST_API_TOKEN?.trim())
+  );
 }
 
 const inMemoryLimiter = new InMemoryRateLimiter();
 let cachedLimiter: RateLimiterDriver | null = null;
 
+function createRateLimiter(): RateLimiterDriver {
+  if (process.env.REDIS_URL?.trim()) {
+    return new DistributedRateLimiter(process.env.REDIS_URL.trim());
+  }
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL?.trim() || process.env.KV_REST_API_URL?.trim();
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN?.trim() || process.env.KV_REST_API_TOKEN?.trim();
+  if (upstashUrl && upstashToken) {
+    return new UpstashRestRateLimiter(upstashUrl, upstashToken);
+  }
+  return inMemoryLimiter;
+}
+
 /**
- * Singleton rate limiter — REDIS_URL varsa Redis, yoksa InMemory.
+ * Singleton rate limiter — REDIS_URL varsa Redis, Upstash REST varsa Upstash, yoksa InMemory.
  * Ilk cagrida secim yapilir (lazy).
  */
 export const rateLimiter: RateLimiterDriver = new Proxy({} as RateLimiterDriver, {
   get(_target, prop: string) {
     if (!cachedLimiter) {
-      cachedLimiter = isRedisConfigured()
-        ? new DistributedRateLimiter(process.env.REDIS_URL!.trim())
-        : inMemoryLimiter;
+      cachedLimiter = createRateLimiter();
     }
     const target = cachedLimiter as any;
     const value = target[prop];

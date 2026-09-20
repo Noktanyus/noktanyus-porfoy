@@ -7,9 +7,12 @@ import { Metadata } from 'next';
  */
 
 export const metadata: Metadata = {
-  title: 'Cayma Hakkı',
+  title: 'Cayma Hakkı | Noktanyus',
   description:
     'Mesafeli sözleşmelerde cayma hakkı, süresi, istisnaları ve kullanımı.',
+  alternates: {
+    canonical: 'https://noktanyus.com/yasal/cayma-hakki',
+  },
 };
 
 export default function CaymaHakkiPage() {

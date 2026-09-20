@@ -62,13 +62,14 @@ export function LoginForm() {
         return;
       }
 
-      // Session'ı yeniden oku çünkü signIn callback'inde JWT yeni oluşmuş olabilir.
-      const session = await getSession();
-      const userId = session?.user?.id;
-
       toast.success('Başarıyla giriş yaptınız!');
-      router.push(postLoginRedirect(userId, callbackUrl));
-      router.refresh();
+      const destination = postLoginRedirect(undefined, callbackUrl);
+      if (typeof window !== 'undefined') {
+        window.location.assign(destination);
+      } else {
+        router.push(destination);
+        router.refresh();
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Giriş başarısız';
       setError(msg);

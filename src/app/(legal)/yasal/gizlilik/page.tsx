@@ -7,9 +7,12 @@ import { Metadata } from 'next';
  */
 
 export const metadata: Metadata = {
-  title: 'Gizlilik Politikası',
+  title: 'Gizlilik Politikası | Noktanyus',
   description:
     'Kişisel verilerin toplanması, kullanılması ve korunmasına ilişkin gizlilik politikası.',
+  alternates: {
+    canonical: 'https://noktanyus.com/yasal/gizlilik',
+  },
 };
 
 export default function GizlilikPage() {

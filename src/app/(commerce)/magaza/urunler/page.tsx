@@ -4,19 +4,20 @@
  * Yalnızca admin tarafından yayınlanan DigitalProduct kayıtları.
  */
 
-import { Metadata } from 'next';
 import Link from 'next/link';
 import { commerceService } from '@/modules/commerce';
 import nextDynamic from 'next/dynamic';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { productCategoryLabel } from '@/lib/storeCatalog';
+import { staticMetadata } from '@/lib/pageMetadata';
 
-export const metadata: Metadata = {
-  title: 'Hazır Paketler',
+export const metadata = staticMetadata({
+  title: 'Hazır Paketler | Noktanyus',
   description:
     'Tek seferlik indirmeli şablon ve script paketleri. API kullanımı için aylık plan veya kredi tercih edin.',
-};
+  path: '/magaza/urunler',
+});
 
 export const dynamic = 'force-dynamic';
 

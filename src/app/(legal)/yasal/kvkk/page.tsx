@@ -7,9 +7,12 @@ import { Metadata } from 'next';
  */
 
 export const metadata: Metadata = {
-  title: 'KVKK Aydınlatma Metni',
+  title: 'KVKK Aydınlatma Metni | Noktanyus',
   description:
     '6698 sayılı Kişisel Verilerin Korunması Kanunu kapsamında aydınlatma metni.',
+  alternates: {
+    canonical: 'https://noktanyus.com/yasal/kvkk',
+  },
 };
 
 export default function KvkkPage() {

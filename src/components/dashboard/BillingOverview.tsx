@@ -295,6 +295,29 @@ export function BillingOverview({
 
 /* ----------------------------- Sub-components ----------------------------- */
 
+const SUBSCRIPTION_STATUS_LABELS: Record<string, { label: string; className: string }> = {
+  active: {
+    label: 'Aktif',
+    className: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+  },
+  trialing: {
+    label: 'Deneme Sürümü',
+    className: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  },
+  past_due: {
+    label: 'Ödeme Bekliyor',
+    className: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
+  },
+  canceled: {
+    label: 'İptal Edildi',
+    className: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
+  },
+  unpaid: {
+    label: 'Ödenmedi',
+    className: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
+  },
+};
+
 function ActiveSubscriptionCard({
   subscription,
   onManage,
@@ -302,7 +325,10 @@ function ActiveSubscriptionCard({
   subscription: Subscription;
   onManage: () => void;
 }) {
-  const isActive = subscription.status === 'active';
+  const statusConfig = SUBSCRIPTION_STATUS_LABELS[subscription.status.toLowerCase()] ?? {
+    label: subscription.status,
+    className: 'bg-muted text-muted-foreground',
+  };
   return (
     <div className="glass-card-premium p-6">
       <div className="flex items-start justify-between gap-3 mb-4">
@@ -319,13 +345,9 @@ function ActiveSubscriptionCard({
           </p>
         </div>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-            isActive
-              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-              : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-          }`}
+          className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusConfig.className}`}
         >
-          {subscription.status}
+          {statusConfig.label}
         </span>
       </div>
 

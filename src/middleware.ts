@@ -15,6 +15,8 @@ import { locales, defaultLocale } from '@/i18n/config';
  */
 
 const LEGACY_REDIRECTS: Record<string, string> = {
+  '/projeler': '/projelerim',
+  '/fiyatlandirma': '/magaza/abonelikler',
   '/admin/blog/yeni': '/admin/blog/new',
   '/admin/projects/yeni': '/admin/projects/new',
   '/admin/popups/yeni': '/admin/popups/new',
@@ -127,6 +129,22 @@ const intlMiddleware = createIntlMiddleware({
 });
 
 export function middleware(request: NextRequest) {
+  // 1) Host yönlendirmesi (www -> apex, 301 kalıcı)
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    const newHost = host.replace(/^www\./, '');
+    const redirectUrl = new URL(request.url);
+    if (newHost.includes(':')) {
+      const [hostname, port] = newHost.split(':');
+      redirectUrl.hostname = hostname;
+      redirectUrl.port = port;
+    } else {
+      redirectUrl.hostname = newHost;
+      redirectUrl.port = '';
+    }
+    return NextResponse.redirect(redirectUrl, 301);
+  }
+
   const pathname = request.nextUrl.pathname;
   const strippedPath = stripLocalePrefix(pathname);
 
@@ -144,6 +162,13 @@ export function middleware(request: NextRequest) {
   if (legacyTarget) {
     const url = request.nextUrl.clone();
     url.pathname = legacyTarget;
+    return NextResponse.redirect(url, 301);
+  }
+
+  // /projeler/ subpath redirect -> /projelerim/
+  if (strippedPath.startsWith('/projeler/')) {
+    const url = request.nextUrl.clone();
+    url.pathname = strippedPath.replace(/^\/projeler/, '/projelerim');
     return NextResponse.redirect(url, 301);
   }
 

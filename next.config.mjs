@@ -135,6 +135,25 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/projeler',
+        destination: '/projelerim',
+        permanent: true,
+      },
+      {
+        source: '/projeler/:slug*',
+        destination: '/projelerim/:slug*',
+        permanent: true,
+      },
+      {
+        source: '/fiyatlandirma',
+        destination: '/magaza/abonelikler',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       // Immutable cache for uploaded images

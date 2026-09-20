@@ -20,6 +20,13 @@ export default async function AdminPlansPage() {
     orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
   });
 
+  const INTERVAL_LABELS: Record<string, string> = {
+    MONTH: 'Aylık',
+    YEAR: 'Yıllık',
+    WEEK: 'Haftalık',
+    DAY: 'Günlük',
+  };
+
   return (
     <div className="admin-content-spacing space-y-6">
       <PageHeader
@@ -90,7 +97,9 @@ export default async function AdminPlansPage() {
                   <td className="px-4 py-3 text-right font-semibold tabular-nums">
                     {formatCurrency(plan.priceCents, plan.currency)}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">{plan.interval}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {INTERVAL_LABELS[plan.interval] ?? plan.interval}
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge size="sm" {...resolveActiveStatus(plan.active)} />
                   </td>

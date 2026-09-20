@@ -4,15 +4,16 @@
  * İkincil kanal: hazır dijital paketler.
  */
 
-import { Metadata } from 'next';
 import Link from 'next/link';
 import { StoreChannelCards, StoreTrustStrip } from '@/components/commerce/StoreChannelCards';
+import { staticMetadata } from '@/lib/pageMetadata';
 
-export const metadata: Metadata = {
-  title: 'Mağaza',
+export const metadata = staticMetadata({
+  title: 'Mağaza | Noktanyus',
   description:
     'TR yardımcı API’yi aylık planla veya ön ödemeli kredi ile kullan. Hazır dijital paketler ikincil kanal olarak sunulur.',
-};
+  path: '/magaza',
+});
 
 export const dynamic = 'force-dynamic';
 

@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 import {
   FaTachometerAlt, FaUserEdit, FaProjectDiagram,
   FaBlog, FaEnvelopeOpenText, FaCog, FaHome,
-  FaStore, FaLayerGroup, FaCreditCard, FaTags, FaUsers,
+  FaStore, FaLayerGroup, FaCreditCard, FaTags, FaUsers, FaShoppingCart,
 } from 'react-icons/fa';
 
 export interface AdminNavLink {
@@ -20,6 +20,7 @@ export interface AdminNavLink {
 export const ADMIN_NAV_LINKS: AdminNavLink[] = [
   { href: '/admin/dashboard', text: 'Gösterge Paneli', icon: <FaTachometerAlt /> },
   { href: '/admin/users', text: 'Hesaplar', icon: <FaUsers /> },
+  { href: '/admin/orders', text: 'Siparişler', icon: <FaShoppingCart /> },
   { href: '/admin/products', text: 'Ürünler', icon: <FaStore /> },
   { href: '/admin/plans', text: 'Abonelik Planları', icon: <FaCreditCard /> },
   { href: '/admin/categories', text: 'Kategoriler', icon: <FaLayerGroup /> },

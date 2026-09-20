@@ -7,8 +7,11 @@ import { Metadata } from 'next';
  */
 
 export const metadata: Metadata = {
-  title: 'Mesafeli Satış Sözleşmesi',
+  title: 'Mesafeli Satış Sözleşmesi | Noktanyus',
   description: 'Mesafeli satış sözleşmesi ön bilgilendirme formu',
+  alternates: {
+    canonical: 'https://noktanyus.com/yasal/mesafeli-satis',
+  },
 };
 
 export default function MesafeliSatisPage() {

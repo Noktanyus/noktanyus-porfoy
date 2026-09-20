@@ -138,15 +138,31 @@ export const apiKeyService = {
     // 3. Monthly quota
     if (apiKey.monthlyQuota) {
       const usage = await apiKeyUsageRepository.countMonthlyUsage(apiKey.id);
-      if (usage >= apiKey.monthlyQuota) return null;
+      if (usage >= apiKey.monthlyQuota) {
+        return {
+          quotaExceeded: true as const,
+          userId: apiKey.userId,
+          keyId: apiKey.id,
+          scopes: apiKey.scopes as string[],
+          rateLimit: apiKey.rateLimit,
+        };
+      }
     }
 
     return {
+      quotaExceeded: false as const,
       userId: apiKey.userId,
       keyId: apiKey.id,
       scopes: apiKey.scopes as string[],
       rateLimit: apiKey.rateLimit,
     };
+  },
+
+  /**
+   * Son N saniye içindeki kullanım sayısı (serverless rate limit fallback).
+   */
+  async countRecentUsage(apiKeyId: string, seconds = 60) {
+    return apiKeyUsageRepository.countRecentUsage(apiKeyId, seconds);
   },
 
   /**

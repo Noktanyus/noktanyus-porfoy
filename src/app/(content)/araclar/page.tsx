@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     'türkiye api',
     'geliştirici araçları',
   ],
+  alternates: {
+    canonical: 'https://noktanyus.com/araclar',
+  },
   openGraph: {
     title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
     description: 'Online TR IBAN, TCKN, KDV Tevkifat ve İş Günü hesaplama araçları. API desteği ile.',

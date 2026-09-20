@@ -2,16 +2,17 @@
  * /magaza/krediler — Ön ödemeli API kredisi (kullandığın kadar öde).
  */
 
-import { Metadata } from 'next';
 import Link from 'next/link';
 import { CreditPackGrid } from '@/components/commerce/CreditPackGrid';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { staticMetadata } from '@/lib/pageMetadata';
 
-export const metadata: Metadata = {
-  title: 'API Kredileri',
+export const metadata = staticMetadata({
+  title: 'API Kredileri | Noktanyus',
   description:
     'TR yardımcı API için ön ödemeli kredi: 1 kredi = 1 istek, abonelik zorunlu değil, bakiyenin süresi dolmaz.',
-};
+  path: '/magaza/krediler',
+});
 
 export default function MagazaKredilerPage() {
   return (

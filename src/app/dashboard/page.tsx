@@ -15,6 +15,7 @@ import {
   FaCreditCard,
   FaStore,
   FaBook,
+  FaCoins,
 } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -57,7 +58,7 @@ export default async function DashboardOverviewPage() {
     ],
   };
 
-  const [orderCount, licenseCount, apiKeys, subscription, recentOrders, plans] =
+  const [orderCount, licenseCount, apiKeys, subscription, recentOrders, plans, user] =
     await Promise.all([
       prisma.order.count({ where: orderWhere }),
       prisma.license.count({ where: licenseWhere }),
@@ -75,6 +76,10 @@ export default async function DashboardOverviewPage() {
         take: 5,
       }),
       prisma.plan.findMany({ where: { active: true } }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { apiCreditBalance: true },
+      }),
     ]);
 
   const planName =
@@ -108,6 +113,13 @@ export default async function DashboardOverviewPage() {
       icon: FaCreditCard,
       isText: true,
     },
+    {
+      label: 'Kredi Bakiyesi',
+      value: `${(user?.apiCreditBalance ?? 0).toLocaleString('tr-TR')} Kredi`,
+      href: '/magaza/krediler',
+      icon: FaCoins,
+      isText: true,
+    },
   ] as const;
 
   const quickLinks = [
@@ -129,7 +141,7 @@ export default async function DashboardOverviewPage() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {cards.map((c) => {
           const Icon = c.icon;
           return (

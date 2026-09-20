@@ -156,7 +156,7 @@ describe('ApiKeyService', () => {
       expect(result).toBeNull();
     });
 
-    it('returns null if monthly quota exceeded', async () => {
+    it('returns quotaExceeded: true if monthly quota exceeded', async () => {
       vi.mocked(prisma.apiKey.findUnique).mockResolvedValue({
         id: 'k1',
         userId: 'u1',
@@ -178,7 +178,8 @@ describe('ApiKeyService', () => {
       vi.mocked(prisma.apiKeyUsage.count).mockResolvedValue(150); // quota aşıldı
 
       const result = await apiKeyService.validateKey('nokt_test_abc');
-      expect(result).toBeNull();
+      expect(result).not.toBeNull();
+      expect(result?.quotaExceeded).toBe(true);
     });
 
     it('returns valid context if all checks pass', async () => {

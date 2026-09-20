@@ -109,7 +109,7 @@ export function RecentActivity({ users, orders, messages }: RecentActivityProps)
         title="Son Kullanıcılar"
         icon={FaUserPlus}
         iconColor="text-blue-500"
-        viewAllHref="/admin/messages"
+        viewAllHref="/admin/users"
         emptyText="Henüz kullanıcı yok"
       >
         {users.length === 0 ? (
@@ -136,7 +136,7 @@ export function RecentActivity({ users, orders, messages }: RecentActivityProps)
         title="Son Siparişler"
         icon={FaShoppingCart}
         iconColor="text-green-500"
-        viewAllHref="/admin/messages"
+        viewAllHref="/admin/orders"
         emptyText="Henüz sipariş yok"
       >
         {orders.length === 0 ? (

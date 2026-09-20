@@ -109,10 +109,23 @@ export function withApiKey(
           success: false,
           error: {
             code: 'INVALID_KEY',
-            message: 'Invalid, expired, or quota-exceeded API key',
+            message: 'Invalid, revoked, or expired API key',
           },
         },
         { status: 401 }
+      );
+    }
+
+    if ((validation as any).quotaExceeded) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'QUOTA_EXCEEDED',
+            message: 'Monthly quota exceeded. Please upgrade your plan or purchase credits.',
+          },
+        },
+        { status: 402 }
       );
     }
 
@@ -147,6 +160,40 @@ export function withApiKey(
           },
         }
       );
+    }
+
+    // Serverless fallback: Redis/Upstash olmadığında paralel serverless konteynerler
+    // arasındaki 60/dk sınırını DB üzerinden garanti altına al.
+    if (
+      typeof (apiKeyService as any).countRecentUsage === 'function' &&
+      !process.env.REDIS_URL &&
+      !process.env.UPSTASH_REDIS_REST_URL &&
+      !process.env.KV_REST_API_URL
+    ) {
+      try {
+        const recentRequests = await (apiKeyService as any).countRecentUsage(validation.keyId, 60);
+        if (recentRequests >= validation.rateLimit) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: {
+                code: 'RATE_LIMITED',
+                message: 'Rate limit exceeded',
+              },
+            },
+            {
+              status: 429,
+              headers: {
+                'Retry-After': '60',
+                'X-RateLimit-Remaining': '0',
+                'X-RateLimit-Limit': String(validation.rateLimit),
+              },
+            }
+          );
+        }
+      } catch {
+        // fail-open
+      }
     }
 
     // Execute handler — usage tracking sonucu bekleyip response status'unu al

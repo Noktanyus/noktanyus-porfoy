@@ -89,6 +89,16 @@ export class ApiKeyUsageRepository extends BaseRepository<ApiKeyUsage> {
       where: { apiKeyId, timestamp: { gte: monthStart } },
     });
   }
+
+  /**
+   * Son N saniye içindeki kullanım sayısı (serverless rate limit fallback için).
+   */
+  async countRecentUsage(apiKeyId: string, seconds = 60): Promise<number> {
+    const windowStart = new Date(Date.now() - seconds * 1000);
+    return prisma.apiKeyUsage.count({
+      where: { apiKeyId, timestamp: { gte: windowStart } },
+    });
+  }
 }
 
 export const apiKeyRepository = new ApiKeyRepository();

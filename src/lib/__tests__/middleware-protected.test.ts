@@ -178,4 +178,20 @@ describe('middleware — legacy redirect (301)', () => {
       'http://localhost:3000/admin/blog/new'
     );
   });
+
+  it('/projeler → 301 to /projelerim', async () => {
+    const res = await middleware(makeRequest('/projeler'));
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toBe(
+      'http://localhost:3000/projelerim'
+    );
+  });
+
+  it('www host → 301 to apex', async () => {
+    const req = makeRequest('/hakkimda');
+    req.headers.set('host', 'www.noktanyus.com');
+    const res = await middleware(req);
+    expect(res.status).toBe(301);
+    expect(res.headers.get('location')).toContain('noktanyus.com/hakkimda');
+  });
 });

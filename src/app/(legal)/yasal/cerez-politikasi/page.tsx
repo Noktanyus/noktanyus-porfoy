@@ -7,9 +7,12 @@ import { Metadata } from 'next';
  */
 
 export const metadata: Metadata = {
-  title: 'Çerez Politikası',
+  title: 'Çerez Politikası | Noktanyus',
   description:
     'Web sitemizde kullanılan çerezler, amaçları ve yönetim seçenekleri.',
+  alternates: {
+    canonical: 'https://noktanyus.com/yasal/cerez-politikasi',
+  },
 };
 
 export default function CerezPolitikasiPage() {

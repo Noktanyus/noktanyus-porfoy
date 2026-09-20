@@ -6,6 +6,13 @@ import nextDynamic from 'next/dynamic';
 import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { PageStates } from '@/components/ui/PageStates';
+import { staticMetadata } from '@/lib/pageMetadata';
+
+export const metadata = staticMetadata({
+  title: 'Projelerim | Noktanyus',
+  description: 'Geliştirdiğim açık kaynak ve kurumsal yazılım projeleri, web ve mobil uygulamalar.',
+  path: '/projelerim',
+});
 
 // Lazy-load the heavy client list component (search/filter logic) to reduce
 // initial JS bundle size. SSR is kept on so SEO and first paint are preserved.

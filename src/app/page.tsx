@@ -43,6 +43,9 @@ export async function generateMetadata(): Promise<Metadata> {
         title: seoSettings.siteTitle,
         description: seoSettings.siteDescription,
         keywords: seoSettings.siteKeywords,
+        alternates: {
+          canonical: '/',
+        },
         openGraph: {
           title: seoSettings.ogTitle || seoSettings.siteTitle,
           description: seoSettings.ogDescription || seoSettings.siteDescription,
@@ -91,7 +94,7 @@ export default async function Home() {
   const personLd = personJsonLd({
     name: aboutData?.name ?? 'Yunus Tuğhan',
     jobTitle:
-      aboutData?.title ?? 'Software Developer',
+      aboutData?.title ?? 'Yazılım Geliştirici',
     description:
       aboutData?.content ??
       'Akdeniz Üniversitesi Yazılım Geliştirici',
@@ -121,7 +124,7 @@ export default async function Home() {
           {/* Animated Hero Section */}
           <AnimatedHero
             name={aboutData?.name ?? 'Yunus Tuğhan'}
-            title={aboutData?.title ?? 'Software Developer'}
+            title={aboutData?.title ?? 'Yazılım Geliştirici'}
             subtitle="// Portföy · Paket · API"
             description={
               aboutData?.content ?? 'Akdeniz Üniversitesi Yazılım Geliştirici'

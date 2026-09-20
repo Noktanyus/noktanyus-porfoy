@@ -88,6 +88,8 @@ async function main() {
     ['portfolio-template.webp', 'Portfolio Template', '#7c3aed'],
     ['ui-library.webp', 'UI Component Library', '#0f766e'],
     ['api-boilerplate.webp', 'API Boilerplate', '#b45309'],
+    ['tr-sdk.webp', 'TR Yardımcı API SDK', '#0284c7'],
+    ['paytr-starter.webp', 'PayTR Starter Kit', '#059669'],
   ];
   for (const [file, title, accent] of products) {
     await writeWebp(`products/${file}`, productSvg(title, accent), 1280, 720);

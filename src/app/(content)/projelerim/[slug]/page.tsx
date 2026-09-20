@@ -1,9 +1,8 @@
-import { Suspense } from 'react';
 import { getProject, listProjects } from '@/services/contentService';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { FaGithub, FaExternalLinkAlt, FaArrowLeft } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
@@ -24,6 +23,16 @@ type PageProps = {
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  if (params.slug === 'estm' || params.slug.startsWith('estm')) {
+    return {
+      title: 'eSAS Spor Tesisleri | Projelerim',
+      description: 'eSAS Spor Tesisleri Yönetim Platformu',
+      alternates: {
+        canonical: 'https://noktanyus.com/projelerim/esas-spor-tesisleri',
+      },
+    };
+  }
+
   return safeMetadata(
     async () => {
       const project = await getProject(params.slug);
@@ -32,6 +41,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return {
         title: `${project.title} | Projelerim`,
         description: project.description,
+        alternates: {
+          canonical: `https://noktanyus.com/projelerim/${params.slug}`,
+        },
         openGraph: {
           title: project.title,
           description: project.description,
@@ -61,23 +73,18 @@ function ProjectPageSkeleton() {
   );
 }
 
-async function ProjectPageContent({ slug }: { slug: string }) {
-  const project = await getProject(slug);
-
-  if (!project) {
-    notFound();
-  }
-
+function ProjectPageContent({ project }: { project: any }) {
   const cleanHtml = renderSafeMarkdown(project.content);
 
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
     : project.mainImage || "/images/placeholder.webp";
 
-  const techs = Array.isArray(project.technologies)
-    ? project.technologies.filter((t): t is string => typeof t === 'string')
-    : typeof project.technologies === 'string'
-      ? project.technologies.split(',').map(t => t.trim()).filter(Boolean)
+  const rawTechs = project.technologies;
+  const techs: string[] = Array.isArray(rawTechs)
+    ? (rawTechs as unknown[]).filter((t): t is string => typeof t === 'string')
+    : typeof rawTechs === 'string'
+      ? rawTechs.split(',').map((t: string) => t.trim()).filter(Boolean)
       : [];
 
   return (
@@ -173,12 +180,18 @@ async function ProjectPageContent({ slug }: { slug: string }) {
   );
 }
 
-export default function ProjectPage({ params }: PageProps) {
-  return (
-    <Suspense fallback={<ProjectPageSkeleton />}>
-      <ProjectPageContent slug={params.slug} />
-    </Suspense>
-  );
+export default async function ProjectPage({ params }: PageProps) {
+  // Legacy estm* slug redirect -> /projelerim/esas-spor-tesisleri
+  if (params.slug === 'estm' || params.slug.startsWith('estm')) {
+    redirect('/projelerim/esas-spor-tesisleri');
+  }
+
+  const project = await getProject(params.slug);
+  if (!project) {
+    notFound();
+  }
+
+  return <ProjectPageContent project={project} />;
 }
 
 // generateStaticParams kaldırıldı - dynamic = 'force-dynamic' ile birlikte çakışıyordu.

@@ -34,12 +34,16 @@ export async function generateMetadata(): Promise<Metadata> {
       return {
         title,
         description,
+        alternates: {
+          canonical: 'https://noktanyus.com/hakkimda',
+        },
         openGraph: {
           title,
           description,
           images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
         },
         twitter: {
+          card: 'summary_large_image',
           title,
           description,
           images: about?.aboutImage ? [about.aboutImage] : [],

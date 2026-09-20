@@ -37,13 +37,11 @@ export async function GET(req: NextRequest) {
         if (closed) return;
         try {
           const notifications = await notificationService.list(userId, 10);
-          const data = encoder.encode(
-            JSON.stringify({
-              type: 'notifications',
-              notifications,
-            })
-          );
-          controller.enqueue(`data: ${data}\n\n`);
+          const payload = JSON.stringify({
+            type: 'notifications',
+            notifications,
+          });
+          controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
         } catch (err) {
           logger.error('SSE notification fetch error', { error: err });
         }
@@ -53,7 +51,7 @@ export async function GET(req: NextRequest) {
       const heartbeat = setInterval(() => {
         if (closed) return;
         try {
-          controller.enqueue(`: ping\n\n`);
+          controller.enqueue(encoder.encode(': ping\n\n'));
         } catch {
           // ignore
         }

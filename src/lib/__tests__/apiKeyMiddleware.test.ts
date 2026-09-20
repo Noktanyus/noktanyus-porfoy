@@ -128,6 +128,28 @@ describe('apiKeyMiddleware', () => {
       expect(rateLimiterCheckMock).not.toHaveBeenCalled();
     });
 
+    it('returns 402 QUOTA_EXCEEDED when monthly quota is exceeded', async () => {
+      validateKeyMock.mockResolvedValue({
+        quotaExceeded: true,
+        userId: 'u1',
+        keyId: 'k1',
+        scopes: ['read:monitor'],
+        rateLimit: 60,
+      });
+
+      const handler: Handler = vi.fn(async () =>
+        NextResponse.json({ ok: true })
+      ) as unknown as Handler;
+      const wrapped = withApiKey(handler);
+
+      const res = await wrapped(makeReq('Bearer nokt_test_xx'));
+      expect(res.status).toBe(402);
+      const data = await res.json();
+      expect(data.error.code).toBe('QUOTA_EXCEEDED');
+      expect(handler).not.toHaveBeenCalled();
+      expect(rateLimiterCheckMock).not.toHaveBeenCalled();
+    });
+
     it('returns 429 with Retry-After header when rate limited', async () => {
       validateKeyMock.mockResolvedValue({
         userId: 'u1',

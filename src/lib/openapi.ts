@@ -2048,7 +2048,7 @@ const API_DESCRIPTION = [
   '',
   'Her API çağrısı hesap kotanızdan düşülür. Sistem iki aşamalı esnek faturalandırma modelini destekler:',
   '',
-  '1. **Abonelik Modeli**: Seçtiğiniz plana göre (Free: 1.000 istek/ay, Pro: 50.000 istek/ay vb.) aylık istek kotanız tanımlanır. Kota her fatura döneminde sıfırlanır.',
+  '1. **Abonelik Modeli**: Seçtiğiniz plana göre (Starter: 2.000 istek/ay, Pro: 10.000 istek/ay, Business: 50.000 istek/ay, Kurumsal: Özel Kota) aylık istek kotanız tanımlanır. Kota her fatura döneminde sıfırlanır.',
   '2. **Ön Ödemeli Kredi Modeli**: Kota dolduğunda veya abonelik dışı kullanımda, hesabınızdaki kredi bakiyesinden **1 istek = 1 kredi** olarak düşülür (`/validate/batch` toplu doğrulama ucunda doğrulanan öğe adedi kadar kredi düşer).',
   '3. **Sıfır Risk - Otomatik Kredi İadesi**: Bir API çağrısı sistem kaynaklı 5xx hatasıyla sonuçlanırsa, düşülen kredi **anında otomatik olarak hesabınıza iade edilir**.',
   '',
