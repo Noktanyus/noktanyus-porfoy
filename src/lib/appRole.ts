@@ -29,19 +29,20 @@ export function isAppAdminRole(role: unknown): boolean {
 }
 
 /**
- * Sentetik env-admin'in müşteri hesabı yoktur; dashboard'a düşmesin.
- * Hesap bazlı admin'ler hem /dashboard hem /admin kullanır.
+ * Sentetik env-admin'in müşteri dashboard'undan zorla yönlendirilmesi iptal edildi.
+ * Yönetici hem kullanıcı dashboard'unu (/dashboard) hem yönetim panelini (/admin)
+ * birbirinden bağımsız şekilde kullanabilir.
  */
 export function shouldRedirectSyntheticAdminFromDashboard(
-  userId: string | null | undefined,
+  _userId: string | null | undefined,
 ): boolean {
-  return isSyntheticAdminId(userId);
+  return false;
 }
 
-/** Giriş sonrası yönlendirme: env-admin → yönetim, diğerleri → callback. */
+/** Giriş sonrası yönlendirme: belirtilen callbackUrl'e yönlendirir. */
 export function postLoginRedirect(
-  userId: string | null | undefined,
+  _userId: string | null | undefined,
   callbackUrl: string,
 ): string {
-  return isSyntheticAdminId(userId) ? '/admin/dashboard' : callbackUrl;
+  return callbackUrl;
 }

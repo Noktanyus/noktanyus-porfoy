@@ -84,8 +84,31 @@ const providers: NextAuthOptions["providers"] = [
         email === adminEmail &&
         credentials.password === adminPassword
       ) {
+        // DB'de admin kullanıcısının User kaydını garanti et (kullanıcı dashboard'u için)
+        let adminDbUserId: string = SYNTHETIC_ADMIN_ID;
+        try {
+          const hashedPassword = await bcrypt.hash(adminPassword, 10);
+          const dbAdmin = await prisma.user.upsert({
+            where: { email: adminEmail },
+            update: { role: "admin" },
+            create: {
+              email: adminEmail,
+              name: "Admin",
+              password: hashedPassword,
+              role: "admin",
+              emailVerified: new Date(),
+            },
+            select: { id: true },
+          });
+          if (dbAdmin?.id) {
+            adminDbUserId = dbAdmin.id;
+          }
+        } catch {
+          // DB bağlantı hatasında sentetik id ile devam et
+        }
+
         const adminUser: AuthorizedUser = {
-          id: SYNTHETIC_ADMIN_ID,
+          id: adminDbUserId,
           email: env.ADMIN_EMAIL as string,
           name: "Admin",
           role: "admin",
@@ -228,7 +251,22 @@ export const authOptions: NextAuthOptions = {
         adminEmail && t.email && (t.email.toLowerCase().trim() === adminEmail)
       );
 
-      if (isTokenAdminEmail || isSyntheticAdminId(tokenId)) {
+      if (isTokenAdminEmail) {
+        t.role = "admin";
+        if (t.id === SYNTHETIC_ADMIN_ID && t.email) {
+          try {
+            const dbAdmin = await prisma.user.findUnique({
+              where: { email: t.email.toLowerCase().trim() },
+              select: { id: true },
+            });
+            if (dbAdmin?.id) {
+              t.id = dbAdmin.id;
+            }
+          } catch {
+            // non-blocking
+          }
+        }
+      } else if (isSyntheticAdminId(tokenId)) {
         t.role = "admin";
       } else if (tokenId) {
         const lastCheck =

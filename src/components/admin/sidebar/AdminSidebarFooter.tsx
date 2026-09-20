@@ -2,7 +2,6 @@
 
 import { FaEye, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
-import { isSyntheticAdminId } from '@/lib/appRole';
 
 interface AdminSidebarFooterProps {
   onSignOut: () => void;
@@ -16,8 +15,7 @@ interface AdminSidebarFooterProps {
  */
 export function AdminSidebarFooter({ onSignOut, onNavigate, disabled }: AdminSidebarFooterProps) {
   const { data: session, status } = useSession();
-  const showAccountLink =
-    status !== 'loading' && Boolean(session?.user) && !isSyntheticAdminId(session?.user?.id);
+  const showAccountLink = status !== 'loading' && Boolean(session?.user);
 
   return (
     <div className="px-4 py-6 border-t border-border space-y-3 flex-shrink-0 bg-muted/50">

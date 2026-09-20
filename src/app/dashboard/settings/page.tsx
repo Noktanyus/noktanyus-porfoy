@@ -30,8 +30,14 @@ export default async function SettingsPage() {
     redirect('/giris');
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  const userEmail = session.user.email?.toLowerCase().trim();
+  let user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { id: userId },
+        ...(userEmail ? [{ email: userEmail }] : []),
+      ],
+    },
     select: {
       id: true,
       email: true,
@@ -41,6 +47,27 @@ export default async function SettingsPage() {
       createdAt: true,
     },
   });
+
+  if (!user && userEmail) {
+    user = await prisma.user.upsert({
+      where: { email: userEmail },
+      update: {},
+      create: {
+        email: userEmail,
+        name: session.user.name || 'Admin',
+        role: (session.user as any).role || 'admin',
+        emailVerified: new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        image: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+    });
+  }
 
   if (!user) {
     redirect('/giris');

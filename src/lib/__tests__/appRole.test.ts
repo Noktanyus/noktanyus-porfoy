@@ -29,13 +29,14 @@ describe('appRole', () => {
     expect(isAppAdminRole('user')).toBe(false);
   });
 
-  it('yalnızca sentetik admin dashboard dışına yönlenir', () => {
-    expect(shouldRedirectSyntheticAdminFromDashboard('admin')).toBe(true);
+  it('dashboard dışına zorla yönlendirme yapılmaz', () => {
+    expect(shouldRedirectSyntheticAdminFromDashboard('admin')).toBe(false);
     expect(shouldRedirectSyntheticAdminFromDashboard('user-cuid')).toBe(false);
   });
 
-  it('postLoginRedirect env-admini yönetim paneline, hesabı callbacka yollar', () => {
-    expect(postLoginRedirect('admin', '/dashboard')).toBe('/admin/dashboard');
+  it('postLoginRedirect callbackUrl değerini korur', () => {
+    expect(postLoginRedirect('admin', '/dashboard')).toBe('/dashboard');
+    expect(postLoginRedirect('admin', '/admin/dashboard')).toBe('/admin/dashboard');
     expect(postLoginRedirect('user-cuid', '/dashboard')).toBe('/dashboard');
     expect(postLoginRedirect('user-cuid', '/magaza')).toBe('/magaza');
   });
