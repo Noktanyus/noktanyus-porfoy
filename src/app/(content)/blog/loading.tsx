@@ -9,13 +9,11 @@ export default function BlogLoading() {
             Blog
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Teknoloji, yazılım mimarisi ve geliştirici deneyimleri üzerine yazılarım.
+            Teknoloji, yazılım ve diğer konulardaki yazılarım.
           </p>
         </header>
 
-        <div className="max-w-7xl mx-auto">
-          <LoadingSkeleton variant="blog" count={6} />
-        </div>
+        <LoadingSkeleton variant="blog" count={6} />
       </div>
     </div>
   );

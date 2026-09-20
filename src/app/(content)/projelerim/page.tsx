@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 
 import { listProjects } from '@/services/contentService';
 import nextDynamic from 'next/dynamic';
-import { PageSkeleton } from '@/components/ui/LoadingSkeleton';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { PageStates } from '@/components/ui/PageStates';
 import { staticMetadata } from '@/lib/pageMetadata';
@@ -17,7 +17,7 @@ export const metadata = staticMetadata({
 // Lazy-load the heavy client list component (search/filter logic) to reduce
 // initial JS bundle size. SSR is kept on so SEO and first paint are preserved.
 const ProjectList = nextDynamic(() => import('@/components/ProjectList'), {
-  loading: () => <PageSkeleton />,
+  loading: () => <LoadingSkeleton variant="project" count={6} />,
 });
 
 export default async function ProjelerimPage() {

@@ -9,7 +9,7 @@ import { StoreChannelCards, StoreTrustStrip } from '@/components/commerce/StoreC
 import { staticMetadata } from '@/lib/pageMetadata';
 
 export const metadata = staticMetadata({
-  title: 'Mağaza | Noktanyus',
+  title: 'TR Yardımcı API — Plan veya Kredi | Mağaza',
   description:
     'TR yardımcı API’yi aylık planla veya ön ödemeli kredi ile kullan. Hazır dijital paketler ikincil kanal olarak sunulur.',
   path: '/magaza',
@@ -30,7 +30,7 @@ export default function MagazaHubPage() {
             Mağaza
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
-            TR yardımcı API — plan veya kredi
+            TR Yardımcı API — Plan veya Kredi
           </h1>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
             Doğrulama, KDV/tevkifat, kıdem, iş günü ve PDF uçları tek bir API key ile açılır. İki

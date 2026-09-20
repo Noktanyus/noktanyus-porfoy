@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     'iş günü api',
     'türkiye tatil takvimi',
   ],
+  alternates: {
+    canonical: 'https://noktanyus.com/araclar/is-gunu-hesaplama',
+  },
   openGraph: {
     title: 'Türkiye İş Günü ve Resmi Tatil Hesaplama Aracı | Noktanyus',
     description: 'Türkiye resmi tatil takvimine göre net iş günü hesaplayıcı.',

@@ -18,9 +18,9 @@ import { OPEN_EVENT } from '@/components/search/GlobalSearch';
 
 export const MOBILE_NAV_LINKS = [
   { href: '/magaza', label: 'Mağaza' },
-  { href: '/docs', label: 'API' },
+  { href: '/docs', label: 'API Docs' },
   { href: '/araclar', label: 'Araçlar' },
-  { href: '/projelerim', label: 'Projeler' },
+  { href: '/projelerim', label: 'Projelerim' },
   { href: '/blog', label: 'Blog' },
   { href: '/iletisim', label: 'İletişim' },
 ] as const;

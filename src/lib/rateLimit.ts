@@ -24,8 +24,8 @@
  */
 
 interface Bucket {
-  tokens: number;
-  lastRefill: number;
+  timestamps: number[];
+  lastAccess: number;
 }
 
 export interface RateLimitConfig {
@@ -35,6 +35,8 @@ export interface RateLimitConfig {
   refillRate: number;
   /** Unique identifier için key */
   keyPrefix?: string;
+  /** Opsiyonel pencere süresi (ms). Tanımlı değilse (capacity / refillRate) * 1000 */
+  windowMs?: number;
 }
 
 export interface RateLimitResult {
@@ -50,7 +52,7 @@ export interface RateLimiterDriver {
 }
 
 // ============================================================================
-// In-memory driver
+// In-memory driver (Sliding Window Log)
 // ============================================================================
 
 const globalForRateLimit = globalThis as unknown as {
@@ -72,34 +74,38 @@ class InMemoryRateLimiter implements RateLimiterDriver {
   ): RateLimitResult {
     const now = Date.now();
     const fullKey = `${config.keyPrefix ?? 'default'}:${key}`;
+    const windowMs = config.windowMs ?? Math.max(1000, Math.round((config.capacity / (config.refillRate || 1)) * 1000));
 
     let bucket = this.buckets.get(fullKey);
     if (!bucket) {
-      bucket = { tokens: config.capacity, lastRefill: now };
+      bucket = { timestamps: [], lastAccess: now };
       this.buckets.set(fullKey, bucket);
     }
 
-    const elapsed = (now - bucket.lastRefill) / 1000;
-    const refilled = Math.min(
-      config.capacity,
-      bucket.tokens + elapsed * config.refillRate
-    );
-    bucket.tokens = refilled;
-    bucket.lastRefill = now;
+    // Süresi dolmuş istek zamanlarını pencereden çıkar
+    const windowStart = now - windowMs;
+    bucket.timestamps = bucket.timestamps.filter((ts) => ts > windowStart);
+    bucket.lastAccess = now;
 
-    if (bucket.tokens >= 1) {
-      bucket.tokens -= 1;
+    if (bucket.timestamps.length >= config.capacity) {
+      const oldest = bucket.timestamps[0] ?? (now - windowMs);
+      const resetIn = Math.max(1, Math.ceil((oldest + windowMs - now) / 1000));
       return {
-        allowed: true,
-        remaining: Math.floor(bucket.tokens),
-        resetIn: Math.ceil((1 - bucket.tokens) / config.refillRate),
+        allowed: false,
+        remaining: 0,
+        resetIn,
       };
     }
 
+    bucket.timestamps.push(now);
+    const remaining = Math.max(0, config.capacity - bucket.timestamps.length);
+    const oldest = bucket.timestamps[0];
+    const resetIn = Math.max(1, Math.ceil((oldest + windowMs - now) / 1000));
+
     return {
-      allowed: false,
-      remaining: 0,
-      resetIn: Math.ceil((1 - bucket.tokens) / config.refillRate),
+      allowed: true,
+      remaining,
+      resetIn,
     };
   }
 
@@ -107,7 +113,7 @@ class InMemoryRateLimiter implements RateLimiterDriver {
   cleanup(maxAgeMs = 60 * 60 * 1000) {
     const now = Date.now();
     for (const [key, bucket] of this.buckets.entries()) {
-      if (now - bucket.lastRefill > maxAgeMs) {
+      if (now - bucket.lastAccess > maxAgeMs) {
         this.buckets.delete(key);
       }
     }
@@ -149,36 +155,23 @@ local capacity = tonumber(ARGV[1])
 local refillRate = tonumber(ARGV[2])
 local now = tonumber(ARGV[3])
 local ttl = tonumber(ARGV[4])
+local windowMs = math.max(1000, math.floor((capacity / refillRate) * 1000))
+local clearBefore = now - windowMs
 
-local data = redis.call('HMGET', key, 'tokens', 'lastRefill')
-local tokens = tonumber(data[1])
-local lastRefill = tonumber(data[2])
+redis.call('ZREMRANGEBYSCORE', key, 0, clearBefore)
+local count = redis.call('ZCARD', key)
 
-if tokens == nil then
-  tokens = capacity
-  lastRefill = now
-end
-
-local elapsed = (now - lastRefill) / 1000
-local refilled = math.min(capacity, tokens + elapsed * refillRate)
-
-local allowed = 0
-local remaining
-local resetIn
-if refilled >= 1 then
-  refilled = refilled - 1
-  allowed = 1
-  remaining = math.floor(refilled)
-  resetIn = 0
+if count < capacity then
+  redis.call('ZADD', key, now, now)
+  redis.call('EXPIRE', key, ttl)
+  local remaining = capacity - count - 1
+  return { 1, remaining, math.ceil(windowMs / 1000) }
 else
-  remaining = 0
-  resetIn = math.ceil((1 - refilled) / refillRate)
+  local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+  local oldestTime = tonumber(oldest and oldest[2]) or (now - windowMs)
+  local resetIn = math.max(1, math.ceil((oldestTime + windowMs - now) / 1000))
+  return { 0, 0, resetIn }
 end
-
-redis.call('HMSET', key, 'tokens', refilled, 'lastRefill', now)
-redis.call('EXPIRE', key, ttl)
-
-return { allowed, remaining, resetIn }
   `;
 
   constructor(redisUrl: string) {

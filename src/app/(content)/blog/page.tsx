@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import nextDynamic from 'next/dynamic';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { PageStates } from '@/components/ui/PageStates';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 import { locales, defaultLocale } from '@/i18n/config';
 
 /**
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
 // Lazy-load the heavy client list component (search/filter logic) to reduce
 // initial JS bundle size. SSR is kept on so SEO and first paint are preserved.
 const BlogList = nextDynamic(() => import('@/components/BlogList'), {
-  loading: () => <div className="h-96 animate-pulse bg-gray-100/40 dark:bg-gray-800/40 rounded-2xl" />,
+  loading: () => <LoadingSkeleton variant="blog" count={6} />,
 });
 
 type BlogSort = 'newest' | 'oldest' | 'popular';

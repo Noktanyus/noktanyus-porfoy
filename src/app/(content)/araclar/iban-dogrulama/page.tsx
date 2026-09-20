@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     'iban checksum',
     'iban api',
   ],
+  alternates: {
+    canonical: 'https://noktanyus.com/araclar/iban-dogrulama',
+  },
   openGraph: {
     title: 'TR IBAN Doğrulama ve Banka Bulucu | Noktanyus',
     description: 'TR IBAN doğrulaması yapın, banka adını ve kodunu anında tespit edin.',

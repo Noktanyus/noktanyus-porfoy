@@ -28,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
         getAbout().catch(() => null),
         getSeoSettings().catch(() => null),
       ]);
-      const title = `Hakkımda | ${about?.name || seo?.siteTitle || 'Portfolyo'}`;
+      const title = 'Hakkımda';
       const description = about?.subTitle || 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.';
 
       return {
@@ -38,20 +38,20 @@ export async function generateMetadata(): Promise<Metadata> {
           canonical: 'https://noktanyus.com/hakkimda',
         },
         openGraph: {
-          title,
+          title: `${title} | ${about?.name || seo?.siteTitle || 'Noktanyus'}`,
           description,
           images: about?.aboutImage ? [{ url: about.aboutImage }] : [],
         },
         twitter: {
           card: 'summary_large_image',
-          title,
+          title: `${title} | ${about?.name || seo?.siteTitle || 'Noktanyus'}`,
           description,
           images: about?.aboutImage ? [about.aboutImage] : [],
         },
       };
     },
     {
-      title: 'Hakkımda | Noktanyus',
+      title: 'Hakkımda',
       description: 'Kariyer yolculuğum, yeteneklerim ve hakkımdaki diğer her şey.',
       path: '/hakkimda',
     }

@@ -138,6 +138,16 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/projelerim/estm:rest*',
+        destination: '/projelerim/esas-spor-tesisleri',
+        permanent: true,
+      },
+      {
+        source: '/projeler/estm:rest*',
+        destination: '/projelerim/esas-spor-tesisleri',
+        permanent: true,
+      },
+      {
         source: '/projeler',
         destination: '/projelerim',
         permanent: true,

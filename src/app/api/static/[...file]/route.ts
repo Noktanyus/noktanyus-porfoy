@@ -15,17 +15,36 @@ export async function GET(
 
   // Sunucudaki public klasörünün mutlak yolunu oluştur
   const publicDir = path.join(process.cwd(), 'public');
-  const absolutePath = path.join(publicDir, safeFilePath);
+  const baseName = path.basename(safeFilePath);
+
+  // Aday dosya yolları
+  const candidatePaths = [
+    path.join(publicDir, safeFilePath),
+    path.join(publicDir, 'images', safeFilePath),
+    path.join(publicDir, 'images', 'products', baseName),
+    path.join(publicDir, 'products', baseName),
+    path.join(publicDir, 'uploads', safeFilePath),
+    path.join(publicDir, baseName),
+  ];
+
+  let resolvedPath: string | null = null;
+  for (const candidate of candidatePaths) {
+    if (fs.existsSync(candidate)) {
+      resolvedPath = candidate;
+      break;
+    }
+  }
 
   try {
-    // Dosyanın varlığını ve erişilebilirliğini kontrol et
-    await fs.promises.access(absolutePath);
+    if (!resolvedPath) {
+      throw new Error(`File not found: ${safeFilePath}`);
+    }
 
     // Dosyayı oku
-    const fileBuffer = await fs.promises.readFile(absolutePath);
+    const fileBuffer = await fs.promises.readFile(resolvedPath);
 
     // MIME türünü belirle
-    const mimeType = mime.lookup(absolutePath) || 'application/octet-stream';
+    const mimeType = mime.lookup(resolvedPath) || 'application/octet-stream';
 
     // Dosyayı doğru Content-Type ile döndür
     return new NextResponse(fileBuffer, {
@@ -37,7 +56,7 @@ export async function GET(
     });
   } catch (error) {
     // Dosya bulunamazsa placeholder.webp dosyasını göstermeyi dene
-    console.warn(`[API/STATIC] Dosya bulunamadı: ${absolutePath}. Placeholder denenecek.`);
+    console.warn(`[API/STATIC] Dosya bulunamadı: ${safeFilePath}. Placeholder denenecek.`);
     try {
       const placeholderPath = path.join(publicDir, 'images', 'placeholder.webp');
       const placeholderBuffer = await fs.promises.readFile(placeholderPath);

@@ -165,6 +165,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
+  // /projelerim/estm* veya /projeler/estm* alias -> /projelerim/esas-spor-tesisleri (kalıcı 301)
+  if (
+    strippedPath === '/projelerim/estm' ||
+    strippedPath.startsWith('/projelerim/estm') ||
+    strippedPath === '/projeler/estm' ||
+    strippedPath.startsWith('/projeler/estm')
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/projelerim/esas-spor-tesisleri';
+    return NextResponse.redirect(url, 301);
+  }
+
   // /projeler/ subpath redirect -> /projelerim/
   if (strippedPath.startsWith('/projeler/')) {
     const url = request.nextUrl.clone();

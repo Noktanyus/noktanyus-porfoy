@@ -9,13 +9,11 @@ export default function ProjelerimLoading() {
             Projelerim
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Geliştirdiğim projeleri, açık kaynak çalışmalarımı ve teknik detayları inceleyebilirsiniz.
+            Yaptığım çalışmaları ve kullandığım teknolojileri keşfedin.
           </p>
         </header>
 
-        <div className="max-w-7xl mx-auto">
-          <LoadingSkeleton variant="project" count={3} />
-        </div>
+        <LoadingSkeleton variant="project" count={6} />
       </div>
     </div>
   );

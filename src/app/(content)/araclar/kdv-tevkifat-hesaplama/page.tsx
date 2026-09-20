@@ -14,6 +14,9 @@ export const metadata: Metadata = {
     'kdv hesap makinesi',
     'kdv api',
   ],
+  alternates: {
+    canonical: 'https://noktanyus.com/araclar/kdv-tevkifat-hesaplama',
+  },
   openGraph: {
     title: 'KDV ve Tevkifat Hesaplama Aracı | Noktanyus',
     description: 'Netten brüte KDV ve resmi tevkifat oranları hesaplayıcı.',

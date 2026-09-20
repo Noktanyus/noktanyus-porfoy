@@ -53,6 +53,7 @@ const Footer = ({ aboutData }: FooterProps) => {
             {[
               { href: '/magaza', label: 'Mağaza' },
               { href: '/docs', label: 'API Docs' },
+              { href: '/projelerim', label: 'Projelerim' },
               { href: '/iletisim', label: 'İletişim' },
             ].map((link, i, arr) => (
               <span key={link.href} className="inline-flex items-center gap-x-4">

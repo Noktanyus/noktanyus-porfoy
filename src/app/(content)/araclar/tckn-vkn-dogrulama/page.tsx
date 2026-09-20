@@ -13,6 +13,9 @@ export const metadata: Metadata = {
     'tckn algoritması',
     'tckn api',
   ],
+  alternates: {
+    canonical: 'https://noktanyus.com/araclar/tckn-vkn-dogrulama',
+  },
   openGraph: {
     title: 'TCKN ve VKN Algoritma Doğrulama Aracı | Noktanyus',
     description: 'TCKN ve VKN matematiksel format kontrolü ve algoritma doğrulaması.',
