@@ -6,11 +6,14 @@
  *              Siparişler, Lisanslar.
  */
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import {
+  FaArrowRight,
   FaCheckCircle,
+  FaCoins,
   FaCrown,
   FaCreditCard,
   FaKey,
@@ -85,16 +88,11 @@ export function BillingOverview({
   subscription,
   orders,
   licenses,
-  plans,
+  plans: _plans,
   userEmail,
   apiCreditBalance = 0,
 }: BillingOverviewProps) {
   const [selectedTab, setSelectedTab] = useState<Tab>('overview');
-
-  const handleSubscribe = async (planSlug: string) => {
-    // PayTR kart formu /odeme/plan sayfasında; dashboard'dan oraya yönlendir.
-    window.location.href = `/odeme/plan?slug=${encodeURIComponent(planSlug)}`;
-  };
 
   const handleManageSubscription = async () => {
     if (!userEmail) {
@@ -187,29 +185,95 @@ export function BillingOverview({
 
           {subscription && <ActiveSubscriptionCard subscription={subscription} onManage={handleManageSubscription} />}
 
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Planlar</h2>
-            {plans.length === 0 ? (
-              <div className="glass-card-premium p-12 text-center">
-                <FaCreditCard className="w-10 h-10 mx-auto mb-3 text-muted-foreground" aria-hidden />
-                <p className="text-lg font-medium">Aktif plan bulunamadı</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Yeni planlar yakında eklenecek.
-                </p>
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold">Paket & Teklif Seçenekleri</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                İhtiyacınıza uygun aylık abonelik paketlerini veya süresi dolmayan ön ödemeli API kredilerini mağazamızdan inceleyin.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Abonelikler Card */}
+              <div className="glass-card-premium p-6 flex flex-col justify-between border border-border/70 hover:border-brand-primary/50 transition-all group">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+                      <FaCrown className="w-5 h-5" aria-hidden />
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                      Düzenli Kullanım
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold group-hover:text-brand-primary transition-colors">
+                    Aylık ve Yıllık Abonelikler
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    Yüksek kotalar, öncelikli API altyapısı ve kurumsal faturalama avantajıyla aylık veya yıllık abonelik planlarına geçin.
+                  </p>
+                  <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-emerald-500 shrink-0" />
+                      <span>Aylık yenilenen cömert istek kotaları</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-emerald-500 shrink-0" />
+                      <span>7/24 kesintisiz yüksek hız ve SLA güvencesi</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border/50">
+                  <Link
+                    href="/magaza/abonelikler"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    <span>Abonelik Paketlerini İncele</span>
+                    <FaArrowRight className="w-3.5 h-3.5" aria-hidden />
+                  </Link>
+                </div>
               </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {plans.map((plan) => (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan}
-                    isCurrent={subscription?.planSlug === plan.slug}
-                    hasActiveSubscription={!!subscription}
-                    onSubscribe={handleSubscribe}
-                  />
-                ))}
+
+              {/* Krediler Card */}
+              <div className="glass-card-premium p-6 flex flex-col justify-between border border-border/70 hover:border-brand-primary/50 transition-all group">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold">
+                      <FaCoins className="w-5 h-5" aria-hidden />
+                    </div>
+                    <span className="text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
+                      Kullandıkça Öde
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold group-hover:text-brand-primary transition-colors">
+                    Ön Ödemeli API Kredileri
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
+                    Taahhüt olmadan, süresi asla dolmayan paketlerle sadece harcadığınız kadar ödeyin. Kredi bakiyenizi dilediğiniz zaman takviye edin.
+                  </p>
+                  <ul className="mt-4 space-y-2 text-xs text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-emerald-500 shrink-0" />
+                      <span>Süresi dolmayan, devreden bakiye</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <FaCheckCircle className="text-emerald-500 shrink-0" />
+                      <span>1 kredi = 1 başarılı API çağrısı</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border/50">
+                  <Link
+                    href="/magaza/krediler"
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-muted hover:bg-muted/80 text-foreground border border-border text-sm font-semibold transition-colors"
+                  >
+                    <span>Kredi Paketlerini İncele</span>
+                    <FaArrowRight className="w-3.5 h-3.5" aria-hidden />
+                  </Link>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
@@ -285,75 +349,6 @@ function ActiveSubscriptionCard({
           Aboneliği Yönet
         </button>
       </div>
-    </div>
-  );
-}
-
-function PlanCard({
-  plan,
-  isCurrent,
-  hasActiveSubscription,
-  onSubscribe,
-}: {
-  plan: Plan;
-  isCurrent: boolean;
-  hasActiveSubscription: boolean;
-  onSubscribe: (slug: string) => void;
-}) {
-  const features = Array.isArray(plan.features)
-    ? (plan.features as unknown[]).map((f) => String(f))
-    : [];
-
-  return (
-    <div
-      className={`glass-card-premium p-6 flex flex-col ${
-        plan.isFeatured ? 'ring-2 ring-brand-primary' : ''
-      }`}
-    >
-      {plan.isFeatured && (
-        <span className="inline-block self-start px-3 py-1 rounded-full bg-brand-primary text-white text-xs font-semibold mb-3">
-          ÖNERİLEN
-        </span>
-      )}
-      <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-      {plan.description && (
-        <p className="text-sm text-muted-foreground mb-4 min-h-[2.5rem]">
-          {plan.description}
-        </p>
-      )}
-
-      <div className="mb-4">
-        <span className="text-3xl font-bold text-brand-primary">
-          {formatCurrency(plan.priceCents, plan.currency)}
-        </span>
-        <span className="text-sm text-muted-foreground ml-1">
-          /{String(plan.interval).toLowerCase()}
-        </span>
-      </div>
-
-      {features.length > 0 && (
-        <ul className="space-y-2 mb-6 text-sm flex-1">
-          {features.map((feature, idx) => (
-            <li key={idx} className="flex items-start gap-2">
-              <FaCheckCircle className="text-green-500 mt-0.5 flex-shrink-0" aria-hidden />
-              <span>{feature}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {isCurrent ? (
-        <button disabled className="w-full admin-btn admin-btn-secondary">
-          Mevcut Plan
-        </button>
-      ) : (
-        <button
-          onClick={() => onSubscribe(plan.slug)}
-          className="w-full admin-btn admin-btn-primary"
-        >
-          {hasActiveSubscription ? 'Geçiş Yap' : 'Abone Ol'}
-        </button>
-      )}
     </div>
   );
 }

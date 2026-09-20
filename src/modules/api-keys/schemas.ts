@@ -4,21 +4,7 @@
 
 import { z } from 'zod';
 
-export const ApiKeyScopeSchema = z.enum([
-  'tr:validate:write',
-  'tr:invoice:write',
-  'read:profile',
-  'write:profile',
-  // Legacy (eski anahtarlar)
-  'read:monitor',
-  'write:monitor',
-  'delete:monitor',
-  'ai:describe:read',
-  'ai:describe:write',
-  'ai:bulk:write',
-  'ai:brand-voice:write',
-  'admin',
-]);
+export const ApiKeyScopeSchema = z.string().min(1, 'İzin adı boş olamaz').max(100);
 
 export const ApiKeyScopeListSchema = z.array(ApiKeyScopeSchema).min(1, 'En az 1 izin seçilmeli');
 

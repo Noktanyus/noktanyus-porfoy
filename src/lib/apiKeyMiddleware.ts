@@ -39,8 +39,34 @@ export interface ApiKeyContext {
  * ihtiyaç duyduğunda bu helper'ı kullanabilir.
  */
 export function hasScope(scopes: string[], required: string): boolean {
-  if (scopes.includes('admin')) return true;
-  return scopes.includes(required);
+  if (!scopes || scopes.length === 0) return false;
+  if (scopes.includes('admin') || scopes.includes('*') || scopes.includes('api:*')) {
+    return true;
+  }
+  if (scopes.includes(required)) {
+    return true;
+  }
+
+  // Kategori wildcard kontrolü (örn. 'api:validate:*' -> 'api:validate:iban')
+  const parts = required.split(':');
+  if (parts.length >= 2) {
+    const categoryWildcard = `${parts[0]}:${parts[1]}:*`;
+    if (scopes.includes(categoryWildcard)) return true;
+  }
+
+  // Geriye dönük uyumluluk: Eski tr:validate:write ve tr:invoice:write şemsiye scope'ları
+  if (scopes.includes('tr:validate:write')) {
+    if (required.startsWith('api:') && !required.startsWith('api:invoice:')) {
+      return true;
+    }
+  }
+  if (scopes.includes('tr:invoice:write')) {
+    if (required.startsWith('api:invoice:')) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

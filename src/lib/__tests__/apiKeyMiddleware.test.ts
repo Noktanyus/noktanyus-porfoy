@@ -61,14 +61,32 @@ describe('apiKeyMiddleware', () => {
     it('admin shortcut', () => {
       expect(hasScope(['admin'], 'read:monitor')).toBe(true);
       expect(hasScope(['admin'], 'whatever')).toBe(true);
+      expect(hasScope(['*'], 'api:validate:iban')).toBe(true);
+      expect(hasScope(['api:*'], 'api:validate:iban')).toBe(true);
     });
 
     it('exact match', () => {
       expect(hasScope(['read:monitor'], 'read:monitor')).toBe(true);
+      expect(hasScope(['api:validate:iban'], 'api:validate:iban')).toBe(true);
+    });
+
+    it('category wildcard match', () => {
+      expect(hasScope(['api:validate:*'], 'api:validate:iban')).toBe(true);
+      expect(hasScope(['api:validate:*'], 'api:validate:identity')).toBe(true);
+      expect(hasScope(['api:validate:*'], 'api:finance:kdv')).toBe(false);
+    });
+
+    it('backwards-compatible umbrella scopes', () => {
+      expect(hasScope(['tr:validate:write'], 'api:validate:iban')).toBe(true);
+      expect(hasScope(['tr:validate:write'], 'api:finance:kdv')).toBe(true);
+      expect(hasScope(['tr:validate:write'], 'api:invoice:pdf')).toBe(false);
+      expect(hasScope(['tr:invoice:write'], 'api:invoice:pdf')).toBe(true);
+      expect(hasScope(['tr:invoice:write'], 'api:validate:iban')).toBe(false);
     });
 
     it('mismatch false', () => {
       expect(hasScope(['read:monitor'], 'write:monitor')).toBe(false);
+      expect(hasScope(['api:validate:iban'], 'api:finance:kdv')).toBe(false);
       expect(hasScope([], 'read:monitor')).toBe(false);
     });
   });

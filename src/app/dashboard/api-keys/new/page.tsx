@@ -15,7 +15,7 @@ export default async function NewApiKeyPage() {
   if (!session?.user) redirect('/giris?callbackUrl=/dashboard/api-keys/new');
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-5xl">
       <PageHeader
         title="Yeni API Anahtarı"
         description="Programatik erişim için yeni bir anahtar oluşturun"

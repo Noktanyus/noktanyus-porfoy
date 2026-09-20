@@ -54,9 +54,17 @@ describe('BillingOverview', () => {
     expect(screen.getByRole('tab', { name: /Lisanslar/i })).toBeInTheDocument();
   });
 
-  it('shows the empty plans message when no plans are available', () => {
-    render(<BillingOverview {...baseProps} />);
-    expect(screen.getByText(/Aktif plan bulunamadı/i)).toBeInTheDocument();
+  it('shows store channel cards redirecting to subscriptions and credits', () => {
+    render(<BillingOverview {...baseProps} apiCreditBalance={150} />);
+    expect(screen.getByText('150 kredi')).toBeInTheDocument();
+    
+    const abonelikLink = screen.getByRole('link', { name: /Abonelik Paketlerini İncele/i });
+    expect(abonelikLink).toBeInTheDocument();
+    expect(abonelikLink).toHaveAttribute('href', '/magaza/abonelikler');
+
+    const krediLink = screen.getByRole('link', { name: /Kredi Paketlerini İncele/i });
+    expect(krediLink).toBeInTheDocument();
+    expect(krediLink).toHaveAttribute('href', '/magaza/krediler');
   });
 
   it('switches to the orders tab when clicked', () => {
@@ -88,51 +96,5 @@ describe('BillingOverview', () => {
     expect(screen.getByText(/Aktif Abonelik/i)).toBeInTheDocument();
     expect(screen.getByText(/pro/i)).toBeInTheDocument();
     expect(screen.getByText(/Açık/i)).toBeInTheDocument();
-  });
-
-  it('renders plans and marks the current plan as such', () => {
-    render(
-      <BillingOverview
-        {...baseProps}
-        subscription={{
-          id: 's1',
-          planSlug: 'pro',
-          status: 'active',
-          startedAt: '2026-01-01T00:00:00.000Z',
-          expiresAt: '2026-12-31T00:00:00.000Z',
-          autoRenew: true,
-        }}
-        plans={[
-          {
-            id: 'p1',
-            slug: 'starter',
-            name: 'Starter',
-            description: 'Küçük projeler için',
-            priceCents: 9900,
-            currency: 'TRY',
-            interval: 'month',
-            features: ['1 kullanıcı', '10GB alan'],
-            isFeatured: false,
-          },
-          {
-            id: 'p2',
-            slug: 'pro',
-            name: 'Pro',
-            description: 'Büyüyen ekipler için',
-            priceCents: 49900,
-            currency: 'TRY',
-            interval: 'month',
-            features: ['Sınırsız kullanıcı', '100GB alan'],
-            isFeatured: true,
-          },
-        ]}
-      />
-    );
-
-    expect(screen.getByText('Starter')).toBeInTheDocument();
-    expect(screen.getByText('Pro')).toBeInTheDocument();
-    expect(screen.getByText(/ÖNERİLEN/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Mevcut Plan/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Geçiş Yap/i })).toBeInTheDocument();
   });
 });

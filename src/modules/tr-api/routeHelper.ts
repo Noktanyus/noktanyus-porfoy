@@ -5,15 +5,35 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import type { ZodSchema } from 'zod';
-import { withApiKey, type ApiKeyContext } from '@/lib/apiKeyMiddleware';
+import { withApiKey, hasScope, type ApiKeyContext } from '@/lib/apiKeyMiddleware';
 import { checkApiQuota } from '@/lib/planGate';
 import { tryDebitApiCredit, refundApiCredit } from '@/lib/apiCredits';
+
+export function getRequiredScopeForPath(pathname: string): string {
+  const clean = pathname.replace(/^\/api\/v1\//, '').replace(/\/$/, '');
+  const segments = clean.split('/').filter(Boolean);
+  return `api:${segments.join(':')}`;
+}
 
 export function withTrApi<T>(
   schema: ZodSchema<T>,
   handler: (data: T, ctx: ApiKeyContext, req: NextRequest) => Promise<NextResponse>
 ) {
   return withApiKey(async (req: NextRequest, ctx: ApiKeyContext) => {
+    const requiredScope = getRequiredScopeForPath(req.nextUrl.pathname);
+    if (!hasScope(ctx.scopes, requiredScope)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: `Bu endpoint için yetkiniz bulunmamaktadır. Gereken izin: ${requiredScope}`,
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     const quota = await checkApiQuota(ctx.userId);
     if (!quota.allowed) {
       return NextResponse.json(
