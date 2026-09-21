@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt } from 'react-icons/fa';
+import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
@@ -128,7 +129,7 @@ export default function AraclarPage() {
             <div className="space-y-2 text-center md:text-left">
               <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-bold text-emerald-400">
                 <FaShieldAlt className="w-3.5 h-3.5" />
-                <span>Ücretsiz 1.000 İstek/Ay Dahil</span>
+                <span>Kayıtta {formatWelcomeCredits(WELCOME_CREDITS)} ücretsiz API kredisi</span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold">Bu Araçları Sisteminize Entegre Edin</h3>
               <p className="text-slate-300 text-sm sm:text-base max-w-xl">

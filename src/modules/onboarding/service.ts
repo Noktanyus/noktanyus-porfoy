@@ -23,6 +23,7 @@ import { sendEmail } from '@/lib/emailService';
 import { logAudit } from '@/lib/audit';
 import { verifyTotp } from '@/lib/twoFactor';
 import { subscriptionSyncService } from '@/modules/commerce/subscriptionSync';
+import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import type {
   OnboardingPayload,
   OnboardingPlan,
@@ -490,17 +491,18 @@ async function consumeBackupCode(
 
 async function sendVerificationEmail(email: string, token: string): Promise<void> {
   const url = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/email-dogrula?token=${token}`;
+  const creditsLabel = formatWelcomeCredits(WELCOME_CREDITS);
   await sendEmail({
     to: email,
-    subject: 'E-posta adresinizi doğrulayın — 100 Ücretsiz API Kredisi',
+    subject: `E-posta adresinizi doğrulayın — ${creditsLabel} Ücretsiz API Kredisi`,
     html: `
       <p>Merhaba,</p>
-      <p>Hesabınızı aktifleştirmek ve hesabınıza <strong>100 ücretsiz API kredisi</strong> yüklemek için aşağıdaki linke tıklayın:</p>
-      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">E-postamı Doğrula ve 100 Kredimi Al</a></p>
+      <p>Hesabınızı aktifleştirmek ve hesabınıza <strong>${creditsLabel} ücretsiz API kredisi</strong> yüklemek için aşağıdaki linke tıklayın:</p>
+      <p><a href="${url}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:white;border-radius:8px;text-decoration:none;">E-postamı Doğrula ve ${creditsLabel} Kredimi Al</a></p>
       <p>Bu link 24 saat geçerlidir.</p>
       <p>Eğer bu işlemi siz yapmadıysanız, bu e-postayı görmezden gelin.</p>
     `,
-    text: `Hesabınızı doğrulamak ve 100 ücretsiz API kredinizi almak için: ${url}`,
+    text: `Hesabınızı doğrulamak ve ${creditsLabel} ücretsiz API kredinizi almak için: ${url}`,
   }).catch((err) => {
     logger.error('[Onboarding] Verification email failed', { error: err, email });
   });

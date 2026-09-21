@@ -1,5 +1,6 @@
 import { prisma } from '../src/lib/prisma';
 import { INDIVIDUAL_PLANS } from '../src/lib/individualPlans';
+import { WELCOME_CREDITS } from '../src/lib/apiCredits';
 import bcrypt from 'bcryptjs';
 
 async function main() {
@@ -33,7 +34,7 @@ async function main() {
   // Auth: NextAuth Credentials provider, src/lib/auth.ts
   // Şifreler bcrypt 12 round ile hash'lendi. Plain text asla DB'ye yazılmaz.
   // Demo amaçlı: emailVerified = now, referralCode = benzersiz.
-  // Her onaylı kullanıcıya başlangıçta 100 ücretsiz API kredisi tanımlanır.
+  // Her onaylı kullanıcıya başlangıçta WELCOME_CREDITS ücretsiz API kredisi tanımlanır.
   // upsert kullanıyoruz ki seed'i birden fazla kez çalıştırınca duplicate olmasın.
   const now = new Date();
   const usersData = [
@@ -73,7 +74,7 @@ async function main() {
         password: hashed,
         emailVerified: now,
         referralCode: u.referralCode,
-        apiCreditBalance: 100,
+        apiCreditBalance: WELCOME_CREDITS,
       },
       create: {
         email: u.email,
@@ -81,16 +82,16 @@ async function main() {
         password: hashed,
         emailVerified: now,
         referralCode: u.referralCode,
-        apiCreditBalance: 100,
+        apiCreditBalance: WELCOME_CREDITS,
       },
     });
 
-    // 100 hoş geldin kredisi ledger kaydı
+    // Hoş geldin kredisi ledger kaydı
     await prisma.apiCreditLedger.create({
       data: {
         userId: user.id,
-        delta: 100,
-        balanceAfter: 100,
+        delta: WELCOME_CREDITS,
+        balanceAfter: WELCOME_CREDITS,
         reason: 'welcome_bonus',
         metadata: { note: 'E-posta onaylı kullanıcı hoş geldin kredisi' },
       },
@@ -99,9 +100,11 @@ async function main() {
     users.push({ user, plainPassword: u.password });
   }
 
-  console.log(`   - User: ${users.length} normal kullanıcı oluşturuldu (her birine 100 hoş geldin kredisi tanımlandı)`);
+  console.log(
+    `   - User: ${users.length} normal kullanıcı oluşturuldu (her birine ${WELCOME_CREDITS} hoş geldin kredisi tanımlandı)`,
+  );
   users.forEach(({ user, plainPassword }) =>
-    console.log(`     · ${user.email} / ${plainPassword} (100 kredi)`)
+    console.log(`     · ${user.email} / ${plainPassword} (${WELCOME_CREDITS} kredi)`),
   );
 
   // ====== About ======

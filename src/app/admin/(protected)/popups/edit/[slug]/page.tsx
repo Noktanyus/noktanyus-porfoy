@@ -1,69 +1,94 @@
 /**
  * @file Belirli bir popup'ı düzenleme sayfası.
- * @description URL'den alınan 'slug' parametresine göre ilgili popup'ın verilerini
- *              API'den çeker ve `PopupForm` bileşenini bu veriyle doldurarak
- *              düzenleme arayüzünü oluşturur.
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import PopupForm from "@/components/admin/PopupForm";
-import { Popup } from "@/types/content";
-import toast from "react-hot-toast";
+import { useCallback, useEffect, useState } from 'react';
+import PopupForm from '@/components/admin/PopupForm';
+import { Popup } from '@/types/content';
+import toast from 'react-hot-toast';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
+import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
 
-/**
- * Popup düzenleme sayfasının ana bileşeni.
- * @param {{ params: { slug: string } }} props - Sayfanın aldığı proplar. `params.slug` düzenlenecek popup'ın kimliğidir.
- */
 export default function EditPopupPage({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const [popup, setPopup] = useState<Popup | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPopupData = useCallback(async () => {
+    if (!slug) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `/api/admin/content?type=popups&slug=${encodeURIComponent(slug)}`,
+      );
+      if (!response.ok) {
+        throw new Error('Popup verileri sunucudan yüklenemedi.');
+      }
+      const popupData = await response.json();
+      setPopup(popupData ?? null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu.';
+      setError(message);
+      setPopup(null);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [slug]);
 
   useEffect(() => {
-    // Slug parametresi yoksa işlem yapma.
-    if (!slug) return;
-
-    /**
-     * API'den düzenlenecek olan popup'ın verilerini getiren asenkron fonksiyon.
-     */
-    const fetchPopupData = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/admin/content?type=popups&slug=${slug}`);
-        if (!response.ok) {
-          throw new Error("Popup verileri sunucudan yüklenemedi.");
-        }
-        const popupData = await response.json();
-        setPopup(popupData);
-      } catch (error) {
-        toast.error((error as Error).message);
-        setPopup(null); // Hata durumunda mevcut popup verisini temizle.
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchPopupData();
-  }, [slug]); // useEffect, sadece slug değiştiğinde yeniden çalışır.
+  }, [fetchPopupData]);
 
-  // Veri yüklenirken gösterilecek içerik.
+  const header = (
+    <PageHeader
+      title={popup ? `Popup: ${popup.title}` : "Popup'ı Düzenle"}
+      description={<span className="font-mono text-xs break-all">{slug}</span>}
+      backHref="/admin/popups"
+      backLabel="Popup Yönetimi"
+      breadcrumb={<span>Admin / Popup&apos;lar / Düzenle</span>}
+    />
+  );
+
   if (isLoading) {
-    return <div className="text-center p-8">Popup bilgileri yükleniyor...</div>;
+    return (
+      <div className="admin-content-spacing">
+        {header}
+        <LoadingSkeleton variant="text-line" count={6} loadingLabel="Popup bilgileri yükleniyor" />
+      </div>
+    );
   }
 
-  // Popup bulunamadıysa veya bir hata oluştuysa gösterilecek içerik.
-  if (!popup) {
-    return <div className="text-center p-8 text-red-500">İstenen popup bulunamadı veya yüklenirken bir hata oluştu.</div>;
+  if (error || !popup) {
+    return (
+      <div className="admin-content-spacing">
+        {header}
+        <ErrorDisplay
+          variant="card"
+          title="Popup yüklenemedi"
+          message={
+            error ??
+            'İstenen popup bulunamadı. Silinmiş olabilir veya kod hatalı olabilir.'
+          }
+          onRetry={fetchPopupData}
+          showHomeLink={false}
+        />
+      </div>
+    );
   }
 
-  // Veri başarıyla yüklendiğinde formu göster.
   return (
-    <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Popup&apos;ı Düzenle: {popup.title}</h1>
-      {/* Mevcut popup verileriyle doldurulmuş PopupForm bileşeni */}
-      <PopupForm initialData={popup} />
+    <div className="admin-content-spacing">
+      {header}
+      <DashboardSection padding="lg">
+        <PopupForm initialData={popup} />
+      </DashboardSection>
     </div>
   );
 }

@@ -55,6 +55,11 @@ export async function getApiCreditBalance(userId: string): Promise<number> {
 
 export const WELCOME_CREDITS = 100;
 
+/** UI / e-posta metinleri için TR biçimli sayı (örn. 100 → "100", 1000 → "1.000"). */
+export function formatWelcomeCredits(amount: number = WELCOME_CREDITS): string {
+  return amount.toLocaleString('tr-TR');
+}
+
 export async function grantEmailVerifiedCredits(
   userId: string,
   customTx?: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]

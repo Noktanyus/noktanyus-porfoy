@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaShieldAlt } from 'react-icons/fa';
 import { resolveIbanBank } from '@/modules/tr-api/validators';
+import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 
 const SAMPLES = [
   { label: 'Garanti BBVA', iban: 'TR600006201234567890123456' },
@@ -168,7 +169,9 @@ export default function IbanToolClient() {
           </pre>
 
           <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
-            <span className="text-xs text-slate-400">Aylık 1.000 istek tamamen ücretsizdir.</span>
+            <span className="text-xs text-slate-400">
+              Kayıtta {formatWelcomeCredits(WELCOME_CREDITS)} ücretsiz API kredisi (tek seferlik).
+            </span>
             <div className="flex items-center gap-3">
               <Link
                 href="/docs#tag/TR-API/operation/api-v1-validate-iban-post"

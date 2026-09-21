@@ -52,7 +52,23 @@ export interface CreateCouponInput {
   expiresAt?: Date;
   applicableProducts?: string[];
   applicablePlans?: string[];
+  active?: boolean;
 }
+
+export type UpdateCouponInput = Partial<
+  Omit<
+    CreateCouponInput,
+    'startsAt' | 'expiresAt' | 'applicableProducts' | 'applicablePlans' | 'description' | 'maxDiscountCents' | 'maxUses'
+  >
+> & {
+  description?: string | null;
+  maxDiscountCents?: number | null;
+  maxUses?: number | null;
+  startsAt?: Date | null;
+  expiresAt?: Date | null;
+  applicableProducts?: string[] | null;
+  applicablePlans?: string[] | null;
+};
 
 export const couponService = {
   /**
@@ -215,9 +231,16 @@ export const couponService = {
    * Yeni kupon oluşturur (admin).
    */
   async create(data: CreateCouponInput) {
+    const existing = await prisma.coupon.findUnique({
+      where: { code: data.code.toUpperCase().trim() },
+    });
+    if (existing) {
+      throw new ValidationError('Bu kupon kodu zaten kayıtlı', { code: data.code });
+    }
+
     return prisma.coupon.create({
       data: {
-        code: data.code.toUpperCase(),
+        code: data.code.toUpperCase().trim(),
         description: data.description,
         discountType: data.discountType,
         discountValue: data.discountValue,
@@ -227,6 +250,7 @@ export const couponService = {
         maxUsesPerUser: data.maxUsesPerUser ?? 1,
         startsAt: data.startsAt ?? null,
         expiresAt: data.expiresAt ?? null,
+        active: data.active ?? true,
         applicableProducts:
           data.applicableProducts === undefined
             ? Prisma.JsonNull
@@ -235,6 +259,57 @@ export const couponService = {
           data.applicablePlans === undefined
             ? Prisma.JsonNull
             : (data.applicablePlans as Prisma.InputJsonValue),
+      },
+    });
+  },
+
+  /**
+   * Kupon alanlarını günceller (admin). Kod değişirse unique kontrol edilir.
+   */
+  async update(id: string, data: UpdateCouponInput) {
+    const coupon = await prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) throw new NotFoundError('Kupon');
+
+    if (data.code) {
+      const nextCode = data.code.toUpperCase().trim();
+      if (nextCode !== coupon.code) {
+        const clash = await prisma.coupon.findUnique({ where: { code: nextCode } });
+        if (clash) {
+          throw new ValidationError('Bu kupon kodu zaten kayıtlı', { code: nextCode });
+        }
+      }
+    }
+
+    return prisma.coupon.update({
+      where: { id },
+      data: {
+        ...(data.code !== undefined ? { code: data.code.toUpperCase().trim() } : {}),
+        ...(data.description !== undefined ? { description: data.description } : {}),
+        ...(data.discountType !== undefined ? { discountType: data.discountType } : {}),
+        ...(data.discountValue !== undefined ? { discountValue: data.discountValue } : {}),
+        ...(data.minOrderCents !== undefined ? { minOrderCents: data.minOrderCents } : {}),
+        ...(data.maxDiscountCents !== undefined ? { maxDiscountCents: data.maxDiscountCents } : {}),
+        ...(data.maxUses !== undefined ? { maxUses: data.maxUses } : {}),
+        ...(data.maxUsesPerUser !== undefined ? { maxUsesPerUser: data.maxUsesPerUser } : {}),
+        ...(data.startsAt !== undefined ? { startsAt: data.startsAt } : {}),
+        ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
+        ...(data.active !== undefined ? { active: data.active } : {}),
+        ...(data.applicableProducts !== undefined
+          ? {
+              applicableProducts:
+                data.applicableProducts === null
+                  ? Prisma.JsonNull
+                  : (data.applicableProducts as Prisma.InputJsonValue),
+            }
+          : {}),
+        ...(data.applicablePlans !== undefined
+          ? {
+              applicablePlans:
+                data.applicablePlans === null
+                  ? Prisma.JsonNull
+                  : (data.applicablePlans as Prisma.InputJsonValue),
+            }
+          : {}),
       },
     });
   },
@@ -264,6 +339,22 @@ export const couponService = {
       where: { id },
       data: { active },
     });
+  },
+
+  /**
+   * Kuponu siler. Sipariş referansları null'lanır; redemption kayıtları temizlenir.
+   */
+  async remove(id: string) {
+    const coupon = await prisma.coupon.findUnique({ where: { id } });
+    if (!coupon) throw new NotFoundError('Kupon');
+
+    await prisma.$transaction(async (tx) => {
+      await tx.order.updateMany({ where: { couponId: id }, data: { couponId: null } });
+      await tx.couponRedemption.deleteMany({ where: { couponId: id } });
+      await tx.coupon.delete({ where: { id } });
+    });
+
+    return { id, code: coupon.code };
   },
 
   /**

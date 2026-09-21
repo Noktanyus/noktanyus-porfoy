@@ -10,6 +10,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 
 type Status = 'loading' | 'success' | 'failed';
 
@@ -37,7 +38,9 @@ export default function EmailDogrulaPage() {
         if (res.type === 'opaqueredirect' || (res.status >= 200 && res.status < 400)) {
           if (!cancelled) {
             setStatus('success');
-            setMessage('E-postanız başarıyla doğrulandı ve 100 ücretsiz API kredisi hesabınıza yüklendi! Dashboard\'a yönlendiriliyorsunuz...');
+            setMessage(
+              `E-postanız başarıyla doğrulandı ve ${formatWelcomeCredits(WELCOME_CREDITS)} ücretsiz API kredisi hesabınıza yüklendi! Dashboard'a yönlendiriliyorsunuz...`
+            );
             setTimeout(() => router.push('/dashboard?verified=true'), 1500);
           }
         } else {

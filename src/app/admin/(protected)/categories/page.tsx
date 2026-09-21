@@ -111,12 +111,23 @@ export default async function AdminCategoriesPage() {
 
         <div className="flex items-center justify-between gap-3 mb-3">
           <h3 className="text-sm font-semibold">Kayıtlı planlar</h3>
-          <Link href="/admin/plans" className="text-sm text-brand-primary hover:underline">
-            Plan listesi →
-          </Link>
+          <div className="flex gap-3 text-sm">
+            <Link href="/admin/plans/new" className="text-brand-primary hover:underline">
+              Yeni plan
+            </Link>
+            <Link href="/admin/plans" className="text-brand-primary hover:underline">
+              Plan listesi →
+            </Link>
+          </div>
         </div>
         {plans.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Henüz plan yok.</p>
+          <p className="text-sm text-muted-foreground">
+            Henüz plan yok. Seed gerekmez —{' '}
+            <Link href="/admin/plans/new" className="text-brand-primary hover:underline">
+              buradan
+            </Link>{' '}
+            ekleyebilirsiniz.
+          </p>
         ) : (
           <ul className="space-y-2 text-sm">
             {plans.map((p) => (

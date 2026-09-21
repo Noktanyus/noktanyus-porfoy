@@ -78,7 +78,7 @@ export const SUBSCRIPTION_SERVICE_TYPES = [
     value: 'api_access',
     label: 'TR yardımcı API planı',
     description:
-      'Ana teklif — API key + aylık sabit kota (Bireysel 1.000 / Profesyonel 10.000 istek)',
+      'Ana teklif — API key + aylık sabit kota (Starter 2.000 / Pro 10.000 / Business 50.000 istek)',
   },
   {
     value: 'api_credits',

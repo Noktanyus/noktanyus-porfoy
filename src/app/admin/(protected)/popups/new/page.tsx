@@ -1,20 +1,28 @@
 /**
  * @file Yeni bir popup oluşturma sayfası.
- * @description Bu sayfa, kullanıcıya yeni bir popup oluşturması için
- *              boş bir `PopupForm` bileşeni sunar.
+ * @description Boş PopupForm — PageHeader + DashboardSection shell.
  */
 
-import PopupForm from "@/components/admin/PopupForm";
+import type { Metadata } from 'next';
+import PopupForm from '@/components/admin/PopupForm';
+import { PageHeader } from '@/components/dashboard/PageHeader';
+import { DashboardSection } from '@/components/dashboard/DashboardSection';
 
-/**
- * Yeni popup oluşturma sayfasının ana bileşeni.
- */
+export const metadata: Metadata = { title: 'Yeni Popup | Admin' };
+
 export default function NewPopupPage() {
   return (
-    <div className="bg-white dark:bg-dark-card p-8 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6">Yeni Popup Oluştur</h1>
-      {/* Herhangi bir başlangıç verisi olmadan boş bir form render edilir. */}
-      <PopupForm />
+    <div className="admin-content-spacing">
+      <PageHeader
+        title="Yeni Popup"
+        description="Kod (slug), içerik, YouTube veya buton aksiyonları tanımlayın. Paylaşım: /?rp=kod veya /?qr=kod"
+        backHref="/admin/popups"
+        backLabel="Popup Yönetimi"
+        breadcrumb={<span>Admin / Popup&apos;lar / Yeni</span>}
+      />
+      <DashboardSection padding="lg">
+        <PopupForm />
+      </DashboardSection>
     </div>
   );
 }

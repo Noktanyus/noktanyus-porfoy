@@ -1,16 +1,9 @@
 /**
- * @file Admin — Kupon Yönetimi sayfası (sunucu tarafı).
- * @description Tüm kuponları listeler; indirim kampanyalarının durumunu izlemek
- *              için salt-okunur bir görünüm sunar.
- *
- * Faz D:
- *  - "+ Yeni Kupon" CTA'sı KALDIRILDI. `/admin/coupons/new` route'u projede
- *    yok ve kupon oluşturan bir admin API endpoint'i de yok; buton kullanıcıyı
- *    doğrudan 404'e götürüyordu. Bunun yerine sayfanın salt-okunur olduğu
- *    açıkça yazıldı (yeni özellik eklenmedi, yalnızca kırık CTA temizlendi).
- *  - Tablo/boş durum/rozet ortak primitive'lere taşındı.
+ * @file Admin — Kupon Yönetimi (liste + CRUD girişleri).
  */
 
+import Link from 'next/link';
+import { FaPlus } from 'react-icons/fa';
 import { couponService } from '@/modules/commerce/couponService';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { PageHeader } from '@/components/dashboard/PageHeader';
@@ -19,8 +12,8 @@ import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatCard, StatCardGrid } from '@/components/ui/StatCard';
 import { StatusBadge, resolveActiveStatus } from '@/components/ui/StatusBadge';
+import { CommerceRowActions } from '@/components/admin/CommerceRowActions';
 
-// Her istekte yeniden render — DB'den canlı veri çekmek için
 export const dynamic = 'force-dynamic';
 
 type CouponListItem = Awaited<ReturnType<typeof couponService.list>>[number];
@@ -36,7 +29,6 @@ function formatUsage(coupon: CouponListItem): string {
   return coupon.maxUses ? `${coupon.currentUses}/${coupon.maxUses}` : `${coupon.currentUses}`;
 }
 
-/** Kuponun süresi geçmiş mi? */
 function isExpired(coupon: CouponListItem): boolean {
   return Boolean(coupon.expiresAt && new Date(coupon.expiresAt).getTime() < Date.now());
 }
@@ -54,8 +46,14 @@ export default async function AdminCouponsPage() {
   const header = (
     <PageHeader
       title="Kuponlar"
-      description="İndirim kuponlarının durumu ve kullanım sayıları (salt-okunur görünüm)."
+      description="İndirim kuponlarını oluşturun, düzenleyin ve yayın durumunu yönetin."
       breadcrumb={<span>Admin / Kuponlar</span>}
+      actions={
+        <Link href="/admin/coupons/new" className="admin-btn admin-btn-primary">
+          <FaPlus aria-hidden="true" className="w-3 h-3" />
+          Yeni Kupon
+        </Link>
+      }
     />
   );
 
@@ -98,21 +96,35 @@ export default async function AdminCouponsPage() {
             variant="inline"
             icon="inbox"
             title="Henüz kupon yok"
-            description="Bu ekran mevcut kuponları listeler. Kupon oluşturma arayüzü bu sürümde bulunmuyor; kuponlar seed/servis katmanı üzerinden tanımlanır."
+            description="İlk indirim kuponunuzu ekleyin. Kod, indirim tipi ve kullanım limitlerini panelden yönetebilirsiniz."
+            action={{ label: 'Yeni Kupon', href: '/admin/coupons/new' }}
           />
         ) : (
           <ResponsiveTable
-            minWidth="680px"
-            caption="Kuponlar: kod, indirim, kullanım, bitiş tarihi ve durum"
+            minWidth="780px"
+            caption="Kuponlar: kod, indirim, kullanım, bitiş tarihi, durum ve işlemler"
             className="rounded-none border-0"
           >
             <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">Kod</th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">İndirim</th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">Kullanım</th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">Bitiş</th>
-                <th scope="col" className="px-4 py-3 text-left font-semibold">Durum</th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  Kod
+                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  İndirim
+                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  Kullanım
+                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  Bitiş
+                </th>
+                <th scope="col" className="px-4 py-3 text-left font-semibold">
+                  Durum
+                </th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">
+                  İşlemler
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -141,6 +153,15 @@ export default async function AdminCouponsPage() {
                       ) : (
                         <StatusBadge size="sm" {...resolveActiveStatus(c.active)} />
                       )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <CommerceRowActions
+                        resource="coupons"
+                        id={c.id}
+                        label={c.code}
+                        editHref={`/admin/coupons/edit/${c.id}`}
+                        isActive={c.active}
+                      />
                     </td>
                   </tr>
                 );
