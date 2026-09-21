@@ -171,6 +171,9 @@ export default function PopupForm({ initialData }: PopupFormProps) {
                 className="admin-input"
               />
               {errors.slug && <p className={errorStyle}>{errors.slug.message}</p>}
+              <p className="mt-1 text-xs text-muted-foreground">
+                Paylaşım linki: <code>/?rp=kod</code> veya <code>/?qr=kod</code>
+              </p>
             </div>
           </div>
 

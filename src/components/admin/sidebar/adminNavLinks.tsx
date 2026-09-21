@@ -9,6 +9,7 @@ import {
   FaTachometerAlt, FaUserEdit, FaProjectDiagram,
   FaBlog, FaEnvelopeOpenText, FaCog, FaHome,
   FaStore, FaLayerGroup, FaCreditCard, FaTags, FaUsers, FaShoppingCart,
+  FaWindowRestore,
 } from 'react-icons/fa';
 
 export interface AdminNavLink {
@@ -27,6 +28,7 @@ export const ADMIN_NAV_LINKS: AdminNavLink[] = [
   { href: '/admin/coupons', text: 'Kuponlar', icon: <FaTags /> },
   { href: '/admin/projects', text: 'Projeler', icon: <FaProjectDiagram /> },
   { href: '/admin/blog', text: 'Blog', icon: <FaBlog /> },
+  { href: '/admin/popups', text: 'Popup Yönetimi', icon: <FaWindowRestore /> },
   { href: '/admin/hakkimda', text: 'Hakkımda', icon: <FaUserEdit /> },
   { href: '/admin/home-settings', text: 'Ana Sayfa', icon: <FaHome /> },
   { href: '/admin/messages', text: 'Mesajlar', icon: <FaEnvelopeOpenText /> },

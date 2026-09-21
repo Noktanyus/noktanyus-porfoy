@@ -125,12 +125,13 @@ export const PopupDisplay = ({ popup, onClose }: { popup: Popup; onClose: () => 
 
 /**
  * Popup verisini URL'den getirme ve gösterme mantığını yöneten ana bileşen.
- * URL'deki 'rp' (rich-popup) parametresini dinler.
+ * URL'deki 'rp' (rich-popup) veya 'qr' parametresini dinler.
+ * Örnek: /?rp=ahmet veya /?qr=ahmet
  */
 function PopupViewerCore() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const popupSlug = searchParams.get('rp');
+  const popupSlug = searchParams.get('rp') || searchParams.get('qr');
   
   const [popup, setPopup] = useState<Popup | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -169,12 +170,13 @@ function PopupViewerCore() {
   }, [popupSlug]);
 
   /**
-   * Popup'ı kapatır ve URL'den 'rp' parametresini temizler.
+   * Popup'ı kapatır ve URL'den 'rp' / 'qr' parametrelerini temizler.
    */
   const handleClose = () => {
     setPopup(null);
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.delete('rp');
+    newUrl.searchParams.delete('qr');
     // Tarayıcı geçmişine yeni bir kayıt eklemeden URL'i güncelle
     router.replace(newUrl.href, { scroll: false });
   };
