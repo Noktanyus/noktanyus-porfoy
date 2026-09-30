@@ -1,5 +1,5 @@
 /**
- * Tip / Destek checkout — PayTR Direkt API.
+ * Tip / Destek checkout — PayTR iFrame API.
  * Order kaydı metadata.type = 'tip' ile tutulur (ürün satırı yok).
  */
 
@@ -8,7 +8,6 @@ import { prisma } from '@/lib/prisma';
 import { isPaytrConfigured } from '@/lib/paytr';
 import { orderRepository } from '@/modules/commerce/repository';
 import { paytrService } from '@/modules/commerce/paytrService';
-import { ValidationError } from '@/modules/shared/errors';
 import { logger } from '@/lib/logger';
 import { TIP_PRESETS_TRY } from '@/lib/tipPresets';
 
@@ -69,7 +68,7 @@ export const tipService = {
       };
     }
 
-    const prepared = paytrService.prepareDirectPayment({
+    const prepared = await paytrService.preparePayment({
       orderNumber,
       customerEmail: input.customerEmail,
       customerName,
@@ -104,6 +103,7 @@ export const tipService = {
           type: 'tip',
           message: input.message ?? null,
           provider: 'paytr',
+          mode: prepared.mode,
         },
         notes: input.message ? `Destek notu: ${input.message}` : 'Destek / bahşiş',
       },

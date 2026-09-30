@@ -6,7 +6,11 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { formatCurrency, getButtonClass, cn } from '@/lib/utils';
 import { intervalLabel } from '@/lib/individualPlans';
-import { PaytrCardForm, type PaytrFormPayload } from '@/components/commerce/PaytrCardForm';
+import {
+  PaytrCheckoutView,
+  extractPaytrClientPayload,
+  type PaytrCheckoutClientPayload,
+} from '@/components/commerce/PaytrIframe';
 
 interface PublicPlan {
   id: string;
@@ -30,7 +34,7 @@ export function PlanCheckoutForm() {
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paytrPayload, setPaytrPayload] = useState<PaytrFormPayload | null>(null);
+  const [paytrPayload, setPaytrPayload] = useState<PaytrCheckoutClientPayload | null>(null);
 
   useEffect(() => {
     if (!slug) {
@@ -90,16 +94,13 @@ export function PlanCheckoutForm() {
       }
 
       const data = result.data;
-      if (data.url && (data.mock || !data.fields)) {
+      if (data.url && (data.mock || (!data.fields && !data.iframeUrl))) {
         window.location.href = data.url;
         return;
       }
-      if (data.fields && data.formAction) {
-        setPaytrPayload({
-          formAction: data.formAction,
-          fields: data.fields,
-          orderNumber: data.orderNumber,
-        });
+      const paytr = extractPaytrClientPayload(data as Record<string, unknown>);
+      if (paytr) {
+        setPaytrPayload(paytr);
         setLoading(false);
         return;
       }
@@ -132,7 +133,10 @@ export function PlanCheckoutForm() {
   if (paytrPayload) {
     return (
       <div className="max-w-lg mx-auto">
-        <PaytrCardForm payload={paytrPayload} onCancel={() => setPaytrPayload(null)} />
+        <PaytrCheckoutView
+          data={paytrPayload as unknown as Record<string, unknown>}
+          onCancel={() => setPaytrPayload(null)}
+        />
       </div>
     );
   }

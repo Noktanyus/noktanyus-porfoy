@@ -1,11 +1,15 @@
 /**
  * POST /api/webhooks/paytr
  *
- * PayTR Bildirim URL (Direkt API 2. Adım).
+ * PayTR Bildirim URL (iFrame API 2. Adım / Direkt API 2. Adım).
  * Yanıt düz metin "OK" olmalı — JSON değil.
  *
  * Mağaza Paneli > Destek & Kurulum > Ayarlar > Bildirim URL:
- *   https://yourdomain.com/api/webhooks/paytr
+ *   Protokol: https://
+ *   URL:      noktanyus.com/api/webhooks/paytr
+ *   Tam:      https://noktanyus.com/api/webhooks/paytr
+ *
+ * Not: Bu endpoint oturum gerektirmez; PayTR server-to-server POST yapar.
  */
 
 import { NextRequest, NextResponse } from 'next/server';

@@ -1,20 +1,18 @@
 /**
  * Refund Service — Sipariş iade işlemleri.
  *
- * Sorumluluklar:
- *   - Stripe / iyzico üzerinden kısmi veya tam iade başlatma
- *   - Order durumunu REFUNDED / PARTIALLY_REFUNDED olarak güncelleme
- *   - Bağlı License kayıtlarını revoke etme
- *   - Audit log yazma
- *
- * Provider tespiti: order.stripePaymentIntent "pi_" prefix'i ile başlıyorsa Stripe,
- * aksi halde iyzico (veya mock) kabul edilir.
+ * Provider tespiti:
+ *   - stripePaymentIntent "pi_" → Stripe
+ *   - stripePaymentIntent "paytr_" veya metadata.provider=paytr → PayTR İade API
+ *   - aksi halde iyzico / mock
  */
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { stripe, isStripeConfigured } from '@/lib/stripe';
 import { isIyzicoConfigured } from '@/lib/iyzico';
+import { isPaytrConfigured, toPaytrMerchantOid } from '@/lib/paytr';
+import { paytrService } from '@/modules/commerce/paytrService';
 import { logger } from '@/lib/logger';
 import { logAudit } from '@/lib/audit';
 import { NotFoundError, ValidationError } from '@/modules/shared/errors';
@@ -23,31 +21,39 @@ export interface CreateRefundInput {
   orderId: string;
   userId: string;
   userEmail?: string;
-  amountCents?: number; // opsiyonel: belirtilmezse tam iade
+  amountCents?: number;
   reason?: string;
 }
 
 export interface RefundResult {
   success: true;
   refundId: string;
-  provider: 'stripe' | 'iyzico';
+  provider: 'stripe' | 'iyzico' | 'paytr';
   amountCents: number;
   fullRefund: boolean;
 }
 
+type DetectOrder = {
+  stripePaymentIntent?: string | null;
+  stripeSessionId?: string | null;
+  metadata?: unknown;
+};
+
 export const refundService = {
-  /**
-   * Provider tespiti: stripePaymentIntent "pi_" ile başlıyorsa Stripe,
-   * aksi halde iyzico kabul edilir.
-   */
-  detectProvider(order: { stripePaymentIntent: string | null }): 'stripe' | 'iyzico' {
-    return order.stripePaymentIntent?.startsWith('pi_') ? 'stripe' : 'iyzico';
+  detectProvider(order: DetectOrder): 'stripe' | 'iyzico' | 'paytr' {
+    if (order.stripePaymentIntent?.startsWith('pi_')) return 'stripe';
+    if (order.stripePaymentIntent?.startsWith('paytr_')) return 'paytr';
+    const meta = (order.metadata ?? {}) as Record<string, unknown>;
+    if (meta.provider === 'paytr') return 'paytr';
+    if (order.stripeSessionId && !order.stripeSessionId.startsWith('cs_')) {
+      // PayTR merchant_oid genelde alfanumerik; Stripe session cs_ ile başlar
+      if (meta.provider !== 'iyzico' && meta.provider !== 'stripe') {
+        if (isPaytrConfigured()) return 'paytr';
+      }
+    }
+    return 'iyzico';
   },
 
-  /**
-   * Yeni iade oluşturur (tam veya kısmi).
-   * Hem Stripe hem iyzico provider'larını destekler.
-   */
   async createRefund(input: CreateRefundInput): Promise<RefundResult> {
     const order = await prisma.order.findUnique({
       where: { id: input.orderId },
@@ -130,9 +136,75 @@ export const refundService = {
       };
     }
 
+    // --- PayTR İade API ---
+    if (provider === 'paytr' && isPaytrConfigured()) {
+      const merchantOid =
+        order.stripeSessionId?.replace(/^paytr_/, '') ||
+        toPaytrMerchantOid(order.orderNumber);
+      const referenceNo = `rf_${order.id.slice(0, 8)}_${Date.now()}`;
+
+      const paytrResult = await paytrService.refund({
+        merchantOid,
+        returnAmountCents: refundAmount,
+        referenceNo,
+      });
+
+      if (paytrResult.status !== 'success') {
+        throw new ValidationError(
+          paytrResult.errMsg
+            ? `PayTR iade başarısız: ${paytrResult.errNo ?? ''} ${paytrResult.errMsg}`
+            : 'PayTR iade başarısız'
+        );
+      }
+
+      const refundId = paytrResult.referenceNo || referenceNo;
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
+          refundedAt: new Date(),
+          refundReason: input.reason,
+          metadata: {
+            ...((order.metadata as Record<string, unknown>) ?? {}),
+            refundId,
+            paytrReturnAmount: paytrResult.returnAmount,
+          } as Prisma.InputJsonValue,
+        },
+      });
+
+      await this.revokeLicensesForOrder(order.id);
+
+      await logAudit({
+        userId: input.userId,
+        userEmail: input.userEmail,
+        action: 'REFUND',
+        resource: 'Order',
+        resourceId: order.id,
+        details: {
+          refundId,
+          amount: refundAmount,
+          fullRefund: isFullRefund,
+          provider: 'paytr',
+        },
+      });
+
+      logger.info('PayTR refund created', {
+        orderId: order.id,
+        refundId,
+        amountCents: refundAmount,
+        merchantOid,
+      });
+
+      return {
+        success: true,
+        refundId,
+        provider: 'paytr',
+        amountCents: refundAmount,
+        fullRefund: isFullRefund,
+      };
+    }
+
     // --- iyzico / mock iade ---
-    // Not: iyzico'nun kendi refund endpoint'i üretimde eklenebilir.
-    // Şimdilik DB üzerinde iade işlemi gerçekleştirilir.
     const refundId = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const iyzicoLive = provider === 'iyzico' && isIyzicoConfigured();
 
@@ -177,15 +249,12 @@ export const refundService = {
     return {
       success: true,
       refundId,
-      provider,
+      provider: provider === 'paytr' ? 'paytr' : 'iyzico',
       amountCents: refundAmount,
       fullRefund: isFullRefund,
     };
   },
 
-  /**
-   * İade edilen siparişe bağlı tüm aktif lisansları iptal eder.
-   */
   async revokeLicensesForOrder(orderId: string) {
     const licenses = await prisma.license.findMany({
       where: { orderId, status: { not: 'revoked' } },
@@ -215,9 +284,6 @@ export const refundService = {
     return licenses;
   },
 
-  /**
-   * İade edilmiş siparişleri listeler.
-   */
   async listRefunds(opts: { userId?: string; limit?: number } = {}) {
     return prisma.order.findMany({
       where: {

@@ -1,7 +1,7 @@
 /**
  * Commerce Module — Service Layer
  *
- * PayTR Direkt API (TR birincil) + legacy Stripe/iyzico fallback,
+ * PayTR iFrame API (TR birincil) + legacy Stripe/iyzico fallback,
  * webhook işleme, lisans aktivasyonu ve commerce iş kuralları.
  */
 
@@ -156,7 +156,7 @@ export const commerceService = {
     const customerPhone = options?.customerPhone?.trim() || '05000000000';
     const customerIp = options?.customerIp?.trim() || '127.0.0.1';
 
-    // --- PayTR Direkt API (TR birincil) ---
+    // --- PayTR iFrame API (TR birincil) ---
     if (provider === 'paytr') {
       if (!isPaytrConfigured()) {
         logger.warn('[PayTR] Yapılandırılmamış — mock checkout');
@@ -206,7 +206,7 @@ export const commerceService = {
       }
 
       const orderNumber = await orderRepository.generateOrderNumber();
-      const prepared = paytrService.prepareDirectPayment({
+      const prepared = await paytrService.preparePayment({
         orderNumber,
         customerEmail,
         customerName,
@@ -236,7 +236,7 @@ export const commerceService = {
           totalCents,
           currency: 'try',
           ...(couponId ? { couponId } : {}),
-          metadata: { provider: 'paytr' },
+          metadata: { provider: 'paytr', mode: prepared.mode },
           items: {
             create: items.map((item) => {
               const product = validProducts.find((p) => p.id === item.productId)!;
@@ -503,7 +503,7 @@ export const commerceService = {
     const customerPhone = options?.customerPhone?.trim() || '05000000000';
     const customerIp = options?.customerIp?.trim() || '127.0.0.1';
 
-    // --- PayTR: dönem ücreti tek çekim (Direkt API recurring desteklemez) ---
+    // --- PayTR: dönem ücreti tek çekim (recurring yok) ---
     if (provider === 'paytr') {
       const orderNumber = await orderRepository.generateOrderNumber();
 
@@ -540,7 +540,7 @@ export const commerceService = {
         };
       }
 
-      const prepared = paytrService.prepareDirectPayment({
+      const prepared = await paytrService.preparePayment({
         orderNumber,
         customerEmail,
         customerName,
@@ -576,6 +576,7 @@ export const commerceService = {
             planId: plan.id,
             interval: plan.interval,
             provider: 'paytr',
+            mode: prepared.mode,
           },
           notes: `Abonelik: ${plan.name}`,
         },
@@ -695,7 +696,7 @@ export const commerceService = {
         };
       }
 
-      const prepared = paytrService.prepareDirectPayment({
+      const prepared = await paytrService.preparePayment({
         orderNumber,
         customerEmail,
         customerName,
@@ -726,7 +727,7 @@ export const commerceService = {
           discountCents: 0,
           totalCents: pack.priceCents,
           currency: pack.currency,
-          metadata,
+          metadata: { ...metadata, mode: prepared.mode },
           notes: `API kredi: ${pack.name}`,
         },
       });

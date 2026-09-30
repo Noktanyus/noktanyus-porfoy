@@ -4,7 +4,11 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { DS } from '@/lib/design-system';
 import { TIP_PRESETS_TRY } from '@/lib/tipPresets';
-import { PaytrCardForm, type PaytrFormPayload } from '@/components/commerce/PaytrCardForm';
+import {
+  PaytrCheckoutView,
+  extractPaytrClientPayload,
+  type PaytrCheckoutClientPayload,
+} from '@/components/commerce/PaytrIframe';
 
 interface TipJarProps {
   variant?: 'compact' | 'card';
@@ -19,7 +23,7 @@ export function TipJar({ variant = 'card', className = '' }: TipJarProps) {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [paytrPayload, setPaytrPayload] = useState<PaytrFormPayload | null>(null);
+  const [paytrPayload, setPaytrPayload] = useState<PaytrCheckoutClientPayload | null>(null);
 
   const resolvedAmount = custom ? Number(custom) : amountTry;
 
@@ -47,16 +51,13 @@ export function TipJar({ variant = 'card', className = '' }: TipJarProps) {
         throw new Error(json.error?.message ?? 'Ödeme başlatılamadı');
       }
       const data = json.data;
-      if (data.url && (data.mock || !data.fields)) {
+      if (data.url && (data.mock || (!data.fields && !data.iframeUrl))) {
         window.location.href = data.url;
         return;
       }
-      if (data.fields && data.formAction) {
-        setPaytrPayload({
-          formAction: data.formAction,
-          fields: data.fields,
-          orderNumber: data.orderNumber,
-        });
+      const paytr = extractPaytrClientPayload(data as Record<string, unknown>);
+      if (paytr) {
+        setPaytrPayload(paytr);
         setLoading(false);
         return;
       }
@@ -70,7 +71,10 @@ export function TipJar({ variant = 'card', className = '' }: TipJarProps) {
   if (paytrPayload) {
     return (
       <div className={className}>
-        <PaytrCardForm payload={paytrPayload} onCancel={() => setPaytrPayload(null)} />
+        <PaytrCheckoutView
+          data={paytrPayload as unknown as Record<string, unknown>}
+          onCancel={() => setPaytrPayload(null)}
+        />
       </div>
     );
   }

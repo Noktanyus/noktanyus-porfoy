@@ -41,6 +41,21 @@ vi.mock('@/lib/iyzico', () => ({
   isIyzicoConfigured: vi.fn(() => false),
 }));
 
+vi.mock('@/lib/paytr', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/paytr')>();
+  return {
+    ...actual,
+    isPaytrConfigured: vi.fn(() => false),
+    toPaytrMerchantOid: actual.toPaytrMerchantOid,
+  };
+});
+
+vi.mock('@/modules/commerce/paytrService', () => ({
+  paytrService: {
+    refund: vi.fn(),
+  },
+}));
+
 vi.mock('@/lib/audit', () => ({
   logAudit: vi.fn().mockResolvedValue(undefined),
   logAuditFailure: vi.fn().mockResolvedValue(undefined),
@@ -104,6 +119,21 @@ describe('refundService', () => {
 
     it('returns iyzico when paymentIntent is a non-pi_ value', () => {
       expect(refundService.detectProvider({ stripePaymentIntent: 'mock_xyz' })).toBe('iyzico');
+    });
+
+    it('returns paytr when paymentIntent starts with paytr_', () => {
+      expect(
+        refundService.detectProvider({ stripePaymentIntent: 'paytr_OID1' })
+      ).toBe('paytr');
+    });
+
+    it('returns paytr when metadata.provider is paytr', () => {
+      expect(
+        refundService.detectProvider({
+          stripePaymentIntent: null,
+          metadata: { provider: 'paytr' },
+        })
+      ).toBe('paytr');
     });
   });
 

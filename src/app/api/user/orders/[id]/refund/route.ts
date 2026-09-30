@@ -9,6 +9,7 @@
  *
  * Provider tespiti (refundService.detectProvider tarafından yapılır):
  *   - stripePaymentIntent "pi_" ile başlıyorsa → Stripe refund
+ *   - paytr_ / metadata.provider=paytr → PayTR İade API
  *   - aksi halde → iyzico / mock refund
  */
 
