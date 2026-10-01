@@ -11,6 +11,10 @@ import {
   extractPaytrClientPayload,
   type PaytrCheckoutClientPayload,
 } from '@/components/commerce/PaytrIframe';
+import {
+  CheckoutIdentityFields,
+  useCheckoutIdentity,
+} from '@/hooks/useCheckoutIdentity';
 
 interface PublicPlan {
   id: string;
@@ -26,11 +30,9 @@ interface PublicPlan {
 export function PlanCheckoutForm() {
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug');
+  const identity = useCheckoutIdentity();
 
   const [plan, setPlan] = useState<PublicPlan | null>(null);
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,6 +75,10 @@ export function PlanCheckoutForm() {
       toast.error('Cayma hakkı istisnasını onaylamalısınız');
       return;
     }
+    if (!identity.email.trim()) {
+      toast.error('E-posta gerekli');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -81,9 +87,9 @@ export function PlanCheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           planSlug: slug,
-          customerEmail: email,
-          customerName: name || undefined,
-          customerPhone: phone || undefined,
+          customerEmail: identity.email,
+          customerName: identity.name || undefined,
+          customerPhone: identity.phone || undefined,
           paymentProvider: 'paytr',
         }),
       });
@@ -164,38 +170,7 @@ export function PlanCheckoutForm() {
       <div className="glass-card-premium p-6">
         <h2 className="text-xl font-semibold mb-6 text-foreground">Ödeme Bilgileri</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block text-sm">
-            <span className="mb-1 block">E-posta *</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 rounded-xl border border-border bg-background"
-              placeholder="ornek@email.com"
-            />
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label className="block text-sm">
-              <span className="mb-1 block">Ad Soyad</span>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl border border-border bg-background"
-              />
-            </label>
-            <label className="block text-sm">
-              <span className="mb-1 block">Telefon</span>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl border border-border bg-background"
-                placeholder="05xx xxx xx xx"
-              />
-            </label>
-          </div>
+          <CheckoutIdentityFields identity={identity} />
 
           <label className="flex items-start gap-2 cursor-pointer">
             <input
@@ -220,10 +195,12 @@ export function PlanCheckoutForm() {
 
           <button
             type="submit"
-            disabled={loading || !email}
+            disabled={loading || !identity.email}
             className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl text-base font-bold bg-brand-primary text-white disabled:opacity-60 min-h-[44px]"
           >
-            {loading ? 'Hazırlanıyor…' : `PayTR ile Devam · ${formatCurrency(plan.priceCents, plan.currency)}`}
+            {loading
+              ? 'Hazırlanıyor…'
+              : `PayTR ile Devam · ${formatCurrency(plan.priceCents, plan.currency)}`}
           </button>
         </form>
       </div>

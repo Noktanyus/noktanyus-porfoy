@@ -11,14 +11,17 @@ import {
   extractPaytrClientPayload,
   type PaytrCheckoutClientPayload,
 } from '@/components/commerce/PaytrIframe';
+import {
+  CheckoutIdentityFields,
+  useCheckoutIdentity,
+} from '@/hooks/useCheckoutIdentity';
 
 export function CreditCheckoutForm() {
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug') as ApiCreditPackSlug | null;
   const pack = API_CREDIT_PACKS.find((p) => p.slug === slug) ?? null;
+  const identity = useCheckoutIdentity();
 
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,8 +48,8 @@ export function CreditCheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           packSlug: slug,
-          customerName: name || undefined,
-          customerPhone: phone || undefined,
+          customerName: identity.name || undefined,
+          customerPhone: identity.phone || undefined,
           paymentProvider: 'paytr',
         }),
       });
@@ -121,24 +124,7 @@ export function CreditCheckoutForm() {
         </p>
       </div>
 
-      <label className="block text-sm">
-        Ad Soyad
-        <input
-          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          autoComplete="name"
-        />
-      </label>
-      <label className="block text-sm">
-        Telefon
-        <input
-          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          autoComplete="tel"
-        />
-      </label>
+      <CheckoutIdentityFields identity={identity} />
 
       <label className="flex items-start gap-2 text-sm">
         <input

@@ -1,7 +1,7 @@
 /**
- * PATCH /api/user/profile — kullanıcının profil bilgilerini (isim, doğum tarihi) günceller.
+ * GET  /api/user/profile — profil + (varsa) Customer telefon
+ * PATCH /api/user/profile — isim, doğum tarihi güncelle
  *
- * Body: { name?: string (2..100), birthDate?: string (ISO date) | null }
  * Auth: zorunlu (NextAuth session)
  */
 
@@ -27,6 +27,42 @@ const UpdateProfileSchema = z.object({
     ])
     .optional(),
 });
+
+export async function GET() {
+  return withErrorHandling(async () => {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return fail({ code: 'UNAUTHORIZED', message: 'Giriş gerekli', statusCode: 401 } as any);
+    }
+    const userId = (session.user as { id?: string }).id;
+    if (!userId) {
+      return fail({ code: 'UNAUTHORIZED', message: 'Geçersiz oturum', statusCode: 401 } as any);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, name: true, image: true, birthDate: true },
+    });
+    if (!user) {
+      return fail({ code: 'NOT_FOUND', message: 'Kullanıcı bulunamadı', statusCode: 404 } as any);
+    }
+
+    const customer = await prisma.customer.findFirst({
+      where: {
+        OR: [{ userId }, { email: user.email }],
+      },
+      select: { phone: true, name: true },
+    });
+
+    return ok({
+      email: user.email,
+      name: user.name ?? customer?.name ?? null,
+      phone: customer?.phone ?? null,
+      image: user.image,
+      birthDate: user.birthDate,
+    });
+  });
+}
 
 export async function PATCH(req: NextRequest) {
   return withErrorHandling<unknown>(async () => {

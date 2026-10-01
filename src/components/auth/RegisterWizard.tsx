@@ -1,58 +1,35 @@
 /**
- * @file RegisterWizard - 3 adımlı kayıt sihirbazı
+ * @file RegisterWizard — hızlı kayıt
  * @description
- *   Step 1 — Hesap bilgileri (ad / e-posta / şifre)
- *   Step 2 — Plan seçimi (Bireysel / Profesyonel / Destek+) + Kullanım koşulları
- *   Step 3 — E-posta doğrulama bekleme ekranı
+ *   Step 1 — Hesap bilgileri + kullanım koşulları
+ *   Step 2 — E-posta doğrulama
  *
- *   shadcn-style, indigo primary, dark mode destekli.
- *   Zod şemaları `@/modules/onboarding/schemas` üzerinden kullanılır.
- *
- * @ai-note Client component: form state'leri useState ile tutulur.
- *       Server action çağrısı ileride `useTransition` ile sarılabilir.
+ *   Plan/paket seçimi kayıtta zorlanmaz; kullanıcı mağazadan sonra seçer.
  */
 
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import {
-  RegisterStepSchema,
-  PlanSelectStepSchema,
-  OnboardingPlanSchema,
-  type OnboardingPlan,
-} from "@/modules/onboarding/schemas";
-import { PlanSelectorStep } from "./PlanSelectorStep";
+import { RegisterStepSchema } from "@/modules/onboarding/schemas";
 
-/** İlerleme çubuğu adımları */
-type Step = 1 | 2 | 3;
+type Step = 1 | 2;
 
 interface AccountData {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-}
-
-interface PlanData {
-  planSlug: OnboardingPlan;
   acceptTerms: boolean;
 }
 
 const STEP_LABELS: Record<Step, string> = {
   1: "Hesap",
-  2: "Plan",
-  3: "Doğrulama",
+  2: "Doğrulama",
 };
 
-/**
- * Password strength hesaplayıcısı (0-4 arası skor).
- * RegisterForm'daki ile aynı mantık; merkezileştirme ileride yapılabilir.
- */
 function passwordStrength(password: string): {
   score: 0 | 1 | 2 | 3 | 4;
   label: string;
@@ -76,31 +53,20 @@ function passwordStrength(password: string): {
   return { score: s, label: labels[s], color: colors[s] };
 }
 
-/**
- * Wizard'daki 3 adımı dikey olarak gösteren ilerleme göstergesi.
- */
 function StepIndicator({ current }: { current: Step }) {
-  const steps: Step[] = [1, 2, 3];
+  const steps: Step[] = [1, 2];
   return (
-    <ol
-      className="flex items-center justify-between gap-2 mb-6"
-      aria-label="Kayıt adımları"
-    >
+    <ol className="flex items-center justify-between gap-2 mb-6" aria-label="Kayıt adımları">
       {steps.map((s, idx) => {
         const isActive = s === current;
         const isCompleted = s < current;
         return (
-          <li
-            key={s}
-            className="flex-1 flex items-center"
-            aria-current={isActive ? "step" : undefined}
-          >
+          <li key={s} className="flex-1 flex items-center" aria-current={isActive ? "step" : undefined}>
             <div className="flex flex-col items-center gap-1 flex-1">
               <div
                 className={cn(
                   "h-8 w-8 rounded-full flex items-center justify-center text-xs font-semibold transition-colors",
-                  isCompleted &&
-                    "bg-indigo-600 text-white dark:bg-indigo-500",
+                  isCompleted && "bg-indigo-600 text-white dark:bg-indigo-500",
                   isActive &&
                     "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 ring-2 ring-indigo-600 dark:ring-indigo-400",
                   !isActive &&
@@ -109,19 +75,8 @@ function StepIndicator({ current }: { current: Step }) {
                 )}
               >
                 {isCompleted ? (
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={3}
-                      d="M5 13l4 4L19 7"
-                    />
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
                   s
@@ -130,9 +85,7 @@ function StepIndicator({ current }: { current: Step }) {
               <span
                 className={cn(
                   "text-xs font-medium",
-                  isActive
-                    ? "text-indigo-700 dark:text-indigo-300"
-                    : "text-slate-500 dark:text-slate-400"
+                  isActive ? "text-indigo-700 dark:text-indigo-300" : "text-slate-500 dark:text-slate-400"
                 )}
               >
                 {STEP_LABELS[s]}
@@ -142,9 +95,7 @@ function StepIndicator({ current }: { current: Step }) {
               <div
                 className={cn(
                   "h-0.5 flex-1 -mt-4 transition-colors",
-                  s < current
-                    ? "bg-indigo-600 dark:bg-indigo-500"
-                    : "bg-slate-200 dark:bg-slate-700"
+                  s < current ? "bg-indigo-600 dark:bg-indigo-500" : "bg-slate-200 dark:bg-slate-700"
                 )}
                 aria-hidden="true"
               />
@@ -156,9 +107,6 @@ function StepIndicator({ current }: { current: Step }) {
   );
 }
 
-/**
- * Step 1 — Hesap bilgileri (name / email / password / confirm).
- */
 function AccountStep({
   data,
   setData,
@@ -175,11 +123,9 @@ function AccountStep({
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-          Hesap bilgilerini gir
-        </h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Hesap oluştur</h2>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-          Hızlıca başlayalım — sadece birkaç bilgi yeterli.
+          Plan seçmeden devam edebilirsiniz. Abonelik veya krediyi sonra mağazadan alırsınız.
         </p>
       </div>
 
@@ -206,11 +152,10 @@ function AccountStep({
           maxLength={100}
           disabled={disabled}
           autoComplete="name"
-          placeholder="Yunus Tuğhan"
           className={cn(
             "w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800",
             "border-slate-300 dark:border-slate-700",
-            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500",
+            "text-slate-900 dark:text-slate-100",
             "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
@@ -234,7 +179,7 @@ function AccountStep({
           className={cn(
             "w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800",
             "border-slate-300 dark:border-slate-700",
-            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500",
+            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400",
             "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
@@ -259,7 +204,7 @@ function AccountStep({
           className={cn(
             "w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800",
             "border-slate-300 dark:border-slate-700",
-            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500",
+            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400",
             "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
@@ -267,20 +212,18 @@ function AccountStep({
         {data.password && (
           <div className="mt-2 flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full transition-all", strength.color)}
-                style={{ width: `${(strength.score / 4) * 100}%` }}
-              />
+              <div className={cn("h-full transition-all", strength.color)} style={{ width: `${(strength.score / 4) * 100}%` }} />
             </div>
-            <span className="text-xs text-slate-500 dark:text-slate-400 w-12 text-right">
-              {strength.label}
-            </span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 w-12 text-right">{strength.label}</span>
           </div>
         )}
       </div>
 
       <div>
-        <label htmlFor="reg-confirm-password" className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor="reg-confirm-password"
+          className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300"
+        >
           Şifre Tekrar
         </label>
         <input
@@ -297,31 +240,42 @@ function AccountStep({
           className={cn(
             "w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800",
             "border-slate-300 dark:border-slate-700",
-            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500",
+            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400",
             "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
             "disabled:opacity-50 disabled:cursor-not-allowed"
           )}
         />
       </div>
+
+      <label className="flex items-start gap-2 cursor-pointer text-sm text-slate-600 dark:text-slate-400">
+        <input
+          type="checkbox"
+          checked={data.acceptTerms}
+          onChange={(e) => setData({ ...data, acceptTerms: e.target.checked })}
+          className="mt-1"
+          required
+          disabled={disabled}
+        />
+        <span>
+          <Link href="/yasal/kvkk" className="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank">
+            KVKK
+          </Link>
+          {" "}ve{" "}
+          <Link href="/yasal/mesafeli-satis" className="text-indigo-600 dark:text-indigo-400 hover:underline" target="_blank">
+            mesafeli satış
+          </Link>
+          {" "}metinlerini okudum, kabul ediyorum.
+        </span>
+      </label>
     </div>
   );
 }
 
-/**
- * Step 3 — E-posta doğrulama bekleme ekranı.
- * Kayıt sonrası kullanıcıya gösterilir. Email'e gelen linke tıklaması beklenir.
- */
 function VerificationStep({ email }: { email: string }) {
   return (
     <div className="text-center py-2">
       <div className="mx-auto h-14 w-14 rounded-full bg-indigo-100 dark:bg-indigo-950/50 flex items-center justify-center">
-        <svg
-          className="h-8 w-8 text-indigo-600 dark:text-indigo-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
+        <svg className="h-8 w-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -330,86 +284,52 @@ function VerificationStep({ email }: { email: string }) {
           />
         </svg>
       </div>
-
-      <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
-        E-postanı kontrol et
-      </h2>
-      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-        <span className="font-semibold text-slate-900 dark:text-slate-100">{email}</span>{" "}
-        adresine bir doğrulama bağlantısı gönderdik.
+      <h2 className="mt-4 text-lg font-semibold text-slate-900 dark:text-slate-100">E-postanı doğrula</h2>
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <strong className="text-slate-800 dark:text-slate-200">{email}</strong> adresine bir doğrulama
+        linki gönderdik. Hesabını aktifleştirmek için linke tıkla.
       </p>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-        Bağlantıya tıklayarak hesabını aktifleştirebilirsin.
+      <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+        Plan veya kredi paketini doğrulama sonrası{" "}
+        <Link href="/magaza/abonelikler" className="text-indigo-600 dark:text-indigo-400 hover:underline">
+          mağazadan
+        </Link>{" "}
+        seçebilirsin.
       </p>
-
-      <div className="mt-6 p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-left">
-        <p className="text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
-          E-posta gelmedi mi?
-        </p>
-        <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-          <li>• Spam / gereksiz e-posta klasörünü kontrol et</li>
-          <li>• Adresin doğru yazıldığından emin ol</li>
-          <li>• Birkaç dakika bekle, bazen gecikir</li>
-        </ul>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-2">
-        <Link
-          href={`/api/auth/resend-verification?email=${encodeURIComponent(email)}`}
-          className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          Doğrulama e-postasını tekrar gönder
-        </Link>
+      <div className="mt-6">
         <Link
           href="/giris"
-          className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+          className="inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
         >
-          ← Giriş sayfasına dön
+          Giriş sayfasına dön
         </Link>
       </div>
     </div>
   );
 }
 
-/**
- * 3-step kayıt sihirbazının ana component'i.
- *
- * Akış:
- *   1) AccountStep → kullanıcı ad/e-posta/şifre girer
- *   2) PlanSelectorStep → plan seçer + koşulları kabul eder
- *   3) POST /api/auth/register → başarılıysa VerificationStep gösterilir
- *
- * Hata durumunda ilgili step'e geri düşülür ve kullanıcı bilgilendirilir.
- */
 export function RegisterWizard() {
-  const router = useRouter();
-
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  // Step 1 state
+  const [accountError, setAccountError] = useState<string | null>(null);
   const [account, setAccount] = useState<AccountData>({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-  });
-  const [accountError, setAccountError] = useState<string | null>(null);
-
-  // Step 2 state
-  const [plan, setPlan] = useState<PlanData>({
-    planSlug: "pro", // default: Pro plan (en popüler)
     acceptTerms: false,
   });
 
-  /** Step 1 → 2 geçişi: Zod ile validate */
-  const goToStep2 = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAccountError(null);
 
     if (account.password !== account.confirmPassword) {
       setAccountError("Şifreler eşleşmiyor");
+      return;
+    }
+    if (!account.acceptTerms) {
+      setAccountError("Kullanım koşullarını kabul etmelisiniz");
       return;
     }
 
@@ -418,34 +338,12 @@ export function RegisterWizard() {
       email: account.email,
       password: account.password,
     });
-
     if (!parsed.success) {
-      const first = parsed.error.issues[0];
-      setAccountError(first?.message ?? "Form geçersiz");
-      return;
-    }
-
-    setStep(2);
-  };
-
-  /** Step 2 → 3 geçişi: plan + acceptTerms doğrula, API'ye gönder */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError(null);
-
-    // Plan doğrulama
-    const parsedPlan = PlanSelectStepSchema.safeParse({
-      planSlug: plan.planSlug,
-      acceptTerms: plan.acceptTerms,
-    });
-    if (!parsedPlan.success) {
-      const first = parsedPlan.error.issues[0];
-      setSubmitError(first?.message ?? "Plan seçimi geçersiz");
+      setAccountError(parsed.error.issues[0]?.message ?? "Form geçersiz");
       return;
     }
 
     setLoading(true);
-
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
@@ -454,7 +352,9 @@ export function RegisterWizard() {
           name: account.name,
           email: account.email,
           password: account.password,
-          planSlug: plan.planSlug,
+          // Plan kayıtta zorunlu değil — starter trial varsayılan
+          planSlug: "starter",
+          acceptTerms: true,
         }),
       });
 
@@ -467,11 +367,9 @@ export function RegisterWizard() {
         throw new Error(message);
       }
 
-      // Başarılı kayıt → step 3 (email doğrulama bekleme)
-      setStep(3);
+      setStep(2);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : "Bir hata oluştu");
-      // Hata durumunda step 2'de kal
+      setAccountError(err instanceof Error ? err.message : "Bir hata oluştu");
     } finally {
       setLoading(false);
     }
@@ -481,20 +379,14 @@ export function RegisterWizard() {
     <div className="space-y-6">
       <StepIndicator current={step} />
 
-      {/* Step 1: Hesap bilgileri */}
       {step === 1 && (
-        <form onSubmit={goToStep2} noValidate>
-          <AccountStep
-            data={account}
-            setData={setAccount}
-            disabled={loading}
-            error={accountError}
-          />
+        <form onSubmit={handleSubmit} noValidate>
+          <AccountStep data={account} setData={setAccount} disabled={loading} error={accountError} />
 
           <div className="mt-6 flex items-center justify-end gap-2">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !account.acceptTerms}
               className={cn(
                 "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium",
                 "bg-indigo-600 text-white hover:bg-indigo-700",
@@ -504,131 +396,15 @@ export function RegisterWizard() {
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
             >
-              Devam
-              <svg
-                className="ml-1.5 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              {loading ? "Hesap oluşturuluyor…" : "Hesap Oluştur"}
             </button>
           </div>
         </form>
       )}
 
-      {/* Step 2: Plan seçimi */}
-      {step === 2 && (
-        <form onSubmit={handleSubmit} noValidate>
-          {submitError && (
-            <div
-              className="mb-4 p-3 rounded-lg bg-rose-50 text-rose-700 text-sm border border-rose-200 dark:bg-rose-950/30 dark:text-rose-300 dark:border-rose-900"
-              role="alert"
-            >
-              {submitError}
-            </div>
-          )}
-
-          <PlanSelectorStep
-            value={plan.planSlug}
-            onChange={(slug) => setPlan({ ...plan, planSlug: slug })}
-            acceptTerms={plan.acceptTerms}
-            onAcceptTermsChange={(accepted) =>
-              setPlan({ ...plan, acceptTerms: accepted })
-            }
-            disabled={loading}
-          />
-
-          <div className="mt-6 flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setStep(1);
-                setSubmitError(null);
-              }}
-              disabled={loading}
-              className={cn(
-                "inline-flex items-center justify-center px-3 py-2 rounded-lg font-medium",
-                "text-slate-700 dark:text-slate-300",
-                "hover:bg-slate-100 dark:hover:bg-slate-800",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400",
-                "transition-colors",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              <svg
-                className="mr-1.5 h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-              Geri
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !plan.acceptTerms}
-              className={cn(
-                "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium",
-                "bg-indigo-600 text-white hover:bg-indigo-700",
-                "focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2",
-                "dark:focus-visible:ring-offset-slate-900",
-                "transition-colors",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4zm2 5.3A8 8 0 014 12H0c0 3 1.1 5.8 3 7.9l3-2.6z"
-                    />
-                  </svg>
-                  Hesap oluşturuluyor...
-                </>
-              ) : (
-                "Hesap Oluştur"
-              )}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* Step 3: E-posta doğrulama bekleme */}
-      {step === 3 && <VerificationStep email={account.email} />}
+      {step === 2 && <VerificationStep email={account.email} />}
     </div>
   );
 }
 
-// OnboardingPlanSchema zod enum'unu runtime'da kullanmak için export ediyoruz
-// (ileride başka component'lerde de type-safe plan kontrolü için).
-export { OnboardingPlanSchema };
+export default RegisterWizard;

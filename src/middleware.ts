@@ -34,16 +34,18 @@ function attachSecurityHeaders(response: NextResponse): void {
   // Sadece geliştirme ortamında HMR/Hydration için gerekli.
   const isDev = process.env.NODE_ENV === 'development';
   const scriptSrcExtra = isDev ? " 'unsafe-eval'" : '';
+  // PayTR iFrame: script (iframeResizer) + frame (ödeme formu)
+  const paytrSrc = 'https://www.paytr.com https://*.paytr.com';
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${scriptSrcExtra} https://challenges.cloudflare.com https://*.cloudflare.com https://mc.yandex.ru https://*.yandex.ru https://mc.yandex.com https://*.yandex.com https://cdn.redocly.com`,
+    `script-src 'self' 'unsafe-inline'${scriptSrcExtra} https://challenges.cloudflare.com https://*.cloudflare.com https://mc.yandex.ru https://*.yandex.ru https://mc.yandex.com https://*.yandex.com https://cdn.redocly.com ${paytrSrc}`,
     "style-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://fonts.googleapis.com",
     "img-src 'self' data: https: https://challenges.cloudflare.com https://*.ytimg.com https://*.youtube.com",
     "font-src 'self' data: https://challenges.cloudflare.com https://fonts.gstatic.com",
-    "connect-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com https://mc.yandex.ru https://*.yandex.ru https://mc.yandex.com https://*.yandex.com https://*.youtube.com https://*.ytimg.com https://*.doubleclick.net https://*.googleads.com https://cdn.redocly.com",
-    "frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com https://www.youtube.com https://youtube.com https://*.youtube.com https://www.youtube-nocookie.com https://cal.com https://*.cal.com https://calendly.com https://*.calendly.com",
+    `connect-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com https://mc.yandex.ru https://*.yandex.ru https://mc.yandex.com https://*.yandex.com https://*.youtube.com https://*.ytimg.com https://*.doubleclick.net https://*.googleads.com https://cdn.redocly.com ${paytrSrc}`,
+    `frame-src 'self' https://challenges.cloudflare.com https://*.cloudflare.com https://www.youtube.com https://youtube.com https://*.youtube.com https://www.youtube-nocookie.com https://cal.com https://*.cal.com https://calendly.com https://*.calendly.com ${paytrSrc}`,
     "worker-src 'self' blob: https://challenges.cloudflare.com https://cdn.redocly.com",
-    "child-src 'self' blob: https://challenges.cloudflare.com https://cdn.redocly.com",
+    `child-src 'self' blob: https://challenges.cloudflare.com https://cdn.redocly.com ${paytrSrc}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self' https://www.paytr.com https://challenges.cloudflare.com",
