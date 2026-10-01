@@ -1,11 +1,14 @@
 /**
  * @file OrdersList - Kullanıcının tüm siparişlerini liste halinde gösterir.
  * Order detayları: order number, tarih, status, item listesi, toplam tutar.
+ * Dijital ürünlerin yanı sıra Abonelik, API Kredisi ve Bahşiş siparişlerini de
+ * eksiksiz ve zengin rozetlerle görüntüler.
  */
 
 import Link from 'next/link';
-import { formatCurrency, formatDateTime } from '@/lib/utils';
+import { formatCurrency, formatDateTime, cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { resolveOrderItems, type ResolvedOrderItem } from '@/modules/commerce/orderUtils';
 
 type OrderStatus =
   | 'PENDING'
@@ -18,12 +21,18 @@ type OrderStatus =
 
 interface OrderItemRow {
   id: string;
-  productTitle: string;
-  productSlug: string;
-  quantity: number;
-  unitPriceCents: number;
-  totalCents: number;
+  productTitle?: string | null;
+  productSlug?: string | null;
+  quantity?: number | null;
+  unitPriceCents?: number | null;
+  totalCents?: number | null;
   product?: { id: string; slug: string; title: string } | null;
+}
+
+interface OrderLicenseRow {
+  id: string;
+  key: string;
+  status?: string | null;
 }
 
 interface OrderRow {
@@ -36,7 +45,10 @@ interface OrderRow {
   currency: string;
   customerEmail: string;
   createdAt: Date | string;
+  notes?: string | null;
+  metadata?: unknown;
   items: OrderItemRow[];
+  licenses?: OrderLicenseRow[];
 }
 
 interface OrdersListProps {
@@ -72,6 +84,8 @@ export function OrdersList({ orders }: OrdersListProps) {
           ORDER_STATUS_STYLES[order.status] ??
           'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300';
 
+        const items: ResolvedOrderItem[] = resolveOrderItems(order);
+
         return (
           <article key={order.id} className="glass-card-premium p-5">
             <header className="flex flex-wrap items-start justify-between gap-2 mb-4">
@@ -98,18 +112,40 @@ export function OrdersList({ orders }: OrdersListProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {order.items.map((item) => (
+                  {items.map((item) => (
                     <tr key={item.id} className="border-t border-border/40">
                       <td className="p-2">
-                        {item.productSlug ? (
-                          <Link
-                            href={`/magaza/${item.productSlug}`}
-                            className="hover:text-brand-primary hover:underline"
-                          >
-                            {item.productTitle}
-                          </Link>
-                        ) : (
-                          item.productTitle
+                        <div className="flex flex-wrap items-center gap-2">
+                          {item.href ? (
+                            <Link
+                              href={item.href}
+                              className="hover:text-brand-primary hover:underline font-medium"
+                            >
+                              {item.productTitle}
+                            </Link>
+                          ) : (
+                            <span className="font-medium">{item.productTitle}</span>
+                          )}
+                          {item.badge && (
+                            <span
+                              className={cn(
+                                'px-2 py-0.5 rounded text-[11px] font-semibold tracking-wide',
+                                item.badgeTone === 'brand' &&
+                                  'bg-brand-primary/10 text-brand-primary border border-brand-primary/20',
+                                item.badgeTone === 'info' &&
+                                  'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-500/20',
+                                item.badgeTone === 'success' &&
+                                  'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20',
+                                (!item.badgeTone || item.badgeTone === 'neutral') &&
+                                  'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-border/50'
+                              )}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
                         )}
                       </td>
                       <td className="p-2 text-center tabular-nums">{item.quantity}</td>
@@ -151,6 +187,20 @@ export function OrdersList({ orders }: OrdersListProps) {
                 </tfoot>
               </table>
             </div>
+
+            {order.licenses && order.licenses.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-border/40 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">Lisans Anahtarı:</span>
+                {order.licenses.map((lic) => (
+                  <code
+                    key={lic.id}
+                    className="px-2 py-0.5 rounded bg-muted/70 font-mono text-xs font-semibold text-foreground select-all border border-border/40"
+                  >
+                    {lic.key}
+                  </code>
+                ))}
+              </div>
+            )}
           </article>
         );
       })}

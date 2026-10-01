@@ -11,6 +11,7 @@ import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { StatusBadge, type StatusTone } from '@/components/ui/StatusBadge';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { resolveOrderItems } from '@/modules/commerce/orderUtils';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -116,17 +117,18 @@ export default async function AdminOrdersPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">
-                      {order.items.length === 0 ? (
-                        <span className="italic text-xs">Paket / Kredi</span>
-                      ) : (
-                        <div className="space-y-0.5">
-                          {order.items.map((item) => (
-                            <p key={item.id} className="text-xs truncate max-w-xs">
-                              {item.product?.title || 'Dijital Ürün'} × {item.quantity}
-                            </p>
-                          ))}
-                        </div>
-                      )}
+                      <div className="space-y-1">
+                        {resolveOrderItems(order).map((item) => (
+                          <div key={item.id} className="text-xs truncate max-w-xs flex flex-wrap items-center gap-1.5">
+                            <span className="font-medium text-foreground">{item.productTitle} × {item.quantity}</span>
+                            {item.badge && (
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-semibold tabular-nums text-foreground">
                       {formatCurrency(order.totalCents, order.currency)}

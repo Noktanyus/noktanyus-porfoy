@@ -13,6 +13,7 @@ import { toast } from 'react-hot-toast';
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils';
 import { FaBox, FaKey, FaCopy, FaEye, FaDownload } from 'react-icons/fa';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { resolveOrderItems } from '@/modules/commerce/orderUtils';
 
 type OrderStatus =
   | 'PENDING'
@@ -25,11 +26,11 @@ type OrderStatus =
 
 interface OrderItemRow {
   id: string;
-  productTitle: string;
-  productSlug: string;
-  quantity: number;
-  unitPriceCents: number;
-  totalCents: number;
+  productTitle?: string | null;
+  productSlug?: string | null;
+  quantity?: number | null;
+  unitPriceCents?: number | null;
+  totalCents?: number | null;
   product?: { id: string; slug: string; title: string } | null;
 }
 
@@ -42,6 +43,8 @@ interface OrderRow {
   totalCents: number;
   currency: string;
   createdAt: Date | string;
+  notes?: string | null;
+  metadata?: unknown;
   items: OrderItemRow[];
 }
 
@@ -150,57 +153,64 @@ function OrdersTab({ orders }: { orders: OrderRow[] }) {
           ORDER_STATUS_STYLES[order.status] ??
           'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300';
 
-        return (
-          <article key={order.id} className="glass-card-premium p-5">
-            <header className="flex flex-wrap items-start justify-between gap-2 mb-3">
-              <div className="min-w-0">
-                <p className="font-mono text-sm font-semibold break-all">{order.orderNumber}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {formatDateTime(order.createdAt)}
-                </p>
-              </div>
-              <span
-                className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusClass}`}
-              >
-                {order.status}
-              </span>
-            </header>
+            const items = resolveOrderItems(order);
 
-            <ul className="space-y-1.5">
-              {order.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex flex-wrap items-center justify-between gap-2 text-sm"
-                >
-                  <span className="min-w-0 flex-1 truncate">
-                    {item.productSlug ? (
-                      <Link
-                        href={`/magaza/${item.productSlug}`}
-                        className="hover:text-brand-primary hover:underline"
-                      >
-                        {item.productTitle}
-                      </Link>
-                    ) : (
-                      item.productTitle
-                    )}
-                  <span className="text-muted-foreground ml-2">× {item.quantity}</span>
+            return (
+              <article key={order.id} className="glass-card-premium p-5">
+                <header className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                  <div className="min-w-0">
+                    <p className="font-mono text-sm font-semibold break-all">{order.orderNumber}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {formatDateTime(order.createdAt)}
+                    </p>
+                  </div>
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap ${statusClass}`}
+                  >
+                    {order.status}
                   </span>
-                  <span className="font-semibold tabular-nums">
-                    {formatCurrency(item.totalCents, order.currency)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                </header>
 
-            <footer className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
-              <span className="text-sm font-medium">Toplam</span>
-              <span className="text-lg font-bold text-brand-primary tabular-nums">
-                {formatCurrency(order.totalCents, order.currency)}
-              </span>
-            </footer>
-          </article>
-        );
-      })}
+                <ul className="space-y-1.5">
+                  {items.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex flex-wrap items-center justify-between gap-2 text-sm"
+                    >
+                      <span className="min-w-0 flex-1 truncate flex items-center gap-1.5">
+                        {item.href ? (
+                          <Link
+                            href={item.href}
+                            className="hover:text-brand-primary hover:underline"
+                          >
+                            {item.productTitle}
+                          </Link>
+                        ) : (
+                          item.productTitle
+                        )}
+                        {item.badge && (
+                          <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                            {item.badge}
+                          </span>
+                        )}
+                        <span className="text-muted-foreground ml-1">× {item.quantity}</span>
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {formatCurrency(item.totalCents, order.currency)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <footer className="mt-3 pt-3 border-t border-border/50 flex items-center justify-between">
+                  <span className="text-sm font-medium">Toplam</span>
+                  <span className="text-lg font-bold text-brand-primary tabular-nums">
+                    {formatCurrency(order.totalCents, order.currency)}
+                  </span>
+                </footer>
+              </article>
+            );
+          })}
     </div>
   );
 }

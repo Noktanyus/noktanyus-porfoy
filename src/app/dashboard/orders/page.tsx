@@ -42,6 +42,13 @@ export default async function OrdersPage() {
       items: {
         include: { product: true },
       },
+      licenses: {
+        select: {
+          id: true,
+          key: true,
+          status: true,
+        },
+      },
     },
     orderBy: { createdAt: 'desc' },
   });

@@ -5,6 +5,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { resolveOrderItems } from './orderUtils';
 import { emailService } from '@/lib/emailService';
 import { webhookService } from '@/modules/webhooks';
 import { notificationService } from '@/modules/notifications';
@@ -51,6 +52,8 @@ export async function runPostCheckoutSideEffects(orderId: string): Promise<PostC
     return { orderId, found: false, outcomes, failedSteps: [] };
   }
 
+  const resolvedItems = resolveOrderItems(order);
+
   await step(
     'receipt-email',
     () =>
@@ -58,7 +61,7 @@ export async function runPostCheckoutSideEffects(orderId: string): Promise<PostC
         customerName: order.customer?.name ?? undefined,
         customerEmail: order.customerEmail,
         orderNumber: order.orderNumber,
-        items: order.items.map((item) => ({
+        items: resolvedItems.map((item) => ({
           title: item.productTitle,
           quantity: item.quantity,
           priceCents: item.unitPriceCents,

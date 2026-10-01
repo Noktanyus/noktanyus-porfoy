@@ -15,3 +15,4 @@ export * from './subscriptionPause';
 export * from './tipService';
 export * from './paytrService';
 export * from './bundleService';
+export * from './orderUtils';

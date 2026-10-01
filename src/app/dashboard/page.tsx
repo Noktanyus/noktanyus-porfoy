@@ -18,6 +18,7 @@ import {
   FaCoins,
 } from 'react-icons/fa';
 import Link from 'next/link';
+import { getOrderSummaryTitle } from '@/modules/commerce/orderUtils';
 
 export const dynamic = 'force-dynamic';
 
@@ -190,12 +191,8 @@ export default async function DashboardOverviewPage() {
           ) : (
             <ul className="space-y-2">
               {recentOrders.map((order) => {
-                const firstItem =
-                  order.items[0]?.productTitle ??
-                  order.items[0]?.product?.title ??
-                  'Sipariş';
-                const extra =
-                  order.items.length > 1 ? ` +${order.items.length - 1}` : '';
+                const { title: firstItem, extraCount } = getOrderSummaryTitle(order);
+                const extra = extraCount > 0 ? ` +${extraCount}` : '';
                 return (
                   <li
                     key={order.id}

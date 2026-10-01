@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { resolveOrderItems } from '@/modules/commerce/orderUtils';
 import {
   FaArrowRight,
   FaCheckCircle,
@@ -57,6 +58,8 @@ interface Order {
   totalCents: number;
   currency: string;
   createdAt: Date | string;
+  notes?: string | null;
+  metadata?: unknown;
   items: OrderItem[];
 }
 
@@ -405,35 +408,43 @@ function OrdersTable({ orders, onCopy }: { orders: Order[]; onCopy: (text: strin
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
-              <tr key={order.id} className="border-b border-border/50 last:border-0">
-                <td className="p-3 font-mono text-xs">
-                  <button
-                    onClick={() => onCopy(order.orderNumber)}
-                    className="hover:text-brand-primary transition-colors"
-                    title="Kopyala"
-                  >
-                    {order.orderNumber}
-                  </button>
-                </td>
-                <td className="p-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
-                <td className="p-3">
-                  <div className="text-xs space-y-0.5">
-                    {order.items.map((item) => (
-                      <div key={item.id}>
-                        {item.productTitle} × {item.quantity}
-                      </div>
-                    ))}
-                  </div>
-                </td>
-                <td className="p-3 text-right font-semibold">
-                  {formatCurrency(order.totalCents, order.currency)}
-                </td>
-                <td className="p-3">
-                  <span className={statusBadge(order.status)}>{order.status}</span>
-                </td>
-              </tr>
-            ))}
+            {orders.map((order) => {
+              const items = resolveOrderItems(order);
+              return (
+                <tr key={order.id} className="border-b border-border/50 last:border-0">
+                  <td className="p-3 font-mono text-xs">
+                    <button
+                      onClick={() => onCopy(order.orderNumber)}
+                      className="hover:text-brand-primary transition-colors"
+                      title="Kopyala"
+                    >
+                      {order.orderNumber}
+                    </button>
+                  </td>
+                  <td className="p-3 text-muted-foreground">{formatDate(order.createdAt)}</td>
+                  <td className="p-3">
+                    <div className="text-xs space-y-1">
+                      {items.map((item) => (
+                        <div key={item.id} className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-medium">{item.productTitle} × {item.quantity}</span>
+                          {item.badge && (
+                            <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="p-3 text-right font-semibold">
+                    {formatCurrency(order.totalCents, order.currency)}
+                  </td>
+                  <td className="p-3">
+                    <span className={statusBadge(order.status)}>{order.status}</span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
