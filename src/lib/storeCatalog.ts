@@ -11,6 +11,7 @@ export type ProductCategoryValue =
   | 'library'
   | 'boilerplate'
   | 'api'
+  | 'license'
   | 'general';
 
 export interface StoreCategoryOption {
@@ -25,6 +26,12 @@ export interface StoreCategoryOption {
  * Hiçbiri API kotası içermez; API erişimi plan veya kredi ile satılır.
  */
 export const PRODUCT_CATEGORIES: StoreCategoryOption[] = [
+  {
+    value: 'license',
+    label: 'Lisans Anahtarı',
+    description: '3. parti veya harici uygulama lisans doğrulama anahtarı (sanal ürün)',
+    channel: 'product',
+  },
   {
     value: 'template',
     label: 'Şablon',

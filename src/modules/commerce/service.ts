@@ -173,16 +173,27 @@ export const commerceService = {
             totalCents,
             currency: 'try',
             ...(couponId ? { couponId } : {}),
-            metadata: { provider: 'paytr', mock: true },
+            metadata: {
+              provider: 'paytr',
+              mock: true,
+              itemsWithTiers: items.map((i) => ({
+                productId: i.productId,
+                tierDays: i.tierDays,
+                tierLabel: i.tierLabel,
+              })),
+            },
             items: {
               create: items.map((item) => {
                 const product = validProducts.find((p) => p.id === item.productId)!;
+                const titleWithTier = item.tierLabel
+                  ? `${product.title} (${item.tierLabel})`
+                  : product.title;
                 return {
                   productId: item.productId,
                   quantity: item.quantity,
                   unitPriceCents: item.priceCents,
                   totalCents: item.priceCents * item.quantity,
-                  productTitle: product.title,
+                  productTitle: titleWithTier,
                   productSlug: product.slug,
                 };
               }),
@@ -216,8 +227,11 @@ export const commerceService = {
         totalCents,
         basket: items.map((item) => {
           const product = validProducts.find((p) => p.id === item.productId)!;
+          const titleWithTier = item.tierLabel
+            ? `${product.title} (${item.tierLabel})`
+            : product.title;
           return {
-            name: product.title,
+            name: titleWithTier,
             priceCents: item.priceCents,
             quantity: item.quantity,
           };
@@ -236,16 +250,27 @@ export const commerceService = {
           totalCents,
           currency: 'try',
           ...(couponId ? { couponId } : {}),
-          metadata: { provider: 'paytr', mode: prepared.mode },
+          metadata: {
+            provider: 'paytr',
+            mode: prepared.mode,
+            itemsWithTiers: items.map((i) => ({
+              productId: i.productId,
+              tierDays: i.tierDays,
+              tierLabel: i.tierLabel,
+            })),
+          },
           items: {
             create: items.map((item) => {
               const product = validProducts.find((p) => p.id === item.productId)!;
+              const titleWithTier = item.tierLabel
+                ? `${product.title} (${item.tierLabel})`
+                : product.title;
               return {
                 productId: item.productId,
                 quantity: item.quantity,
                 unitPriceCents: item.priceCents,
                 totalCents: item.priceCents * item.quantity,
-                productTitle: product.title,
+                productTitle: titleWithTier,
                 productSlug: product.slug,
               };
             }),
@@ -790,7 +815,7 @@ export const commerceService = {
   async generateLicenseForOrder(orderId: string) {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { items: true },
+      include: { items: { include: { product: true } } },
     });
     if (!order) throw new NotFoundError('Sipariş');
 
@@ -804,14 +829,64 @@ export const commerceService = {
 
     const licenses = [];
     for (const item of order.items) {
+      const product = item.product;
+      const reqs =
+        product?.requirements &&
+        typeof product.requirements === 'object' &&
+        !Array.isArray(product.requirements)
+          ? (product.requirements as Record<string, unknown>)
+          : {};
+
+      const licenseType =
+        typeof reqs.licenseType === 'string' &&
+        ['PERPETUAL', 'SUBSCRIPTION', 'TRIAL', 'ONE_TIME'].includes(reqs.licenseType)
+          ? (reqs.licenseType as 'PERPETUAL' | 'SUBSCRIPTION' | 'TRIAL' | 'ONE_TIME')
+          : 'ONE_TIME';
+
+      const maxActivations =
+        typeof reqs.maxActivations === 'number' && reqs.maxActivations > 0
+          ? Math.floor(reqs.maxActivations)
+          : 1;
+
+      // Siparişte seçilen süre paketi (tierDays) var mı kontrol et
+      const orderMeta =
+        order.metadata && typeof order.metadata === 'object'
+          ? (order.metadata as Record<string, unknown>)
+          : {};
+      const itemsWithTiers = Array.isArray(orderMeta.itemsWithTiers)
+        ? (orderMeta.itemsWithTiers as Array<{ productId: string; tierDays?: number; tierLabel?: string }>)
+        : [];
+      const matchedTier = itemsWithTiers.find((t) => t.productId === item.productId);
+
+      const validityDays =
+        typeof matchedTier?.tierDays === 'number'
+          ? Math.max(0, Math.floor(matchedTier.tierDays))
+          : typeof reqs.validityDays === 'number' && reqs.validityDays > 0
+          ? Math.floor(reqs.validityDays)
+          : 0;
+
+      const expiresAt =
+        validityDays > 0 ? new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000) : null;
+
       const key = await licenseRepository.generateKey();
       const license = await licenseRepository.create({
         key,
         customerId: customer.id,
         productId: item.productId,
         orderId: order.id,
-        type: 'ONE_TIME',
+        ...(order.userId ? { userId: order.userId } : {}),
+        type: licenseType,
         status: 'active',
+        maxActivations,
+        ...(expiresAt ? { expiresAt } : {}),
+        metadata: {
+          productTitle: item.productTitle,
+          productSlug: item.productSlug,
+          tierLabel: matchedTier?.tierLabel || undefined,
+          tierDays: validityDays,
+          thirdPartyAppName: reqs.thirdPartyAppName || undefined,
+          activationInstructions: reqs.activationInstructions || undefined,
+        },
       });
       licenses.push(license);
     }

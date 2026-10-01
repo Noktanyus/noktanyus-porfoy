@@ -18,6 +18,7 @@ import {
   CheckoutIdentityFields,
   useCheckoutIdentity,
 } from '@/hooks/useCheckoutIdentity';
+import type { LicensePricingTier } from '@/modules/commerce/types';
 
 interface PublicProduct {
   id: string;
@@ -28,14 +29,20 @@ interface PublicProduct {
   currency: string;
   thumbnail: string | null;
   active: boolean;
+  category?: string;
+  requirements?: unknown;
 }
 
 export function CheckoutForm() {
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug');
+  const tierParam = searchParams.get('tier');
+  const daysParam = searchParams.get('days');
   const identity = useCheckoutIdentity();
 
   const [product, setProduct] = useState<PublicProduct | null>(null);
+  const [availableTiers, setAvailableTiers] = useState<LicensePricingTier[]>([]);
+  const [selectedTier, setSelectedTier] = useState<LicensePricingTier | null>(null);
   const [loading, setLoading] = useState(false);
   const [acceptedCayma, setAcceptedCayma] = useState(false);
   const [couponCode, setCouponCode] = useState('');
@@ -67,6 +74,34 @@ export function CheckoutForm() {
           throw new Error('Bu ürün satışta değil');
         }
         setProduct(data);
+
+        // Parse requirements for pricing tiers
+        const reqObj =
+          data.requirements &&
+          typeof data.requirements === 'object' &&
+          !Array.isArray(data.requirements)
+            ? (data.requirements as Record<string, unknown>)
+            : null;
+
+        const tiers: LicensePricingTier[] = Array.isArray(reqObj?.pricingTiers)
+          ? (reqObj?.pricingTiers as LicensePricingTier[])
+          : [];
+
+        setAvailableTiers(tiers);
+
+        if (tiers.length > 0) {
+          const matched =
+            tiers.find(
+              (t) =>
+                t.id === tierParam ||
+                (daysParam && String(t.days) === daysParam) ||
+                (tierParam && String(t.days) === tierParam)
+            ) ||
+            tiers.find((t) => t.isPopular) ||
+            tiers[0];
+          setSelectedTier(matched);
+        }
+
         setError(null);
       } catch (e) {
         if (!cancelled) {
@@ -77,9 +112,9 @@ export function CheckoutForm() {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, tierParam, daysParam]);
 
-  const total = product?.priceCents ?? 0;
+  const total = selectedTier ? selectedTier.priceCents : (product?.priceCents ?? 0);
   const payable = Math.max(0, total - discountCents);
 
   const applyCoupon = async () => {
@@ -144,7 +179,9 @@ export function CheckoutForm() {
             {
               productId: product.id,
               quantity: 1,
-              priceCents: product.priceCents,
+              priceCents: total,
+              tierDays: selectedTier ? selectedTier.days : undefined,
+              tierLabel: selectedTier ? selectedTier.label : undefined,
             },
           ],
           customerEmail: identity.email,
@@ -224,8 +261,53 @@ export function CheckoutForm() {
         <div className="glass-card-premium p-6">
           <h2 className="text-xl font-semibold mb-2 text-foreground">{product.title}</h2>
           <p className="text-sm text-muted-foreground mb-4">{product.shortDescription}</p>
+
+          {/* Pricing Tiers Selection (if product has tiers) */}
+          {availableTiers.length > 0 && (
+            <div className="mb-4 pt-3 border-t border-border/60">
+              <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                Lisans Süresi Paketi
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {availableTiers.map((tier) => {
+                  const isSel = selectedTier?.id === tier.id;
+                  return (
+                    <button
+                      key={tier.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTier(tier);
+                        if (discountCents > 0) {
+                          setDiscountCents(0);
+                          setCouponLabel(null);
+                        }
+                      }}
+                      className={`text-left p-2.5 rounded-lg border text-xs transition-all ${
+                        isSel
+                          ? 'border-brand-primary bg-brand-primary/10 ring-1 ring-brand-primary font-medium'
+                          : 'border-border/70 hover:border-brand-primary/40 bg-muted/20'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-foreground">{tier.label}</span>
+                        <span className="font-bold text-brand-primary">
+                          {formatCurrency(tier.priceCents, product.currency)}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground">
+                        {tier.days === 0 ? '♾️ Süresiz' : `⏱️ ${tier.days} gün`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="flex justify-between text-sm text-muted-foreground mb-1">
-            <span>Ara toplam</span>
+            <span>
+              Ara toplam {selectedTier ? `(${selectedTier.label})` : ''}
+            </span>
             <span>{formatCurrency(total, product.currency)}</span>
           </div>
           {discountCents > 0 && (

@@ -86,8 +86,13 @@ export async function PUT(
         ...(data.priceCents !== undefined && { priceCents: data.priceCents }),
         ...(data.technologies !== undefined && { technologies: data.technologies }),
         ...(data.category !== undefined && { category: data.category }),
+        ...(data.version !== undefined && { version: data.version }),
+        ...(data.requirements !== undefined && { requirements: (data.requirements as any) ?? null }),
         ...(data.downloadCountMax !== undefined && { downloadCountMax: data.downloadCountMax }),
         ...(data.ttlHours !== undefined && { ttlHours: data.ttlHours }),
+        ...(data.active !== undefined && { active: data.active }),
+        ...(data.featured !== undefined && { featured: data.featured }),
+        ...(data.order !== undefined && { order: data.order }),
       },
     });
 

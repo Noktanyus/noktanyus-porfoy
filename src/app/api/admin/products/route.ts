@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         technologies: data.technologies ?? [],
         category: data.category ?? 'general',
         version: data.version ?? null,
-        requirements: data.requirements ?? undefined,
+        requirements: (data.requirements as any) ?? undefined,
         active: data.active ?? true,
         featured: data.featured ?? false,
         order: data.order ?? 0,
