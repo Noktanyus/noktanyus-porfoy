@@ -90,6 +90,7 @@ export const refundService = {
       });
 
       await this.revokeLicensesForOrder(order.id);
+      await this.cleanupRefundedBenefits(order);
 
       await logAudit({
         userId: input.userId,
@@ -140,6 +141,7 @@ export const refundService = {
     });
 
     await this.revokeLicensesForOrder(order.id);
+    await this.cleanupRefundedBenefits(order);
 
     await logAudit({
       userId: input.userId,
@@ -190,5 +192,119 @@ export const refundService = {
     });
 
     return licenses;
+  },
+
+  async cleanupRefundedBenefits(order: {
+    id: string;
+    userId?: string | null;
+    stripeSessionId?: string | null;
+    metadata?: unknown;
+    notes?: string | null;
+  }) {
+    const meta = (order.metadata && typeof order.metadata === 'object'
+      ? (order.metadata as Record<string, unknown>)
+      : {}) as Record<string, unknown>;
+    const notes = (order.notes || '').toLowerCase();
+    const metaType = typeof meta.type === 'string' ? meta.type.toLowerCase() : '';
+
+    const isSubscription =
+      metaType === 'subscription' ||
+      notes.startsWith('abonelik') ||
+      Boolean(meta.planSlug) ||
+      Boolean(meta.planId);
+
+    const isApiTopup =
+      metaType === 'api_topup' ||
+      notes.startsWith('api kredi') ||
+      typeof meta.credits === 'number';
+
+    // 1. Abonelik iptali
+    if (isSubscription) {
+      const paytrSubId = `paytr_sub_${order.stripeSessionId ?? order.id}`;
+      if (prisma.subscription?.updateMany) {
+        try {
+          await prisma.subscription.updateMany({
+            where: { stripeSubscriptionId: paytrSubId },
+            data: {
+              status: 'CANCELED',
+              stripeStatus: 'canceled',
+              canceledAt: new Date(),
+            },
+          });
+        } catch (err) {
+          logger.warn('[Refund] Subscription cancel update failed', { err, paytrSubId });
+        }
+      }
+      if (order.userId && prisma.userSubscription?.updateMany) {
+        try {
+          await prisma.userSubscription.updateMany({
+            where: {
+              userId: order.userId,
+              stripeSubscriptionId: paytrSubId,
+            },
+            data: {
+              status: 'cancelled',
+              expiresAt: new Date(),
+            },
+          });
+        } catch (err) {
+          logger.warn('[Refund] UserSubscription cancel update failed', { err, paytrSubId });
+        }
+      }
+      logger.info('Subscription cancelled due to refund', { orderId: order.id, paytrSubId });
+    }
+
+    // 2. Kredi geri alma
+    if (isApiTopup && order.userId) {
+      let credits = typeof meta.credits === 'number' ? meta.credits : 0;
+      if (!credits && prisma.apiCreditLedger?.findFirst) {
+        try {
+          const topup = await prisma.apiCreditLedger.findFirst({
+            where: { orderId: order.id, reason: 'topup' },
+          });
+          if (topup) credits = topup.delta;
+        } catch (err) {
+          logger.warn('[Refund] Failed to fetch topup ledger', { err, orderId: order.id });
+        }
+      }
+
+      if (credits > 0 && prisma.user?.update && prisma.apiCreditLedger?.create) {
+        try {
+          const user = await prisma.user.findUnique({
+            where: { id: order.userId },
+            select: { apiCreditBalance: true },
+          });
+          const currentBalance = user?.apiCreditBalance ?? 0;
+          const newBalance = Math.max(0, currentBalance - credits);
+
+          await prisma.user.update({
+            where: { id: order.userId },
+            data: { apiCreditBalance: newBalance },
+          });
+
+          await prisma.apiCreditLedger.create({
+            data: {
+              userId: order.userId,
+              delta: -credits,
+              balanceAfter: newBalance,
+              reason: 'refund',
+              orderId: order.id,
+              metadata: {
+                note: 'Sipariş iadesi nedeniyle API kredileri geri çekildi',
+              },
+            },
+          });
+
+          logger.info('API credits reverted due to refund', {
+            orderId: order.id,
+            userId: order.userId,
+            revertedCredits: credits,
+            newBalance,
+          });
+        } catch (err) {
+          logger.error('[Refund] Failed to revert API credits', { err, orderId: order.id });
+        }
+      }
+    }
   },
 };

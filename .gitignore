@@ -1,6 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.*
@@ -10,43 +10,66 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# Testing & E2E
 /coverage
 /playwright-report
 /test-results
 /playwright/.cache
+.playwright-mcp/
+e2e/visual.spec.ts-snapshots/
 
-# next.js
+# Next.js & Build Output
 /.next/
 /out/
-
-# production
 /build
+/dist
 
-# misc
-.DS_Store
-*.pem
+# Environment Files
+.env*.local
+.env
+.env.production
+.env.development
+.env.test
+!.env.example
 
-# debug
+# Vercel
+.vercel
+.vercel-nextauth-secret.tmp
+
+# TypeScript & Cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Debug & Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# Database & Dumps
+*.dump
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+noktanyus-local.dump
 
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
-*.png
+# Temporary Test Screenshots & Media
 verify-*.png
 phase1-*.png
 phase2-*.png
 
-noktanyus-local.dump
-.vercel-nextauth-secret.tmp
+# Dynamic User Uploads & Generated Exports (KVKK / AI results)
+/public/uploads/user-exports/
+/public/uploads/ai-bulk-results/
 
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.pem
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json

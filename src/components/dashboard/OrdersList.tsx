@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { formatCurrency, formatDateTime, cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { resolveOrderItems, type ResolvedOrderItem } from '@/modules/commerce/orderUtils';
+import { UserRefundButton } from '@/components/dashboard/UserRefundButton';
 
 type OrderStatus =
   | 'PENDING'
@@ -85,6 +86,19 @@ export function OrdersList({ orders }: OrdersListProps) {
           'bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300';
 
         const items: ResolvedOrderItem[] = resolveOrderItems(order);
+        const meta = (order.metadata && typeof order.metadata === 'object'
+          ? (order.metadata as Record<string, unknown>)
+          : {}) as Record<string, unknown>;
+        const metaType = typeof meta.type === 'string' ? meta.type.toLowerCase() : '';
+        const notes = (order.notes || '').toLowerCase();
+        const isSubOrCredit =
+          metaType === 'subscription' ||
+          metaType === 'api_topup' ||
+          notes.startsWith('abonelik') ||
+          notes.startsWith('api kredi') ||
+          Boolean(meta.planSlug) ||
+          Boolean(meta.planId) ||
+          typeof meta.credits === 'number';
 
         return (
           <article key={order.id} className="glass-card-premium p-5">
@@ -95,11 +109,22 @@ export function OrdersList({ orders }: OrdersListProps) {
                   {formatDateTime(order.createdAt)}
                 </p>
               </div>
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusClass}`}
-              >
-                {order.status}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${statusClass}`}
+                >
+                  {order.status}
+                </span>
+                <UserRefundButton
+                  orderId={order.id}
+                  orderNumber={order.orderNumber}
+                  orderDate={order.createdAt}
+                  status={order.status}
+                  totalCents={order.totalCents}
+                  currency={order.currency}
+                  isSubscriptionOrCredit={isSubOrCredit}
+                />
+              </div>
             </header>
 
             <div className="overflow-x-auto -mx-2">

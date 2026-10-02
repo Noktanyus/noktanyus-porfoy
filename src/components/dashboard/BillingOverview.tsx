@@ -19,7 +19,9 @@ import {
   FaCreditCard,
   FaKey,
   FaReceipt,
+  FaShieldAlt,
 } from 'react-icons/fa';
+import { UserRefundButton } from '@/components/dashboard/UserRefundButton';
 
 type Tab = 'overview' | 'orders' | 'licenses';
 
@@ -374,6 +376,16 @@ function ActiveSubscriptionCard({
           Aboneliği Yönet
         </button>
       </div>
+
+      {Date.now() - new Date(subscription.startedAt).getTime() <= 24 * 60 * 60 * 1000 && (
+        <div className="mt-4 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+          <FaShieldAlt className="text-amber-500 shrink-0 text-sm" />
+          <span>
+            <strong>1 Günlük İade Garantisi:</strong> İlk 24 saat içindesiniz. Hak veya API çağrısı
+            kullanmadıysanız Siparişler sekmesinden anında koşulsuz iade başlatabilirsiniz.
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -410,6 +422,20 @@ function OrdersTable({ orders, onCopy }: { orders: Order[]; onCopy: (text: strin
           <tbody>
             {orders.map((order) => {
               const items = resolveOrderItems(order);
+              const meta = (order.metadata && typeof order.metadata === 'object'
+                ? (order.metadata as Record<string, unknown>)
+                : {}) as Record<string, unknown>;
+              const metaType = typeof meta.type === 'string' ? meta.type.toLowerCase() : '';
+              const notes = (order.notes || '').toLowerCase();
+              const isSubOrCredit =
+                metaType === 'subscription' ||
+                metaType === 'api_topup' ||
+                notes.startsWith('abonelik') ||
+                notes.startsWith('api kredi') ||
+                Boolean(meta.planSlug) ||
+                Boolean(meta.planId) ||
+                typeof meta.credits === 'number';
+
               return (
                 <tr key={order.id} className="border-b border-border/50 last:border-0">
                   <td className="p-3 font-mono text-xs">
@@ -440,7 +466,18 @@ function OrdersTable({ orders, onCopy }: { orders: Order[]; onCopy: (text: strin
                     {formatCurrency(order.totalCents, order.currency)}
                   </td>
                   <td className="p-3">
-                    <span className={statusBadge(order.status)}>{order.status}</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={statusBadge(order.status)}>{order.status}</span>
+                      <UserRefundButton
+                        orderId={order.id}
+                        orderNumber={order.orderNumber}
+                        orderDate={order.createdAt}
+                        status={order.status}
+                        totalCents={order.totalCents}
+                        currency={order.currency}
+                        isSubscriptionOrCredit={isSubOrCredit}
+                      />
+                    </div>
                   </td>
                 </tr>
               );
