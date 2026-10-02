@@ -20,8 +20,12 @@ import {
   FaKey,
   FaReceipt,
   FaShieldAlt,
+  FaSync,
+  FaExclamationTriangle,
 } from 'react-icons/fa';
 import { UserRefundButton } from '@/components/dashboard/UserRefundButton';
+import { Modal } from '@/components/ui/Modal';
+import { ButtonSpinner } from '@/components/ui/LoadingSkeleton';
 
 type Tab = 'overview' | 'orders' | 'licenses';
 
@@ -98,6 +102,9 @@ export function BillingOverview({
   apiCreditBalance = 0,
 }: BillingOverviewProps) {
   const [selectedTab, setSelectedTab] = useState<Tab>('overview');
+  const [licenseList, setLicenseList] = useState<License[]>(licenses);
+  const [selectedLicenseToRotate, setSelectedLicenseToRotate] = useState<License | null>(null);
+  const [isRotating, setIsRotating] = useState(false);
 
   const handleManageSubscription = async () => {
     if (!userEmail) {
@@ -133,6 +140,35 @@ export function BillingOverview({
     }
   };
 
+  const handleRotateConfirm = async () => {
+    if (!selectedLicenseToRotate) return;
+    setIsRotating(true);
+    const toastId = toast.loading('Yeni lisans anahtarı üretiliyor...');
+    try {
+      const res = await fetch(`/api/user/licenses/${selectedLicenseToRotate.id}/rotate`, {
+        method: 'POST',
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error?.message || 'Lisans anahtarı yenilenemedi');
+      }
+      const newKey = json.data.license.key;
+      setLicenseList((prev) =>
+        prev.map((l) =>
+          l.id === selectedLicenseToRotate.id
+            ? { ...l, key: newKey }
+            : l
+        )
+      );
+      toast.success('Lisans anahtarınız başarıyla yenilendi!', { id: toastId });
+      setSelectedLicenseToRotate(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'İşlem başarısız', { id: toastId });
+    } finally {
+      setIsRotating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Tabs */}
@@ -143,7 +179,7 @@ export function BillingOverview({
       >
         {TABS.map((tab) => {
           const count =
-            tab.id === 'orders' ? orders.length : tab.id === 'licenses' ? licenses.length : null;
+            tab.id === 'orders' ? orders.length : tab.id === 'licenses' ? licenseList.length : null;
           return (
             <button
               key={tab.id}
@@ -291,9 +327,82 @@ export function BillingOverview({
 
       {selectedTab === 'licenses' && (
         <div id="panel-licenses" role="tabpanel">
-          <LicensesList licenses={licenses} onCopy={handleCopy} />
+          <LicensesList
+            licenses={licenseList}
+            onCopy={handleCopy}
+            onRotatePrompt={(license) => setSelectedLicenseToRotate(license)}
+          />
         </div>
       )}
+
+      {/* Lisans Anahtarı Yenileme Onay Modalı */}
+      <Modal
+        open={!!selectedLicenseToRotate}
+        onClose={() => !isRotating && setSelectedLicenseToRotate(null)}
+        title="Lisans Anahtarını Yenile"
+        size="md"
+        footer={
+          <div className="flex items-center justify-end gap-2 w-full">
+            <button
+              type="button"
+              disabled={isRotating}
+              onClick={() => setSelectedLicenseToRotate(null)}
+              className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+            >
+              Vazgeç
+            </button>
+            <button
+              type="button"
+              disabled={isRotating}
+              onClick={handleRotateConfirm}
+              className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors inline-flex items-center gap-2 shadow-sm disabled:opacity-50"
+            >
+              {isRotating ? (
+                <>
+                  <ButtonSpinner size="small" />
+                  <span>Yenileniyor...</span>
+                </>
+              ) : (
+                <>
+                  <FaSync className="w-3.5 h-3.5" />
+                  <span>Evet, Anahtarı Yenile</span>
+                </>
+              )}
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-4 text-sm">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start gap-3 text-amber-800 dark:text-amber-300">
+            <FaExclamationTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+            <div className="space-y-1">
+              <p className="font-semibold text-xs sm:text-sm">Önemli Bilgilendirme</p>
+              <p className="text-xs text-amber-700 dark:text-amber-300/90 leading-relaxed">
+                Yeni bir lisans anahtarı üretildiğinde, mevcut anahtarınız <strong>derhal geçersiz kılınır</strong> ve eski cihaz aktivasyonları sıfırlanır.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-3 bg-muted/60 rounded-xl space-y-2 text-xs">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Ürün:</span>
+              <span className="font-semibold text-foreground">{selectedLicenseToRotate?.product?.title ?? 'Ürün'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Mevcut Anahtar:</span>
+              <span className="font-mono text-foreground font-semibold">{selectedLicenseToRotate?.key}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Haklar ve Süre:</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">Kalan süreniz ve lisans haklarınız aynen korunur.</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Bu işlemi anahtarınızın başkaları tarafından ele geçirildiğini düşündüğünüzde veya temiz bir kurulum yapmak istediğinizde dilediğiniz zaman gerçekleştirebilirsiniz.
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -492,9 +601,11 @@ function OrdersTable({ orders, onCopy }: { orders: Order[]; onCopy: (text: strin
 function LicensesList({
   licenses,
   onCopy,
+  onRotatePrompt,
 }: {
   licenses: License[];
   onCopy: (text: string) => void;
+  onRotatePrompt: (license: License) => void;
 }) {
   if (licenses.length === 0) {
     return (
@@ -515,7 +626,7 @@ function LicensesList({
       </h2>
       <div className="space-y-3">
         {licenses.map((license) => {
-          const isActive = license.status === 'active';
+          const isActive = license.status.toLowerCase() === 'active';
           return (
             <div key={license.id} className="p-4 rounded-lg border border-border">
               <div className="flex items-start justify-between gap-3 mb-3">
@@ -544,12 +655,24 @@ function LicensesList({
                   {license.key}
                 </code>
                 <button
+                  type="button"
                   onClick={() => onCopy(license.key)}
                   className="px-3 py-1 rounded bg-brand-primary text-white text-xs hover:bg-brand-primary/90 transition-colors flex-shrink-0"
                   aria-label="Lisans anahtarını kopyala"
                 >
                   Kopyala
                 </button>
+                {isActive && (
+                  <button
+                    type="button"
+                    onClick={() => onRotatePrompt(license)}
+                    className="px-3 py-1 rounded border border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 text-xs transition-colors flex items-center gap-1.5 flex-shrink-0"
+                    title="Lisans anahtarını yenile"
+                  >
+                    <FaSync className="w-3 h-3" />
+                    <span>Yenile</span>
+                  </button>
+                )}
               </div>
             </div>
           );

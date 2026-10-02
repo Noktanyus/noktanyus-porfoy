@@ -24,6 +24,7 @@ import {
   FaLink,
   FaSpinner,
   FaKey,
+  FaLock,
   FaShieldAlt,
   FaBox,
   FaInfoCircle,
@@ -359,7 +360,7 @@ export default function ProductForm({ product }: ProductFormProps) {
         licenseType,
         appId: appId.trim() || generateSlug(data.title || watch('title') || 'app'),
         maxActivations: Math.max(1, Number(maxActivations) || 1),
-        validityDays: Math.max(0, Number(validityDays) || 0),
+        validityDays: pricingTiers.length > 0 ? 0 : Math.max(0, Number(validityDays) || 0),
         thirdPartyAppName: thirdPartyAppName.trim(),
         externalAppUrl: externalAppUrl.trim(),
         activationInstructions: activationInstructions.trim(),
@@ -569,9 +570,20 @@ export default function ProductForm({ product }: ProductFormProps) {
                 Lisans Doğrulama ve Aktivasyon Ayarları
               </h3>
             </div>
-            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 font-medium">
-              Otomatik Anahtar Üretimi
-            </span>
+            <div className="flex items-center gap-2">
+              {pricingTiers.length > 0 ? (
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/20 flex items-center gap-1">
+                  <FaCoins className="w-3 h-3 text-emerald-500" /> Çoklu Paket Modu ({pricingTiers.length} Paket)
+                </span>
+              ) : (
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 font-medium border border-amber-500/20">
+                  Sabit Süre Modu
+                </span>
+              )}
+              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 font-medium">
+                Otomatik Anahtar Üretimi
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -603,18 +615,45 @@ export default function ProductForm({ product }: ProductFormProps) {
               <p className="text-[11px] text-muted-foreground mt-0.5">Kaç cihaz veya kurulumda doğrulanabilir</p>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium mb-1">Geçerlilik Süresi (Gün)</label>
-              <input
-                type="number"
-                min={0}
-                value={validityDays}
-                onChange={(e) => setValidityDays(Math.max(0, Number(e.target.value) || 0))}
-                className="admin-input text-xs"
-                placeholder="0 (Süresiz)"
-              />
-              <p className="text-[11px] text-muted-foreground mt-0.5">0 = Süresiz, 365 = 1 Yıl</p>
-            </div>
+            {pricingTiers.length > 0 ? (
+              <div className="rounded-xl border border-dashed border-amber-500/40 bg-amber-500/10 p-3 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <label className="text-xs font-semibold text-foreground">Geçerlilik Süresi</label>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300 flex items-center gap-1 border border-amber-500/30">
+                      <FaLock className="w-2.5 h-2.5" /> Devre Dışı
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-snug">
+                    Aşağıda <strong>{pricingTiers.length} adet süre paketi</strong> aktif olduğu için süreler paketlerden yönetilmektedir.
+                  </p>
+                </div>
+                <div className="mt-2 pt-1.5 border-t border-amber-500/20 flex items-center justify-between text-[11px]">
+                  <span className="text-[10px] text-amber-700 dark:text-amber-300 font-medium">Paket süreleri devrede</span>
+                  <button
+                    type="button"
+                    onClick={() => setPricingTiers([])}
+                    className="text-[10px] text-rose-600 dark:text-rose-400 hover:underline font-medium"
+                    title="Tüm paketleri kaldırıp tek geçerlilik süresi moduna döner"
+                  >
+                    Paketleri Kaldır (Tek Süre)
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-medium mb-1">Geçerlilik Süresi (Gün)</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={validityDays}
+                  onChange={(e) => setValidityDays(Math.max(0, Number(e.target.value) || 0))}
+                  className="admin-input text-xs"
+                  placeholder="0 (Süresiz)"
+                />
+                <p className="text-[11px] text-muted-foreground mt-0.5">0 = Süresiz, 365 = 1 Yıl (Sabit süre)</p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -704,7 +743,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             {pricingTiers.length === 0 ? (
               <div className="p-4 rounded-xl border border-dashed border-amber-500/30 bg-amber-500/5 text-center">
                 <p className="text-xs text-muted-foreground">
-                  Henüz özel bir süre/fiyat paketi eklenmedi. Ürünün ana fiyatı ({formatTry(watch('priceCents') || 0)}) tek seçenek olarak geçerli olacaktır.
+                  Henüz özel bir süre/fiyat paketi eklenmedi. Ürünün ana fiyatı ({formatTry(watch('priceCents') || 0)}) ve yukarıdaki geçerlilik süresi ({validityDays === 0 ? 'Süresiz' : `${validityDays} Gün`}) tek seçenek olarak geçerli olacaktır.
                 </p>
                 <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-1">
                   Birden fazla süre seçeneği sunmak için <strong>&quot;Paket Ekle&quot;</strong> veya <strong>&quot;Hızlı Şablon Doldur&quot;</strong> butonunu kullanabilirsiniz.
@@ -712,6 +751,21 @@ export default function ProductForm({ product }: ProductFormProps) {
               </div>
             ) : (
               <div className="space-y-2.5">
+                <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-300 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
+                    <span>
+                      <strong>Çoklu paket modu aktif:</strong> Müşteri bu paketlerden birini seçecektir. Üstteki tek geçerlilik süresi alanı otomatik olarak kapatılmıştır.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPricingTiers([])}
+                    className="text-xs font-semibold text-rose-600 dark:text-rose-400 hover:underline shrink-0"
+                  >
+                    Tüm Paketleri Temizle
+                  </button>
+                </div>
                 {pricingTiers.map((tier, idx) => (
                   <div
                     key={tier.id || idx}

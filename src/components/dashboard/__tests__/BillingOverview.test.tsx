@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BillingOverview } from '../BillingOverview';
 
 // react-hot-toast mock
@@ -7,6 +7,7 @@ vi.mock('react-hot-toast', () => ({
   toast: {
     success: vi.fn(),
     error: vi.fn(),
+    loading: vi.fn(() => 'toast-id'),
   },
 }));
 
@@ -96,5 +97,59 @@ describe('BillingOverview', () => {
     expect(screen.getByText(/Aktif Abonelik/i)).toBeInTheDocument();
     expect(screen.getByText(/pro/i)).toBeInTheDocument();
     expect(screen.getByText(/Açık/i)).toBeInTheDocument();
+  });
+
+  it('allows user to open rotate modal and rotate active license key', async () => {
+    const mockLicenses = [
+      {
+        id: 'lic-123',
+        key: 'NOKT-OLD-KEY-1111',
+        status: 'active',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        expiresAt: '2027-01-01T00:00:00.000Z',
+        product: { title: 'Trading Bot Pro', slug: 'trading-bot-pro' },
+      },
+    ];
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          license: {
+            id: 'lic-123',
+            key: 'NOKT-NEW-KEY-2222',
+            status: 'active',
+          },
+        },
+      }),
+    });
+
+    render(<BillingOverview {...baseProps} licenses={mockLicenses} />);
+    
+    // Switch to licenses tab
+    fireEvent.click(screen.getByRole('tab', { name: /Lisanslar/i }));
+    expect(screen.getByText('NOKT-OLD-KEY-1111')).toBeInTheDocument();
+
+    // Click Yenile button
+    const rotateBtn = screen.getByRole('button', { name: /Yenile/i });
+    expect(rotateBtn).toBeInTheDocument();
+    fireEvent.click(rotateBtn);
+
+    // Modal should be open with warning
+    expect(screen.getByText('Lisans Anahtarını Yenile')).toBeInTheDocument();
+    expect(screen.getByText(/mevcut anahtarınız/i)).toBeInTheDocument();
+
+    // Click confirm in modal
+    const confirmBtn = screen.getByRole('button', { name: /Evet, Anahtarı Yenile/i });
+    fireEvent.click(confirmBtn);
+
+    expect(global.fetch).toHaveBeenCalledWith('/api/user/licenses/lic-123/rotate', {
+      method: 'POST',
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('NOKT-NEW-KEY-2222')).toBeInTheDocument();
+    });
   });
 });
