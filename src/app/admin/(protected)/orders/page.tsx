@@ -2,6 +2,7 @@
  * Admin — Siparişler Yönetimi.
  */
 
+import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -88,6 +89,9 @@ export default async function AdminOrdersPage() {
                 <th scope="col" className="px-4 py-3 text-right font-semibold">
                   Tarih
                 </th>
+                <th scope="col" className="px-4 py-3 text-right font-semibold">
+                  İşlem
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -107,8 +111,13 @@ export default async function AdminOrdersPage() {
                     key={order.id}
                     className="border-t border-border/40 transition-colors hover:bg-muted/40"
                   >
-                    <td className="px-4 py-3 font-mono text-xs font-medium text-foreground">
-                      {order.orderNumber}
+                    <td className="px-4 py-3 font-mono text-xs font-semibold text-foreground">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="text-brand-primary hover:underline"
+                      >
+                        {order.orderNumber}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <p className="font-medium text-foreground">{customerDisplay}</p>
@@ -142,6 +151,14 @@ export default async function AdminOrdersPage() {
                     </td>
                     <td className="px-4 py-3 text-right text-xs text-muted-foreground whitespace-nowrap">
                       {formatDate(order.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="inline-flex items-center gap-1 rounded-md border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted hover:text-brand-primary transition-colors"
+                      >
+                        Detay
+                      </Link>
                     </td>
                   </tr>
                 );
