@@ -14,6 +14,9 @@ import { UnauthorizedError } from '@/modules/shared/errors';
 import { withRateLimit } from '@/lib/rateLimitMiddleware';
 import { RateLimits } from '@/lib/rateLimit';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(_req: NextRequest) {
   return withErrorHandling(async () => {
     const session = await getServerSession(authOptions);
@@ -23,7 +26,11 @@ export async function GET(_req: NextRequest) {
     const keys = await apiKeyService.listApiKeys(userId);
     // Mask full key — sadece prefix + '...' göster
     const masked = keys.map((k: any) => ({ ...k, key: `${k.prefix}...` }));
-    return ok(masked);
+    return ok(masked, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      },
+    });
   });
 }
 

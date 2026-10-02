@@ -254,6 +254,7 @@ describe('CouponService', () => {
   });
 
   it('create normalizes code to uppercase', async () => {
+    vi.mocked(prisma.coupon.findUnique).mockResolvedValue(null);
     vi.mocked(prisma.coupon.create).mockResolvedValue({} as any);
     await couponService.create({
       code: 'summer2025',

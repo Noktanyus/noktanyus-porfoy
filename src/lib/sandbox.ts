@@ -3,23 +3,17 @@
  * @description Detects whether the app is running in a non-production / test
  *              environment so that destructive admin operations (e.g. data
  *              reset) can be guarded. Detection combines an explicit env
- *              flag with heuristic checks on payment provider keys (Stripe,
- *              iyzico) so a forgotten flag in a test branch is still caught.
- * */
-
-const SANDBOX_KEY_PREFIXES = ['sk_test_', 'pk_test_', 'test_'];
+ *              flag with heuristic checks on PayTR test mode so a forgotten
+ *              flag in a test branch is still caught.
+ */
 
 export function isSandboxMode(): boolean {
   // Explicit override always wins
   if (process.env.SANDBOX_MODE === 'true') return true;
   if (process.env.SANDBOX_MODE === 'false') return false;
 
-  // Heuristic — test payment keys indicate a sandbox deployment
-  const stripeKey = process.env.STRIPE_SECRET_KEY ?? '';
-  if (SANDBOX_KEY_PREFIXES.some((p) => stripeKey.startsWith(p))) return true;
-
-  // iyzico sandbox URI
-  if (process.env.IYZICO_URI?.includes('sandbox')) return true;
+  // PayTR test modu
+  if (process.env.PAYTR_TEST_MODE === '1') return true;
 
   // NODE_ENV !== production is generally safe for local/test work
   if (process.env.NODE_ENV && process.env.NODE_ENV !== 'production') return true;
@@ -28,12 +22,11 @@ export function isSandboxMode(): boolean {
 }
 
 /**
- * Returns the Stripe/iyzico mode inferred from a key prefix.
- * Defaults to 'test' if no recognisable prefix is present.
+ * Returns mode inferred from key prefix.
  */
 export function getApiKeyMode(key: string): 'live' | 'test' {
   if (!key) return 'test';
-  if (key.startsWith('sk_live_') || key.startsWith('pk_live_')) return 'live';
+  if (key.startsWith('live_') || key.startsWith('sk_live_')) return 'live';
   return 'test';
 }
 

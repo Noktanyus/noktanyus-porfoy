@@ -15,6 +15,9 @@ import { UnauthorizedError, NotFoundError } from '@/modules/shared/errors';
 import { logDataAccess } from '@/lib/audit';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }

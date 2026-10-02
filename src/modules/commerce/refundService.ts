@@ -1,16 +1,9 @@
 /**
- * Refund Service — Sipariş iade işlemleri.
- *
- * Provider tespiti:
- *   - stripePaymentIntent "pi_" → Stripe
- *   - stripePaymentIntent "paytr_" veya metadata.provider=paytr → PayTR İade API
- *   - aksi halde iyzico / mock
+ * Refund Service — Sipariş iade işlemleri (Yalnızca PayTR).
  */
 
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
-import { stripe, isStripeConfigured } from '@/lib/stripe';
-import { isIyzicoConfigured } from '@/lib/iyzico';
 import { isPaytrConfigured, toPaytrMerchantOid } from '@/lib/paytr';
 import { paytrService } from '@/modules/commerce/paytrService';
 import { logger } from '@/lib/logger';
@@ -28,30 +21,14 @@ export interface CreateRefundInput {
 export interface RefundResult {
   success: true;
   refundId: string;
-  provider: 'stripe' | 'iyzico' | 'paytr';
+  provider: 'paytr';
   amountCents: number;
   fullRefund: boolean;
 }
 
-type DetectOrder = {
-  stripePaymentIntent?: string | null;
-  stripeSessionId?: string | null;
-  metadata?: unknown;
-};
-
 export const refundService = {
-  detectProvider(order: DetectOrder): 'stripe' | 'iyzico' | 'paytr' {
-    if (order.stripePaymentIntent?.startsWith('pi_')) return 'stripe';
-    if (order.stripePaymentIntent?.startsWith('paytr_')) return 'paytr';
-    const meta = (order.metadata ?? {}) as Record<string, unknown>;
-    if (meta.provider === 'paytr') return 'paytr';
-    if (order.stripeSessionId && !order.stripeSessionId.startsWith('cs_')) {
-      // PayTR merchant_oid genelde alfanumerik; Stripe session cs_ ile başlar
-      if (meta.provider !== 'iyzico' && meta.provider !== 'stripe') {
-        if (isPaytrConfigured()) return 'paytr';
-      }
-    }
-    return 'iyzico';
+  detectProvider(_order?: unknown): 'paytr' {
+    return 'paytr';
   },
 
   async createRefund(input: CreateRefundInput): Promise<RefundResult> {
@@ -75,69 +52,9 @@ export const refundService = {
     }
 
     const isFullRefund = refundAmount === order.totalCents;
-    const provider = this.detectProvider(order);
 
-    // --- Stripe iade ---
-    if (provider === 'stripe' && isStripeConfigured()) {
-      const refund = await stripe.refunds.create({
-        payment_intent: order.stripePaymentIntent!,
-        amount: refundAmount,
-        reason: 'requested_by_customer',
-        metadata: {
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          refundedBy: input.userId,
-        },
-      });
-
-      const mergedMetadata = {
-        ...((order.metadata as Record<string, unknown>) ?? {}),
-        refundId: refund.id,
-      };
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
-          refundedAt: new Date(),
-          refundReason: input.reason,
-          metadata: mergedMetadata as Prisma.InputJsonValue,
-        },
-      });
-
-      await this.revokeLicensesForOrder(order.id);
-
-      await logAudit({
-        userId: input.userId,
-        userEmail: input.userEmail,
-        action: 'REFUND',
-        resource: 'Order',
-        resourceId: order.id,
-        details: {
-          refundId: refund.id,
-          amount: refundAmount,
-          fullRefund: isFullRefund,
-          provider: 'stripe',
-        },
-      });
-
-      logger.info('Stripe refund created', {
-        orderId: order.id,
-        refundId: refund.id,
-        amountCents: refundAmount,
-      });
-
-      return {
-        success: true,
-        refundId: refund.id,
-        provider: 'stripe',
-        amountCents: refundAmount,
-        fullRefund: isFullRefund,
-      };
-    }
-
-    // --- PayTR İade API ---
-    if (provider === 'paytr' && isPaytrConfigured()) {
+    // --- PayTR Canlı İade ---
+    if (isPaytrConfigured()) {
       const merchantOid =
         order.stripeSessionId?.replace(/^paytr_/, '') ||
         toPaytrMerchantOid(order.orderNumber);
@@ -204,9 +121,8 @@ export const refundService = {
       };
     }
 
-    // --- iyzico / mock iade ---
-    const refundId = `mock_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const iyzicoLive = provider === 'iyzico' && isIyzicoConfigured();
+    // --- PayTR Mock İade (Development / Test) ---
+    const refundId = `paytr_mock_refund_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     await prisma.order.update({
       where: { id: order.id },
@@ -217,7 +133,8 @@ export const refundService = {
         metadata: {
           ...((order.metadata as Record<string, unknown>) ?? {}),
           refundId,
-          iyzicoLive,
+          mock: true,
+          provider: 'paytr',
         } as Prisma.InputJsonValue,
       },
     });
@@ -234,22 +151,21 @@ export const refundService = {
         refundId,
         amount: refundAmount,
         fullRefund: isFullRefund,
-        provider,
-        iyzicoLive,
+        provider: 'paytr',
+        mock: true,
       },
     });
 
-    logger.info(`${provider} refund recorded`, {
+    logger.info('PayTR mock refund recorded', {
       orderId: order.id,
       refundId,
       amountCents: refundAmount,
-      iyzicoLive,
     });
 
     return {
       success: true,
       refundId,
-      provider: provider === 'paytr' ? 'paytr' : 'iyzico',
+      provider: 'paytr',
       amountCents: refundAmount,
       fullRefund: isFullRefund,
     };
@@ -260,39 +176,19 @@ export const refundService = {
       where: { orderId, status: { not: 'revoked' } },
     });
 
-    if (licenses.length === 0) return [];
+    if (!licenses.length) return [];
 
-    const now = new Date();
-    await Promise.all(
-      licenses.map((license) =>
-        prisma.license.update({
-          where: { id: license.id },
-          data: {
-            status: 'revoked',
-            revokedAt: now,
-            revokeReason: 'Order refunded',
-          },
-        })
-      )
-    );
+    await prisma.license.updateMany({
+      where: { orderId, status: { not: 'revoked' } },
+      data: { status: 'revoked' },
+    });
 
-    logger.info('Licenses revoked for refunded order', {
+    logger.info('Licenses revoked for refund', {
       orderId,
       count: licenses.length,
+      licenseIds: licenses.map((l) => l.id),
     });
 
     return licenses;
-  },
-
-  async listRefunds(opts: { userId?: string; limit?: number } = {}) {
-    return prisma.order.findMany({
-      where: {
-        status: { in: ['REFUNDED', 'PARTIALLY_REFUNDED'] },
-        ...(opts.userId ? { userId: opts.userId } : {}),
-      },
-      orderBy: { refundedAt: 'desc' },
-      take: opts.limit ?? 50,
-      include: { items: true },
-    });
   },
 };

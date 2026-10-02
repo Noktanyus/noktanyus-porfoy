@@ -16,7 +16,7 @@ import { RateLimits } from '@/lib/rateLimit';
 const BodySchema = z.object({
   items: z.array(CartItemSchema).min(1).max(10),
   customerEmail: z.string().email(),
-  paymentProvider: z.enum(['paytr', 'stripe', 'iyzico']).optional(),
+  paymentProvider: z.literal('paytr').default('paytr'),
   customerName: z.string().min(2).max(120).optional(),
   customerPhone: z.string().min(7).max(20).optional(),
   customerAddress: z.string().min(5).max(400).optional(),

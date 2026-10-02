@@ -25,6 +25,7 @@ import {
   FaTimes,
   FaExclamationTriangle,
   FaFilter,
+  FaSync,
 } from 'react-icons/fa';
 import { StatusBadge, type StatusTone } from '@/components/ui/StatusBadge';
 import { ResponsiveTable } from '@/components/ui/ResponsiveTable';
@@ -124,7 +125,7 @@ export function LicensesManager({
   });
 
   // Lisans listesini yenile
-  const refreshLicenses = async () => {
+  const refreshLicenses = async (showToast = false) => {
     setIsLoading(true);
     try {
       const params = new URLSearchParams();
@@ -136,9 +137,14 @@ export function LicensesManager({
       if (res.ok && json.success) {
         setLicenses(json.data.licenses);
         setStats(json.data.stats);
+        if (showToast) {
+          toast.success('Lisans listesi güncellendi');
+        }
+      } else {
+        throw new Error(json.error?.message || json.error || 'Lisanslar alınamadı');
       }
-    } catch {
-      toast.error('Lisanslar yenilenirken hata oluştu');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Lisanslar yenilenirken hata oluştu');
     } finally {
       setIsLoading(false);
     }
@@ -487,6 +493,17 @@ export function LicensesManager({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => refreshLicenses(true)}
+            disabled={isLoading}
+            className="admin-btn admin-btn-secondary text-xs sm:text-sm whitespace-nowrap inline-flex items-center gap-1.5"
+            title="Lisans Listesini Yenile"
+          >
+            <FaSync className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>{isLoading ? 'Yenileniyor...' : 'Yenile'}</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setCreateModalOpen(true)}

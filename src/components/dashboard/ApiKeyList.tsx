@@ -5,14 +5,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FaCopy, FaTrash, FaEye } from 'react-icons/fa';
+import { FaCopy, FaTrash, FaEye, FaSync } from 'react-icons/fa';
 import { formatDate } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 
-interface ApiKeyRow {
+export interface ApiKeyRow {
   id: string;
   name: string;
   key: string;
@@ -26,9 +26,47 @@ interface ApiKeyRow {
   createdAt: string;
 }
 
-export function ApiKeyList({ keys }: { keys: ApiKeyRow[] }) {
+export function ApiKeyList({
+  keys: initialKeysProp,
+  initialKeys,
+}: {
+  keys?: ApiKeyRow[];
+  initialKeys?: ApiKeyRow[];
+}) {
   const router = useRouter();
+  const sourceKeys = initialKeys ?? initialKeysProp ?? [];
+  const [keyList, setKeyList] = useState<ApiKeyRow[]>(sourceKeys);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    const next = initialKeys ?? initialKeysProp;
+    if (next) {
+      setKeyList(next);
+    }
+  }, [initialKeys, initialKeysProp]);
+
+  const refreshKeys = async (showToast = true) => {
+    setIsRefreshing(true);
+    try {
+      const res = await fetch('/api/user/api-keys', {
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message ?? 'Liste yenilenemedi');
+      }
+      setKeyList(data.data || []);
+      if (showToast) {
+        toast.success('API anahtarları listesi güncellendi');
+      }
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Yenileme başarısız');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const copy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -50,8 +88,12 @@ export function ApiKeyList({ keys }: { keys: ApiKeyRow[] }) {
       if (!res.ok || !data.success) {
         throw new Error(data.error?.message ?? 'İptal başarısız');
       }
+      // Optimistic update: anında listeden çıkar
+      setKeyList((prev) => prev.filter((k) => k.id !== id));
       toast.success('API anahtarı iptal edildi');
       router.refresh();
+      // Arka planda listeyi doğrula
+      refreshKeys(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'İptal başarısız');
     } finally {
@@ -59,20 +101,50 @@ export function ApiKeyList({ keys }: { keys: ApiKeyRow[] }) {
     }
   };
 
-  if (keys.length === 0) {
+  if (keyList.length === 0) {
     return (
-      <EmptyState
-        title="Henüz API anahtarı yok"
-        description="İlk anahtarını oluşturarak başla. Anahtar sadece oluşturulduğunda gösterilir."
-        icon="🔑"
-        action={{ label: 'Yeni API Anahtarı', href: '/dashboard/api-keys/new' }}
-      />
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => refreshKeys(true)}
+            disabled={isRefreshing}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors disabled:opacity-60"
+            title="Listeyi Yenile"
+          >
+            <FaSync className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>{isRefreshing ? 'Yenileniyor...' : 'Listeyi Yenile'}</span>
+          </button>
+        </div>
+        <EmptyState
+          title="Henüz API anahtarı yok"
+          description="İlk anahtarını oluşturarak başla. Anahtar sadece oluşturulduğunda gösterilir."
+          icon="🔑"
+          action={{ label: 'Yeni API Anahtarı', href: '/dashboard/api-keys/new' }}
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      {keys.map((key) => (
+      <div className="flex items-center justify-between px-1">
+        <p className="text-xs text-muted-foreground">
+          Toplam <strong>{keyList.length}</strong> aktif API anahtarı
+        </p>
+        <button
+          type="button"
+          onClick={() => refreshKeys(true)}
+          disabled={isRefreshing}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors disabled:opacity-60 shadow-xs"
+          title="Listeyi Yenile"
+        >
+          <FaSync className={`w-3 h-3 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
+          <span>{isRefreshing ? 'Yenileniyor...' : 'Yenile'}</span>
+        </button>
+      </div>
+
+      {keyList.map((key) => (
         <div key={key.id} className="glass-card-premium p-5">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0 flex-1">

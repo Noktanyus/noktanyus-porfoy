@@ -46,9 +46,8 @@ interface Props {
 }
 
 const PAYOUT_METHODS = [
-  { value: 'bank_transfer', label: 'Banka Havalesi' },
-  { value: 'paypal', label: 'PayPal' },
-  { value: 'stripe', label: 'Stripe' },
+  { value: 'bank_transfer', label: 'Banka Havalesi / IBAN' },
+  { value: 'papara', label: 'Papara' },
 ];
 
 const STATUS_LABELS: Record<string, string> = {

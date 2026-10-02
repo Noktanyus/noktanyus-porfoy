@@ -74,11 +74,6 @@ export default function MesafeliSatisPage() {
         güvenli olarak gerçekleştirilir. Kredi kartı bilgileri sitemizde
         saklanmaz; doğrudan PayTR&apos;nin PCI-DSS uyumlu altyapısına iletilir.
       </p>
-      <p>
-        PayTR&apos;nin kullanılamadığı durumlarda alternatif/yedek ödeme
-        yöntemi olarak iyzico veya Stripe altyapısı sunulabilir. Hangi
-        altyapının kullanıldığı ödeme adımında belirtilir.
-      </p>
 
       <h2>6. Cayma Hakkı</h2>
       <p>

@@ -239,24 +239,6 @@ test.describe('Phase E: Extended routes', () => {
     }
   });
 
-  test('/odeme/iyzico-callback: redirects without token (public route)', async ({ page }) => {
-    const response = await page.goto('http://localhost:3000/odeme/iyzico-callback', {
-      waitUntil: 'domcontentloaded',
-      timeout: 15000,
-    }).catch(() => null);
-
-    if (response && response.status() >= 500) {
-      test.skip(true, 'Server error on iyzico-callback');
-      return;
-    }
-
-    await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
-
-    // Token yoksa odeme sayfasina redirect olmali; 200 donerse icerik olabilir
-    const url = page.url();
-    expect(url, 'iyzico-callback should redirect to /odeme or similar').toBeTruthy();
-  });
-
   test('/is-ortak/[slug]: dynamic route handles unknown slug gracefully', async ({ page }) => {
     const response = await page.goto('http://localhost:3000/is-ortak/test-seed-missing-slug', {
       waitUntil: 'domcontentloaded',

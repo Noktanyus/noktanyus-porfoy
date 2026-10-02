@@ -870,7 +870,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                   id="ai-features"
                   value={aiFeatures}
                   onChange={(e) => setAiFeatures(e.target.value)}
-                  placeholder="örn: TypeScript, Prisma, Auth, Stripe"
+                  placeholder="örn: TypeScript, Prisma, Auth, PayTR"
                   className="admin-input"
                 />
               </div>

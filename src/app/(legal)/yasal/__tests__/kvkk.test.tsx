@@ -46,10 +46,9 @@ describe('KVKK Page', () => {
     expect(container.textContent).toMatch(/birincil olarak PayTR/);
   });
 
-  it('mentions iyzico and Stripe only as fallback processors', () => {
+  it('does not mention iyzico or Stripe anywhere', () => {
     const { container } = render(<KvkkPage />);
-    expect(container.textContent).toMatch(
-      /alternatif\/yedek olarak iyzico .* veya Stripe/
-    );
+    expect(container.textContent).not.toMatch(/iyzico/i);
+    expect(container.textContent).not.toMatch(/stripe/i);
   });
 });

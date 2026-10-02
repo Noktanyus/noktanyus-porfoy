@@ -66,12 +66,8 @@ export default function GizlilikPage() {
       </p>
       <ul>
         <li>
-          <strong>PayTR:</strong> Birincil ödeme altyapısı (yurt içi, PCI-DSS
+          <strong>PayTR:</strong> Güvenli ödeme altyapısı (yurt içi, TCMB lisanslı, PCI-DSS
           uyumlu)
-        </li>
-        <li>
-          <strong>iyzico / Stripe:</strong> Yalnızca alternatif veya yedek ödeme
-          yöntemi olarak
         </li>
         <li>
           <strong>Cloudflare:</strong> CDN ve güvenlik

@@ -17,7 +17,7 @@ import { UnauthorizedError, ValidationError } from '@/modules/shared/errors';
 
 const BodySchema = z.object({
   packSlug: z.string().min(1).max(64),
-  paymentProvider: z.enum(['paytr', 'stripe', 'iyzico']).optional(),
+  paymentProvider: z.literal('paytr').default('paytr'),
   customerName: z.string().min(2).max(120).optional(),
   customerPhone: z.string().min(7).max(20).optional(),
 });

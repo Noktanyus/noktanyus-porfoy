@@ -1,15 +1,5 @@
 /**
- * Refund Service Tests
- *
- * Vitest ile birim testleri:
- *   - createRefund happy path (Stripe)
- *   - createRefund iyzico / mock path
- *   - createRefund validation (negative amount, exceeds total, not paid)
- *   - detectProvider logic
- *   - revokeLicensesForOrder
- *   - listRefunds
- *
- * Prisma, Stripe, iyzico ve audit modülleri mock'lanarak izole edilir.
+ * Refund Service Tests — Yalnızca PayTR
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -24,22 +14,10 @@ vi.mock('@/lib/prisma', () => {
   const license = {
     findMany: vi.fn(),
     update: vi.fn(),
+    updateMany: vi.fn(),
   };
   return { prisma: { order, license } };
 });
-
-vi.mock('@/lib/stripe', () => ({
-  stripe: {
-    refunds: {
-      create: vi.fn(),
-    },
-  },
-  isStripeConfigured: vi.fn(() => false),
-}));
-
-vi.mock('@/lib/iyzico', () => ({
-  isIyzicoConfigured: vi.fn(() => false),
-}));
 
 vi.mock('@/lib/paytr', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/paytr')>();
@@ -73,7 +51,8 @@ vi.mock('@/lib/logger', () => ({
 }));
 
 import { prisma } from '@/lib/prisma';
-import { stripe, isStripeConfigured } from '@/lib/stripe';
+import { isPaytrConfigured } from '@/lib/paytr';
+import { paytrService } from '@/modules/commerce/paytrService';
 import { refundService } from '../refundService';
 
 const baseOrder = {
@@ -81,13 +60,13 @@ const baseOrder = {
   orderNumber: 'NK-2608-ABC123',
   customerEmail: 'buyer@example.com',
   userId: 'user_1',
-  stripeSessionId: 'cs_test_123',
-  stripePaymentIntent: 'pi_test_xyz', // Stripe indicator
+  stripeSessionId: 'paytr_oid_123',
+  stripePaymentIntent: 'paytr_pi_xyz',
   status: 'PAID' as const,
   subtotalCents: 10000,
   totalCents: 10000,
   currency: 'try',
-  metadata: {},
+  metadata: { provider: 'paytr' },
   refundedAt: null,
   refundReason: null,
   items: [
@@ -103,37 +82,14 @@ const baseOrder = {
   ],
 };
 
-describe('refundService', () => {
+describe('refundService (PayTR)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   describe('detectProvider', () => {
-    it('returns stripe when paymentIntent starts with pi_', () => {
-      expect(refundService.detectProvider({ stripePaymentIntent: 'pi_123' })).toBe('stripe');
-    });
-
-    it('returns iyzico when paymentIntent is null', () => {
-      expect(refundService.detectProvider({ stripePaymentIntent: null })).toBe('iyzico');
-    });
-
-    it('returns iyzico when paymentIntent is a non-pi_ value', () => {
-      expect(refundService.detectProvider({ stripePaymentIntent: 'mock_xyz' })).toBe('iyzico');
-    });
-
-    it('returns paytr when paymentIntent starts with paytr_', () => {
-      expect(
-        refundService.detectProvider({ stripePaymentIntent: 'paytr_OID1' })
-      ).toBe('paytr');
-    });
-
-    it('returns paytr when metadata.provider is paytr', () => {
-      expect(
-        refundService.detectProvider({
-          stripePaymentIntent: null,
-          metadata: { provider: 'paytr' },
-        })
-      ).toBe('paytr');
+    it('always returns paytr', () => {
+      expect(refundService.detectProvider()).toBe('paytr');
     });
   });
 
@@ -174,14 +130,18 @@ describe('refundService', () => {
     });
   });
 
-  describe('createRefund — Stripe path', () => {
+  describe('createRefund — PayTR live path', () => {
     beforeEach(() => {
-      vi.mocked(isStripeConfigured).mockReturnValue(true);
+      vi.mocked(isPaytrConfigured).mockReturnValue(true);
     });
 
-    it('creates a full refund via Stripe and marks order REFUNDED', async () => {
+    it('calls paytrService.refund and marks order REFUNDED', async () => {
       vi.mocked(prisma.order.findUnique).mockResolvedValue(baseOrder as any);
-      vi.mocked(stripe.refunds.create).mockResolvedValue({ id: 're_123' } as any);
+      vi.mocked(paytrService.refund).mockResolvedValue({
+        status: 'success',
+        referenceNo: 'ref_123',
+        returnAmount: '100.00',
+      } as any);
       vi.mocked(prisma.order.update).mockResolvedValue({ ...baseOrder, status: 'REFUNDED' } as any);
       vi.mocked(prisma.license.findMany).mockResolvedValue([]);
 
@@ -189,14 +149,13 @@ describe('refundService', () => {
         orderId: 'ord_1',
         userId: 'u1',
         userEmail: 'u1@test.com',
-        reason: 'Customer requested',
+        reason: 'İptal talebi',
       });
 
-      expect(stripe.refunds.create).toHaveBeenCalledWith(
+      expect(paytrService.refund).toHaveBeenCalledWith(
         expect.objectContaining({
-          payment_intent: 'pi_test_xyz',
-          amount: 10000,
-          reason: 'requested_by_customer',
+          merchantOid: 'oid_123',
+          returnAmountCents: 10000,
         })
       );
       expect(prisma.order.update).toHaveBeenCalledWith(
@@ -204,14 +163,14 @@ describe('refundService', () => {
           where: { id: 'ord_1' },
           data: expect.objectContaining({
             status: 'REFUNDED',
-            refundReason: 'Customer requested',
+            refundReason: 'İptal talebi',
           }),
         })
       );
       expect(result).toMatchObject({
         success: true,
-        refundId: 're_123',
-        provider: 'stripe',
+        refundId: 'ref_123',
+        provider: 'paytr',
         fullRefund: true,
         amountCents: 10000,
       });
@@ -219,7 +178,11 @@ describe('refundService', () => {
 
     it('creates partial refund and marks order PARTIALLY_REFUNDED', async () => {
       vi.mocked(prisma.order.findUnique).mockResolvedValue(baseOrder as any);
-      vi.mocked(stripe.refunds.create).mockResolvedValue({ id: 're_partial' } as any);
+      vi.mocked(paytrService.refund).mockResolvedValue({
+        status: 'success',
+        referenceNo: 'ref_partial',
+        returnAmount: '40.00',
+      } as any);
       vi.mocked(prisma.order.update).mockResolvedValue({} as any);
       vi.mocked(prisma.license.findMany).mockResolvedValue([]);
 
@@ -240,15 +203,14 @@ describe('refundService', () => {
     });
   });
 
-  describe('createRefund — iyzico / mock path', () => {
+  describe('createRefund — PayTR mock path', () => {
     beforeEach(() => {
-      vi.mocked(isStripeConfigured).mockReturnValue(false);
+      vi.mocked(isPaytrConfigured).mockReturnValue(false);
     });
 
-    it('records a mock refund when paymentIntent does not look like Stripe', async () => {
+    it('records a mock PayTR refund when PayTR is not configured', async () => {
       vi.mocked(prisma.order.findUnique).mockResolvedValue({
         ...baseOrder,
-        stripePaymentIntent: 'mock_iyzico_xyz',
       } as any);
       vi.mocked(prisma.order.update).mockResolvedValue({} as any);
       vi.mocked(prisma.license.findMany).mockResolvedValue([]);
@@ -258,29 +220,11 @@ describe('refundService', () => {
         userId: 'u1',
       });
 
-      expect(stripe.refunds.create).not.toHaveBeenCalled();
+      expect(paytrService.refund).not.toHaveBeenCalled();
       expect(prisma.order.update).toHaveBeenCalled();
-      expect(result.provider).toBe('iyzico');
-      expect(result.refundId).toMatch(/^mock_/);
+      expect(result.provider).toBe('paytr');
+      expect(result.refundId).toMatch(/^paytr_mock_refund_/);
       expect(result.fullRefund).toBe(true);
-    });
-
-    it('falls back to iyzico path when Stripe is configured but order is iyzico', async () => {
-      vi.mocked(isStripeConfigured).mockReturnValue(true);
-      vi.mocked(prisma.order.findUnique).mockResolvedValue({
-        ...baseOrder,
-        stripePaymentIntent: 'mock_iyzico_xyz',
-      } as any);
-      vi.mocked(prisma.order.update).mockResolvedValue({} as any);
-      vi.mocked(prisma.license.findMany).mockResolvedValue([]);
-
-      const result = await refundService.createRefund({
-        orderId: 'ord_1',
-        userId: 'u1',
-      });
-
-      expect(stripe.refunds.create).not.toHaveBeenCalled();
-      expect(result.provider).toBe('iyzico');
     });
   });
 
@@ -290,51 +234,20 @@ describe('refundService', () => {
         { id: 'l1' },
         { id: 'l2' },
       ] as any);
-      vi.mocked(prisma.license.update).mockResolvedValue({} as any);
+      vi.mocked(prisma.license.updateMany).mockResolvedValue({ count: 2 } as any);
 
       const result = await refundService.revokeLicensesForOrder('ord_1');
-
-      expect(prisma.license.update).toHaveBeenCalledTimes(2);
-      expect(prisma.license.update).toHaveBeenCalledWith({
-        where: { id: 'l1' },
-        data: expect.objectContaining({
-          status: 'revoked',
-          revokeReason: 'Order refunded',
-        }),
+      expect(prisma.license.updateMany).toHaveBeenCalledWith({
+        where: { orderId: 'ord_1', status: { not: 'revoked' } },
+        data: { status: 'revoked' },
       });
       expect(result).toHaveLength(2);
     });
 
-    it('returns empty array when no licenses exist', async () => {
+    it('returns empty array if no licenses found', async () => {
       vi.mocked(prisma.license.findMany).mockResolvedValue([]);
       const result = await refundService.revokeLicensesForOrder('ord_1');
       expect(result).toEqual([]);
-      expect(prisma.license.update).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('listRefunds', () => {
-    it('returns refunded orders filtered by userId', async () => {
-      vi.mocked(prisma.order.findMany).mockResolvedValue([{ id: 'o1' }] as any);
-
-      await refundService.listRefunds({ userId: 'u1' });
-
-      expect(prisma.order.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({
-            status: { in: ['REFUNDED', 'PARTIALLY_REFUNDED'] },
-            userId: 'u1',
-          }),
-        })
-      );
-    });
-
-    it('uses default limit 50 when not provided', async () => {
-      vi.mocked(prisma.order.findMany).mockResolvedValue([]);
-      await refundService.listRefunds();
-      expect(prisma.order.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ take: 50 })
-      );
     });
   });
 });

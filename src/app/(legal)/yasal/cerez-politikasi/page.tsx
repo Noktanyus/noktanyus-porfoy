@@ -56,12 +56,7 @@ export default function CerezPolitikasiPage() {
       </p>
       <ul>
         <li>
-          <strong>PayTR:</strong> Güvenli ödeme için zorunlu çerezler (birincil
-          ödeme altyapısı)
-        </li>
-        <li>
-          <strong>iyzico / Stripe:</strong> Yalnızca alternatif/yedek ödeme
-          yöntemi kullanıldığında
+          <strong>PayTR:</strong> Güvenli ödeme için zorunlu çerezler
         </li>
         <li>
           <strong>Cloudflare:</strong> Güvenlik ve performans çerezleri

@@ -112,8 +112,7 @@ export function SandboxControls({ isSandbox }: { isSandbox: boolean }) {
         <DashboardSection title="Sandbox Tespit Sinyalleri" padding="lg">
           <ul className="list-inside list-disc space-y-1 text-xs text-muted-foreground">
             <li><code className="font-mono">SANDBOX_MODE=true</code> env değişkeni</li>
-            <li>Stripe test anahtarı (<code className="font-mono">sk_test_...</code>)</li>
-            <li>iyzico sandbox URI</li>
+            <li>PayTR test modu (<code className="font-mono">PAYTR_TEST_MODE=1</code>)</li>
             <li><code className="font-mono">NODE_ENV !== production</code></li>
           </ul>
         </DashboardSection>

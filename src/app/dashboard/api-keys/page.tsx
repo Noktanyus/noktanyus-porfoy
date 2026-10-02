@@ -13,19 +13,34 @@ import Link from 'next/link';
 import { FaPlus } from 'react-icons/fa';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function ApiKeysPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/giris?callbackUrl=/dashboard/api-keys');
 
   const userId = (session.user as any).id as string;
-  const keys = await apiKeyService.listApiKeys(userId);
+  const rawKeys = await apiKeyService.listApiKeys(userId);
+
+  const serializedKeys = rawKeys.map((k) => ({
+    id: k.id,
+    name: k.name,
+    key: `${k.prefix}...`,
+    prefix: k.prefix,
+    scopes: Array.isArray(k.scopes) ? (k.scopes as string[]) : [],
+    rateLimit: k.rateLimit,
+    monthlyQuota: k.monthlyQuota,
+    totalRequests: k.totalRequests,
+    lastUsedAt: k.lastUsedAt ? k.lastUsedAt.toISOString() : null,
+    expiresAt: k.expiresAt ? k.expiresAt.toISOString() : null,
+    createdAt: k.createdAt.toISOString(),
+  }));
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="API Anahtarları"
-        description={`${keys.length} aktif anahtar`}
+        description={`${serializedKeys.length} aktif anahtar`}
         actions={
           <Link
             href="/dashboard/api-keys/new"
@@ -36,7 +51,7 @@ export default async function ApiKeysPage() {
           </Link>
         }
       />
-      <ApiKeyList keys={keys as any} />
+      <ApiKeyList initialKeys={serializedKeys} />
     </div>
   );
 }

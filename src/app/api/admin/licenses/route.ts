@@ -45,38 +45,41 @@ export async function GET(req: NextRequest) {
     const now = new Date();
 
     // Filtreleme koşulları
-    const where: import('@prisma/client').Prisma.LicenseWhereInput = {};
+    const andConditions: import('@prisma/client').Prisma.LicenseWhereInput[] = [];
 
     if (search) {
-      where.OR = [
-        { key: { contains: search, mode: 'insensitive' } },
-        { customer: { email: { contains: search, mode: 'insensitive' } } },
-        { customer: { name: { contains: search, mode: 'insensitive' } } },
-        { product: { title: { contains: search, mode: 'insensitive' } } },
-      ];
+      andConditions.push({
+        OR: [
+          { key: { contains: search, mode: 'insensitive' } },
+          { customer: { email: { contains: search, mode: 'insensitive' } } },
+          { customer: { name: { contains: search, mode: 'insensitive' } } },
+          { product: { title: { contains: search, mode: 'insensitive' } } },
+        ],
+      });
     }
 
     if (statusFilter === 'active') {
-      where.status = 'active';
-      where.OR = [
-        { expiresAt: null },
-        { expiresAt: { gt: now } },
-      ];
+      andConditions.push({
+        status: 'active',
+        OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+      });
     } else if (statusFilter === 'suspended') {
-      where.status = 'suspended';
+      andConditions.push({ status: 'suspended' });
     } else if (statusFilter === 'revoked') {
-      where.status = 'revoked';
+      andConditions.push({ status: 'revoked' });
     } else if (statusFilter === 'expired') {
-      where.OR = [
-        { status: 'expired' },
-        {
-          AND: [
-            { status: 'active' },
-            { expiresAt: { lte: now } },
-          ],
-        },
-      ];
+      andConditions.push({
+        OR: [
+          { status: 'expired' },
+          {
+            AND: [{ status: 'active' }, { expiresAt: { lte: now } }],
+          },
+        ],
+      });
     }
+
+    const where: import('@prisma/client').Prisma.LicenseWhereInput =
+      andConditions.length > 0 ? { AND: andConditions } : {};
 
     const [licenses, allLicensesCounts, products] = await Promise.all([
       prisma.license.findMany({

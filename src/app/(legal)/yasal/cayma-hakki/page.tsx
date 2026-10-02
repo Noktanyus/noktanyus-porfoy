@@ -64,9 +64,7 @@ export default function CaymaHakkiPage() {
       <p>
         Cayma hakkı kullanıldığında, ödeme bedeli{' '}
         <strong>14 iş günü içinde</strong> iade edilir. PayTR üzerinden
-        gerçekleştirilen ödemelerde iade, aynı ödeme yöntemiyle yapılır.
-        Alternatif/yedek altyapı (iyzico veya Stripe) ile yapılan ödemelerde de
-        iade, ödemenin alındığı yönteme uygulanır.
+        gerçekleştirilen ödemelerde iade, aynı ödeme yöntemi ve kartına yapılır.
       </p>
 
       <h2>5. Cayma Hakkı Kullanılamayacak Durumlar</h2>

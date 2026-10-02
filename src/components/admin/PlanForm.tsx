@@ -22,8 +22,6 @@ type PlanFormValues = {
   apiRequestsPerMonth: string;
   trialDays: number;
   order: number;
-  stripePriceId: string;
-  stripeProductId: string;
   active: boolean;
   isFeatured: boolean;
 };
@@ -72,8 +70,6 @@ export default function PlanForm({ plan }: PlanFormProps) {
           : '',
       trialDays: plan?.trialDays ?? 14,
       order: plan?.order ?? 0,
-      stripePriceId: plan?.stripePriceId ?? '',
-      stripeProductId: plan?.stripeProductId ?? '',
       active: plan?.active ?? true,
       isFeatured: plan?.isFeatured ?? false,
     },
@@ -108,8 +104,6 @@ export default function PlanForm({ plan }: PlanFormProps) {
         apiRequestsPerMonth: apiRaw === '' ? null : Number(apiRaw),
         trialDays: Number(values.trialDays),
         order: Number(values.order),
-        stripePriceId: values.stripePriceId.trim() || null,
-        stripeProductId: values.stripeProductId.trim() || null,
         active: values.active,
         isFeatured: values.isFeatured,
       };
@@ -270,36 +264,6 @@ export default function PlanForm({ plan }: PlanFormProps) {
         />
       </div>
 
-      <details className="rounded-lg border border-border/60 p-4">
-        <summary className="cursor-pointer text-sm font-medium">
-          Gelişmiş: Stripe kimlikleri (opsiyonel)
-        </summary>
-        <p className="mt-2 mb-3 text-xs text-muted-foreground">
-          Boş bırakılırsa sistem yerel placeholder üretir (PayTR birincil ödeme için yeterli).
-        </p>
-        <div className="admin-form-grid">
-          <div>
-            <label htmlFor="stripePriceId" className="block text-sm font-medium mb-2">
-              stripePriceId
-            </label>
-            <input
-              id="stripePriceId"
-              className="admin-input font-mono text-sm"
-              {...register('stripePriceId')}
-            />
-          </div>
-          <div>
-            <label htmlFor="stripeProductId" className="block text-sm font-medium mb-2">
-              stripeProductId
-            </label>
-            <input
-              id="stripeProductId"
-              className="admin-input font-mono text-sm"
-              {...register('stripeProductId')}
-            />
-          </div>
-        </div>
-      </details>
 
       <div className="flex flex-wrap gap-4">
         <label className="flex items-center gap-2 cursor-pointer">

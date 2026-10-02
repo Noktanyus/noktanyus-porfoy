@@ -55,11 +55,9 @@ export default function KvkkPage() {
 
       <h2>4. Verilerin Aktarımı</h2>
       <p>
-        Ödeme işlemleri, yurt içinde yerleşik ve BDDK lisanslı ödeme kuruluşu{' '}
-        <strong>PayTR</strong> altyapısı üzerinden gerçekleştirilir; bu nedenle
-        ödeme verileri kural olarak Türkiye&apos;de işlenir. PayTR&apos;nin
-        kullanılamadığı durumlarda alternatif/yedek olarak iyzico (yurt içi)
-        veya Stripe (yurt dışı) altyapısı devreye alınabilir.
+        Ödeme işlemleri, yurt içinde yerleşik ve TCMB / BDDK lisanslı ödeme kuruluşu{' '}
+        <strong>PayTR</strong> altyapısı üzerinden güvenli biçimde gerçekleştirilir; bu nedenle
+        ödeme verileri Türkiye&apos;de işlenir.
       </p>
       <p>
         Kişisel verileriniz ayrıca yurtdışı merkezli hizmet sağlayıcılarla

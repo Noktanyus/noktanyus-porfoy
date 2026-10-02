@@ -1,8 +1,5 @@
 /**
  * Sandbox utility unit tests
- *
- * Covers isSandboxMode detection paths, getApiKeyMode prefix parsing,
- * and requireSandbox's throw behaviour.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -14,8 +11,6 @@ import {
 
 const originalEnv = { ...process.env };
 
-// NODE_ENV is typed as read-only in @types/node; use a local helper that
-// bypasses the readonly check for tests that need to swap it.
 function setEnv(key: string, value: string | undefined): void {
   if (value === undefined) {
     delete process.env[key];
@@ -26,15 +21,12 @@ function setEnv(key: string, value: string | undefined): void {
 
 describe('Sandbox Utilities', () => {
   beforeEach(() => {
-    // Reset to a known baseline before each test
     setEnv('SANDBOX_MODE', undefined);
-    setEnv('STRIPE_SECRET_KEY', undefined);
-    setEnv('IYZICO_URI', undefined);
+    setEnv('PAYTR_TEST_MODE', undefined);
     setEnv('NODE_ENV', 'test');
   });
 
   afterEach(() => {
-    // Restore by reassigning the captured snapshot
     process.env = { ...originalEnv };
   });
 
@@ -50,40 +42,28 @@ describe('Sandbox Utilities', () => {
       expect(isSandboxMode()).toBe(false);
     });
 
-    it('detects Stripe test key as sandbox even without explicit flag', () => {
+    it('detects PayTR test mode as sandbox', () => {
       setEnv('SANDBOX_MODE', undefined);
-      setEnv('STRIPE_SECRET_KEY', 'sk_test_abc123');
-      setEnv('NODE_ENV', 'production');
-      expect(isSandboxMode()).toBe(true);
-    });
-
-    it('detects iyzico sandbox URI as sandbox', () => {
-      setEnv('SANDBOX_MODE', undefined);
-      setEnv('IYZICO_URI', 'https://sandbox-api.iyzipay.com');
+      setEnv('PAYTR_TEST_MODE', '1');
       setEnv('NODE_ENV', 'production');
       expect(isSandboxMode()).toBe(true);
     });
 
     it('treats non-production NODE_ENV as sandbox by default', () => {
       setEnv('SANDBOX_MODE', undefined);
-      setEnv('STRIPE_SECRET_KEY', undefined);
       setEnv('NODE_ENV', 'development');
       expect(isSandboxMode()).toBe(true);
     });
   });
 
   describe('getApiKeyMode', () => {
-    it('detects live Stripe keys', () => {
+    it('detects live keys', () => {
+      expect(getApiKeyMode('live_abc')).toBe('live');
       expect(getApiKeyMode('sk_live_abc')).toBe('live');
-      expect(getApiKeyMode('pk_live_abc')).toBe('live');
     });
 
-    it('detects test Stripe keys', () => {
-      expect(getApiKeyMode('sk_test_abc')).toBe('test');
-      expect(getApiKeyMode('pk_test_abc')).toBe('test');
-    });
-
-    it('defaults unknown / non-prefixed keys to test', () => {
+    it('defaults unknown / test keys to test', () => {
+      expect(getApiKeyMode('test_abc')).toBe('test');
       expect(getApiKeyMode('random_key')).toBe('test');
       expect(getApiKeyMode('')).toBe('test');
     });

@@ -44,15 +44,6 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
-vi.mock('@/lib/stripe', () => ({
-  stripe: {
-    checkout: { sessions: { create: vi.fn() } },
-    webhooks: { constructEvent: vi.fn() },
-    billingPortal: { sessions: { create: vi.fn() } },
-  },
-  isStripeConfigured: vi.fn(() => false),
-}));
-
 vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
@@ -81,7 +72,9 @@ describe('commerceService', () => {
     expect(prisma.plan.findMany).toHaveBeenCalled();
   });
 
-  it('createProductCheckout in mock mode creates a PENDING order without hitting Stripe', async () => {
+  it('createProductCheckout in mock mode creates a PENDING order with PayTR mock session', async () => {
+    const paytr = await import('@/lib/paytr');
+    vi.spyOn(paytr, 'isPaytrConfigured').mockReturnValue(false);
     const { commerceService } = await import('../service');
     const { prisma } = await import('@/lib/prisma');
 
@@ -109,28 +102,5 @@ describe('commerceService', () => {
     expect(prisma.order.create).toHaveBeenCalled();
     expect(result.sessionId).toMatch(/^paytr_mock_/);
     expect(result.url).toContain('/odeme/basarili');
-  });
-
-  it('verifyWebhook throws when Stripe is not configured', async () => {
-    const { commerceService } = await import('../service');
-    expect(() => commerceService.verifyWebhook('payload', 'sig')).toThrow('Stripe not configured');
-  });
-
-  it('processWebhookEvent is idempotent (skips already-processed events)', async () => {
-    const { commerceService } = await import('../service');
-    const { prisma } = await import('@/lib/prisma');
-
-    (prisma.webhookEvent.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-      stripeEventId: 'evt_existing',
-      type: 'noop',
-    });
-
-    await commerceService.processWebhookEvent({
-      id: 'evt_existing',
-      type: 'noop',
-      data: { object: {} },
-    });
-
-    expect(prisma.webhookEvent.create).not.toHaveBeenCalled();
   });
 });
