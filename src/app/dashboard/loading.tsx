@@ -1,11 +1,8 @@
 /**
- * Dashboard Root Loading — tüm /dashboard/** altında geçerli.
- * Per-page loading.tsx yerine tek kaynaktan yönetilir.
- * Özelleştirilmiş skeleton gereken sayfalar kendi loading.tsx'lerini
- * yazabilir (root loading fallthrough olur).
+ * Dashboard Root Loading — tüm /dashboard segmentleri için iskelet yükleme ekranı.
  */
-import { SpinnerLoading } from "@/components/ui/LoadingSkeleton";
+import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 
 export default function Loading() {
-  return <SpinnerLoading text="Yükleniyor..." />;
+  return <DashboardSkeleton title="Kullanıcı paneli yükleniyor" />;
 }

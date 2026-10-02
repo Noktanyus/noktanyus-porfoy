@@ -1,9 +1,9 @@
 import { TableSkeleton } from "@/components/ui/LoadingSkeleton";
 
-export default function AdminBlogLoading() {
+export default function AdminTemplatesLoading() {
   return (
     <TableSkeleton
-      title="Blog yazıları yükleniyor"
+      title="Şablonlar listesi yükleniyor"
       rows={6}
       columns={6}
     />

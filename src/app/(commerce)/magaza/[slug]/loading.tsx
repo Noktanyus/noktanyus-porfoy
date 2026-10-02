@@ -1,5 +1,5 @@
-import { PageSkeleton } from "@/components/ui/LoadingSkeleton";
+import { DetailSkeleton } from "@/components/ui/LoadingSkeleton";
 
-export default function Loading() {
-  return <PageSkeleton variant="detail" />;
+export default function ProductDetailLoading() {
+  return <DetailSkeleton title="Ürün bilgileri yükleniyor" />;
 }

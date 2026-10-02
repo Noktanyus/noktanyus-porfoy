@@ -1,5 +1,5 @@
-import { SpinnerLoading } from "@/components/ui/LoadingSkeleton";
+import { DashboardSkeleton } from "@/components/ui/LoadingSkeleton";
 
-export default function Loading() {
-  return <SpinnerLoading text="Admin paneli yükleniyor..." />;
+export default function AdminLoading() {
+  return <DashboardSkeleton title="Yönetim paneli yükleniyor" />;
 }

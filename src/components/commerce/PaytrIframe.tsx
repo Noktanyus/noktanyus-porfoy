@@ -16,6 +16,7 @@ export interface PaytrIframePayload {
   iframeToken?: string;
   orderNumber?: string;
   paymentType?: 'card' | 'eft';
+  testMode?: boolean;
 }
 
 /** Checkout API'den gelen ortak PayTR yanıtı */
@@ -38,6 +39,10 @@ declare global {
 }
 
 export function PaytrIframe({ payload, onCancel }: PaytrIframeProps) {
+  const isTestMode = Boolean(
+    payload.testMode || process.env.NEXT_PUBLIC_PAYTR_TEST_MODE === '1'
+  );
+
   useEffect(() => {
     if (typeof window !== 'undefined' && window.iFrameResize) {
       try {
@@ -62,6 +67,17 @@ export function PaytrIframe({ payload, onCancel }: PaytrIframeProps) {
           <p className="text-xs text-muted-foreground mt-2 font-mono">
             Sipariş: {payload.orderNumber}
           </p>
+        )}
+        {isTestMode && (
+          <div className="mt-3 flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-700 dark:text-amber-300 text-xs sm:text-sm font-medium">
+            <span className="flex h-2.5 w-2.5 relative flex-shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+            </span>
+            <span>
+              <strong>PayTR Test Modu:</strong> Gerçek kart çekimi yapılmaz. Test simülasyonu aktiftir.
+            </span>
+          </div>
         )}
       </div>
 
@@ -120,6 +136,7 @@ export function PaytrCheckoutView({
           orderNumber:
             typeof data.orderNumber === 'string' ? data.orderNumber : undefined,
           paymentType: data.paymentType === 'eft' ? 'eft' : 'card',
+          testMode: Boolean(data.testMode) || data.test_mode === '1' || data.testMode === '1',
         }}
         onCancel={onCancel}
       />

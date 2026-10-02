@@ -1,11 +1,11 @@
 import { TableSkeleton } from "@/components/ui/LoadingSkeleton";
 
-export default function AdminBlogLoading() {
+export default function AdminOrdersLoading() {
   return (
     <TableSkeleton
-      title="Blog yazıları yükleniyor"
+      title="Siparişler yükleniyor"
       rows={6}
-      columns={6}
+      columns={7}
     />
   );
 }

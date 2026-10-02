@@ -1,9 +1,5 @@
-import Spinner from '@/components/ui/Spinner';
+import { AuthFormSkeleton } from '@/components/ui/LoadingSkeleton';
 
 export default function AuthLoading() {
-  return (
-    <div className="min-h-[70vh] flex items-center justify-center bg-blob-decoration">
-      <Spinner />
-    </div>
-  );
+  return <AuthFormSkeleton title="Kimlik doğrulama yükleniyor" />;
 }

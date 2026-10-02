@@ -162,6 +162,11 @@ const nextConfig = {
         destination: '/magaza/abonelikler',
         permanent: true,
       },
+      {
+        source: '/dashboard/purchases',
+        destination: '/dashboard/products',
+        permanent: true,
+      },
     ];
   },
   async headers() {

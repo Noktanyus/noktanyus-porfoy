@@ -49,8 +49,7 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
     }
   }, [isEnterpriseInquiry, setValue]);
   
-  const isProduction = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? true : false;
-  const [turnstileToken, setTurnstileToken] = useState<string>(isProduction ? "" : "dev-mode-bypass");
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
 
   // Cleanup effect - component unmount olduğunda tüm toast'ları temizle
   useEffect(() => {
@@ -277,17 +276,15 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
             )}
           </div>
 
-          {/* Cloudflare Turnstile - Sadece production'da göster */}
-          {process.env.NODE_ENV === 'production' && (
-            <div className="flex justify-center py-4">
-              <CloudflareTurnstile
-                onVerify={handleTurnstileVerify}
-                onError={handleTurnstileError}
-                onExpire={() => setTurnstileToken("")}
-                theme="light"
-              />
-            </div>
-          )}
+          {/* Cloudflare Turnstile */}
+          <div className="flex justify-center py-4" id="turnstile-container">
+            <CloudflareTurnstile
+              onVerify={handleTurnstileVerify}
+              onError={handleTurnstileError}
+              onExpire={() => setTurnstileToken("")}
+              theme="light"
+            />
+          </div>
 
           {/* Submit Button */}
           <button 

@@ -262,6 +262,13 @@ export function CheckoutForm() {
           <h2 className="text-xl font-semibold mb-2 text-foreground">{product.title}</h2>
           <p className="text-sm text-muted-foreground mb-4">{product.shortDescription}</p>
 
+          {process.env.NEXT_PUBLIC_PAYTR_TEST_MODE === '1' && (
+            <div className="mb-4 flex items-center gap-2 p-2.5 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-700 dark:text-amber-300 text-xs font-medium">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              <span>PayTR Test / Simülasyon Modu Aktif</span>
+            </div>
+          )}
+
           {/* Pricing Tiers Selection (if product has tiers) */}
           {availableTiers.length > 0 && (
             <div className="mb-4 pt-3 border-t border-border/60">

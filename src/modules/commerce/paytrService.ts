@@ -62,6 +62,7 @@ export interface PaytrIframePayload {
   merchantOid: string;
   orderNumber: string;
   paymentType: PaytrPaymentType;
+  testMode?: boolean;
 }
 
 export interface PaytrDirectFormPayload {
@@ -233,6 +234,7 @@ export const paytrService = {
       merchantOid,
       orderNumber: input.orderNumber,
       paymentType,
+      testMode: cfg.testMode === '1',
     };
   },
 
