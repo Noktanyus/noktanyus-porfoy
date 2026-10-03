@@ -41,15 +41,18 @@ export function SiteChrome({ headerTitle, aboutData, children }: SiteChromeProps
 
   return (
     <div className="relative flex flex-col min-h-screen surface-transition">
+      <div className="ambient-page-glow" aria-hidden="true" />
       <Header headerTitle={headerTitle} />
       <main
         id="main-content"
         tabIndex={-1}
-        className="flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8 focus:outline-none"
+        className="relative z-10 flex-grow w-full max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 pt-20 sm:pt-24 pb-8 focus:outline-none"
       >
         {children}
       </main>
-      <Footer aboutData={aboutData} />
+      <div className="relative z-10">
+        <Footer aboutData={aboutData} />
+      </div>
     </div>
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import Link from 'next/link';
 import { Project } from '@/types/content';
 import { FaGithub, FaExternalLinkAlt, FaArrowRight } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
+import ContentCover from '@/components/ui/ContentCover';
 import { DS } from '@/lib/design-system';
 
 interface ProjectCardProps {
@@ -13,9 +14,12 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = memo(function ProjectCard({ project, index = 0 }: ProjectCardProps) {
+  const [imageError, setImageError] = useState(false);
+
+  const hasCustomImage = Boolean(project.mainImage && project.mainImage.trim() !== '' && !imageError);
   const imageUrl = project.mainImage?.startsWith('/images/')
     ? `/api/static${project.mainImage}`
-    : project.mainImage || "/images/placeholder.webp";
+    : project.mainImage || '';
 
   const technologies = Array.isArray(project.technologies)
     ? (project.technologies as string[])
@@ -33,20 +37,34 @@ const ProjectCard = memo(function ProjectCard({ project, index = 0 }: ProjectCar
           className="block w-full h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
           aria-label={`${project.title} proje detayını görüntüle`}
         >
-          <OptimizedImage
-            src={imageUrl}
-            alt={`${project.title} projesinin görseli`}
-            fill
-            sizes="(max-width: 1023px) 100vw, (max-width: 1279px) 40vw, 33vw"
-            style={{ objectFit: 'cover' }}
-            quality={80}
-            className="transition-transform duration-700 ease-out group-hover:scale-105"
-          />
-          {/* Glass overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-black/10 transition-all duration-500" />
+          {hasCustomImage ? (
+            <>
+              <OptimizedImage
+                src={imageUrl}
+                alt={`${project.title} projesinin görseli`}
+                fill
+                sizes="(max-width: 1023px) 100vw, (max-width: 1279px) 40vw, 33vw"
+                style={{ objectFit: 'cover' }}
+                quality={85}
+                className="transition-transform duration-700 ease-out group-hover:scale-105"
+                onError={() => setImageError(true)}
+              />
+              {/* Glass overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-black/10 transition-all duration-500" />
+            </>
+          ) : (
+            <ContentCover
+              title={project.title}
+              category="PROJE"
+              tags={technologies}
+              type="project"
+              isLive={project.isLive}
+              className="transition-transform duration-700 ease-out group-hover:scale-105"
+            />
+          )}
 
-          {/* Live indicator */}
-          {project.isLive && (
+          {/* Live indicator (yalnızca özel resim gösterilirken, zira ContentCover zaten kendi canlı rozetine sahip) */}
+          {hasCustomImage && project.isLive && (
             <div className="absolute top-4 left-4 z-10">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold tracking-wide bg-emerald-950/75 dark:bg-emerald-950/85 backdrop-blur-md border border-emerald-500/40 text-emerald-300 shadow-lg">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-soft" aria-hidden="true" />

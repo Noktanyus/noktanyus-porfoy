@@ -6,6 +6,7 @@ import { notFound, redirect } from 'next/navigation';
 import { FaGithub, FaExternalLinkAlt, FaArrowLeft } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import ContentCover from '@/components/ui/ContentCover';
 import { safeMetadata } from '@/lib/pageMetadata';
 import { renderSafeMarkdown } from '@/lib/safeMarkdown';
 
@@ -157,15 +158,27 @@ function ProjectPageContent({ project }: { project: any }) {
 
         {/* Cover Image */}
         <div className="relative h-72 sm:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/30">
-          <Image
-            src={imageUrl}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 1024px"
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          {imageUrl && imageUrl.trim() !== '' ? (
+            <>
+              <Image
+                src={imageUrl}
+                alt={project.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 1024px"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </>
+          ) : (
+            <ContentCover
+              title={project.title}
+              category="PROJE"
+              tags={techs}
+              type="project"
+              isLive={project.isLive}
+            />
+          )}
         </div>
 
         {/* Content */}

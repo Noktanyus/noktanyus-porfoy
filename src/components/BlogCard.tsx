@@ -1,10 +1,11 @@
 'use client';
 
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import Link from 'next/link';
 import { Blog } from '@/types/content';
 import { FaArrowRight, FaClock, FaEye } from 'react-icons/fa';
 import OptimizedImage from '@/components/ui/OptimizedImage';
+import ContentCover from '@/components/ui/ContentCover';
 
 interface BlogCardProps {
   blog: Blog;
@@ -12,13 +13,16 @@ interface BlogCardProps {
 }
 
 const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   if (!blog) {
     return null;
   }
 
+  const hasCustomImage = Boolean(blog.thumbnail && blog.thumbnail.trim() !== '' && !imageError);
   const imageUrl = blog.thumbnail?.startsWith('/images/')
     ? `/api/static${blog.thumbnail}`
-    : blog.thumbnail || "/images/placeholder.webp";
+    : blog.thumbnail || '';
 
   const tags = Array.isArray(blog.tags)
     ? blog.tags.filter((tag): tag is string => typeof tag === 'string')
@@ -26,37 +30,49 @@ const BlogCard = memo(function BlogCard({ blog, index = 0 }: BlogCardProps) {
 
   return (
     <article
-      className="group glass-card-premium h-full flex flex-col animate-fade-in relative focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900 rounded-2xl"
+      className="group glass-card-premium h-full flex flex-col animate-fade-in relative focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-900 rounded-2xl overflow-hidden"
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Image Section */}
       <div className="relative h-52 sm:h-56 overflow-hidden">
-        <OptimizedImage
-          src={imageUrl}
-          alt={`${blog.title} için küçük resim`}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
-          quality={80}
-          className="transition-transform duration-700 ease-out group-hover:scale-110"
-        />
+        {hasCustomImage ? (
+          <>
+            <OptimizedImage
+              src={imageUrl}
+              alt={`${blog.title} için küçük resim`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              style={{ objectFit: 'cover' }}
+              quality={85}
+              className="transition-transform duration-700 ease-out group-hover:scale-105"
+              onError={() => setImageError(true)}
+            />
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40 opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
 
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/40 opacity-80 group-hover:opacity-90 transition-opacity duration-500" />
+            {/* Category Badge */}
+            <div className="absolute top-4 left-4 z-10">
+              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase glass-badge-overlay">
+                {blog.category}
+              </span>
+            </div>
 
-        {/* Category Badge */}
-        <div className="absolute top-4 left-4 z-10">
-          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase glass-badge-overlay">
-            {blog.category}
-          </span>
-        </div>
-
-        {/* Title on Image */}
-        <div className="absolute bottom-0 left-0 right-0 p-5 z-10 transform group-hover:-translate-y-1 transition-transform duration-500">
-          <h3 className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2 drop-shadow-lg">
-            {blog.title}
-          </h3>
-        </div>
+            {/* Title on Image */}
+            <div className="absolute bottom-0 left-0 right-0 p-5 z-10 transform group-hover:-translate-y-1 transition-transform duration-500">
+              <h3 className="text-lg sm:text-xl font-bold text-white leading-tight line-clamp-2 drop-shadow-lg">
+                {blog.title}
+              </h3>
+            </div>
+          </>
+        ) : (
+          <ContentCover
+            title={blog.title}
+            category={blog.category}
+            tags={tags}
+            type="blog"
+            className="transition-transform duration-700 ease-out group-hover:scale-105"
+          />
+        )}
       </div>
 
       {/* Content Section */}

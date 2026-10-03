@@ -43,27 +43,40 @@ export function AnimatedHero({
   return (
     <section
       ref={ref}
-      className="relative min-h-[min(80vh,720px)] flex items-center overflow-hidden pt-6 sm:pt-8"
+      className="relative min-h-[min(80vh,720px)] flex items-center overflow-x-clip pt-6 sm:pt-8"
       aria-label={`${name} - Hero`}
     >
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden="true">
+      {/* Ambient background with smooth vertical fade to eliminate sharp cutoff */}
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none overflow-hidden [mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_60%,transparent_100%)]"
+        aria-hidden="true"
+      >
+        {/* Subtle radial ambient base */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,oklch(var(--primary)/0.15),transparent_75%)]" />
+
+        {/* Animated background blobs */}
         <motion.div
-          className="absolute top-20 -left-20 w-72 h-72 rounded-full bg-brand-primary/20 blur-3xl"
+          className="absolute top-16 -left-16 w-80 h-80 rounded-full bg-brand-primary/20 blur-3xl"
           animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
           transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute top-40 right-20 w-96 h-96 rounded-full bg-sky-400/15 blur-3xl"
+          className="absolute top-36 right-16 w-[28rem] h-[28rem] rounded-full bg-sky-400/15 blur-3xl"
           animate={{ x: [0, -40, 0], y: [0, 30, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-20 left-1/3 w-80 h-80 rounded-full bg-cyan-400/10 blur-3xl"
-          animate={{ x: [0, 20, 0], y: [0, 40, 0] }}
+          className="absolute bottom-10 left-1/3 w-88 h-88 rounded-full bg-cyan-400/10 blur-3xl"
+          animate={{ x: [0, 20, 0], y: [0, 30, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
+
+      {/* Bottom seamless transition feathering into the page background */}
+      <div
+        className="absolute inset-x-0 -bottom-1 h-36 bg-gradient-to-b from-transparent via-background/60 to-background pointer-events-none -z-10"
+        aria-hidden="true"
+      />
 
       <div className="container-responsive relative z-10">
         <motion.div

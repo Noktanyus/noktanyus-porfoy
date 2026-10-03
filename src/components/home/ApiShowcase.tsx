@@ -27,8 +27,11 @@ console.log(result.bankName); // 'Türkiye Garanti Bankası A.Ş.'`;
   };
 
   return (
-    <section className="py-12 relative overflow-hidden" aria-labelledby="api-showcase-title">
-      <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl relative">
+    <section className="py-10 sm:py-14 relative overflow-x-clip" aria-labelledby="api-showcase-title">
+      {/* Ambient glow behind card to soften transition with page */}
+      <div className="absolute inset-x-8 inset-y-6 bg-gradient-to-r from-brand-primary/15 via-indigo-500/10 to-sky-500/15 rounded-3xl blur-3xl pointer-events-none -z-10" aria-hidden="true" />
+
+      <div className="p-8 sm:p-12 rounded-3xl bg-slate-900 text-white border border-slate-850 shadow-2xl relative overflow-hidden">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-brand-primary/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">

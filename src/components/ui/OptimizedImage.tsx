@@ -85,7 +85,7 @@ const OptimizedImage = ({
   if (hasError) {
     return (
       <div
-        className={`bg-gray-200 dark:bg-gray-700 flex items-center justify-center ${className}`}
+        className={`relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-850 to-indigo-950 flex flex-col items-center justify-center border border-white/10 ${className}`}
         style={{
           width: fill ? '100%' : width,
           height: fill ? '100%' : height,
@@ -93,19 +93,15 @@ const OptimizedImage = ({
           ...style,
         }}
       >
-        <svg
-          className="w-8 h-8 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-          />
-        </svg>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,oklch(var(--primary)/0.15),transparent_60%)] pointer-events-none" />
+        <div className="relative z-10 flex flex-col items-center gap-2 p-4 text-center">
+          <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center text-primary backdrop-blur-sm shadow-md">
+            <span className="font-mono text-sm font-bold">&lt;/&gt;</span>
+          </div>
+          <span className="text-xs font-medium text-slate-300 drop-shadow-sm max-w-[85%] truncate">
+            {alt || 'Görsel'}
+          </span>
+        </div>
       </div>
     );
   }

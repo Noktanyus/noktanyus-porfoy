@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { FaArrowLeft, FaCalendarAlt, FaUser, FaTag, FaEye, FaClock } from 'react-icons/fa';
 import { ErrorDisplay } from '@/components/ui/ErrorDisplay';
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton';
+import ContentCover from '@/components/ui/ContentCover';
 import { CommentsSection } from '@/components/blog/CommentsSection';
 import { locales, defaultLocale } from '@/i18n/config';
 import { JsonLd, articleJsonLd, breadcrumbJsonLd, generateOpenGraph, generateTwitterCard, getBaseUrl } from '@/components/seo/JsonLd';
@@ -234,19 +235,28 @@ async function BlogPostPageContent({ slug }: { slug: string }) {
         </div>
 
         {/* Cover Image */}
-        {imageUrl && (
-          <div className="relative h-72 sm:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/30">
-            <Image
-              src={imageUrl}
-              alt={post.title}
-              fill
-              sizes="(max-width: 768px) 100vw, 1024px"
-              className="object-cover"
-              priority
+        <div className="relative h-72 sm:h-96 rounded-2xl overflow-hidden shadow-2xl shadow-black/10 dark:shadow-black/30">
+          {imageUrl ? (
+            <>
+              <Image
+                src={imageUrl}
+                alt={post.title}
+                fill
+                sizes="(max-width: 768px) 100vw, 1024px"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </>
+          ) : (
+            <ContentCover
+              title={post.title}
+              category={post.category}
+              tags={tags}
+              type="blog"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Content */}
         <div className="glass-card-premium p-6 sm:p-8 md:p-10">
