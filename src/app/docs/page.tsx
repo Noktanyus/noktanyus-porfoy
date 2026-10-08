@@ -118,6 +118,12 @@ export default function DocsPage() {
               >
                 Kredi yükle
               </Link>
+              <Link
+                href="/docs/hatalar"
+                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
+              >
+                Hata kodları
+              </Link>
               <a
                 href="/api/openapi"
                 className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
