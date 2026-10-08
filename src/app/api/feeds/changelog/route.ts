@@ -8,7 +8,7 @@ const BASE_URL = (
 
 export const dynamic = 'force-dynamic';
 
-/** Changelog RSS — developer portal abonelik standardı */
+/** Changelog RSS — /api/feeds/changelog */
 export async function GET() {
   const items = [...CHANGELOG]
     .sort((a, b) => (a.date < b.date ? 1 : -1))
