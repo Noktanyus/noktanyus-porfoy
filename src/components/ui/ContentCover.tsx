@@ -192,7 +192,7 @@ export function ContentCover({
       {/* Bottom Footer Details */}
       <div className="relative z-10 pt-2 border-t border-white/10 flex items-center justify-between text-xs text-white/60">
         <span className="font-mono text-[11px] tracking-wide text-white/50">
-          // noktanyus.com
+          {'// noktanyus.com'}
         </span>
 
         {tags.length > 0 && (

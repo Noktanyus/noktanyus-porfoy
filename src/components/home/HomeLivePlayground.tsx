@@ -2,25 +2,41 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { FaCheckCircle, FaTimesCircle, FaArrowRight, FaBolt, FaCopy, FaCheck } from 'react-icons/fa';
-import { resolveIbanBank } from '@/modules/tr-api/validators';
+import {
+  FaCheckCircle,
+  FaTimesCircle,
+  FaArrowRight,
+  FaBolt,
+  FaCopy,
+  FaCheck,
+} from 'react-icons/fa';
+import { resolveIbanBank, validateTckn } from '@/modules/tr-api/validators';
 import toast from 'react-hot-toast';
 
-const SAMPLES = [
-  { label: 'Garanti', iban: 'TR600006201234567890123456' },
-  { label: 'İş Bankası', iban: 'TR450006401234567890123456' },
-  { label: 'Papara', iban: 'TR790082901234567890123456' },
+type Tool = 'iban' | 'tckn';
+
+const IBAN_SAMPLES = [
+  { label: 'Garanti', value: 'TR600006201234567890123456' },
+  { label: 'İş Bankası', value: 'TR450006401234567890123456' },
+  { label: 'Papara', value: 'TR790082901234567890123456' },
+] as const;
+
+const TCKN_SAMPLES = [
+  { label: 'Geçerli', value: '10000000146' },
+  { label: 'Hatalı', value: '10000000147' },
 ] as const;
 
 /**
  * Developer portal “Try it” — anahtar gerekmeden tarayıcıda anlık doğrulama.
- * Üretim API’si ile aynı `resolveIbanBank` algoritması.
+ * Üretim API’si ile aynı algoritmalar (IBAN banka + TCKN checksum).
  */
 export default function HomeLivePlayground() {
-  const [iban, setIban] = useState<string>(SAMPLES[0].iban);
+  const [tool, setTool] = useState<Tool>('iban');
+  const [iban, setIban] = useState<string>(IBAN_SAMPLES[0].value);
+  const [tckn, setTckn] = useState<string>(TCKN_SAMPLES[0].value);
   const [copied, setCopied] = useState(false);
 
-  const result = useMemo(() => {
+  const ibanResult = useMemo(() => {
     const clean = iban.trim().replace(/\s+/g, '').toUpperCase();
     if (!clean) return null;
     const bank = resolveIbanBank(clean);
@@ -29,6 +45,20 @@ export default function HomeLivePlayground() {
       formatted: bank.normalized.replace(/(.{4})/g, '$1 ').trim(),
     };
   }, [iban]);
+
+  const tcknResult = useMemo(() => {
+    const clean = tckn.trim().replace(/\s+/g, '');
+    if (!clean) return null;
+    return validateTckn(clean);
+  }, [tckn]);
+
+  const curl =
+    tool === 'iban'
+      ? `curl -X POST https://noktanyus.com/api/v1/validate/iban \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${ibanResult?.normalized || 'TR330006100519786457841326'}'}'`
+      : `curl -X POST https://noktanyus.com/api/v1/validate/identity \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"type":"tckn","value":"${tcknResult?.normalized || '10000000146'}'}'`;
+
+  const toolHref =
+    tool === 'iban' ? '/araclar/iban-dogrulama' : '/araclar/tckn-vkn-dogrulama';
 
   return (
     <section
@@ -47,43 +77,99 @@ export default function HomeLivePlayground() {
               id="live-playground-title"
               className="text-2xl sm:text-3xl font-extrabold tracking-tight"
             >
-              IBAN’ı burada dene
+              Burada dene
             </h2>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-md">
-              Aynı algoritma üretim API’sinde çalışır. İlk başarılı isteğe 60 saniyede
-              ulaşmak için playground → kayıt → API key akışını kullan.
+              Aynı algoritma üretim API’sinde çalışır. IBAN banka çözümü veya TCKN
+              checksum — anahtar olmadan anında.
             </p>
 
-            <label htmlFor="home-iban" className="block text-sm font-semibold text-slate-200">
-              TR IBAN
-            </label>
-            <input
-              id="home-iban"
-              type="text"
-              value={iban}
-              onChange={(e) => setIban(e.target.value)}
-              spellCheck={false}
-              autoComplete="off"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 font-mono text-sm sm:text-base tracking-wide text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400/60"
-              placeholder="TR00 0000 0000 0000 0000 0000 00"
-            />
-
-            <div className="flex flex-wrap gap-2">
-              {SAMPLES.map((s) => (
+            <div className="flex flex-wrap gap-2" role="tablist" aria-label="Playground aracı">
+              {(
+                [
+                  { id: 'iban' as const, label: 'IBAN + banka' },
+                  { id: 'tckn' as const, label: 'TCKN' },
+                ] as const
+              ).map((tab) => (
                 <button
-                  key={s.label}
+                  key={tab.id}
                   type="button"
-                  onClick={() => setIban(s.iban)}
-                  className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:border-sky-400/40 hover:text-sky-200 transition-colors"
+                  role="tab"
+                  aria-selected={tool === tab.id}
+                  onClick={() => setTool(tab.id)}
+                  className={`min-h-[40px] rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+                    tool === tab.id
+                      ? 'bg-sky-500 text-slate-950'
+                      : 'border border-slate-700 bg-slate-800/80 text-slate-200 hover:border-sky-400/40'
+                  }`}
                 >
-                  {s.label}
+                  {tab.label}
                 </button>
               ))}
             </div>
 
+            {tool === 'iban' ? (
+              <>
+                <label htmlFor="home-iban" className="block text-sm font-semibold text-slate-200">
+                  TR IBAN
+                </label>
+                <input
+                  id="home-iban"
+                  type="text"
+                  value={iban}
+                  onChange={(e) => setIban(e.target.value)}
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 font-mono text-sm sm:text-base tracking-wide text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400/60"
+                  placeholder="TR00 0000 0000 0000 0000 0000 00"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {IBAN_SAMPLES.map((s) => (
+                    <button
+                      key={s.label}
+                      type="button"
+                      onClick={() => setIban(s.value)}
+                      className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:border-sky-400/40 hover:text-sky-200 transition-colors"
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <label htmlFor="home-tckn" className="block text-sm font-semibold text-slate-200">
+                  TCKN
+                </label>
+                <input
+                  id="home-tckn"
+                  type="text"
+                  inputMode="numeric"
+                  value={tckn}
+                  onChange={(e) => setTckn(e.target.value)}
+                  spellCheck={false}
+                  autoComplete="off"
+                  className="w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 font-mono text-sm sm:text-base tracking-wide text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-400/60"
+                  placeholder="11 haneli TCKN"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {TCKN_SAMPLES.map((s) => (
+                    <button
+                      key={s.label}
+                      type="button"
+                      onClick={() => setTckn(s.value)}
+                      className="rounded-lg border border-slate-700 bg-slate-800/80 px-2.5 py-1.5 text-xs font-semibold text-slate-200 hover:border-sky-400/40 hover:text-sky-200 transition-colors"
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
             <div className="flex flex-wrap gap-3 pt-2">
               <Link
-                href="/araclar/iban-dogrulama"
+                href={toolHref}
                 className="inline-flex items-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 px-4 py-2.5 text-sm font-bold text-slate-950 transition-colors"
               >
                 Tam aracı aç
@@ -102,26 +188,54 @@ export default function HomeLivePlayground() {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 mb-4">
               Anlık sonuç
             </p>
-            {!result ? (
-              <p className="text-slate-400 text-sm">IBAN girin…</p>
-            ) : result.valid ? (
+
+            {tool === 'iban' ? (
+              !ibanResult ? (
+                <p className="text-slate-400 text-sm">IBAN girin…</p>
+              ) : ibanResult.valid ? (
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-300 font-bold">
+                    <FaCheckCircle aria-hidden="true" />
+                    Geçerli TR IBAN
+                  </div>
+                  <dl className="grid grid-cols-1 gap-3 text-sm">
+                    <div>
+                      <dt className="text-slate-400">Banka</dt>
+                      <dd className="font-semibold text-white">{ibanResult.bankName}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">Banka kodu</dt>
+                      <dd className="font-mono text-sky-200">{ibanResult.bankCode}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-slate-400">Biçim</dt>
+                      <dd className="font-mono text-slate-200 break-all">{ibanResult.formatted}</dd>
+                    </div>
+                  </dl>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-5 space-y-2">
+                  <div className="flex items-center gap-2 text-rose-300 font-bold">
+                    <FaTimesCircle aria-hidden="true" />
+                    Geçersiz
+                  </div>
+                  <p className="text-sm text-rose-100/90">
+                    {ibanResult.reason ?? 'Kontrol başarısız'}
+                  </p>
+                </div>
+              )
+            ) : !tcknResult ? (
+              <p className="text-slate-400 text-sm">TCKN girin…</p>
+            ) : tcknResult.valid ? (
               <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 space-y-3">
                 <div className="flex items-center gap-2 text-emerald-300 font-bold">
                   <FaCheckCircle aria-hidden="true" />
-                  Geçerli TR IBAN
+                  Geçerli TCKN (algoritmik)
                 </div>
                 <dl className="grid grid-cols-1 gap-3 text-sm">
                   <div>
-                    <dt className="text-slate-400">Banka</dt>
-                    <dd className="font-semibold text-white">{result.bankName}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-slate-400">Banka kodu</dt>
-                    <dd className="font-mono text-sky-200">{result.bankCode}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-slate-400">Biçim</dt>
-                    <dd className="font-mono text-slate-200 break-all">{result.formatted}</dd>
+                    <dt className="text-slate-400">Normalize</dt>
+                    <dd className="font-mono text-sky-200">{tcknResult.normalized}</dd>
                   </div>
                 </dl>
               </div>
@@ -131,7 +245,9 @@ export default function HomeLivePlayground() {
                   <FaTimesCircle aria-hidden="true" />
                   Geçersiz
                 </div>
-                <p className="text-sm text-rose-100/90">{result.reason ?? 'Kontrol başarısız'}</p>
+                <p className="text-sm text-rose-100/90">
+                  {tcknResult.reason ?? 'Kontrol başarısız'}
+                </p>
               </div>
             )}
 
@@ -139,7 +255,6 @@ export default function HomeLivePlayground() {
               <button
                 type="button"
                 onClick={async () => {
-                  const curl = `curl -X POST https://noktanyus.com/api/v1/validate/iban \\\n  -H "x-api-key: YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${result?.normalized || 'TR330006100519786457841326'}"}'`;
                   try {
                     await navigator.clipboard.writeText(curl);
                     setCopied(true);
@@ -151,14 +266,15 @@ export default function HomeLivePlayground() {
                 }}
                 className="absolute top-2 right-2 z-10 inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-semibold text-slate-200 hover:border-sky-400/40"
               >
-                {copied ? <FaCheck className="h-3 w-3 text-emerald-400" /> : <FaCopy className="h-3 w-3" />}
+                {copied ? (
+                  <FaCheck className="h-3 w-3 text-emerald-400" />
+                ) : (
+                  <FaCopy className="h-3 w-3" />
+                )}
                 {copied ? 'Kopyalandı' : 'Kopyala'}
               </button>
-              <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 p-3 pr-24 text-[11px] leading-relaxed text-slate-400">
-{`curl -X POST https://noktanyus.com/api/v1/validate/iban \\
-  -H "x-api-key: YOUR_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{"iban":"${result?.normalized || 'TR…'}"}'`}
+              <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 p-3 pr-24 text-[11px] leading-relaxed text-slate-400 whitespace-pre-wrap">
+                {curl}
               </pre>
             </div>
           </div>
