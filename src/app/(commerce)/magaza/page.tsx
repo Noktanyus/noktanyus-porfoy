@@ -26,20 +26,20 @@ export default function MagazaHubPage() {
       />
       <div className="container-responsive space-responsive">
         <header className="max-w-3xl mx-auto text-center mb-10 sm:mb-14">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground mb-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-primary mb-3">
             Mağaza
           </p>
           <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
             TR Yardımcı API — Plan veya Kredi
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
             Doğrulama, KDV/tevkifat, kıdem, iş günü ve PDF uçları tek bir API key ile açılır. İki
             ödeme yolu var:{' '}
             <strong className="text-foreground font-semibold">aylık plan</strong> ile sabit kota,{' '}
             <strong className="text-foreground font-semibold">API kredisi</strong> ile kullandığın
             kadar.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">
+          <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">
             API dışında küçük bir{' '}
             <Link href="/magaza/urunler" className="text-brand-primary font-medium hover:underline">
               hazır paket

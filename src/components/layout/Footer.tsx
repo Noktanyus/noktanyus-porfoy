@@ -53,6 +53,7 @@ const Footer = ({ aboutData }: FooterProps) => {
             {[
               { href: '/magaza', label: 'Mağaza' },
               { href: '/docs', label: 'API Docs' },
+              { href: '/araclar', label: 'Araçlar' },
               { href: '/projelerim', label: 'Projelerim' },
               { href: '/iletisim', label: 'İletişim' },
             ].map((link, i, arr) => (
@@ -75,7 +76,9 @@ const Footer = ({ aboutData }: FooterProps) => {
           {/* Copyright Metni */}
           <div className="text-center space-y-2">
             <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-              &copy; {new Date().getFullYear()} {aboutData.name || 'Portföyüm'}. Tüm Hakları Saklıdır.
+              &copy; {new Date().getFullYear()}{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">Noktanyus</span>
+              {aboutData.name ? ` · ${aboutData.name}` : ''}. Tüm Hakları Saklıdır.
             </p>
             {pathname === '/' && (
               <p className="text-xs text-slate-400 dark:text-slate-500">

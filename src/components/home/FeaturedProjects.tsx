@@ -17,7 +17,7 @@ export default function FeaturedProjects({ projects }: FeaturedProjectsProps) {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-3 sm:mb-4 text-gray-900 dark:text-white">
             Öne Çıkan Projeler
           </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Geliştirdiğim en önemli projeler ve kullandığım teknolojiler.
           </p>
         </div>
