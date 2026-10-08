@@ -75,7 +75,7 @@ export default function ChangelogPage() {
               Canlı playground
             </Link>
             <a
-              href="/changelog/feed"
+              href="/changelog.xml"
               className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground hover:border-brand-primary/40"
             >
               RSS abone ol

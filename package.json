@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/generate-changelog-rss.mjs",
     "build": "PRISMA_CLIENT_ENGINE_TYPE=library node ./node_modules/prisma/build/index.js generate --schema=./prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint --fix",

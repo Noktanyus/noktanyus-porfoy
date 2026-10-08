@@ -139,17 +139,17 @@ const nextConfig = {
     return [
       {
         source: '/changelog/rss.xml',
-        destination: '/changelog/feed',
+        destination: '/changelog.xml',
         permanent: true,
       },
       {
-        source: '/api/changelog/rss',
-        destination: '/changelog/feed',
+        source: '/changelog/feed',
+        destination: '/changelog.xml',
         permanent: true,
       },
       {
         source: '/api/feeds/changelog',
-        destination: '/changelog/feed',
+        destination: '/changelog.xml',
         permanent: true,
       },
       {
