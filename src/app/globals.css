@@ -346,7 +346,14 @@
     -webkit-background-clip: text;
     color: transparent;
     -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(135deg, oklch(var(--foreground)) 0%, oklch(var(--primary)) 35%, oklch(var(--accent)) 70%, oklch(var(--primary)) 100%);
+    /* accent (koyu) mid-stop yerine sky tonu — dark mode'da başlık kaybolmasın */
+    background-image: linear-gradient(
+      135deg,
+      oklch(var(--foreground)) 0%,
+      oklch(var(--primary)) 40%,
+      oklch(0.75 0.12 230) 70%,
+      oklch(var(--primary)) 100%
+    );
     background-size: 200% 200%;
     animation: gradient-shift 8s ease-in-out infinite;
   }

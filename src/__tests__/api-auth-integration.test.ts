@@ -25,6 +25,9 @@ vi.mock('@/lib/prisma', () => {
     create: vi.fn(),
     update: vi.fn(),
   };
+  const customer = {
+    upsert: vi.fn(),
+  };
   const userSubscription = {
     findFirst: vi.fn(),
     create: vi.fn(),
@@ -39,6 +42,7 @@ vi.mock('@/lib/prisma', () => {
   };
   const prismaMock = {
     user,
+    customer,
     userSubscription,
     plan,
     $transaction: vi.fn(async (cb: (tx: typeof txMock) => Promise<unknown>) =>
@@ -73,6 +77,9 @@ const mockPrisma = prisma as unknown as {
     findFirst: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
+  };
+  customer: {
+    upsert: ReturnType<typeof vi.fn>;
   };
   userSubscription: {
     findFirst: ReturnType<typeof vi.fn>;
@@ -131,10 +138,12 @@ describe('API Auth Integration: register → verify → login', () => {
       email: 'integration@example.com',
       name: 'Integration Test',
     });
+    mockPrisma.customer.upsert.mockResolvedValue({});
 
     const req = makePostRequest('http://localhost:3000/api/auth/register', {
       name: 'Integration Test',
       email: 'integration@example.com',
+      phone: '05321234567',
       password: 'ValidPass123',
       planSlug: 'starter',
       acceptTerms: true,
@@ -179,6 +188,7 @@ describe('API Auth Integration: register → verify → login', () => {
     const req = makePostRequest('http://localhost:3000/api/auth/register', {
       name: 'Someone',
       email: 'existing@example.com',
+      phone: '05321234567',
       password: 'ValidPass123',
       planSlug: 'starter',
       acceptTerms: true,
@@ -249,10 +259,12 @@ describe('API Auth Integration: register → verify → login', () => {
         };
       }
     );
+    mockPrisma.customer.upsert.mockResolvedValue({});
 
     const regReq = makePostRequest('http://localhost:3000/api/auth/register', {
       name: 'Full Flow',
       email: 'full@example.com',
+      phone: '05329876543',
       password: 'FullPass123',
       planSlug: 'starter',
       acceptTerms: true,

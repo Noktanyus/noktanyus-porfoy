@@ -47,7 +47,7 @@ export function UserMenu() {
     return (
       <Link
         href="/giris"
-        className="hidden md:inline-flex items-center text-sm lg:text-base text-slate-700 dark:text-slate-300 whitespace-nowrap py-2 px-2 lg:px-3 rounded-lg min-h-[44px] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+        className="hidden md:inline-flex items-center text-sm font-semibold whitespace-nowrap py-2 px-3.5 lg:px-4 rounded-full min-h-[40px] bg-brand-primary text-white hover:bg-brand-primary/90 shadow-sm shadow-brand-primary/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
       >
         Giriş Yap
       </Link>

@@ -12,6 +12,7 @@ export function RegisterForm() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,13 +32,19 @@ export function RegisterForm() {
       return;
     }
 
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      setError("Geçerli bir telefon numarası girin");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, phone, password }),
       });
 
       const data = await response.json();
@@ -128,6 +135,25 @@ export function RegisterForm() {
             className={DS.input}
             placeholder="ornek@email.com"
             autoComplete="email"
+          />
+        )}
+      </FormField>
+
+      <FormField id="reg-phone" label="Telefon" required>
+        {(inputProps) => (
+          <input
+            {...inputProps}
+            type="tel"
+            inputMode="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            minLength={10}
+            maxLength={20}
+            disabled={loading}
+            className={DS.input}
+            placeholder="0532 123 45 67"
+            autoComplete="tel"
           />
         )}
       </FormField>

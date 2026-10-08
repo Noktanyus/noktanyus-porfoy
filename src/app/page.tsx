@@ -11,6 +11,7 @@ import FeaturedContent from "@/components/home/FeaturedContent";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
 import ApiShowcase from "@/components/home/ApiShowcase";
+import HomeQuickPaths from "@/components/home/HomeQuickPaths";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import {
   JsonLd,
@@ -136,13 +137,8 @@ export default async function Home() {
             profileImage={aboutData?.profileImage || '/images/profile.webp'}
           />
 
-          {/* Öne çıkan içerik — yalnızca gerçek içerik yapılandırıldıysa */}
-          {homeSettings?.featuredContentType &&
-            homeSettings.featuredContentType !== '' && (
-              <section className="relative">
-                <FeaturedContent homeSettings={homeSettings} />
-              </section>
-            )}
+          {/* Ziyaretçi yol haritası — CTA önceliği video/featured’dan önce */}
+          <HomeQuickPaths />
 
           {/* TR API & Microservices Showcase */}
           <ApiShowcase />
@@ -152,6 +148,14 @@ export default async function Home() {
 
           {/* Latest Blogs */}
           <LatestBlogs blogs={latestPosts} />
+
+          {/* Öne çıkan içerik — CMS yapılandırması; ana hikâyenin altına alındı */}
+          {homeSettings?.featuredContentType &&
+            homeSettings.featuredContentType !== '' && (
+              <section className="relative" aria-label="Öne çıkan içerik">
+                <FeaturedContent homeSettings={homeSettings} />
+              </section>
+            )}
         </div>
       </div>
     </>

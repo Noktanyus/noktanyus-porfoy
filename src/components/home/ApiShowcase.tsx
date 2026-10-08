@@ -44,8 +44,8 @@ console.log(result.bankName); // 'Türkiye Garanti Bankası A.Ş.'`;
 
             <h2 id="api-showcase-title" className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
               Geliştiriciler İçin Güçlü <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
-                Türkiye Yardımcı API'leri
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-blue-400 to-cyan-300">
+                Türkiye Yardımcı API&apos;leri
               </span>
             </h2>
 

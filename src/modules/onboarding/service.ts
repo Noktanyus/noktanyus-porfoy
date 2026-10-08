@@ -23,7 +23,7 @@ import { sendEmail } from '@/lib/emailService';
 import { logAudit } from '@/lib/audit';
 import { verifyTotp } from '@/lib/twoFactor';
 import { subscriptionSyncService } from '@/modules/commerce/subscriptionSync';
-import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
+import { WELCOME_CREDITS, formatWelcomeCredits, grantEmailVerifiedCredits } from '@/lib/apiCredits';
 import type {
   OnboardingPayload,
   OnboardingPlan,
@@ -33,6 +33,34 @@ import type {
   ResetPasswordInput,
   TwoFactorLoginInput,
 } from './schemas';
+
+function normalizePhone(phone: string): string {
+  return phone.trim().replace(/\s+/g, ' ');
+}
+
+/** Customer kaydına telefon yaz (User modelinde phone yok). */
+async function upsertCustomerPhone(input: {
+  userId: string;
+  email: string;
+  name?: string | null;
+  phone: string;
+}): Promise<void> {
+  const phone = normalizePhone(input.phone);
+  await prisma.customer.upsert({
+    where: { email: input.email },
+    create: {
+      email: input.email,
+      name: input.name ?? undefined,
+      phone,
+      userId: input.userId,
+    },
+    update: {
+      phone,
+      userId: input.userId,
+      ...(input.name ? { name: input.name } : {}),
+    },
+  });
+}
 
 // === Token Generation ===
 
@@ -83,12 +111,21 @@ export async function registerUser(
       throw new Error('Bu e-posta zaten kayıtlı. Giriş sayfasına yönlendiriliyorsunuz.');
     }
     const token = generateSecureToken();
+    const passwordHash = await hashPassword(payload.password);
     await prisma.user.update({
       where: { id: existing.id },
       data: {
+        name: payload.name,
+        password: passwordHash,
         emailVerifyToken: hashTokenForStorage(token),
         emailVerifyExpires: expiryFromNow(VERIFY_TOKEN_TTL_HOURS),
       },
+    });
+    await upsertCustomerPhone({
+      userId: existing.id,
+      email: payload.email,
+      name: payload.name,
+      phone: payload.phone,
     });
     await sendVerificationEmail(payload.email, token);
     return {
@@ -113,13 +150,20 @@ export async function registerUser(
     select: { id: true, email: true, name: true },
   });
 
+  await upsertCustomerPhone({
+    userId: user.id,
+    email: user.email,
+    name: user.name,
+    phone: payload.phone,
+  });
+
   await sendVerificationEmail(payload.email, token);
 
   logAudit({
     action: 'REGISTER',
     resource: 'user',
     resourceId: user.id,
-    details: { email: payload.email, planSlug: payload.planSlug },
+    details: { email: payload.email, planSlug: payload.planSlug, hasPhone: true },
     ipAddress: ctx.ipAddress,
     userAgent: ctx.userAgent,
   }).catch(() => undefined);
@@ -130,6 +174,91 @@ export async function registerUser(
     name: user.name ?? '',
     emailVerificationRequired: true,
   };
+}
+
+/**
+ * Google / GitHub OAuth kullanıcıları IdP'de e-posta doğrulamış sayılır.
+ * emailVerified, trial ve hoş geldin kredisi idempotent açılır.
+ */
+export async function activateOAuthUser(userId: string): Promise<void> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      emailVerified: true,
+      trialStartedAt: true,
+    },
+  });
+  if (!user) return;
+
+  const now = new Date();
+  const needsVerify = !user.emailVerified;
+  const needsTrial = !user.trialStartedAt;
+
+  if (needsVerify || needsTrial) {
+    const trialEndsAt = new Date(now);
+    trialEndsAt.setUTCDate(trialEndsAt.getUTCDate() + TRIAL_DAYS);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...(needsVerify
+            ? {
+                emailVerified: now,
+                emailVerifyToken: null,
+                emailVerifyExpires: null,
+              }
+            : {}),
+          ...(needsTrial
+            ? {
+                trialStartedAt: now,
+                trialEndsAt,
+              }
+            : {}),
+        },
+      });
+
+      if (needsTrial) {
+        const plan = await tx.plan.findUnique({
+          where: { slug: 'starter' },
+          select: { trialDays: true },
+        });
+        await subscriptionSyncService.ensureTrialUserSubscription(
+          {
+            userId,
+            planSlug: 'starter',
+            trialDays: plan?.trialDays ?? TRIAL_DAYS,
+            now,
+          },
+          tx
+        );
+      }
+    });
+  }
+
+  if (user.email) {
+    try {
+      await prisma.customer.upsert({
+        where: { email: user.email },
+        create: {
+          email: user.email,
+          name: user.name ?? undefined,
+          userId: user.id,
+        },
+        update: {
+          userId: user.id,
+          ...(user.name ? { name: user.name } : {}),
+        },
+      });
+    } catch {
+      // Customer oluşturma non-blocking
+    }
+  }
+
+  await grantEmailVerifiedCredits(userId);
 }
 
 // === D.1 — Email Verification ===

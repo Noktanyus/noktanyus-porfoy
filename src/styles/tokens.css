@@ -89,9 +89,9 @@
   --secondary: 0.18 0.01 250;
   --secondary-foreground: 0.92 0.005 250;
 
-  /* Muted */
+  /* Muted — 0.72 L: koyu zeminde okunabilirlik (WCAG AA hedefi) */
   --muted: 0.18 0.01 250;
-  --muted-foreground: 0.65 0.01 250;
+  --muted-foreground: 0.72 0.01 250;
 
   /* Accent */
   --accent: 0.22 0.02 255;

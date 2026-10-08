@@ -96,7 +96,7 @@ export function StoreChannelCards() {
                     </li>
                   ))}
                 </ul>
-                <span className="inline-flex items-center gap-2 text-sm font-semibold">
+                <span className="inline-flex items-center gap-2 rounded-xl bg-white/15 px-4 py-2.5 text-sm font-bold backdrop-blur-sm border border-white/20 group-hover:bg-white/25 transition-colors">
                   {ch.cta}
                   <FaArrowRight className="transition group-hover:translate-x-1" aria-hidden />
                 </span>

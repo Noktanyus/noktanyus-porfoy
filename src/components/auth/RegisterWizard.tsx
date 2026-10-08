@@ -11,15 +11,18 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 import { RegisterStepSchema } from "@/modules/onboarding/schemas";
+import { AuthDivider, SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 
 type Step = 1 | 2;
 
 interface AccountData {
   name: string;
   email: string;
+  phone: string;
   password: string;
   confirmPassword: string;
   acceptTerms: boolean;
@@ -187,6 +190,35 @@ function AccountStep({
       </div>
 
       <div>
+        <label htmlFor="reg-phone" className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">
+          Telefon
+        </label>
+        <input
+          id="reg-phone"
+          type="tel"
+          inputMode="tel"
+          value={data.phone}
+          onChange={(e) => setData({ ...data, phone: e.target.value })}
+          required
+          minLength={10}
+          maxLength={20}
+          disabled={disabled}
+          autoComplete="tel"
+          placeholder="0532 123 45 67"
+          className={cn(
+            "w-full px-3 py-2 rounded-lg border bg-white dark:bg-slate-800",
+            "border-slate-300 dark:border-slate-700",
+            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400",
+            "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent",
+            "disabled:opacity-50 disabled:cursor-not-allowed"
+          )}
+        />
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Ödeme ve hesap bildirimleri için kullanılır
+        </p>
+      </div>
+
+      <div>
         <label htmlFor="reg-password" className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">
           Şifre
         </label>
@@ -309,12 +341,16 @@ function VerificationStep({ email }: { email: string }) {
 }
 
 export function RegisterWizard() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
   const [accountError, setAccountError] = useState<string | null>(null);
   const [account, setAccount] = useState<AccountData>({
     name: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     acceptTerms: false,
@@ -336,6 +372,7 @@ export function RegisterWizard() {
     const parsed = RegisterStepSchema.safeParse({
       name: account.name,
       email: account.email,
+      phone: account.phone,
       password: account.password,
     });
     if (!parsed.success) {
@@ -351,6 +388,7 @@ export function RegisterWizard() {
         body: JSON.stringify({
           name: account.name,
           email: account.email,
+          phone: account.phone,
           password: account.password,
           // Plan kayıtta zorunlu değil — starter trial varsayılan
           planSlug: "starter",
@@ -377,18 +415,29 @@ export function RegisterWizard() {
 
   return (
     <div className="space-y-6">
+      {step === 1 && (
+        <>
+          <SocialAuthButtons
+            callbackUrl={callbackUrl}
+            mode="register"
+            providers={["google"]}
+          />
+          <AuthDivider label="veya e-posta ile kayıt ol" />
+        </>
+      )}
+
       <StepIndicator current={step} />
 
       {step === 1 && (
         <form onSubmit={handleSubmit} noValidate>
           <AccountStep data={account} setData={setAccount} disabled={loading} error={accountError} />
 
-          <div className="mt-6 flex items-center justify-end gap-2">
+          <div className="mt-6">
             <button
               type="submit"
               disabled={loading || !account.acceptTerms}
               className={cn(
-                "inline-flex items-center justify-center px-4 py-2 rounded-lg font-medium",
+                "w-full inline-flex items-center justify-center px-4 py-2.5 rounded-lg font-medium min-h-[44px]",
                 "bg-indigo-600 text-white hover:bg-indigo-700",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2",
                 "dark:focus-visible:ring-offset-slate-900",

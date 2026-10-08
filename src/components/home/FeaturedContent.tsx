@@ -30,7 +30,18 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
   if (homeSettings.featuredContentType === "html" && !homeSettings.customHtml) return null;
 
   return (
-    <div className="relative flex items-center justify-center py-4 sm:py-6">
+    <div className="relative flex flex-col items-center justify-center py-6 sm:py-10 gap-4">
+      <div className="text-center space-y-1">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
+          Öne çıkan
+        </p>
+        {homeSettings.featuredContentType === 'video' && (
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+            Seçili video
+          </h2>
+        )}
+      </div>
+
       {videoId && (
         <div className="w-full max-w-2xl relative z-10">
           <div className="aspect-video rounded-2xl overflow-hidden border border-border shadow-lg">
@@ -40,6 +51,7 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
               title="Öne Çıkan YouTube Videosu"
+              loading="lazy"
             />
           </div>
         </div>
@@ -47,11 +59,11 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
 
       {homeSettings.featuredContentType === "text" && homeSettings.textTitle && (
         <div className="w-full max-w-2xl glass-card p-6 sm:p-8 relative z-10 text-center">
-          <h3 className="text-xl sm:text-2xl font-bold mb-3 text-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold mb-3 text-foreground">
             {homeSettings.textTitle}
-          </h3>
+          </h2>
           {homeSettings.textContent && (
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
               {homeSettings.textContent}
             </p>
           )}

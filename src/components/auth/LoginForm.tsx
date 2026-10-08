@@ -1,15 +1,16 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn, getSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { DS } from '@/lib/design-system';
 import { FormField } from '@/components/ui/FormField';
 import { PasswordInput } from '@/components/ui/PasswordInput';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { postLoginRedirect } from '@/lib/appRole';
+import { AuthDivider, SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
 
 export function LoginForm() {
   const router = useRouter();
@@ -22,11 +23,6 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
-
-  // Auto-focus first input (a11y + UX)
-  useEffect(() => {
-    firstInputRef.current?.focus();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,87 +76,93 @@ export function LoginForm() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="space-y-4"
-      noValidate
-      aria-busy={loading}
-      aria-describedby={error ? 'login-error' : undefined}
-    >
-      {error && (
-        <div
-          id="login-error"
-          className={DS.formErrorBanner}
-          role="alert"
-          aria-live="assertive"
-        >
-          {error}
-        </div>
-      )}
+    <div>
+      {/* Google OAuth — en üstte, ilk bakışta görünsün */}
+      <SocialAuthButtons callbackUrl={callbackUrl} mode="login" providers={['google']} />
+      <AuthDivider label="veya e-posta ile giriş yap" />
 
-      <FormField
-        id="email"
-        label="E-posta"
-        required
-        error={emailError ?? undefined}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        noValidate
+        aria-busy={loading}
+        aria-describedby={error ? 'login-error' : undefined}
       >
-        {(inputProps) => (
-          <input
-            {...inputProps}
-            ref={firstInputRef}
-            name="email"
-            type="email"
-            inputMode="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (emailError) setEmailError(null);
-            }}
+        {error && (
+          <div
+            id="login-error"
+            className={DS.formErrorBanner}
+            role="alert"
+            aria-live="assertive"
+          >
+            {error}
+          </div>
+        )}
+
+        <FormField
+          id="email"
+          label="E-posta"
+          required
+          error={emailError ?? undefined}
+        >
+          {(inputProps) => (
+            <input
+              {...inputProps}
+              ref={firstInputRef}
+              name="email"
+              type="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError(null);
+              }}
+              required
+              disabled={loading}
+              className={DS.input}
+              placeholder="ornek@email.com"
+              autoComplete="email"
+            />
+          )}
+        </FormField>
+
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <label htmlFor="password" className={DS.label}>
+              Şifre
+            </label>
+            <Link
+              href="/sifremi-unuttum"
+              className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded min-h-[44px] inline-flex items-center"
+            >
+              Şifremi unuttum
+            </Link>
+          </div>
+          <PasswordInput
+            id="password"
+            name="password"
+            hideLabel
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            className={DS.input}
-            placeholder="ornek@email.com"
-            autoComplete="email"
+            aria-invalid={error ? 'true' : 'false'}
+            aria-describedby={error ? 'login-error' : undefined}
+            placeholder="••••••••"
+            autoComplete="current-password"
           />
-        )}
-      </FormField>
-
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <label htmlFor="password" className={DS.label}>
-            Şifre
-          </label>
-          <Link
-            href="/sifremi-unuttum"
-            className="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded min-h-[44px] inline-flex items-center"
-          >
-            Şifremi unuttum
-          </Link>
         </div>
-        <PasswordInput
-          id="password"
-          name="password"
-          hideLabel
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-          aria-invalid={error ? 'true' : 'false'}
-          aria-describedby={error ? 'login-error' : undefined}
-          placeholder="••••••••"
-          autoComplete="current-password"
-        />
-      </div>
 
-      <FormSubmitButton
-        type="submit"
-        loading={loading}
-        loadingText="Giriş yapılıyor..."
-        fullWidth
-        className="mt-2"
-      >
-        Giriş Yap
-      </FormSubmitButton>
-    </form>
+        <FormSubmitButton
+          type="submit"
+          loading={loading}
+          loadingText="Giriş yapılıyor..."
+          fullWidth
+          className="mt-2"
+        >
+          Giriş Yap
+        </FormSubmitButton>
+      </form>
+    </div>
   );
 }

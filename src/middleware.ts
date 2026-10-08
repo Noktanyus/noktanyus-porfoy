@@ -48,7 +48,7 @@ function attachSecurityHeaders(response: NextResponse): void {
     `child-src 'self' blob: https://challenges.cloudflare.com https://cdn.redocly.com ${paytrSrc}`,
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self' https://www.paytr.com https://challenges.cloudflare.com",
+    "form-action 'self' https://accounts.google.com https://github.com https://www.paytr.com https://challenges.cloudflare.com",
     "frame-ancestors 'none'",
     "upgrade-insecure-requests"
   ].join('; ');

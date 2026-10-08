@@ -43,7 +43,7 @@ const TOOLS = [
     description:
       '11 haneli T.C. Kimlik Numarası (tek/çift kuralı, 10-11. hane kontrolü) ve 10 haneli Vergi Kimlik Numarası algoritma kontrolü.',
     icon: FaIdCard,
-    color: 'from-purple-500 to-pink-600',
+    color: 'from-sky-500 to-blue-600',
     tag: 'E-Ticaret & Fatura',
   },
   {
@@ -123,8 +123,8 @@ export default function AraclarPage() {
         </div>
 
         {/* API CTA Banner */}
-        <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-blue-900/90 via-indigo-900/90 to-purple-900/90 border border-indigo-500/30 text-white shadow-2xl backdrop-blur-md relative overflow-hidden">
-          <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-brand-primary/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-slate-950 via-blue-950 to-sky-900 border border-sky-500/25 text-white shadow-2xl backdrop-blur-md relative overflow-hidden">
+          <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center md:text-left">
               <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-bold text-emerald-400">

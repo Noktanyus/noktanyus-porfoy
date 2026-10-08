@@ -21,6 +21,9 @@ vi.mock('@/lib/prisma', () => {
     create: vi.fn(),
     update: vi.fn(),
   };
+  const customer = {
+    upsert: vi.fn(),
+  };
   const userSubscription = {
     findFirst: vi.fn(),
     create: vi.fn(),
@@ -36,6 +39,7 @@ vi.mock('@/lib/prisma', () => {
   };
   const prismaMock = {
     user,
+    customer,
     userSubscription,
     plan,
     auditLog,
@@ -95,6 +99,9 @@ const mockPrisma = prisma as unknown as {
     create: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
   };
+  customer: {
+    upsert: ReturnType<typeof vi.fn>;
+  };
   userSubscription: {
     findFirst: ReturnType<typeof vi.fn>;
     create: ReturnType<typeof vi.fn>;
@@ -153,6 +160,7 @@ describe('registerUser', () => {
   const validPayload = {
     name: 'Test User',
     email: 'newuser@example.com',
+    phone: '05321234567',
     password: 'Test1234pass',
     planSlug: 'starter' as const,
     acceptTerms: true as const,
@@ -165,6 +173,7 @@ describe('registerUser', () => {
       email: validPayload.email,
       name: validPayload.name,
     });
+    mockPrisma.customer.upsert.mockResolvedValue({});
 
     const result = await registerUser(validPayload, {
       ipAddress: '127.0.0.1',
@@ -174,6 +183,12 @@ describe('registerUser', () => {
     expect(result.userId).toBe('user-1');
     expect(result.emailVerificationRequired).toBe(true);
     expect(mockPrisma.user.create).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.customer.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { email: validPayload.email },
+        create: expect.objectContaining({ phone: '05321234567', userId: 'user-1' }),
+      })
+    );
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
     expect(mockLogAudit).toHaveBeenCalledWith(
       expect.objectContaining({ action: 'REGISTER', resourceId: 'user-1' })
@@ -198,11 +213,13 @@ describe('registerUser', () => {
       emailVerified: null,
     });
     mockPrisma.user.update.mockResolvedValue({});
+    mockPrisma.customer.upsert.mockResolvedValue({});
 
     const result = await registerUser(validPayload);
     expect(result.userId).toBe('user-existing');
     expect(result.emailVerificationRequired).toBe(true);
     expect(mockPrisma.user.update).toHaveBeenCalledTimes(1);
+    expect(mockPrisma.customer.upsert).toHaveBeenCalledTimes(1);
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
     expect(mockPrisma.user.create).not.toHaveBeenCalled();
   });
@@ -214,6 +231,7 @@ describe('registerUser', () => {
       email: validPayload.email,
       name: validPayload.name,
     });
+    mockPrisma.customer.upsert.mockResolvedValue({});
 
     await registerUser(validPayload);
 

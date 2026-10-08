@@ -19,6 +19,17 @@ export type OnboardingPlan = z.infer<typeof OnboardingPlanSchema>;
  * Step 1 — Account registration.
  * Reused by both /kayit wizard and direct API registration.
  */
+/** TR / uluslararası telefon — en az 10 rakam */
+const phoneSchema = z
+  .string()
+  .trim()
+  .min(10, 'Geçerli bir telefon numarası girin')
+  .max(20, 'Telefon numarası en fazla 20 karakter olabilir')
+  .refine((value) => {
+    const digits = value.replace(/\D/g, '');
+    return digits.length >= 10 && digits.length <= 15;
+  }, 'Geçerli bir telefon numarası girin (örn. 0532 123 45 67)');
+
 export const RegisterStepSchema = z.object({
   name: z
     .string()
@@ -30,6 +41,7 @@ export const RegisterStepSchema = z.object({
     .trim()
     .toLowerCase()
     .email('Geçerli bir e-posta adresi girin'),
+  phone: phoneSchema,
   password: z
     .string()
     .min(8, 'Şifre en az 8 karakter olmalı')

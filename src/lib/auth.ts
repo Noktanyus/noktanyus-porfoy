@@ -34,6 +34,7 @@ import {
   type AppRole,
 } from "@/lib/appRole";
 import { grantEmailVerifiedCredits } from "@/lib/apiCredits";
+import { activateOAuthUser } from "@/modules/onboarding/service";
 
 if (!env.NEXTAUTH_SECRET) {
   throw new Error("NEXTAUTH_SECRET tanımlı değil");
@@ -162,6 +163,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
       // Ayni email ile birden fazla provider'a kayit olan kullanicinin
       // tek hesapta birlestirilmesine izin verir (OAuth spec uyumu).
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        return {
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+          // Google email_verified=true ise DB'de de onaylı say
+          emailVerified: profile.email_verified ? new Date() : null,
+        };
+      },
     })
   );
 }
@@ -173,6 +184,16 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        return {
+          id: String(profile.id),
+          name: profile.name ?? profile.login,
+          email: profile.email,
+          image: profile.avatar_url,
+          // GitHub primary email alanı yalnızca doğrulanmış e-postayı döner
+          emailVerified: profile.email ? new Date() : null,
+        };
+      },
     })
   );
 }
@@ -301,21 +322,33 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
+      // OAuth adapter yeni User oluşturduğunda e-posta otomatik onay + trial
       if (user?.id && !isSyntheticAdminId(user.id)) {
         try {
-          await grantEmailVerifiedCredits(user.id);
+          await activateOAuthUser(user.id);
         } catch {
           // non-blocking
         }
       }
     },
-    async signIn({ user }) {
-      if (user?.id && !isSyntheticAdminId(user.id)) {
+    async signIn({ user, account }) {
+      if (!user?.id || isSyntheticAdminId(user.id)) return;
+
+      const provider = account?.provider;
+      if (provider === "google" || provider === "github") {
         try {
-          await grantEmailVerifiedCredits(user.id);
+          // Mevcut hesap bağlama / tekrar giriş: emailVerified garanti edilir
+          await activateOAuthUser(user.id);
         } catch {
           // non-blocking
         }
+        return;
+      }
+
+      try {
+        await grantEmailVerifiedCredits(user.id);
+      } catch {
+        // non-blocking
       }
     },
   },
