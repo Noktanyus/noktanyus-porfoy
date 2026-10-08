@@ -86,20 +86,23 @@ export default function DocsPage() {
               <span aria-hidden="true">/</span>
               <span>Dokümantasyon</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 sm:text-4xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
+              Noktanyus API
+            </p>
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
               TR yardımcı API
             </h1>
-            <p className="mt-2 max-w-2xl text-base text-slate-600 dark:text-slate-400">
+            <p className="mt-2 max-w-2xl text-base text-slate-600 dark:text-slate-300 leading-relaxed">
               Doğrulama, finans, takvim ve coğrafya uçları. Kimlik:{' '}
               <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">
                 x-api-key
               </code>
               . Kota abonelikten veya ön ödemeli krediden düşer.
             </p>
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+            <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
               <Link
                 href="/dashboard/api-keys"
-                className="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 font-medium text-white shadow-sm transition hover:bg-blue-700"
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-xl bg-brand-primary px-4 py-2 font-semibold text-white shadow-sm shadow-brand-primary/25 transition hover:bg-brand-primary/90"
               >
                 API anahtarı oluştur
               </Link>
