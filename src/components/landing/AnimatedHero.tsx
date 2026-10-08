@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from '@/lib/animations';
 import Link from 'next/link';
@@ -49,6 +50,7 @@ export function AnimatedHero({
   const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.12 });
   const initials = initialsFromName(name);
   const shortDescription = shortenDescription(description);
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <section
@@ -238,28 +240,25 @@ export function AnimatedHero({
             />
 
             <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl shadow-brand-primary/25 bg-gradient-to-br from-slate-800 via-slate-900 to-brand-primary/80">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={profileImage}
-                alt={`${name} profil fotoğrafı`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement | null;
-                  if (fallback) fallback.hidden = false;
-                }}
-              />
-              <div
-                hidden
-                className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-brand-primary to-sky-600"
-                aria-hidden="true"
-              >
-                <span className="text-6xl sm:text-7xl font-extrabold text-white tracking-wide drop-shadow-lg">
-                  {initials}
-                </span>
-                <span className="mt-2 text-sm font-medium text-white/80">{title}</span>
-              </div>
+              {!imageFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profileImage}
+                  alt={`${name} profil fotoğrafı`}
+                  className="w-full h-full object-cover"
+                  onError={() => setImageFailed(true)}
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 via-brand-primary to-sky-600"
+                  aria-hidden="true"
+                >
+                  <span className="text-6xl sm:text-7xl font-extrabold text-white tracking-wide drop-shadow-lg">
+                    {initials}
+                  </span>
+                  <span className="mt-2 text-sm font-medium text-white/80">{title}</span>
+                </div>
+              )}
 
               <div
                 className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 to-transparent pointer-events-none"
