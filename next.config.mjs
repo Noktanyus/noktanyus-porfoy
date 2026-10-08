@@ -138,6 +138,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: '/changelog/rss.xml',
+        destination: '/api/changelog/rss',
+        permanent: true,
+      },
+      {
         source: '/projelerim/estm:rest*',
         destination: '/projelerim/esas-spor-tesisleri',
         permanent: true,
