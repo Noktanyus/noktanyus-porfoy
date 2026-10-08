@@ -27,6 +27,7 @@ export const MOBILE_NAV_LINKS = [
 ] as const;
 
 const EXTRA_MOBILE_LINKS = [
+  { href: '/baslangic', label: '5 dk Başlangıç' },
   { href: '/fiyatlandirma', label: 'Fiyatlandırma' },
   { href: '/hakkimda', label: 'Hakkımda' },
 ] as const;

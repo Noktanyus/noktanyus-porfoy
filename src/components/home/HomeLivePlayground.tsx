@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { FaCheckCircle, FaTimesCircle, FaArrowRight, FaBolt } from 'react-icons/fa';
+import { FaCheckCircle, FaTimesCircle, FaArrowRight, FaBolt, FaCopy, FaCheck } from 'react-icons/fa';
 import { resolveIbanBank } from '@/modules/tr-api/validators';
+import toast from 'react-hot-toast';
 
 const SAMPLES = [
   { label: 'Garanti', iban: 'TR600006201234567890123456' },
@@ -17,6 +18,7 @@ const SAMPLES = [
  */
 export default function HomeLivePlayground() {
   const [iban, setIban] = useState<string>(SAMPLES[0].iban);
+  const [copied, setCopied] = useState(false);
 
   const result = useMemo(() => {
     const clean = iban.trim().replace(/\s+/g, '').toUpperCase();
@@ -133,12 +135,32 @@ export default function HomeLivePlayground() {
               </div>
             )}
 
-            <pre className="mt-5 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-400">
+            <div className="mt-5 relative">
+              <button
+                type="button"
+                onClick={async () => {
+                  const curl = `curl -X POST https://noktanyus.com/api/v1/validate/iban \\\n  -H "x-api-key: YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${result?.normalized || 'TR330006100519786457841326'}"}'`;
+                  try {
+                    await navigator.clipboard.writeText(curl);
+                    setCopied(true);
+                    toast.success('cURL kopyalandı');
+                    setTimeout(() => setCopied(false), 2000);
+                  } catch {
+                    toast.error('Kopyalanamadı');
+                  }
+                }}
+                className="absolute top-2 right-2 z-10 inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] font-semibold text-slate-200 hover:border-sky-400/40"
+              >
+                {copied ? <FaCheck className="h-3 w-3 text-emerald-400" /> : <FaCopy className="h-3 w-3" />}
+                {copied ? 'Kopyalandı' : 'Kopyala'}
+              </button>
+              <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80 p-3 pr-24 text-[11px] leading-relaxed text-slate-400">
 {`curl -X POST https://noktanyus.com/api/v1/validate/iban \\
   -H "x-api-key: YOUR_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"iban":"${result?.normalized || 'TR…'}"}'`}
-            </pre>
+              </pre>
+            </div>
           </div>
         </div>
       </div>
