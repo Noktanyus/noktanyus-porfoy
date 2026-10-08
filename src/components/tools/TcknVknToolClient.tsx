@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaIdCard } from 'react-icons/fa';
 import { validateTckn, validateVkn } from '@/modules/tr-api/validators';
+import { TrackRecentTool } from '@/components/tools/TrackRecentTool';
 
 export default function TcknVknToolClient() {
   const [type, setType] = useState<'tckn' | 'vkn'>('tckn');
@@ -26,6 +27,7 @@ export default function TcknVknToolClient() {
 
   return (
     <div className="section-glass-hero bg-blob-decoration py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <TrackRecentTool slug="tckn-vkn-dogrulama" title="TCKN & VKN" />
       <div className="relative z-10 space-y-8">
         <div>
           <Link

@@ -12,6 +12,9 @@ import FeaturedProjects from "@/components/home/FeaturedProjects";
 import LatestBlogs from "@/components/home/LatestBlogs";
 import ApiShowcase from "@/components/home/ApiShowcase";
 import HomeQuickPaths from "@/components/home/HomeQuickPaths";
+import HomeTrustStrip from "@/components/home/HomeTrustStrip";
+import HomeLivePlayground from "@/components/home/HomeLivePlayground";
+import HomeWhatsNew from "@/components/home/HomeWhatsNew";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import {
   JsonLd,
@@ -140,8 +143,15 @@ export default async function Home() {
           {/* Ziyaretçi yol haritası — CTA önceliği video/featured’dan önce */}
           <HomeQuickPaths />
 
+          <HomeTrustStrip />
+
+          {/* Developer portal: TTFHW — anahtar olmadan dene */}
+          <HomeLivePlayground />
+
           {/* TR API & Microservices Showcase */}
           <ApiShowcase />
+
+          <HomeWhatsNew />
 
           {/* Featured Projects */}
           <FeaturedProjects projects={featuredProjects} />
@@ -149,7 +159,7 @@ export default async function Home() {
           {/* Latest Blogs */}
           <LatestBlogs blogs={latestPosts} />
 
-          {/* Öne çıkan içerik — CMS yapılandırması; ana hikâyenin altına alındı */}
+          {/* Öne çıkan içerik — CMS; eğlence videoları varsayılan kapalı */}
           {homeSettings?.featuredContentType &&
             homeSettings.featuredContentType !== '' && (
               <section className="relative" aria-label="Öne çıkan içerik">

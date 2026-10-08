@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaCalendarAlt, FaCopy, FaCheck, FaCode, FaArrowLeft, FaBriefcase, FaSun } from 'react-icons/fa';
 import { calculateBusinessDays } from '@/modules/tr-api/extras';
+import { TrackRecentTool } from '@/components/tools/TrackRecentTool';
 
 export default function BusinessDaysToolClient() {
   const [startDate, setStartDate] = useState('2026-10-01');
@@ -30,6 +31,7 @@ export default function BusinessDaysToolClient() {
 
   return (
     <div className="section-glass-hero bg-blob-decoration py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <TrackRecentTool slug="is-gunu-hesaplama" title="İş Günü Hesaplama" />
       <div className="relative z-10 space-y-8">
         <div>
           <Link

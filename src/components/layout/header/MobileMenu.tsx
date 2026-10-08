@@ -20,12 +20,14 @@ export const MOBILE_NAV_LINKS = [
   { href: '/magaza', label: 'Mağaza' },
   { href: '/docs', label: 'API Docs' },
   { href: '/araclar', label: 'Araçlar' },
+  { href: '/changelog', label: 'Changelog' },
   { href: '/projelerim', label: 'Projelerim' },
   { href: '/blog', label: 'Blog' },
   { href: '/iletisim', label: 'İletişim' },
 ] as const;
 
 const EXTRA_MOBILE_LINKS = [
+  { href: '/fiyatlandirma', label: 'Fiyatlandırma' },
   { href: '/hakkimda', label: 'Hakkımda' },
 ] as const;
 

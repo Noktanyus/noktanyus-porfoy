@@ -442,12 +442,31 @@ function ResultThumbnail({ result }: { result: SearchResult }) {
   );
 }
 
+const QUICK_LINKS = [
+  { href: '/docs', label: 'API Docs' },
+  { href: '/araclar', label: 'Canlı Araçlar' },
+  { href: '/magaza', label: 'Mağaza' },
+  { href: '/changelog', label: 'Changelog' },
+  { href: '/#canli-playground', label: 'IBAN Playground' },
+] as const;
+
 function EmptyState() {
   return (
-    <div className="p-8 text-center text-sm text-muted-foreground">
+    <div className="p-6 sm:p-8 text-center text-sm text-muted-foreground">
       <FaSearch className="w-8 h-8 mx-auto mb-3 opacity-50" aria-hidden="true" />
       <p>Aramaya başlamak için en az 2 karakter girin.</p>
-      <p className="mt-3 text-xs">
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {QUICK_LINKS.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold text-foreground hover:border-brand-primary/40 hover:text-brand-primary transition-colors"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+      <p className="mt-4 text-xs">
         İpucu:{' '}
         <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-foreground">
           Ctrl

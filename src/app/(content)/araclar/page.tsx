@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
+import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
@@ -79,11 +80,13 @@ export default function AraclarPage() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient-animated">
             Geliştirici & E-Ticaret Araçları
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
             E-ticaret, muhasebe ve yazılım projeleriniz için Türkiye standartlarına uygun doğrulamaları ve hesaplamaları
             ücretsiz test edin veya API ile sisteminize bağlayın.
           </p>
         </header>
+
+        <RecentToolsStrip />
 
         {/* Tools Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">

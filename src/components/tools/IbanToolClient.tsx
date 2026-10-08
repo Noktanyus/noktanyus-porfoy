@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FaCheckCircle, FaTimesCircle, FaCopy, FaCheck, FaCode, FaArrowLeft, FaShieldAlt } from 'react-icons/fa';
 import { resolveIbanBank } from '@/modules/tr-api/validators';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
+import { TrackRecentTool } from '@/components/tools/TrackRecentTool';
 
 const SAMPLES = [
   { label: 'Garanti BBVA', iban: 'TR600006201234567890123456' },
@@ -38,6 +39,7 @@ export default function IbanToolClient() {
 
   return (
     <div className="section-glass-hero bg-blob-decoration py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <TrackRecentTool slug="iban-dogrulama" title="IBAN Doğrulama" />
       <div className="relative z-10 space-y-8">
         {/* Back Link */}
         <div>

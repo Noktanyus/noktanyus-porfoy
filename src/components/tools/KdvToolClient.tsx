@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { FaCalculator, FaCopy, FaCheck, FaCode, FaArrowLeft } from 'react-icons/fa';
 import { calculateKdvWithholding, type WithholdingFraction } from '@/modules/tr-api/extras';
+import { TrackRecentTool } from '@/components/tools/TrackRecentTool';
 
 export default function KdvToolClient() {
   const [amountStr, setAmountStr] = useState('1000');
@@ -34,6 +35,7 @@ export default function KdvToolClient() {
 
   return (
     <div className="section-glass-hero bg-blob-decoration py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+      <TrackRecentTool slug="kdv-tevkifat-hesaplama" title="KDV & Tevkifat" />
       <div className="relative z-10 space-y-8">
         <div>
           <Link
