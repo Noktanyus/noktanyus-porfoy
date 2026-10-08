@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-dx-portal',
+    date: '2026-10-09',
+    title: 'Durum sayfası, llms.txt ve kod tarifleri',
+    summary:
+      'Sistem durumu (/durum), LLM-dostu llms.txt, ana sayfada cURL/Node/Python kopyala-yapıştır örnekleri ve güvenilir changelog RSS (/feeds/changelog).',
+    kind: 'feature',
+    href: '/durum',
+  },
+  {
     id: '2026-10-08-google-oauth',
     date: '2026-10-08',
     title: 'Google ile giriş ve kayıt',

@@ -1,0 +1,35 @@
+# Noktanyus
+
+> Türkiye odaklı doğrulama ve yardımcı API’ler — IBAN, TCKN/VKN, KDV, iş günü.
+> Portföy, mağaza ve developer portal: https://noktanyus.com
+
+## Hızlı başlangıç
+- [5 dakikada başlangıç](https://noktanyus.com/baslangic)
+- [Canlı IBAN playground](https://noktanyus.com/#canli-playground)
+- [API Docs (OpenAPI/Redoc)](https://noktanyus.com/docs)
+- [Changelog](https://noktanyus.com/changelog)
+- [Changelog RSS](https://noktanyus.com/feeds/changelog)
+- [Sistem durumu](https://noktanyus.com/durum)
+
+## Ücretsiz araçlar (tarayıcı)
+- [Tüm araçlar](https://noktanyus.com/araclar)
+- IBAN doğrulama + banka çözümü
+- TCKN / VKN format kontrolü
+- KDV / tevkifat hesaplama
+- İş günü hesaplama
+
+## API (özet)
+- Base URL: `https://noktanyus.com/api/v1`
+- Auth: `Authorization: Bearer nok_live_…` (Dashboard → API Keys)
+- Örnek: `POST /api/v1/validate/iban` body `{"iban":"TR…"}`
+- Örnek: `POST /api/v1/iban/bank` body `{"iban":"TR…"}`
+- OpenAPI: https://noktanyus.com/openapi.json
+
+## Ürün
+- [Mağaza / planlar](https://noktanyus.com/magaza)
+- [Kayıt](https://noktanyus.com/kayit) — karşılama kredisi
+- [Giriş](https://noktanyus.com/giris)
+
+## İletişim / kimlik
+- Site: https://noktanyus.com
+- Bu dosya LLM ve araçların siteyi hızlı özetlemesi içindir (llms.txt).

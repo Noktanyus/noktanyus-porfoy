@@ -56,6 +56,7 @@ const Footer = ({ aboutData }: FooterProps) => {
               { href: '/araclar', label: 'Araçlar' },
               { href: '/changelog', label: 'Changelog' },
               { href: '/baslangic', label: 'Başlangıç' },
+              { href: '/durum', label: 'Durum' },
               { href: '/projelerim', label: 'Projelerim' },
               { href: '/iletisim', label: 'İletişim' },
             ].map((link, i, arr) => (

@@ -125,10 +125,18 @@ const nextConfig = {
   // dogal olarak okunmaz. Bu nedenle anahtar konfigurasyon proxy tarafidir;
   // Next.js sadece karsilayan route'un varligini saglar.
   async rewrites() {
+    const always = [
+      // public/*.xml bu deploy’da 404; App Router feed’e yönlendir
+      {
+        source: '/changelog.xml',
+        destination: '/feeds/changelog',
+      },
+    ];
     if (process.env.SUBDOMAIN_ROUTING_ENABLED !== 'true') {
-      return [];
+      return always;
     }
     return [
+      ...always,
       {
         source: '/workspace-redirect/:slug',
         destination: '/workspace/:slug',
@@ -139,17 +147,17 @@ const nextConfig = {
     return [
       {
         source: '/changelog/rss.xml',
-        destination: '/changelog.xml',
+        destination: '/feeds/changelog',
         permanent: true,
       },
       {
         source: '/changelog/feed',
-        destination: '/changelog.xml',
+        destination: '/feeds/changelog',
         permanent: true,
       },
       {
         source: '/api/feeds/changelog',
-        destination: '/changelog.xml',
+        destination: '/feeds/changelog',
         permanent: true,
       },
       {

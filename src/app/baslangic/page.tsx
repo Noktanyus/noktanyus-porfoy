@@ -74,12 +74,12 @@ export default function BaslangicPage() {
             >
               Anahtarsız dene
             </Link>
-            <Link
-              href="/changelog.xml"
+            <a
+              href="/feeds/changelog"
               className="inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-brand-primary/40"
             >
               Changelog RSS
-            </Link>
+            </a>
           </div>
         </header>
 

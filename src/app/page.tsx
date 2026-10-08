@@ -14,6 +14,7 @@ import ApiShowcase from "@/components/home/ApiShowcase";
 import HomeQuickPaths from "@/components/home/HomeQuickPaths";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeLivePlayground from "@/components/home/HomeLivePlayground";
+import HomeCodeRecipes from "@/components/home/HomeCodeRecipes";
 import HomeWhatsNew from "@/components/home/HomeWhatsNew";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import {
@@ -147,6 +148,8 @@ export default async function Home() {
 
           {/* Developer portal: TTFHW — anahtar olmadan dene */}
           <HomeLivePlayground />
+
+          <HomeCodeRecipes />
 
           {/* TR API & Microservices Showcase */}
           <ApiShowcase />
