@@ -445,6 +445,7 @@ function ResultThumbnail({ result }: { result: SearchResult }) {
 const QUICK_LINKS = [
   { href: '/baslangic', label: '5 dk Başlangıç' },
   { href: '/docs', label: 'API Docs' },
+  { href: '/docs/hatalar', label: 'Hata kodları' },
   { href: '/araclar', label: 'Canlı Araçlar' },
   { href: '/magaza', label: 'Mağaza' },
   { href: '/changelog', label: 'Changelog' },

@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-error-contract',
+    date: '2026-10-09',
+    title: 'API hata kodları referansı',
+    summary:
+      '/docs/hatalar altında HTTP + error.code + retryable sözleşmesi; agent ve SDK entegrasyonları için sabit kodlar.',
+    kind: 'docs',
+    href: '/docs/hatalar',
+  },
+  {
     id: '2026-10-09-dx-portal',
     date: '2026-10-09',
     title: 'Durum sayfası, llms.txt ve kod tarifleri',

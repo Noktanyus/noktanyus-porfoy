@@ -16,6 +16,7 @@ type HealthState = 'loading' | 'ok' | 'degraded';
 export default function StatusClient({ components }: { components: Component[] }) {
   const [health, setHealth] = useState<HealthState>('loading');
   const [checkedAt, setCheckedAt] = useState<string | null>(null);
+  const [dbLatency, setDbLatency] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -23,6 +24,22 @@ export default function StatusClient({ components }: { components: Component[] }
       try {
         const res = await fetch('/api/health', { cache: 'no-store' });
         if (cancelled) return;
+        let latency: number | null = null;
+        try {
+          const json = (await res.json()) as {
+            checks?: { database?: { latency?: number; status?: string } };
+          };
+          latency = json.checks?.database?.latency ?? null;
+          if (json.checks?.database?.status === 'fail') {
+            setHealth('degraded');
+            setDbLatency(latency);
+            setCheckedAt(new Date().toLocaleString('tr-TR'));
+            return;
+          }
+        } catch {
+          /* body parse optional */
+        }
+        setDbLatency(latency);
         setHealth(res.ok ? 'ok' : 'degraded');
         setCheckedAt(new Date().toLocaleString('tr-TR'));
       } catch {
@@ -77,6 +94,9 @@ export default function StatusClient({ components }: { components: Component[] }
         <div>
           <p className="font-bold text-lg">{banner.title}</p>
           <p className="text-sm opacity-90 mt-0.5">{banner.sub}</p>
+          {dbLatency != null && (
+            <p className="text-xs opacity-80 mt-1 font-mono">DB latency: {dbLatency} ms</p>
+          )}
         </div>
       </div>
 

@@ -7,6 +7,7 @@
 - [5 dakikada başlangıç](https://noktanyus.com/baslangic)
 - [Canlı IBAN playground](https://noktanyus.com/#canli-playground)
 - [API Docs (OpenAPI/Redoc)](https://noktanyus.com/docs)
+- [API hata kodları](https://noktanyus.com/docs/hatalar)
 - [Changelog](https://noktanyus.com/changelog)
 - [Changelog RSS](https://noktanyus.com/feeds/changelog)
 - [Sistem durumu](https://noktanyus.com/durum)
