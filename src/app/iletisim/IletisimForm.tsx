@@ -277,23 +277,39 @@ export default function IletisimForm({ contactEmail, socialGithub, socialLinkedi
           </div>
 
           {/* Cloudflare Turnstile */}
-          <div className="flex justify-center py-4" id="turnstile-container">
-            <CloudflareTurnstile
-              onVerify={handleTurnstileVerify}
-              onError={handleTurnstileError}
-              onExpire={() => setTurnstileToken("")}
-              theme="light"
-            />
+          <div className="space-y-2 py-2" id="turnstile-container">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 text-center">
+              Güvenlik doğrulaması
+            </p>
+            <div className="flex justify-center">
+              <CloudflareTurnstile
+                onVerify={handleTurnstileVerify}
+                onError={handleTurnstileError}
+                onExpire={() => setTurnstileToken("")}
+                theme="auto"
+              />
+            </div>
+            {!turnstileToken && (
+              <p className="text-xs text-center text-slate-500 dark:text-slate-400" role="status">
+                Göndermek için yukarıdaki doğrulamayı tamamlayın.
+              </p>
+            )}
           </div>
 
           {/* Submit Button */}
           <button 
             type="submit" 
             disabled={isSubmitting || !turnstileToken} 
-            className="w-full flex items-center justify-center bg-brand-primary text-white font-bold py-3 sm:py-4 px-6 rounded-lg hover:bg-brand-primary/90 focus:ring-4 focus:ring-brand-primary/20 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] text-sm sm:text-base md:text-lg touch-manipulation shadow-lg hover:shadow-xl disabled:shadow-none"
+            className="w-full flex items-center justify-center bg-brand-primary text-white font-bold py-3 sm:py-4 px-6 rounded-xl hover:bg-brand-primary/90 focus:ring-4 focus:ring-brand-primary/20 transition-all duration-300 disabled:opacity-55 disabled:cursor-not-allowed min-h-[48px] sm:min-h-[52px] text-sm sm:text-base md:text-lg touch-manipulation shadow-lg shadow-brand-primary/20 hover:shadow-xl disabled:shadow-none"
           >
-            <FaPaperPlane className="mr-2 sm:mr-3 flex-shrink-0 text-sm sm:text-base" />
-            <span>{isSubmitting ? "Gönderiliyor..." : "Mesajı Gönder"}</span>
+            <FaPaperPlane className="mr-2 sm:mr-3 flex-shrink-0 text-sm sm:text-base" aria-hidden="true" />
+            <span>
+              {isSubmitting
+                ? "Gönderiliyor..."
+                : !turnstileToken
+                  ? "Doğrulama bekleniyor"
+                  : "Mesajı Gönder"}
+            </span>
           </button>
         </form>
       </div>

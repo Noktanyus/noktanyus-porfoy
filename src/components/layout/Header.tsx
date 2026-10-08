@@ -49,11 +49,16 @@ const Header = ({ headerTitle }: HeaderProps) => {
             <Tooltip content="Ana sayfaya dön" side="bottom">
               <Link
                 href="/"
-                className="text-base sm:text-lg lg:text-xl font-bold text-slate-900 dark:text-white truncate min-w-0 max-w-[10rem] sm:max-w-[14rem] xl:max-w-[18rem] shrink hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
-                aria-label="Ana Sayfa"
-                title={headerTitle}
+                className="flex flex-col min-w-0 max-w-[11rem] sm:max-w-[15rem] xl:max-w-[18rem] shrink hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+                aria-label="Ana Sayfa — Noktanyus"
+                title="Noktanyus"
               >
-                {brandLabel}
+                <span className="text-base sm:text-lg lg:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white truncate leading-tight">
+                  Noktanyus
+                </span>
+                <span className="hidden sm:block text-[10px] font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400 truncate leading-none mt-0.5">
+                  {brandLabel}
+                </span>
               </Link>
             </Tooltip>
 
