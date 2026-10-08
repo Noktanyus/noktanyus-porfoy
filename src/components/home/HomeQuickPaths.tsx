@@ -7,9 +7,9 @@ import { useInView } from '@/lib/animations';
 
 const PATHS = [
   {
-    href: '/docs',
-    title: 'API Docs',
-    description: 'TR yardımcı API uçlarını inceleyin, örnek isteklerle başlayın.',
+    href: '/baslangic',
+    title: '5 dk Başlangıç',
+    description: 'Kayıt → API key → ilk başarılı çağrı. TTFHW rehberi.',
     icon: FaBolt,
     accent: 'from-sky-500/20 to-blue-600/10 text-sky-400 border-sky-500/25',
   },
