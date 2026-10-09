@@ -16,6 +16,7 @@ import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { RegisterStepSchema } from "@/modules/onboarding/schemas";
 import { AuthDivider, SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
+import type { SocialProviderId } from "@/lib/authProviders";
 
 type Step = 1 | 2;
 
@@ -340,7 +341,11 @@ function VerificationStep({ email }: { email: string }) {
   );
 }
 
-export function RegisterWizard() {
+export function RegisterWizard({
+  socialProviders = [],
+}: {
+  socialProviders?: SocialProviderId[];
+}) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
@@ -415,12 +420,12 @@ export function RegisterWizard() {
 
   return (
     <div className="space-y-6">
-      {step === 1 && (
+      {step === 1 && socialProviders.length > 0 && (
         <>
           <SocialAuthButtons
             callbackUrl={callbackUrl}
             mode="register"
-            providers={["google"]}
+            providers={socialProviders}
           />
           <AuthDivider label="veya e-posta ile kayıt ol" />
         </>

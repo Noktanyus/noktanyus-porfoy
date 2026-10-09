@@ -7,6 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { apiKeyService } from '@/modules/api-keys/service';
 import { PageHeader } from '@/components/dashboard/PageHeader';
+import { SetupChecklist } from '@/components/dashboard/SetupChecklist';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
   FaShoppingCart,
@@ -21,6 +22,7 @@ import {
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { getOrderSummaryTitle } from '@/modules/commerce/orderUtils';
+import { webhookService } from '@/modules/webhooks';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +63,7 @@ export default async function DashboardOverviewPage() {
     ],
   };
 
-  const [orderCount, licenseCount, apiKeys, subscription, recentOrders, plans, user] =
+  const [orderCount, licenseCount, apiKeys, subscription, recentOrders, plans, user, webhooks, usage] =
     await Promise.all([
       prisma.order.count({ where: orderWhere }),
       prisma.license.count({ where: licenseWhere }),
@@ -81,8 +83,10 @@ export default async function DashboardOverviewPage() {
       prisma.plan.findMany({ where: { active: true } }),
       prisma.user.findUnique({
         where: { id: userId },
-        select: { apiCreditBalance: true },
+        select: { apiCreditBalance: true, emailVerified: true },
       }),
+      webhookService.listWebhooks(userId),
+      apiKeyService.getUserUsageOverview(userId, 168),
     ]);
 
   const planName =
@@ -134,6 +138,39 @@ export default async function DashboardOverviewPage() {
     { href: '/magaza', label: 'Mağaza', icon: FaStore },
   ];
 
+  const setupSteps = [
+    {
+      id: 'verify',
+      label: 'E-posta doğrula',
+      href: '/dashboard/settings',
+      done: Boolean(user?.emailVerified),
+    },
+    {
+      id: 'key',
+      label: 'API anahtarı oluştur',
+      href: '/dashboard/api-keys/new',
+      done: apiKeys.length > 0,
+    },
+    {
+      id: 'call',
+      label: 'İlk API çağrısını at',
+      href: '/baslangic',
+      done: usage.total > 0,
+    },
+    {
+      id: 'plan',
+      label: 'Plan veya kredi seç',
+      href: '/magaza/abonelikler',
+      done: Boolean(subscription) || (user?.apiCreditBalance ?? 0) > 0,
+    },
+    {
+      id: 'webhook',
+      label: 'Webhook bağla (opsiyonel)',
+      href: '/dashboard/webhooks',
+      done: webhooks.length > 0,
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <PageHeader
@@ -145,6 +182,8 @@ export default async function DashboardOverviewPage() {
           </Link>
         }
       />
+
+      <SetupChecklist steps={setupSteps} />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {cards.map((c) => {

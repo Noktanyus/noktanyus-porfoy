@@ -2,14 +2,18 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { getEnabledSocialProviders } from "@/lib/authProviders";
 
 export const metadata: Metadata = {
   title: "Giriş Yap",
-  description: "Google veya e-posta ile hesabınıza giriş yapın",
+  description: "E-posta veya sosyal hesap ile giriş yapın",
   robots: { index: false, follow: false },
 };
 
 export default function GirisPage() {
+  const socialProviders = getEnabledSocialProviders();
+  const hasSocial = socialProviders.length > 0;
+
   return (
     <div className="relative min-h-[75vh] flex items-center justify-center bg-blob-decoration px-4 py-10 overflow-hidden">
       <div
@@ -25,10 +29,12 @@ export default function GirisPage() {
             Giriş Yap
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300 text-center mb-6">
-            Google ile hızlı giriş veya e-posta ile devam edin
+            {hasSocial
+              ? "Sosyal hesap veya e-posta ile devam edin"
+              : "E-posta ve şifrenizle hesabınıza giriş yapın"}
           </p>
           <Suspense fallback={<div className="h-40 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />}>
-            <LoginForm />
+            <LoginForm socialProviders={socialProviders} />
           </Suspense>
           <p className="text-sm text-center mt-6 text-muted-foreground">
             Hesabınız yok mu?{" "}

@@ -11,8 +11,13 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { postLoginRedirect } from '@/lib/appRole';
 import { AuthDivider, SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
+import type { SocialProviderId } from '@/lib/authProviders';
 
-export function LoginForm() {
+export function LoginForm({
+  socialProviders = [],
+}: {
+  socialProviders?: SocialProviderId[];
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
@@ -77,9 +82,16 @@ export function LoginForm() {
 
   return (
     <div>
-      {/* Google OAuth — en üstte, ilk bakışta görünsün */}
-      <SocialAuthButtons callbackUrl={callbackUrl} mode="login" providers={['google']} />
-      <AuthDivider label="veya e-posta ile giriş yap" />
+      {socialProviders.length > 0 && (
+        <>
+          <SocialAuthButtons
+            callbackUrl={callbackUrl}
+            mode="login"
+            providers={socialProviders}
+          />
+          <AuthDivider label="veya e-posta ile giriş yap" />
+        </>
+      )}
 
       <form
         onSubmit={handleSubmit}
