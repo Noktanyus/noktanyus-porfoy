@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-postman-rotate-hobby',
+    date: '2026-10-09',
+    title: 'Postman export, API key rotate, Hobby cron düzeltmesi',
+    summary:
+      '/api/openapi/postman; API key secret döndürme; Vercel Hobby saatlik cron engeli giderildi (monitor GHA cron).',
+    kind: 'fix',
+    href: '/api/openapi/postman',
+  },
+  {
     id: '2026-10-09-support-badge-email',
     date: '2026-10-09',
     title: 'Destek merkezi, sağlık rozeti ve e-posta MX aracı',

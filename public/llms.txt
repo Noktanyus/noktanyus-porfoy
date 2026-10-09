@@ -28,6 +28,7 @@
 - [E-posta MX aracı](https://noktanyus.com/araclar/email-mx)
 - [Destek merkezi](https://noktanyus.com/dashboard/support)
 - [Durum rozeti SVG](https://noktanyus.com/api/health/badge)
+- [Postman collection](https://noktanyus.com/api/openapi/postman)
 - [API Playground](https://noktanyus.com/dashboard/playground)
 - [Aktivite günlüğü](https://noktanyus.com/dashboard/activity)
 - [Bildirimler](https://noktanyus.com/dashboard/notifications)

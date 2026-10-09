@@ -8,6 +8,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { EditApiKeyForm } from '@/components/dashboard/EditApiKeyForm';
+import { RotateApiKeyButton } from '@/components/dashboard/RotateApiKeyButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -34,6 +35,7 @@ export default async function EditApiKeyPage({
         backHref="/dashboard/api-keys"
         backLabel="API anahtarları"
       />
+      <RotateApiKeyButton keyId={key.id} />
       <EditApiKeyForm
         keyId={key.id}
         initial={{

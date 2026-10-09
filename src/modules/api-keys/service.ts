@@ -109,6 +109,25 @@ export const apiKeyService = {
   },
 
   /**
+   * Secret'ı döndür — aynı id/scopes/kota; yeni `key` yalnızca bir kez döner.
+   */
+  async rotateApiKey(userId: string, keyId: string) {
+    const existing = await apiKeyRepository.findById(keyId);
+    if (!existing || existing.userId !== userId) throw new NotFoundError('API anahtarı');
+    if (existing.revokedAt) throw new ValidationError('İptal edilmiş anahtar döndürülemez');
+
+    const env: 'live' | 'test' = existing.key.includes('_test_') ? 'test' : 'live';
+    const { full, prefix } = generateApiKey(env);
+    const updated = await apiKeyRepository.update(keyId, {
+      key: full,
+      prefix,
+    } as { key: string; prefix: string });
+
+    logger.info('API key rotated', { userId, keyId, prefix });
+    return { ...updated, key: full };
+  },
+
+  /**
    * Son 24 saatlik usage istatistikleri.
    */
   async getUsageStats(userId: string, keyId: string) {
