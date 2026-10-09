@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -109,6 +109,15 @@ const TOOLS = [
     icon: FaGavel,
     color: 'from-amber-500 to-yellow-600',
     tag: 'Operasyon & Hukuk',
+  },
+  {
+    slug: 'email-mx',
+    title: 'E-posta MX Doğrulama',
+    description:
+      'Sözdizimi + alan adı MX kaydı. Validate API: email (üretimde x-api-key).',
+    icon: FaEnvelope,
+    color: 'from-blue-500 to-cyan-600',
+    tag: 'E-Ticaret & Fatura',
   },
 ];
 

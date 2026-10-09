@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-support-badge-email',
+    date: '2026-10-09',
+    title: 'Destek merkezi, sağlık rozeti ve e-posta MX aracı',
+    summary:
+      '/dashboard/support; /api/health/badge SVG; /araclar/email-mx + ücretsiz /api/tools/email-mx; webhook replay ve katalog.',
+    kind: 'feature',
+    href: '/dashboard/support',
+  },
+  {
     id: '2026-10-09-webhook-replay-catalog',
     date: '2026-10-09',
     title: 'Webhook replay, API kataloğu ve tebligat aracı',

@@ -76,6 +76,20 @@ export default function DurumPage() {
 
         <StatusClient components={[...COMPONENTS]} />
 
+        <div className="mt-6 rounded-2xl border border-border bg-card/40 px-4 py-4 flex flex-wrap items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/api/health/badge"
+            alt="Noktanyus durum rozeti"
+            width={140}
+            height={20}
+            className="h-5 w-auto"
+          />
+          <code className="text-xs text-muted-foreground break-all">
+            https://noktanyus.com/api/health/badge
+          </code>
+        </div>
+
         <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">
           RSS:{' '}
           <a href="/feeds/changelog" className="text-brand-primary hover:underline">

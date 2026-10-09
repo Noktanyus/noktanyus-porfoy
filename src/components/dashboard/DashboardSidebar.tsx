@@ -31,6 +31,7 @@ import {
   FaHistory,
   FaInbox,
   FaShareAlt,
+  FaLifeRing,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -66,6 +67,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/notifications', label: 'Bildirimler', icon: FaInbox },
   { href: '/dashboard/activity', label: 'Aktivite', icon: FaHistory },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
+  { href: '/dashboard/support', label: 'Destek', icon: FaLifeRing },
   { href: '/docs', label: 'API Dokümantasyon', icon: FaBook },
 ];
 

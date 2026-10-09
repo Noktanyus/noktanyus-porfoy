@@ -1,0 +1,33 @@
+# Hobby Vercel: saatlik cron yasak — monitör kontrolleri GitHub Actions ile.
+name: Cron — Monitor Checks
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: cron-monitors
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger monitor-checks
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://noktanyus.com' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET missing — skip"
+            exit 0
+          fi
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${SITE_URL}/api/cron/monitor-checks" \
+            -o /tmp/cron-out.json -w "HTTP %{http_code}\n"
+          head -c 500 /tmp/cron-out.json || true
+          echo
