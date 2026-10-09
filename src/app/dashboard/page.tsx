@@ -19,6 +19,8 @@ import {
   FaCoins,
   FaChartBar,
   FaSatelliteDish,
+  FaUsers,
+  FaHeartbeat,
 } from 'react-icons/fa';
 import Link from 'next/link';
 import { getOrderSummaryTitle } from '@/modules/commerce/orderUtils';
@@ -132,6 +134,8 @@ export default async function DashboardOverviewPage() {
   const quickLinks = [
     { href: '/dashboard/usage', label: 'API kullanımı', icon: FaChartBar },
     { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
+    { href: '/dashboard/workspaces', label: 'Workspaces', icon: FaUsers },
+    { href: '/dashboard/monitors', label: 'Monitörler', icon: FaHeartbeat },
     { href: '/magaza/abonelikler', label: 'API planları', icon: FaCreditCard },
     { href: '/dashboard/api-keys/new', label: 'Yeni API anahtarı', icon: FaKey },
     { href: '/docs', label: 'API docs', icon: FaBook },

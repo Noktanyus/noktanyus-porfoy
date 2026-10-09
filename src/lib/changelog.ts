@@ -16,11 +16,20 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-payroll-ubl',
+    date: '2026-10-09',
+    title: 'Brüt→net maaş ve UBL-TR XML doğrulama',
+    summary:
+      '/api/v1/labor/gross-to-net (SGK/işsizlik/damga/GV) ve /api/v1/invoice/ubl-validate yapısal lint.',
+    kind: 'feature',
+    href: '/docs',
+  },
+  {
     id: '2026-10-09-workspaces-monitors-labor',
     date: '2026-10-09',
     title: 'Workspaces, monitörler, fazla mesai / yıllık izin API',
     summary:
-      'Dashboard workspaces + davet kabul; uptime monitör CRUD ve 5dk cron; /api/v1/labor/overtime ve annual-leave; usage CSV export.',
+      'Dashboard workspaces + davet kabul; uptime monitör CRUD ve saatlik cron; /api/v1/labor/overtime ve annual-leave; usage CSV export.',
     kind: 'feature',
     href: '/dashboard/workspaces',
   },

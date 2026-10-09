@@ -318,6 +318,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/annual-leave',
   },
+  {
+    id: 'api:labor:gross-to-net',
+    label: 'Brüt → Net Maaş',
+    description: 'SGK işçi payı, işsizlik, damga ve kümülatif gelir vergisi ile net maaş tahmini.',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/gross-to-net',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {
@@ -326,6 +333,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     description: 'Kalem detaylı, matrah ve KDV dökümlü profesyonel PDF doküman üretimi.',
     category: 'invoice',
     endpoint: 'POST /api/v1/invoice/pdf',
+  },
+  {
+    id: 'api:invoice:ubl-validate',
+    label: 'UBL-TR XML Doğrulama',
+    description: 'e-Fatura / e-Arşiv UBL XML yapısal lint (XSD/GİB imza değil).',
+    category: 'invoice',
+    endpoint: 'POST /api/v1/invoice/ubl-validate',
   },
 
   // ─── Resmi Takvim, Süreler & Tatiller ───

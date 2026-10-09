@@ -718,6 +718,46 @@ const paths: PathsObject = {
     responseExample: { serviceYears: 6.6, entitledDays: 20, ageBoostApplied: false },
   }),
 
+  '/api/v1/labor/gross-to-net': makeTrEndpoint({
+    summary: 'Brüt → net maaş tahmini',
+    description: 'SGK %14 + işsizlik %1 + damga %0.759 + kümülatif gelir vergisi dilimleri (yaklaşık).',
+    bodySchema: {
+      type: 'object',
+      required: ['monthlyGrossCents'],
+      properties: {
+        monthlyGrossCents: { type: 'integer', minimum: 1 },
+        monthIndex: { type: 'integer', minimum: 1, maximum: 12 },
+        sgkCeilingCents: { type: 'integer', minimum: 1 },
+        includeStampTax: { type: 'boolean' },
+      },
+    },
+    bodyExample: { monthlyGrossCents: 5000000, monthIndex: 1 },
+    responseExample: {
+      monthlyGrossCents: 5000000,
+      sgkEmployeeCents: 700000,
+      unemploymentEmployeeCents: 50000,
+      stampTaxCents: 37950,
+      incomeTaxCents: 637500,
+      netCents: 3574550,
+    },
+  }),
+
+  '/api/v1/invoice/ubl-validate': makeTrEndpoint({
+    summary: 'UBL-TR XML yapısal doğrulama',
+    description: 'Invoice kökü, ProfileID, taraflar, LegalMonetaryTotal ve InvoiceLine kontrolü. XSD/GİB imza doğrulamaz.',
+    bodySchema: {
+      type: 'object',
+      required: ['xml'],
+      properties: {
+        xml: { type: 'string', minLength: 20, maxLength: 2000000 },
+      },
+    },
+    bodyExample: {
+      xml: '<?xml version="1.0"?><Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"><cbc:ProfileID>TICARIFATURA</cbc:ProfileID><cbc:ID>ABC2026000000001</cbc:ID><cbc:IssueDate>2026-10-09</cbc:IssueDate><cac:AccountingSupplierParty/><cac:AccountingCustomerParty/><cac:LegalMonetaryTotal/><cac:InvoiceLine/></Invoice>',
+    },
+    responseExample: { ok: true, documentType: 'Invoice', issues: [] },
+  }),
+
   '/api/v1/invoice/pdf': {
     post: {
       tags: ['TR API'],

@@ -286,6 +286,43 @@ export class NoktanyusTrClient {
     >('/api/v1/labor/annual-leave', input);
   }
 
+  /** Brüt → net maaş tahmini */
+  async calculateGrossToNet(input: {
+    monthlyGrossCents: number;
+    monthIndex?: number;
+    sgkCeilingCents?: number;
+    includeStampTax?: boolean;
+  }) {
+    return this.post<
+      typeof input,
+      {
+        monthlyGrossCents: number;
+        sgkEmployeeCents: number;
+        unemploymentEmployeeCents: number;
+        stampTaxCents: number;
+        incomeTaxCents: number;
+        totalDeductionCents: number;
+        netCents: number;
+        note: string;
+      }
+    >('/api/v1/labor/gross-to-net', input);
+  }
+
+  /** UBL-TR XML yapısal doğrulama */
+  async validateUbl(input: { xml: string }) {
+    return this.post<
+      typeof input,
+      {
+        ok: boolean;
+        documentType: string | null;
+        profileId: string | null;
+        invoiceId: string | null;
+        issueDate: string | null;
+        issues: Array<{ path: string; message: string; severity: string }>;
+      }
+    >('/api/v1/invoice/ubl-validate', input);
+  }
+
   /** TCMB canlı döviz kurları */
   async getFxRates() {
     return this.post<Record<string, never>, { date: string; source: string; rates: Record<string, { buying: number; selling: number }> }>(

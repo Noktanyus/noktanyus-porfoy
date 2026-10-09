@@ -570,4 +570,80 @@ export function calculateAnnualLeave(input: {
   };
 }
 
+/** 2026 yaklaşık SGK tavan (aylık, kuruş) — güncel Resmi Gazete ile değiştirilebilir */
+export const DEFAULT_SGK_CEILING_CENTS = 450_000_00;
+
+/** Gelir vergisi dilimleri (yıllık matrah, kuruş) — basitleştirilmiş 2025/2026 dilimleri */
+const INCOME_TAX_BRACKETS: Array<{ upTo: number; rate: number }> = [
+  { upTo: 158_000_00, rate: 0.15 },
+  { upTo: 330_000_00, rate: 0.2 },
+  { upTo: 1_200_000_00, rate: 0.27 },
+  { upTo: 4_300_000_00, rate: 0.35 },
+  { upTo: Number.POSITIVE_INFINITY, rate: 0.4 },
+];
+
+function progressiveTax(annualTaxableCents: number): number {
+  let remaining = Math.max(0, Math.round(annualTaxableCents));
+  let prevCap = 0;
+  let tax = 0;
+  for (const b of INCOME_TAX_BRACKETS) {
+    const slice = Math.min(remaining, b.upTo - prevCap);
+    if (slice <= 0) break;
+    tax += Math.round(slice * b.rate);
+    remaining -= slice;
+    prevCap = b.upTo;
+  }
+  return tax;
+}
+
+/**
+ * Brüt → net maaş tahmini (işçi payı).
+ * Tek ay için: yılın `monthIndex` (1–12) ayına kadar kümülatif matrah varsayımı.
+ * Hukuki tavsiye değildir; Asgari geçim / AEÖ / istisna güncelleri dahil değildir.
+ */
+export function calculateGrossToNet(input: {
+  monthlyGrossCents: number;
+  monthIndex?: number;
+  sgkCeilingCents?: number;
+  includeStampTax?: boolean;
+}): {
+  monthlyGrossCents: number;
+  sgkEmployeeCents: number;
+  unemploymentEmployeeCents: number;
+  stampTaxCents: number;
+  incomeTaxCents: number;
+  totalDeductionCents: number;
+  netCents: number;
+  note: string;
+} {
+  const gross = Math.max(0, Math.round(input.monthlyGrossCents));
+  const ceiling = input.sgkCeilingCents ?? DEFAULT_SGK_CEILING_CENTS;
+  const month = Math.min(12, Math.max(1, Math.round(input.monthIndex ?? 1)));
+  const includeStamp = input.includeStampTax !== false;
+
+  const sgkBase = Math.min(gross, ceiling);
+  const sgkEmployeeCents = Math.round(sgkBase * 0.14);
+  const unemploymentEmployeeCents = Math.round(sgkBase * 0.01);
+  const stampTaxCents = includeStamp ? Math.round(gross * 0.00759) : 0;
+  const monthlyTaxable = gross - sgkEmployeeCents - unemploymentEmployeeCents;
+  const ytdTaxable = monthlyTaxable * month;
+  const prevYtdTaxable = monthlyTaxable * (month - 1);
+  const incomeTaxCents = progressiveTax(ytdTaxable) - progressiveTax(prevYtdTaxable);
+  const totalDeductionCents =
+    sgkEmployeeCents + unemploymentEmployeeCents + stampTaxCents + incomeTaxCents;
+  const netCents = gross - totalDeductionCents;
+
+  return {
+    monthlyGrossCents: gross,
+    sgkEmployeeCents,
+    unemploymentEmployeeCents,
+    stampTaxCents,
+    incomeTaxCents,
+    totalDeductionCents,
+    netCents,
+    note:
+      'Yaklaşık hesap. Asgari ücret istisnası, AEÖ, işveren teşvikleri ve güncel tavan/dilim değişiklikleri dahil değildir.',
+  };
+}
+
 
