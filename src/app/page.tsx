@@ -141,7 +141,15 @@ export default async function Home() {
             profileImage={aboutData?.profileImage || '/images/profile.webp'}
           />
 
-          {/* Ziyaretçi yol haritası — CTA önceliği video/featured’dan önce */}
+          {/* CMS öne çıkan video/metin — Nereden başlayalım’ın hemen üstünde */}
+          {homeSettings?.featuredContentType &&
+            homeSettings.featuredContentType !== '' &&
+            homeSettings.featuredContentType !== 'none' && (
+              <section className="relative" aria-label="Öne çıkan içerik">
+                <FeaturedContent homeSettings={homeSettings} />
+              </section>
+            )}
+
           <HomeQuickPaths />
 
           <HomeTrustStrip />
@@ -155,14 +163,6 @@ export default async function Home() {
           <ApiShowcase />
 
           <HomeWhatsNew />
-
-          {/* CMS öne çıkan: video URL + isteğe bağlı olay metni */}
-          {homeSettings?.featuredContentType &&
-            homeSettings.featuredContentType !== '' && (
-              <section className="relative" aria-label="Öne çıkan içerik">
-                <FeaturedContent homeSettings={homeSettings} />
-              </section>
-            )}
 
           {/* Featured Projects */}
           <FeaturedProjects projects={featuredProjects} />
