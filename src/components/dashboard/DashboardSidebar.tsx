@@ -25,6 +25,7 @@ import {
   FaBell,
   FaTasks,
   FaLock,
+  FaCrown,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
   { href: '/dashboard/usage', label: 'API Kullanımı', icon: FaChartBar },
   { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
+  { href: '/dashboard/oauth', label: 'OAuth Apps', icon: FaLock },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
   { href: '/dashboard/workspaces', label: 'Workspaces', icon: FaUsers },
   { href: '/dashboard/tasks', label: 'Görevler', icon: FaTasks },
@@ -51,6 +53,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Satın Aldıklarım', icon: FaBox },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
+  { href: '/dashboard/loyalty', label: 'Sadakat', icon: FaCrown },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
   { href: '/docs', label: 'API Dokümantasyon', icon: FaBook },
 ];
