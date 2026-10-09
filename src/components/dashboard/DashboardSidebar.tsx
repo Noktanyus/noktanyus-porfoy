@@ -28,6 +28,9 @@ import {
   FaCrown,
   FaHandshake,
   FaBolt,
+  FaHistory,
+  FaInbox,
+  FaShareAlt,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -58,7 +61,10 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/templates', label: 'Şablonlar', icon: FaBox },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/loyalty', label: 'Sadakat', icon: FaCrown },
+  { href: '/dashboard/referral', label: 'Davet', icon: FaShareAlt },
   { href: '/dashboard/partner', label: 'İş Ortağı', icon: FaHandshake },
+  { href: '/dashboard/notifications', label: 'Bildirimler', icon: FaInbox },
+  { href: '/dashboard/activity', label: 'Aktivite', icon: FaHistory },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
   { href: '/docs', label: 'API Dokümantasyon', icon: FaBook },
 ];

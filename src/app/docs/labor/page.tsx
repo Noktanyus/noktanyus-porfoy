@@ -70,6 +70,10 @@ export default function LaborDocsPage() {
             <Link href="/araclar/fazla-mesai-izin" className="text-brand-primary hover:underline">
               fazla mesai / izin
             </Link>
+            ,{' '}
+            <Link href="/araclar/kidem-tazminati" className="text-brand-primary hover:underline">
+              kıdem / ihbar
+            </Link>
             .
           </p>
         </header>

@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-activity-severance-playground',
+    date: '2026-10-09',
+    title: 'Aktivite, bildirimler, kıdem, yazıya çevir, davet',
+    summary:
+      'Dashboard activity/notifications/referral; araçlar: kidem-tazminati + sayiyi-yaziya; playground; CI cancel-in-progress kapatıldı.',
+    kind: 'feature',
+    href: '/dashboard/activity',
+  },
+  {
     id: '2026-10-09-loyalty-oauth-tools',
     date: '2026-10-09',
     title: 'Sadakat, OAuth apps ve İK ücretsiz araçları',

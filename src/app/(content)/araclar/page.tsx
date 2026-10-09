@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -82,6 +82,24 @@ const TOOLS = [
     icon: FaClock,
     color: 'from-orange-500 to-rose-600',
     tag: 'İnsan Kaynakları',
+  },
+  {
+    slug: 'kidem-tazminati',
+    title: 'Kıdem & İhbar Tazminatı',
+    description:
+      'Hizmet yılı, kıdem tavanı ve damga vergisi ile yaklaşık kıdem neti + ihbar brütü. Labor API: severance.',
+    icon: FaBalanceScale,
+    color: 'from-teal-500 to-cyan-600',
+    tag: 'İnsan Kaynakları',
+  },
+  {
+    slug: 'sayiyi-yaziya',
+    title: 'Sayıyı Yazıya Çevir',
+    description:
+      'Fatura ve çek metinleri için tutarı Türkçe yazıya çevirir (TRY/USD/EUR/GBP). Finance API: to-words.',
+    icon: FaLanguage,
+    color: 'from-sky-500 to-indigo-600',
+    tag: 'Muhasebe & Finans',
   },
 ];
 

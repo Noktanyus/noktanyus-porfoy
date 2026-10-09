@@ -68,15 +68,24 @@ export function NotificationBell() {
         >
           <div className="flex items-center justify-between p-3 border-b border-border">
             <h3 className="font-semibold text-sm">Bildirimler</h3>
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={() => markRead()}
-                className="text-xs text-primary hover:underline flex items-center gap-1"
+            <div className="flex items-center gap-2">
+              {unreadCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => markRead()}
+                  className="text-xs text-primary hover:underline flex items-center gap-1"
+                >
+                  <FaCheck className="inline" /> Tümünü okundu işaretle
+                </button>
+              )}
+              <Link
+                href="/dashboard/notifications"
+                className="text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setOpen(false)}
               >
-                <FaCheck className="inline" /> Tümünü okundu işaretle
-              </button>
-            )}
+                Tümü
+              </Link>
+            </div>
           </div>
 
           {notifications.length === 0 ? (
