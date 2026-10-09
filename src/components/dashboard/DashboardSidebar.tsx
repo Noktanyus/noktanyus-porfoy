@@ -24,6 +24,7 @@ import {
   FaHeartbeat,
   FaBell,
   FaTasks,
+  FaLock,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
