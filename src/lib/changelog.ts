@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-ops-console',
+    date: '2026-10-09',
+    title: 'Alert kanalları, status pages ve görev panosu',
+    summary:
+      'Dashboard alert-channels, status-pages CRUD; workspace TaskBoard + /api/tasks; monitör bildirimleri.',
+    kind: 'feature',
+    href: '/dashboard/status-pages',
+  },
+  {
     id: '2026-10-09-monitor-webhooks-net',
     date: '2026-10-09',
     title: 'Monitör webhook olayları ve net→brüt API',

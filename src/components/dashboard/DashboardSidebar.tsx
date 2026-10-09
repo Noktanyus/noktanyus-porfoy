@@ -23,6 +23,7 @@ import {
   FaUsers,
   FaHeartbeat,
   FaBell,
+  FaTasks,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
   { href: '/dashboard/workspaces', label: 'Workspaces', icon: FaUsers },
+  { href: '/dashboard/tasks', label: 'Görevler', icon: FaTasks },
   { href: '/dashboard/monitors', label: 'Monitörler', icon: FaHeartbeat },
   { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
   { href: '/dashboard/status-pages', label: 'Status Pages', icon: FaChartLine },
