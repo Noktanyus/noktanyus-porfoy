@@ -8,7 +8,7 @@
 import crypto from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { NotFoundError } from '@/modules/shared/errors';
+import { NotFoundError, ValidationError } from '@/modules/shared/errors';
 import { webhookRepository, webhookDeliveryRepository } from './repository';
 import type { CreateWebhookInput, UpdateWebhookInput } from './schemas';
 
@@ -85,6 +85,28 @@ export const webhookService = {
 
   async getDeadLetter(userId: string) {
     return webhookDeliveryRepository.findDeadLetter(userId);
+  },
+
+  /**
+   * Başarısız / dead-letter teslimatı yeniden gönder (yeni delivery kaydı açar).
+   */
+  async replayDelivery(userId: string, deliveryId: string) {
+    const delivery = await prisma.webhookDelivery.findFirst({
+      where: { id: deliveryId, webhook: { userId } },
+      include: { webhook: true },
+    });
+    if (!delivery) throw new NotFoundError('Webhook delivery');
+    if (!delivery.webhook.active) {
+      throw new ValidationError('Pasif webhook’a replay gönderilemez');
+    }
+
+    await this.deliverWebhook(delivery.webhookId, delivery.event, delivery.payload);
+
+    const latest = await webhookDeliveryRepository.findByWebhookId(delivery.webhookId, 1);
+    return {
+      replayedFrom: deliveryId,
+      delivery: latest[0] ?? null,
+    };
   },
 
   // --- Event Dispatch ---

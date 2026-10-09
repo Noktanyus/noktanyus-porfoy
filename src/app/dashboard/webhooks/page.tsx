@@ -10,6 +10,7 @@ import { prisma } from '@/lib/prisma';
 import { webhookService } from '@/modules/webhooks';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import WebhooksPanel, { type WebhookRow } from '@/components/dashboard/WebhooksPanel';
+import { WebhookReplayButton } from '@/components/dashboard/WebhookReplayButton';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -76,19 +77,26 @@ export default async function WebhooksPage() {
         ) : (
           <ul className="divide-y divide-border text-sm">
             {recentDeliveries.map((d) => (
-              <li key={d.id} className="py-2 flex flex-wrap justify-between gap-2">
+              <li key={d.id} className="py-2 flex flex-wrap justify-between gap-2 items-center">
                 <div>
                   <span className="font-mono text-xs">{d.event}</span>
                   <span className="text-muted-foreground ml-2 text-xs truncate max-w-[200px] inline-block align-bottom">
                     {d.webhook.url}
                   </span>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {d.status}
-                  {d.responseStatus != null ? ` · HTTP ${d.responseStatus}` : ''}
-                  {d.attempts > 1 ? ` · ${d.attempts} deneme` : ''}
-                  {' · '}
-                  {d.createdAt.toLocaleString('tr-TR')}
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-muted-foreground">
+                    {d.status}
+                    {d.responseStatus != null ? ` · HTTP ${d.responseStatus}` : ''}
+                    {d.attempts > 1 ? ` · ${d.attempts} deneme` : ''}
+                    {' · '}
+                    {d.createdAt.toLocaleString('tr-TR')}
+                  </div>
+                  {(d.status === 'DEAD_LETTER' ||
+                    d.status === 'FAILED' ||
+                    d.status === 'RETRYING') && (
+                    <WebhookReplayButton deliveryId={d.id} />
+                  )}
                 </div>
               </li>
             ))}
@@ -101,11 +109,17 @@ export default async function WebhooksPage() {
           <h2 className="text-base font-bold text-destructive">Dead letter ({deadLetters.length})</h2>
           <ul className="space-y-2 text-sm">
             {deadLetters.slice(0, 10).map((d) => (
-              <li key={d.id} className="border border-border rounded-xl px-3 py-2">
-                <span className="font-mono text-xs">{d.event}</span>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {d.errorMessage ?? 'Max attempts aşıldı'}
-                </p>
+              <li
+                key={d.id}
+                className="border border-border rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2"
+              >
+                <div>
+                  <span className="font-mono text-xs">{d.event}</span>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {d.errorMessage ?? 'Max attempts aşıldı'}
+                  </p>
+                </div>
+                <WebhookReplayButton deliveryId={d.id} />
               </li>
             ))}
           </ul>

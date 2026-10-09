@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -100,6 +100,15 @@ const TOOLS = [
     icon: FaLanguage,
     color: 'from-sky-500 to-indigo-600',
     tag: 'Muhasebe & Finans',
+  },
+  {
+    slug: 'tebligat-suresi',
+    title: 'Tebligat Süre Hesabı',
+    description:
+      'Tebliğ tarihinden takvim veya iş günü ile son gün. Calendar API: tebligat.',
+    icon: FaGavel,
+    color: 'from-amber-500 to-yellow-600',
+    tag: 'Operasyon & Hukuk',
   },
 ];
 

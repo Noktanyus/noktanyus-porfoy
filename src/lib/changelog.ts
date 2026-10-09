@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-webhook-replay-catalog',
+    date: '2026-10-09',
+    title: 'Webhook replay, API kataloğu ve tebligat aracı',
+    summary:
+      'Dead-letter/failed delivery replay; /docs/catalog; /araclar/tebligat-suresi; activity/notifications/referral; kıdem + yazıya çevir.',
+    kind: 'feature',
+    href: '/dashboard/webhooks',
+  },
+  {
     id: '2026-10-09-activity-severance-playground',
     date: '2026-10-09',
     title: 'Aktivite, bildirimler, kıdem, yazıya çevir, davet',
