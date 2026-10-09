@@ -22,8 +22,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 concurrency:
+  # Rapid successive pushes must not cancel an in-flight production deploy.
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # 📋 Environment Setup & Validation

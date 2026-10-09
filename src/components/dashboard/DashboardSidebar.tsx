@@ -27,6 +27,7 @@ import {
   FaLock,
   FaCrown,
   FaHandshake,
+  FaBolt,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -43,6 +44,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
   { href: '/dashboard/usage', label: 'API Kullanımı', icon: FaChartBar },
+  { href: '/dashboard/playground', label: 'Playground', icon: FaBolt },
   { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
   { href: '/dashboard/oauth', label: 'OAuth Apps', icon: FaLock },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
