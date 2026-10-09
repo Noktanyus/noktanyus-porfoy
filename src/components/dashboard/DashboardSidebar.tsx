@@ -53,6 +53,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/status-pages', label: 'Status Pages', icon: FaChartLine },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Satın Aldıklarım', icon: FaBox },
+  { href: '/dashboard/templates', label: 'Şablonlar', icon: FaBox },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/loyalty', label: 'Sadakat', icon: FaCrown },
   { href: '/dashboard/partner', label: 'İş Ortağı', icon: FaHandshake },
