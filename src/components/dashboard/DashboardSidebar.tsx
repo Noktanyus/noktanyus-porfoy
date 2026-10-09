@@ -22,6 +22,7 @@ import {
   FaSatelliteDish,
   FaUsers,
   FaHeartbeat,
+  FaBell,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
   { href: '/dashboard/workspaces', label: 'Workspaces', icon: FaUsers },
   { href: '/dashboard/monitors', label: 'Monitörler', icon: FaHeartbeat },
+  { href: '/dashboard/alert-channels', label: 'Alert Kanalları', icon: FaBell },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Satın Aldıklarım', icon: FaBox },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },

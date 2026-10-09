@@ -9,6 +9,63 @@ import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { logger } from '@/lib/logger';
 import { AppError } from '@/modules/shared/errors';
 import { webhookService } from '@/modules/webhooks';
+import { sendEmail } from '@/lib/email';
+
+async function notifyAlertChannels(
+  userId: string,
+  channelIds: unknown,
+  event: 'down' | 'up',
+  payload: { name?: string; url: string; errorMessage?: string | null }
+) {
+  const ids = Array.isArray(channelIds) ? (channelIds as string[]) : [];
+  if (ids.length === 0) return;
+
+  const channels = await prisma.alertChannel.findMany({
+    where: { userId, id: { in: ids }, active: true },
+  });
+
+  for (const ch of channels) {
+    const events = Array.isArray(ch.events) ? (ch.events as string[]) : [];
+    if (!events.includes(event)) continue;
+    const cfg = (ch.config ?? {}) as Record<string, string>;
+    const title = event === 'down' ? 'Monitör DOWN' : 'Monitör UP';
+    const text = `${title}: ${payload.name ?? payload.url}\n${payload.url}${
+      payload.errorMessage ? `\n${payload.errorMessage}` : ''
+    }`;
+
+    try {
+      if (ch.type === 'EMAIL' && cfg.email) {
+        await sendEmail({
+          to: cfg.email,
+          subject: `[Noktanyus] ${title}`,
+          html: `<pre>${text}</pre>`,
+        });
+      } else if (
+        (ch.type === 'WEBHOOK' || ch.type === 'SLACK' || ch.type === 'DISCORD') &&
+        cfg.webhookUrl
+      ) {
+        await fetch(cfg.webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text,
+            content: text,
+            event: `monitor.${event}`,
+            ...payload,
+          }),
+        });
+      } else if (ch.type === 'TELEGRAM' && cfg.botToken && cfg.chatId) {
+        await fetch(`https://api.telegram.org/bot${cfg.botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: cfg.chatId, text }),
+        });
+      }
+    } catch (err) {
+      logger.error('Alert channel notify failed', { channelId: ch.id, error: err });
+    }
+  }
+}
 
 class CronSecretMissingError extends AppError {
   constructor() {
@@ -94,6 +151,7 @@ export async function POST(req: NextRequest) {
       select: {
         id: true,
         userId: true,
+        name: true,
         url: true,
         timeoutSec: true,
         expectedStatus: true,
@@ -101,6 +159,7 @@ export async function POST(req: NextRequest) {
         intervalSec: true,
         lastCheckedAt: true,
         status: true,
+        alertChannelIds: true,
       },
     });
 
@@ -167,6 +226,11 @@ export async function POST(req: NextRequest) {
           },
           m.userId
         );
+        await notifyAlertChannels(m.userId, m.alertChannelIds, 'down', {
+          name: m.name,
+          url: m.url,
+          errorMessage: result.errorMessage,
+        });
       } else if (result.isUp && prevStatus === 'DOWN') {
         webhooksFired += await webhookService.dispatchEvent(
           'monitor.up',
@@ -179,6 +243,10 @@ export async function POST(req: NextRequest) {
           },
           m.userId
         );
+        await notifyAlertChannels(m.userId, m.alertChannelIds, 'up', {
+          name: m.name,
+          url: m.url,
+        });
       }
     }
 
