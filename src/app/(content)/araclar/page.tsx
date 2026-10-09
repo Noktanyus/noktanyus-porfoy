@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -64,6 +64,15 @@ const TOOLS = [
     icon: FaCalendarAlt,
     color: 'from-amber-500 to-orange-600',
     tag: 'Operasyon & Hukuk',
+  },
+  {
+    slug: 'brut-net-maas',
+    title: 'Brüt ↔ Net Maaş Hesaplama',
+    description:
+      'SGK işçi payı, işsizlik, damga ve kümülatif gelir vergisi ile brütten nete / netten brüte tahmini. Labor API ile entegre.',
+    icon: FaUserClock,
+    color: 'from-violet-500 to-purple-600',
+    tag: 'İnsan Kaynakları',
   },
 ];
 
