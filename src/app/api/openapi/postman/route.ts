@@ -3,7 +3,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { OPENAPI_SPEC_JSON } from '@/lib/openapi';
+import { OPENAPI_SPEC } from '@/lib/openapi';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,7 +87,7 @@ function buildCollection(spec: Record<string, unknown>) {
 }
 
 export async function GET() {
-  const collection = buildCollection(OPENAPI_SPEC_JSON as unknown as Record<string, unknown>);
+  const collection = buildCollection(OPENAPI_SPEC as unknown as Record<string, unknown>);
   return NextResponse.json(collection, {
     headers: {
       'Content-Disposition': 'attachment; filename="noktanyus.postman_collection.json"',
