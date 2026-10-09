@@ -381,6 +381,85 @@ const paths: PathsObject = {
     responseExample: { bankCode: '0061', bankName: 'Türkiye Garanti Bankası A.Ş.', isKnown: true },
   }),
 
+  '/api/v1/iban/build': makeTrEndpoint({
+    summary: 'Banka kodu + hesaptan TR IBAN üret',
+    description:
+      '5 haneli banka kodu ve hesap numarasından ISO 7064 mod-97 kontrol haneli geçerli TR IBAN üretir. Hesap varlığı veya sahiplik iddiası yoktur.',
+    bodySchema: {
+      type: 'object',
+      required: ['bankCode', 'accountNumber'],
+      properties: {
+        bankCode: { type: 'string', description: '5 haneli EFT/banka kodu (örn. 00062)' },
+        accountNumber: { type: 'string', description: 'Hesap numarası (en fazla 16 rakam, soldan sıfırlanır)' },
+        reservedDigit: { type: 'string', description: 'Rezerve hane (varsayılan 0)' },
+      },
+    },
+    bodyExample: { bankCode: '00061', accountNumber: '0519786457841326' },
+    responseExample: {
+      ok: true,
+      iban: 'TR330006100519786457841326',
+      formatted: 'TR33 0006 1005 1978 6457 8413 26',
+      bankCode: '00061',
+      bankName: 'Garanti BBVA',
+      isKnownBank: true,
+    },
+  }),
+
+  '/api/v1/pay/qr': makeTrEndpoint({
+    summary: 'FAST / TR Karekod P2P payload üret',
+    description:
+      'Kişiden kişiye TR Karekod (EMV TLV + CRC-16/CCITT-FALSE) metin payload üretir. PNG çizmez, ödeme göndermez.',
+    bodySchema: {
+      type: 'object',
+      required: ['iban', 'name'],
+      properties: {
+        iban: { type: 'string', description: 'Alıcı TR IBAN' },
+        name: { type: 'string', minLength: 2, maxLength: 26, description: 'Alıcı adı' },
+        amountTry: { type: 'number', description: 'Opsiyonel TRY tutar (dinamik karekod)' },
+        explanation: { type: 'string', description: 'Opsiyonel açıklama' },
+        generatorCode: { type: 'string', description: '4 haneli üretici kodu (yoksa banka kodundan)' },
+      },
+    },
+    bodyExample: { iban: 'TR330006100519786457841326', name: 'Ali Yilmaz' },
+    responseExample: {
+      ok: true,
+      flow: 'static',
+      payload: '750210010211…6304XXXX',
+      iban: 'TR330006100519786457841326',
+      name: 'Ali Yilmaz',
+    },
+  }),
+
+  '/api/v1/text/normalize': makeTrEndpoint({
+    summary: 'Türkçe metin normalizasyonu',
+    description: 'NFC, büyük/küçük harf (tr-TR) veya ASCII slug üretimi.',
+    bodySchema: {
+      type: 'object',
+      required: ['text'],
+      properties: {
+        text: { type: 'string', maxLength: 5000 },
+        mode: { type: 'string', enum: ['nfc', 'upper', 'lower', 'slug'], default: 'nfc' },
+      },
+    },
+    bodyExample: { text: 'İstanbul Şişli', mode: 'slug' },
+    responseExample: { original: 'İstanbul Şişli', normalized: 'istanbul-sisli', mode: 'slug' },
+  }),
+
+  '/api/v1/validate/auto': makeTrEndpoint({
+    summary: 'Otomatik tip tahmini ile TR doğrulama',
+    description:
+      'Girdiye göre TCKN, VKN, IBAN, telefon, posta, plaka, MERSİS veya KEP tipini tahmin eder ve doğrular.',
+    bodySchema: {
+      type: 'object',
+      required: ['value'],
+      properties: {
+        value: { type: 'string', minLength: 1, maxLength: 128 },
+      },
+    },
+    bodyExample: { value: '10000000146' },
+    responseExample: { detected: 'tckn', valid: true, normalized: '10000000146' },
+  }),
+
   '/api/v1/validate/phone': makeTrEndpoint({
     summary: 'TR telefon numarası format ve operatör doğrulaması',
     description: '05xx veya +905xx biçimindeki Türkiye cep ve sabit hat numaralarını doğrular, E.164 uluslararası formatına ve ulusal formata dönüştürür.',

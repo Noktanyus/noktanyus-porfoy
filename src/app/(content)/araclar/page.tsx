@@ -75,7 +75,7 @@ export default function AraclarPage() {
         <header className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
             <FaBolt className="w-3 h-3" />
-            <span>96+ Mikroservis Destekli Canlı Araçlar</span>
+            <span>100+ Mikroservis Destekli Canlı Araçlar</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient-animated">
             Geliştirici & E-Ticaret Araçları

@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-tr-builders',
+    date: '2026-10-09',
+    title: 'IBAN build, TR Karekod, auto-validate, metin normalize',
+    summary:
+      'Yeni uçlar: /api/v1/iban/build, /api/v1/pay/qr (FAST P2P payload), /api/v1/validate/auto, /api/v1/text/normalize. Blok3/öne çıkan YouTube videosu tekrar görünür.',
+    kind: 'feature',
+    href: '/docs',
+  },
+  {
     id: '2026-10-09-error-contract',
     date: '2026-10-09',
     title: 'API hata kodları referansı',

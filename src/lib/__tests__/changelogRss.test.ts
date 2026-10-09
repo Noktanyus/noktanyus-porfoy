@@ -8,6 +8,6 @@ describe('buildChangelogRssXml', () => {
     expect(xml).toContain('<rss version="2.0">');
     expect(xml).toContain('Noktanyus Changelog');
     expect(xml).toContain('<item>');
-    expect(xml).toContain('2026-10-09-error-contract');
+    expect(xml).toContain('2026-10-09-tr-builders');
   });
 });

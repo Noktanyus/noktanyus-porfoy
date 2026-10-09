@@ -24,6 +24,10 @@
 - Auth: `Authorization: Bearer nok_live_…` (Dashboard → API Keys)
 - Örnek: `POST /api/v1/validate/iban` body `{"iban":"TR…"}`
 - Örnek: `POST /api/v1/iban/bank` body `{"iban":"TR…"}`
+- Örnek: `POST /api/v1/iban/build` body `{"bankCode":"00061","accountNumber":"…"}`
+- Örnek: `POST /api/v1/pay/qr` body `{"iban":"TR…","name":"Ali Yilmaz"}` — FAST TR Karekod payload
+- Örnek: `POST /api/v1/validate/auto` body `{"value":"10000000146"}`
+- Örnek: `POST /api/v1/text/normalize` body `{"text":"İstanbul","mode":"slug"}`
 - OpenAPI: https://noktanyus.com/openapi.json
 
 ## Ürün

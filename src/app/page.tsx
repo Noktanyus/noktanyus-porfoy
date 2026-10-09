@@ -156,19 +156,19 @@ export default async function Home() {
 
           <HomeWhatsNew />
 
-          {/* Featured Projects */}
-          <FeaturedProjects projects={featuredProjects} />
-
-          {/* Latest Blogs */}
-          <LatestBlogs blogs={latestPosts} />
-
-          {/* Öne çıkan içerik — CMS; eğlence videoları varsayılan kapalı */}
+          {/* CMS öne çıkan — Blok3 YouTube dahil; filtre yok, her zaman görünür */}
           {homeSettings?.featuredContentType &&
             homeSettings.featuredContentType !== '' && (
               <section className="relative" aria-label="Öne çıkan içerik">
                 <FeaturedContent homeSettings={homeSettings} />
               </section>
             )}
+
+          {/* Featured Projects */}
+          <FeaturedProjects projects={featuredProjects} />
+
+          {/* Latest Blogs */}
+          <LatestBlogs blogs={latestPosts} />
         </div>
       </div>
     </>
