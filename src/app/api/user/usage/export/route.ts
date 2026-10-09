@@ -2,11 +2,11 @@
  * GET /api/user/usage/export — son N saatlik isteklerin CSV’si
  */
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { apiKeyService } from '@/modules/api-keys/service';
-import { withErrorHandling } from '@/lib/apiResponse';
+import { fail } from '@/lib/apiResponse';
 import { UnauthorizedError } from '@/modules/shared/errors';
 
 export const dynamic = 'force-dynamic';
@@ -17,7 +17,7 @@ function csvEscape(value: string): string {
 }
 
 export async function GET(req: NextRequest) {
-  return withErrorHandling(async () => {
+  try {
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new UnauthorizedError('Giriş gerekli');
     const userId = (session.user as { id: string }).id;
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     );
 
     const body = [header, ...lines].join('\n');
-    return new Response(body, {
+    return new NextResponse(body, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
@@ -49,5 +49,7 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'no-store',
       },
     });
-  });
+  } catch (err) {
+    return fail(err);
+  }
 }

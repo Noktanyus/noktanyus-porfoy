@@ -256,6 +256,7 @@ export function NewApiKeyForm() {
                 scopes: ['api:validate:identity', 'api:validate:iban'],
                 rateLimit: 60,
                 monthlyQuota: '',
+                environment: 'live',
               });
             }}
             className="admin-btn admin-btn-secondary"

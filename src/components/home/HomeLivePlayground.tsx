@@ -42,9 +42,9 @@ const TABS: { id: Tool; label: string }[] = [
  */
 export default function HomeLivePlayground() {
   const [tool, setTool] = useState<Tool>('iban');
-  const [iban, setIban] = useState(IBAN_SAMPLES[0].value);
-  const [tckn, setTckn] = useState(TCKN_SAMPLES[0].value);
-  const [vkn, setVkn] = useState(VKN_SAMPLES[0].value);
+  const [iban, setIban] = useState<string>(IBAN_SAMPLES[0].value);
+  const [tckn, setTckn] = useState<string>(TCKN_SAMPLES[0].value);
+  const [vkn, setVkn] = useState<string>(VKN_SAMPLES[0].value);
   const [copied, setCopied] = useState(false);
 
   const ibanResult = useMemo(() => {
@@ -241,9 +241,9 @@ export default function HomeLivePlayground() {
                 <p className="text-slate-400 text-sm">IBAN girin…</p>
               ) : ibanResult.valid ? (
                 <ResultOk title="Geçerli TR IBAN">
-                  <Row label="Banka" value={ibanResult.bankName} />
-                  <Row label="Banka kodu" value={ibanResult.bankCode} mono />
-                  <Row label="Biçim" value={ibanResult.formatted} mono />
+                  <Row label="Banka" value={ibanResult.bankName ?? '—'} />
+                  <Row label="Banka kodu" value={ibanResult.bankCode ?? '—'} mono />
+                  <Row label="Biçim" value={ibanResult.formatted ?? iban} mono />
                 </ResultOk>
               ) : (
                 <ResultBad reason={ibanResult.reason} />
