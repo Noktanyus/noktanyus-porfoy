@@ -31,9 +31,14 @@ export default async function UsagePage() {
         title="API kullanımı"
         description={`Son ${overview.hours} saat · ${overview.total} istek`}
         actions={
-          <Link href="/dashboard/api-keys" className="admin-btn admin-btn-secondary">
-            API anahtarları
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <a href="/api/user/usage/export?hours=168" className="admin-btn admin-btn-secondary">
+              CSV indir (7g)
+            </a>
+            <Link href="/dashboard/api-keys" className="admin-btn admin-btn-secondary">
+              API anahtarları
+            </Link>
+          </div>
         }
       />
 
