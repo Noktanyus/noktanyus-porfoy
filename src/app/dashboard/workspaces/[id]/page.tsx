@@ -93,8 +93,14 @@ export default async function WorkspaceDetailPage({
       <section className="rounded-2xl border border-border bg-card/50 p-5">
         <h2 className="text-base font-bold mb-3">Hızlı erişim</h2>
         <div className="flex flex-wrap gap-2">
-          <Link href="/dashboard/tasks" className="admin-btn admin-btn-secondary text-sm">
+          <Link
+            href={`/dashboard/tasks?workspace=${workspace.id}`}
+            className="admin-btn admin-btn-secondary text-sm"
+          >
             Görevler
+          </Link>
+          <Link href="/dashboard/status-pages" className="admin-btn admin-btn-secondary text-sm">
+            Status pages
           </Link>
           <Link href="/dashboard/api-keys" className="admin-btn admin-btn-secondary text-sm">
             API anahtarları

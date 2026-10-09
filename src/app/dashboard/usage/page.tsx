@@ -18,12 +18,18 @@ function statusTone(code: number): string {
   return 'text-rose-700 dark:text-rose-300';
 }
 
-export default async function UsagePage() {
+export default async function UsagePage({
+  searchParams,
+}: {
+  searchParams?: { hours?: string };
+}) {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect('/giris?callbackUrl=/dashboard/usage');
 
   const userId = (session.user as { id: string }).id;
-  const overview = await apiKeyService.getUserUsageOverview(userId, 24);
+  const hoursRaw = Number(searchParams?.hours ?? '24');
+  const hours = [24, 168, 720].includes(hoursRaw) ? hoursRaw : 24;
+  const overview = await apiKeyService.getUserUsageOverview(userId, hours);
 
   return (
     <div className="space-y-6">
@@ -32,8 +38,26 @@ export default async function UsagePage() {
         description={`Son ${overview.hours} saat · ${overview.total} istek`}
         actions={
           <div className="flex flex-wrap gap-2">
-            <a href="/api/user/usage/export?hours=168" className="admin-btn admin-btn-secondary">
-              CSV indir (7g)
+            {[
+              { h: 24, label: '24s' },
+              { h: 168, label: '7g' },
+              { h: 720, label: '30g' },
+            ].map((opt) => (
+              <Link
+                key={opt.h}
+                href={`/dashboard/usage?hours=${opt.h}`}
+                className={`admin-btn text-sm ${
+                  hours === opt.h ? 'admin-btn-primary' : 'admin-btn-secondary'
+                }`}
+              >
+                {opt.label}
+              </Link>
+            ))}
+            <a
+              href={`/api/user/usage/export?hours=${hours}`}
+              className="admin-btn admin-btn-secondary"
+            >
+              CSV indir
             </a>
             <Link href="/dashboard/api-keys" className="admin-btn admin-btn-secondary">
               API anahtarları
