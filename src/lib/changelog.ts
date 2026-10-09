@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-loyalty-oauth-tools',
+    date: '2026-10-09',
+    title: 'Sadakat, OAuth apps ve İK ücretsiz araçları',
+    summary:
+      'Dashboard loyalty + OAuth PKCE istemcileri; /araclar/brut-net-maas ve fazla-mesai-izin; webhook delivery logları.',
+    kind: 'feature',
+    href: '/dashboard/loyalty',
+  },
+  {
     id: '2026-10-09-ops-console',
     date: '2026-10-09',
     title: 'Alert kanalları, status pages ve görev panosu',
