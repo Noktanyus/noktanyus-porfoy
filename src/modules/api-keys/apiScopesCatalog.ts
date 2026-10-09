@@ -304,6 +304,20 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/severance',
   },
+  {
+    id: 'api:labor:overtime',
+    label: 'Fazla Çalışma Ücreti',
+    description: '4857 m.41 — fazla çalışma / fazla sürelerle çalışma brüt saat ücreti hesabı (brüt/225).',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/overtime',
+  },
+  {
+    id: 'api:labor:annual-leave',
+    label: 'Yıllık Ücretli İzin',
+    description: '4857 m.53 — hizmet süresine ve yaşa göre yıllık izin gün hakkı.',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/annual-leave',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {

@@ -490,4 +490,84 @@ export function amountToTurkishWords(input: {
   return { amountCents: amount, currency, words, ...(compact ? { compact } : {}) };
 }
 
+/**
+ * 4857 sayılı İş Kanunu m.41 — fazla çalışma / fazla sürelerle çalışma ücreti.
+ * Normal mesai saat ücreti = aylık brüt / 225 (Resmi Gazete uygulaması).
+ * - overtime: %50 zamlı (1.5x)
+ * - excess: fazla sürelerle çalışma %25 zamlı (1.25x)
+ * - holiday: genel tatilde çalışma (haftalık tatil dışı) — pratikte 1.5x brüt saat
+ */
+export function calculateOvertime(input: {
+  monthlyGrossCents: number;
+  hours: number;
+  kind?: 'overtime' | 'excess' | 'holiday';
+}): {
+  hourlyCents: number;
+  multiplier: number;
+  grossCents: number;
+  kind: 'overtime' | 'excess' | 'holiday';
+  hours: number;
+  note: string;
+} {
+  const monthly = Math.max(0, Math.round(input.monthlyGrossCents));
+  const hours = Math.max(0, Math.round(input.hours * 100) / 100);
+  if (hours > 500) throw new Error('hours çok yüksek (max 500)');
+  const kind = input.kind ?? 'overtime';
+  const hourlyCents = Math.round(monthly / 225);
+  const multiplier = kind === 'excess' ? 1.25 : 1.5;
+  const grossCents = Math.round(hourlyCents * multiplier * hours);
+  return {
+    hourlyCents,
+    multiplier,
+    grossCents,
+    kind,
+    hours,
+    note:
+      'Hukuki tavsiye değildir. Kümülatif vergi/stopaj ve sözleşme hükümleri değerlendirilmez. Saat ücreti = brüt/225.',
+  };
+}
+
+/**
+ * Yıllık ücretli izin hakkı (4857 m.53) — hizmet süresine göre gün sayısı.
+ * 1 yıldan az: 0; 1–5 yıl: 14; 5–15: 20; 15+: 26. 18 yaş altı / 50+ için en az 20.
+ */
+export function calculateAnnualLeave(input: {
+  startDate: string;
+  asOfDate?: string;
+  ageYears?: number;
+}): {
+  serviceDays: number;
+  serviceYears: number;
+  entitledDays: number;
+  ageBoostApplied: boolean;
+  note: string;
+} {
+  const start = new Date(input.startDate);
+  const asOf = new Date(input.asOfDate ?? new Date().toISOString().slice(0, 10));
+  if (Number.isNaN(start.getTime()) || Number.isNaN(asOf.getTime()) || asOf < start) {
+    throw new Error('startDate / asOfDate geçersiz');
+  }
+  const serviceDays = daysBetween(start, asOf);
+  const serviceYears = serviceDays / 365;
+  let entitledDays = 0;
+  if (serviceYears >= 15) entitledDays = 26;
+  else if (serviceYears >= 5) entitledDays = 20;
+  else if (serviceYears >= 1) entitledDays = 14;
+
+  const age = input.ageYears;
+  let ageBoostApplied = false;
+  if (age != null && (age < 18 || age >= 50) && entitledDays > 0 && entitledDays < 20) {
+    entitledDays = 20;
+    ageBoostApplied = true;
+  }
+
+  return {
+    serviceDays,
+    serviceYears: Math.round(serviceYears * 1000) / 1000,
+    entitledDays,
+    ageBoostApplied,
+    note: 'Kullanılmış izin ve toplu iş sözleşmesi hükümleri dikkate alınmaz.',
+  };
+}
+
 

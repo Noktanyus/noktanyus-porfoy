@@ -680,6 +680,44 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/labor/overtime': makeTrEndpoint({
+    summary: 'Fazla çalışma ücreti (4857 m.41)',
+    description: 'Saat ücreti = aylık brüt / 225. overtime ve holiday %50 zamlı (1.5x), excess (fazla sürelerle) %25 zamlı (1.25x).',
+    bodySchema: {
+      type: 'object',
+      required: ['monthlyGrossCents', 'hours'],
+      properties: {
+        monthlyGrossCents: { type: 'integer', minimum: 1 },
+        hours: { type: 'number', minimum: 0.01, maximum: 500 },
+        kind: { type: 'string', enum: ['overtime', 'excess', 'holiday'] },
+      },
+    },
+    bodyExample: { monthlyGrossCents: 4500000, hours: 10, kind: 'overtime' },
+    responseExample: {
+      hourlyCents: 20000,
+      multiplier: 1.5,
+      grossCents: 300000,
+      kind: 'overtime',
+      hours: 10,
+    },
+  }),
+
+  '/api/v1/labor/annual-leave': makeTrEndpoint({
+    summary: 'Yıllık ücretli izin hakkı (4857 m.53)',
+    description: 'Hizmet süresine göre 14/20/26 gün; 18 yaş altı veya 50+ için en az 20 gün.',
+    bodySchema: {
+      type: 'object',
+      required: ['startDate'],
+      properties: {
+        startDate: { type: 'string', description: 'İşe giriş (YYYY-AA-GG)' },
+        asOfDate: { type: 'string', description: 'Hesap tarihi (varsayılan: bugün)' },
+        ageYears: { type: 'integer', minimum: 14, maximum: 100 },
+      },
+    },
+    bodyExample: { startDate: '2020-03-01', asOfDate: '2026-10-09', ageYears: 32 },
+    responseExample: { serviceYears: 6.6, entitledDays: 20, ageBoostApplied: false },
+  }),
+
   '/api/v1/invoice/pdf': {
     post: {
       tags: ['TR API'],

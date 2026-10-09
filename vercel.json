@@ -38,6 +38,10 @@
     {
       "path": "/api/cron/webhook-retry",
       "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/monitor-checks",
+      "schedule": "0 * * * *"
     }
   ],
   "headers": [

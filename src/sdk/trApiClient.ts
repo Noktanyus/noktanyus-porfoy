@@ -249,6 +249,43 @@ export class NoktanyusTrClient {
     >('/api/v1/labor/severance', input);
   }
 
+  /** Fazla çalışma ücreti (4857 m.41) */
+  async calculateOvertime(input: {
+    monthlyGrossCents: number;
+    hours: number;
+    kind?: 'overtime' | 'excess' | 'holiday';
+  }) {
+    return this.post<
+      typeof input,
+      {
+        hourlyCents: number;
+        multiplier: number;
+        grossCents: number;
+        kind: string;
+        hours: number;
+        note: string;
+      }
+    >('/api/v1/labor/overtime', input);
+  }
+
+  /** Yıllık ücretli izin hakkı (4857 m.53) */
+  async calculateAnnualLeave(input: {
+    startDate: string;
+    asOfDate?: string;
+    ageYears?: number;
+  }) {
+    return this.post<
+      typeof input,
+      {
+        serviceDays: number;
+        serviceYears: number;
+        entitledDays: number;
+        ageBoostApplied: boolean;
+        note: string;
+      }
+    >('/api/v1/labor/annual-leave', input);
+  }
+
   /** TCMB canlı döviz kurları */
   async getFxRates() {
     return this.post<Record<string, never>, { date: string; source: string; rates: Record<string, { buying: number; selling: number }> }>(

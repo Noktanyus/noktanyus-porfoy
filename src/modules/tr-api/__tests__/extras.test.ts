@@ -6,6 +6,8 @@ import { describe, it, expect } from 'vitest';
 import {
   calculateKdvWithholding,
   calculateSeverance,
+  calculateOvertime,
+  calculateAnnualLeave,
   calculateBusinessDays,
   amountToTurkishWords,
 } from '../extras';
@@ -37,6 +39,29 @@ describe('calculateSeverance', () => {
     expect(r.noticeWeeks).toBe(8);
     expect(r.cappedMonthlyCents).toBe(4000000);
     expect(r.severanceNetCents).toBeLessThan(r.severanceGrossCents);
+  });
+});
+
+describe('calculateOvertime', () => {
+  it('applies 1.5x for overtime hours', () => {
+    const r = calculateOvertime({
+      monthlyGrossCents: 4_500_000,
+      hours: 10,
+      kind: 'overtime',
+    });
+    expect(r.hourlyCents).toBe(20_000);
+    expect(r.multiplier).toBe(1.5);
+    expect(r.grossCents).toBe(300_000);
+  });
+});
+
+describe('calculateAnnualLeave', () => {
+  it('returns 14 days between 1 and 5 years', () => {
+    const r = calculateAnnualLeave({
+      startDate: '2023-01-01',
+      asOfDate: '2025-01-01',
+    });
+    expect(r.entitledDays).toBe(14);
   });
 });
 

@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-workspaces-monitors-labor',
+    date: '2026-10-09',
+    title: 'Workspaces, monitörler, fazla mesai / yıllık izin API',
+    summary:
+      'Dashboard workspaces + davet kabul; uptime monitör CRUD ve 5dk cron; /api/v1/labor/overtime ve annual-leave; usage CSV export.',
+    kind: 'feature',
+    href: '/dashboard/workspaces',
+  },
+  {
     id: '2026-10-09-saas-console',
     date: '2026-10-09',
     title: 'Usage dashboard, webhook playground, SDK ve rate-limit docs',
