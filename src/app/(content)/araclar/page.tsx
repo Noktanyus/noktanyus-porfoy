@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -72,6 +72,15 @@ const TOOLS = [
       'SGK işçi payı, işsizlik, damga ve kümülatif gelir vergisi ile brütten nete / netten brüte tahmini. Labor API ile entegre.',
     icon: FaUserClock,
     color: 'from-violet-500 to-purple-600',
+    tag: 'İnsan Kaynakları',
+  },
+  {
+    slug: 'fazla-mesai-izin',
+    title: 'Fazla Mesai & Yıllık İzin',
+    description:
+      '4857 m.41 fazla çalışma ücreti ve m.53 yıllık izin gün hakkı. Labor API: overtime / annual-leave.',
+    icon: FaClock,
+    color: 'from-orange-500 to-rose-600',
     tag: 'İnsan Kaynakları',
   },
 ];
