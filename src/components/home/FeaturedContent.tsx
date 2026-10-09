@@ -18,8 +18,7 @@ const getYouTubeId = (url: string): string | null => {
 };
 
 /**
- * CMS’de seçilen öne çıkan içerik — video (Blok3 dahil) her zaman görünür.
- * Önceki “eğlence filtresi” videoyu kapalı details içine gömüyordu; kaldırıldı.
+ * CMS öne çıkan: video modunda yalnızca YouTube alanı + isteğe bağlı olay metni (textTitle/textContent).
  */
 export default function FeaturedContent({ homeSettings }: FeaturedContentProps) {
   const videoId =
@@ -27,7 +26,9 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
       ? getYouTubeId(homeSettings.youtubeUrl)
       : null;
 
-  if (!homeSettings?.featuredContentType) return null;
+  if (!homeSettings?.featuredContentType || homeSettings.featuredContentType === "none") {
+    return null;
+  }
 
   if (homeSettings.featuredContentType === "video" && !videoId) return null;
   if (homeSettings.featuredContentType === "text" && !homeSettings.textTitle) return null;
@@ -35,26 +36,30 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
 
   return (
     <div className="relative flex flex-col items-center justify-center py-6 sm:py-10 gap-4">
-      <div className="text-center space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
-          Öne çıkan
-        </p>
-        {homeSettings.featuredContentType === "video" && (
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-            Seçili video
-          </h2>
-        )}
-      </div>
-
-      {videoId && (
-        <div className="w-full max-w-2xl relative z-10">
+      {homeSettings.featuredContentType === "video" && videoId && (
+        <div className="w-full max-w-2xl relative z-10 space-y-4">
+          <div className="text-center space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
+              Öne çıkan
+            </p>
+            {homeSettings.textTitle && (
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                {homeSettings.textTitle}
+              </h2>
+            )}
+            {homeSettings.textContent && (
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl mx-auto">
+                {homeSettings.textContent}
+              </p>
+            )}
+          </div>
           <div className="aspect-video rounded-2xl overflow-hidden border border-border shadow-lg">
             <iframe
               className="w-full h-full"
               src={`https://www.youtube.com/embed/${videoId}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
-              title="Öne Çıkan YouTube Videosu"
+              title={homeSettings.textTitle || "Öne çıkan YouTube videosu"}
               loading="lazy"
             />
           </div>
@@ -63,6 +68,9 @@ export default function FeaturedContent({ homeSettings }: FeaturedContentProps) 
 
       {homeSettings.featuredContentType === "text" && homeSettings.textTitle && (
         <div className="w-full max-w-2xl glass-card p-6 sm:p-8 relative z-10 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary mb-2">
+            Öne çıkan
+          </p>
           <h2 className="text-xl sm:text-2xl font-bold mb-3 text-foreground">
             {homeSettings.textTitle}
           </h2>

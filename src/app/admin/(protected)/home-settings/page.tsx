@@ -167,21 +167,49 @@ export default function HomePageSettingsPage() {
 
             {/* Seçilen içerik türüne göre ilgili form alanlarını göster */}
             {featuredContentType === 'video' && (
-              <FormField
-                id="youtubeUrl"
-                label="YouTube Video URL"
-                helperText="Tam video bağlantısını yapıştırın."
-              >
-                {(fieldProps) => (
-                  <input
-                    {...register("youtubeUrl")}
-                    {...fieldProps}
-                    type="url"
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className={DS.input}
-                  />
-                )}
-              </FormField>
+              <div className="space-y-4">
+                <FormField
+                  id="youtubeUrl"
+                  label="YouTube Video URL"
+                  helperText="Öne çıkan alanda yalnızca bu video oynatılır (örnek/test URL’leri de olabilir)."
+                >
+                  {(fieldProps) => (
+                    <input
+                      {...register("youtubeUrl")}
+                      {...fieldProps}
+                      type="url"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className={DS.input}
+                    />
+                  )}
+                </FormField>
+                <FormField
+                  id="textTitle"
+                  label="Olay / başlık (isteğe bağlı)"
+                  helperText="Videonun hemen üstünde gösterilir."
+                >
+                  {(fieldProps) => (
+                    <input
+                      {...register("textTitle")}
+                      {...fieldProps}
+                      type="text"
+                      placeholder="Örn. Lansman, canlı yayın…"
+                      className={DS.input}
+                    />
+                  )}
+                </FormField>
+                <FormField id="textContent" label="Olay metni (isteğe bağlı)">
+                  {(fieldProps) => (
+                    <textarea
+                      {...register("textContent")}
+                      {...fieldProps}
+                      rows={3}
+                      placeholder="Kısa açıklama — video alanında, embed’in üstünde."
+                      className={cn(DS.input, 'resize-y')}
+                    />
+                  )}
+                </FormField>
+              </div>
             )}
 
             {featuredContentType === 'text' && (

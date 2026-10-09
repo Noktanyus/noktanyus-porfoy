@@ -20,7 +20,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: '2026-10-09',
     title: 'IBAN build, TR Karekod, auto-validate, metin normalize',
     summary:
-      'Yeni uçlar: /api/v1/iban/build, /api/v1/pay/qr (FAST P2P payload), /api/v1/validate/auto, /api/v1/text/normalize. Blok3/öne çıkan YouTube videosu tekrar görünür.',
+      'Yeni uçlar: /api/v1/iban/build, /api/v1/pay/qr, /api/v1/validate/auto, /api/v1/text/normalize. Öne çıkan video: yalnızca embed; olay metni aynı blokta.',
     kind: 'feature',
     href: '/docs',
   },

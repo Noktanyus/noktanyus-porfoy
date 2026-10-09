@@ -156,7 +156,7 @@ export default async function Home() {
 
           <HomeWhatsNew />
 
-          {/* CMS öne çıkan — Blok3 YouTube dahil; filtre yok, her zaman görünür */}
+          {/* CMS öne çıkan: video URL + isteğe bağlı olay metni */}
           {homeSettings?.featuredContentType &&
             homeSettings.featuredContentType !== '' && (
               <section className="relative" aria-label="Öne çıkan içerik">
