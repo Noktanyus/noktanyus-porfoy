@@ -308,6 +308,25 @@ export class NoktanyusTrClient {
     >('/api/v1/labor/gross-to-net', input);
   }
 
+  /** Net → brüt maaş tahmini */
+  async calculateNetToGross(input: {
+    monthlyNetCents: number;
+    monthIndex?: number;
+    sgkCeilingCents?: number;
+    includeStampTax?: boolean;
+  }) {
+    return this.post<
+      typeof input,
+      {
+        monthlyNetTargetCents: number;
+        monthlyGrossCents: number;
+        computedNetCents: number;
+        iterations: number;
+        note: string;
+      }
+    >('/api/v1/labor/net-to-gross', input);
+  }
+
   /** UBL-TR XML yapısal doğrulama */
   async validateUbl(input: { xml: string }) {
     return this.post<

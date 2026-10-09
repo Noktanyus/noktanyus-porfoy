@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-monitor-webhooks-net',
+    date: '2026-10-09',
+    title: 'Monitör webhook olayları ve net→brüt API',
+    summary:
+      'monitor.down/up/created/deleted kullanıcıya scoped dispatch; /api/v1/labor/net-to-gross.',
+    kind: 'feature',
+    href: '/docs/webhooks',
+  },
+  {
     id: '2026-10-09-payroll-ubl',
     date: '2026-10-09',
     title: 'Brüt→net maaş ve UBL-TR XML doğrulama',

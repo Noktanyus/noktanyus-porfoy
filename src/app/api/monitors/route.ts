@@ -10,6 +10,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ok, created, withErrorHandling } from '@/lib/apiResponse';
 import { UnauthorizedError, ValidationError, ConflictError } from '@/modules/shared/errors';
+import { webhookService } from '@/modules/webhooks';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +104,12 @@ export async function POST(req: NextRequest) {
         status: 'PENDING',
       },
     });
+
+    void webhookService.dispatchEvent(
+      'monitor.created',
+      { monitorId: monitor.id, name: monitor.name, url: monitor.url },
+      userId
+    );
 
     return created({ monitor });
   });

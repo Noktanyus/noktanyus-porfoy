@@ -8,6 +8,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, withErrorHandling } from '@/lib/apiResponse';
 import { logger } from '@/lib/logger';
 import { AppError } from '@/modules/shared/errors';
+import { webhookService } from '@/modules/webhooks';
 
 class CronSecretMissingError extends AppError {
   constructor() {
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
       take: 80,
       select: {
         id: true,
+        userId: true,
         url: true,
         timeoutSec: true,
         expectedStatus: true,
@@ -112,12 +114,16 @@ export async function POST(req: NextRequest) {
     let checked = 0;
     let up = 0;
     let down = 0;
+    let webhooksFired = 0;
 
     for (const m of due) {
       const result = await checkOne(m);
       checked += 1;
       if (result.isUp) up += 1;
       else down += 1;
+
+      const prevStatus = m.status;
+      const nextStatus = result.isUp ? 'UP' : 'DOWN';
 
       await prisma.$transaction([
         prisma.monitorCheck.create({
@@ -132,14 +138,14 @@ export async function POST(req: NextRequest) {
         prisma.monitor.update({
           where: { id: m.id },
           data: {
-            status: result.isUp ? 'UP' : 'DOWN',
+            status: nextStatus,
             lastCheckedAt: now,
             lastResponseMs: result.responseMs,
           },
         }),
       ]);
 
-      if (!result.isUp && m.status !== 'DOWN') {
+      if (!result.isUp && prevStatus !== 'DOWN') {
         await prisma.incident.create({
           data: {
             monitorId: m.id,
@@ -149,10 +155,34 @@ export async function POST(req: NextRequest) {
             totalChecks: 1,
           },
         });
+        webhooksFired += await webhookService.dispatchEvent(
+          'monitor.down',
+          {
+            monitorId: m.id,
+            url: m.url,
+            status: 'DOWN',
+            errorMessage: result.errorMessage,
+            statusCode: result.statusCode,
+            responseMs: result.responseMs,
+          },
+          m.userId
+        );
+      } else if (result.isUp && prevStatus === 'DOWN') {
+        webhooksFired += await webhookService.dispatchEvent(
+          'monitor.up',
+          {
+            monitorId: m.id,
+            url: m.url,
+            status: 'UP',
+            responseMs: result.responseMs,
+            statusCode: result.statusCode,
+          },
+          m.userId
+        );
       }
     }
 
-    const summary = { checked, up, down, due: due.length };
+    const summary = { checked, up, down, due: due.length, webhooksFired };
     logger.info('Monitor checks cron processed', summary);
     return ok({ success: true, ...summary });
   });

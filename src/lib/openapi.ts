@@ -742,6 +742,23 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/labor/net-to-gross': makeTrEndpoint({
+    summary: 'Net → brüt maaş tahmini',
+    description: 'Hedef net için yaklaşık brüt (binary search).',
+    bodySchema: {
+      type: 'object',
+      required: ['monthlyNetCents'],
+      properties: {
+        monthlyNetCents: { type: 'integer', minimum: 1 },
+        monthIndex: { type: 'integer', minimum: 1, maximum: 12 },
+        sgkCeilingCents: { type: 'integer', minimum: 1 },
+        includeStampTax: { type: 'boolean' },
+      },
+    },
+    bodyExample: { monthlyNetCents: 3500000, monthIndex: 1 },
+    responseExample: { monthlyGrossCents: 4900000, computedNetCents: 3501200, iterations: 18 },
+  }),
+
   '/api/v1/invoice/ubl-validate': makeTrEndpoint({
     summary: 'UBL-TR XML yapısal doğrulama',
     description: 'Invoice kökü, ProfileID, taraflar, LegalMonetaryTotal ve InvoiceLine kontrolü. XSD/GİB imza doğrulamaz.',

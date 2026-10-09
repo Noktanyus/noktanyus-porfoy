@@ -23,8 +23,13 @@ export class WebhookRepository extends BaseRepository<Webhook> {
     });
   }
 
-  async findActiveForEvent(event: string) {
-    const webhooks = await this.prisma.webhook.findMany({ where: { active: true } });
+  async findActiveForEvent(event: string, userId?: string) {
+    const webhooks = await this.prisma.webhook.findMany({
+      where: {
+        active: true,
+        ...(userId ? { userId } : {}),
+      },
+    });
     return webhooks.filter(
       (w) => Array.isArray(w.events) && (w.events as string[]).includes(event)
     );

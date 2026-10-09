@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { validateUblXml } from '../ubl';
-import { calculateGrossToNet } from '../extras';
+import { calculateGrossToNet, calculateNetToGross } from '../extras';
 
 describe('validateUblXml', () => {
   it('accepts minimal Invoice skeleton', () => {
@@ -39,5 +39,14 @@ describe('calculateGrossToNet', () => {
     expect(r.unemploymentEmployeeCents).toBe(50_000);
     expect(r.netCents).toBeLessThan(r.monthlyGrossCents);
     expect(r.netCents).toBeGreaterThan(0);
+  });
+});
+
+describe('calculateNetToGross', () => {
+  it('round-trips near target net', () => {
+    const target = 3_500_000;
+    const r = calculateNetToGross({ monthlyNetCents: target, monthIndex: 1 });
+    expect(Math.abs(r.computedNetCents - target)).toBeLessThan(200);
+    expect(r.monthlyGrossCents).toBeGreaterThan(target);
   });
 });

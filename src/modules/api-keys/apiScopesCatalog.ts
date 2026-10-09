@@ -325,6 +325,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/gross-to-net',
   },
+  {
+    id: 'api:labor:net-to-gross',
+    label: 'Net → Brüt Maaş',
+    description: 'Hedef netten yaklaşık brüt maaş (binary search + gross-to-net).',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/net-to-gross',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {

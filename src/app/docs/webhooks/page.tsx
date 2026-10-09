@@ -80,7 +80,8 @@ export default function WebhooksDocsPage() {
               <code className="font-mono text-brand-primary">X-Webhook-Event</code>
               <p className="mt-1 text-slate-600 dark:text-slate-300">
                 Örn. <code className="text-xs">order.paid</code>,{' '}
-                <code className="text-xs">subscription.cancelled</code>
+                <code className="text-xs">monitor.down</code>,{' '}
+                <code className="text-xs">monitor.up</code>
               </p>
             </li>
             <li className="rounded-xl border border-border px-4 py-3">
@@ -97,6 +98,17 @@ export default function WebhooksDocsPage() {
           <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
             {VERIFY}
           </pre>
+        </section>
+
+        <section className="mb-8 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+          <h2 className="text-lg font-bold text-foreground">Monitör olayları</h2>
+          <p>
+            Saatlik cron uptime kontrolünde durum değişince yalnızca hesabının webhook’larına
+            <code className="text-xs mx-1">monitor.down</code> /{' '}
+            <code className="text-xs">monitor.up</code> gönderilir. Oluşturma/silme:{' '}
+            <code className="text-xs">monitor.created</code>,{' '}
+            <code className="text-xs">monitor.deleted</code>.
+          </p>
         </section>
 
         <section className="mb-8 space-y-2 text-sm text-slate-600 dark:text-slate-300">

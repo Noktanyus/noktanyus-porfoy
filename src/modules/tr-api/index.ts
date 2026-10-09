@@ -22,6 +22,7 @@ export {
   calculateOvertime,
   calculateAnnualLeave,
   calculateGrossToNet,
+  calculateNetToGross,
   calculateBusinessDays,
   isTurkishBusinessDay,
   nextBusinessDay,

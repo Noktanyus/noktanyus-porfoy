@@ -90,11 +90,11 @@ export const webhookService = {
   // --- Event Dispatch ---
 
   /**
-   * Tüm aktif webhook'lara olayı dispatch et (event listesinde olan).
-   * Her webhook için ayrı bir delivery kaydı oluşturulur.
+   * Aktif webhook'lara olayı dispatch et (event listesinde olan).
+   * userId verilirse yalnızca o kullanıcının endpoint'lerine gider (multi-tenant).
    */
-  async dispatchEvent(event: string, payload: unknown) {
-    const webhooks = await webhookRepository.findActiveForEvent(event);
+  async dispatchEvent(event: string, payload: unknown, userId?: string) {
+    const webhooks = await webhookRepository.findActiveForEvent(event, userId);
     for (const webhook of webhooks) {
       try {
         await this.deliverWebhook(webhook.id, event, payload);

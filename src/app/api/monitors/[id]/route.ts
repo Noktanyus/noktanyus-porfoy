@@ -14,6 +14,7 @@ import {
   ValidationError,
   ConflictError,
 } from '@/modules/shared/errors';
+import { webhookService } from '@/modules/webhooks';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,9 +113,14 @@ export async function DELETE(
     const session = await getServerSession(authOptions);
     if (!session?.user) throw new UnauthorizedError('Giriş gerekli');
     const userId = (session.user as { id: string }).id;
-    await requireOwnedMonitor(params.id, userId);
+    const existing = await requireOwnedMonitor(params.id, userId);
 
     await prisma.monitor.delete({ where: { id: params.id } });
+    void webhookService.dispatchEvent(
+      'monitor.deleted',
+      { monitorId: existing.id, name: existing.name, url: existing.url },
+      userId
+    );
     return ok({ success: true });
   });
 }

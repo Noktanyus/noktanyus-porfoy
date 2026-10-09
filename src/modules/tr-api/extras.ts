@@ -646,4 +646,54 @@ export function calculateGrossToNet(input: {
   };
 }
 
+/**
+ * Net → brüt tahmini (binary search + calculateGrossToNet).
+ */
+export function calculateNetToGross(input: {
+  monthlyNetCents: number;
+  monthIndex?: number;
+  sgkCeilingCents?: number;
+  includeStampTax?: boolean;
+}): {
+  monthlyNetTargetCents: number;
+  monthlyGrossCents: number;
+  computedNetCents: number;
+  iterations: number;
+  breakdown: ReturnType<typeof calculateGrossToNet>;
+  note: string;
+} {
+  const target = Math.max(0, Math.round(input.monthlyNetCents));
+  let lo = target;
+  let hi = Math.round(target * 2.2) + 1_000_00;
+  let best = calculateGrossToNet({
+    monthlyGrossCents: hi,
+    monthIndex: input.monthIndex,
+    sgkCeilingCents: input.sgkCeilingCents,
+    includeStampTax: input.includeStampTax,
+  });
+  let iterations = 0;
+  while (lo <= hi && iterations < 40) {
+    iterations += 1;
+    const mid = Math.round((lo + hi) / 2);
+    const r = calculateGrossToNet({
+      monthlyGrossCents: mid,
+      monthIndex: input.monthIndex,
+      sgkCeilingCents: input.sgkCeilingCents,
+      includeStampTax: input.includeStampTax,
+    });
+    best = r;
+    if (r.netCents === target) break;
+    if (r.netCents < target) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  return {
+    monthlyNetTargetCents: target,
+    monthlyGrossCents: best.monthlyGrossCents,
+    computedNetCents: best.netCents,
+    iterations,
+    breakdown: best,
+    note: best.note,
+  };
+}
+
 
