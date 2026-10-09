@@ -48,6 +48,7 @@ export function NewApiKeyForm() {
     ] as string[],
     rateLimit: 60,
     monthlyQuota: '' as string | number,
+    environment: 'live' as 'live' | 'test',
   });
 
   // Filter & Search states
@@ -168,6 +169,7 @@ export function NewApiKeyForm() {
         name: form.name,
         scopes: form.scopes,
         rateLimit: form.rateLimit,
+        environment: form.environment,
         ...(form.monthlyQuota ? { monthlyQuota: Number(form.monthlyQuota) } : {}),
       };
 
@@ -288,6 +290,36 @@ export function NewApiKeyForm() {
             placeholder="Örn. Mobil Uygulama, E-Ticaret Entegrasyonu, Muhasebe Botu"
           />
         </div>
+
+        <fieldset>
+          <legend className="block text-sm font-medium mb-1.5">Ortam</legend>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                { id: 'live' as const, label: 'Live (nokt_live_…)', hint: 'Üretim' },
+                { id: 'test' as const, label: 'Sandbox (nokt_test_…)', hint: 'Geliştirme' },
+              ] as const
+            ).map((opt) => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setForm({ ...form, environment: opt.id })}
+                className={`rounded-xl border px-3 py-2 text-sm font-semibold min-h-[44px] ${
+                  form.environment === opt.id
+                    ? 'border-brand-primary bg-brand-primary/10 text-brand-primary'
+                    : 'border-border text-foreground hover:border-brand-primary/40'
+                }`}
+              >
+                {opt.label}
+                <span className="ml-2 text-xs font-normal text-muted-foreground">{opt.hint}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Sandbox anahtarları aynı API’ye gider; prefix ile ayırt edilir. Canlı veriyi ayırmak için ayrı
+            anahtar kullan.
+          </p>
+        </fieldset>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>

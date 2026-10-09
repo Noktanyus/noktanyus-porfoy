@@ -20,8 +20,10 @@ const KEY_PREFIX = 'nokt_';
  * - env: 'live' (production) veya 'test' (development)
  * - prefix: UI'da göstermek için ilk 12 karakter
  */
-function generateApiKey(): { full: string; prefix: string } {
-  const env = process.env.NODE_ENV === 'production' ? 'live' : 'test';
+function generateApiKey(environment?: 'live' | 'test'): { full: string; prefix: string } {
+  const env =
+    environment ??
+    (process.env.NODE_ENV === 'production' ? 'live' : 'test');
   const random = crypto.randomBytes(24).toString('hex'); // 48 char
   const full = `${KEY_PREFIX}${env}_${random}`;
   const prefix = full.substring(0, 12);
@@ -43,7 +45,7 @@ export const apiKeyService = {
    * Yeni API anahtarı oluştur. Dönen `key` değeri sadece 1 kez gösterilir.
    */
   async createApiKey(userId: string, input: CreateApiKeyInput) {
-    const { full, prefix } = generateApiKey();
+    const { full, prefix } = generateApiKey(input.environment);
 
     const apiKey = await apiKeyRepository.create({
       userId,
@@ -113,6 +115,12 @@ export const apiKeyService = {
     const key = await apiKeyRepository.findById(keyId);
     if (!key || key.userId !== userId) throw new NotFoundError('API anahtarı');
     return apiKeyRepository.getUsageStats(keyId);
+  },
+
+  /** Kullanıcı geneli usage dashboard verisi. */
+  async getUserUsageOverview(userId: string, hours = 24) {
+    const safeHours = Math.min(Math.max(hours, 1), 168);
+    return apiKeyRepository.getUserUsageOverview(userId, safeHours);
   },
 
   /**

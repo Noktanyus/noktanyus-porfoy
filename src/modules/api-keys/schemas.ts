@@ -14,6 +14,8 @@ export const CreateApiKeySchema = z.object({
   rateLimit: z.number().int().min(1, 'En az 1 istek/dk').max(10000, 'En fazla 10000 istek/dk').default(60),
   monthlyQuota: z.number().int().min(1, 'En az 1').optional().nullable(),
   expiresAt: z.coerce.date().optional().nullable(),
+  /** live = üretim, test = sandbox (nokt_test_…) */
+  environment: z.enum(['live', 'test']).optional(),
 });
 
 export const UpdateApiKeySchema = z.object({

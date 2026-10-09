@@ -26,7 +26,8 @@ export function PlanGrid({ plans }: { plans: Plan[] }) {
         return (
           <div
             key={plan.id}
-            className={`glass-card-premium p-6 flex flex-col min-w-0 ${
+            id={`plan-${plan.slug}`}
+            className={`glass-card-premium p-6 flex flex-col min-w-0 scroll-mt-24 ${
               plan.isFeatured ? 'ring-2 ring-brand-primary' : ''
             }`}
           >

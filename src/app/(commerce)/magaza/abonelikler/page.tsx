@@ -6,6 +6,7 @@
 import Link from 'next/link';
 import { commerceService } from '@/modules/commerce';
 import { PlanGrid } from '@/components/commerce/PlanGrid';
+import { PlanCompareMatrix } from '@/components/commerce/PlanCompareMatrix';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import { staticMetadata } from '@/lib/pageMetadata';
@@ -65,7 +66,10 @@ export default async function MagazaAboneliklerPage() {
       </div>
 
       {plans.length > 0 ? (
-        <PlanGrid plans={plans} />
+        <>
+          <PlanGrid plans={plans} />
+          <PlanCompareMatrix plans={plans} />
+        </>
       ) : (
         <EmptyState
           icon={loadFailed ? 'question' : 'inbox'}

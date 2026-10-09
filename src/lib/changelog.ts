@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-saas-console',
+    date: '2026-10-09',
+    title: 'Usage dashboard, webhook playground, SDK ve rate-limit docs',
+    summary:
+      'Dashboard’da API kullanımı ve webhook test UI; /docs/sdk, /docs/rate-limits; mağazada plan karşılaştırma matrisi.',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
     id: '2026-10-09-tr-builders',
     date: '2026-10-09',
     title: 'IBAN build, TR Karekod, auto-validate, metin normalize',

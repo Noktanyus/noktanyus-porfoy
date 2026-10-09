@@ -71,6 +71,100 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
       })),
     };
   }
+
+  /**
+   * Kullanıcının tüm anahtarları için kullanım özeti (SaaS usage dashboard).
+   */
+  async getUserUsageOverview(userId: string, hours = 24) {
+    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const keys = await prisma.apiKey.findMany({
+      where: { userId, revokedAt: null },
+      select: {
+        id: true,
+        name: true,
+        prefix: true,
+        totalRequests: true,
+        monthlyQuota: true,
+        rateLimit: true,
+        lastUsedAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const keyIds = keys.map((k) => k.id);
+    if (keyIds.length === 0) {
+      return {
+        hours,
+        total: 0,
+        successCount: 0,
+        errorCount: 0,
+        successRate: 100,
+        byEndpoint: [] as { endpoint: string; count: number }[],
+        recent: [] as Array<{
+          id: string;
+          endpoint: string;
+          method: string;
+          statusCode: number;
+          timestamp: Date;
+          apiKeyId: string;
+          keyName: string | null;
+        }>,
+        keys: [],
+      };
+    }
+
+    const [total, successCount, byEndpoint, recent] = await Promise.all([
+      prisma.apiKeyUsage.count({
+        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+      }),
+      prisma.apiKeyUsage.count({
+        where: {
+          apiKeyId: { in: keyIds },
+          timestamp: { gte: since },
+          statusCode: { gte: 200, lt: 400 },
+        },
+      }),
+      prisma.apiKeyUsage.groupBy({
+        by: ['endpoint'],
+        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+        _count: { _all: true },
+        orderBy: { _count: { endpoint: 'desc' } },
+        take: 12,
+      }),
+      prisma.apiKeyUsage.findMany({
+        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+        orderBy: { timestamp: 'desc' },
+        take: 25,
+        select: {
+          id: true,
+          endpoint: true,
+          method: true,
+          statusCode: true,
+          timestamp: true,
+          apiKeyId: true,
+        },
+      }),
+    ]);
+
+    const keyNameById = new Map(keys.map((k) => [k.id, k.name]));
+
+    return {
+      hours,
+      total,
+      successCount,
+      errorCount: total - successCount,
+      successRate: total > 0 ? (successCount / total) * 100 : 100,
+      byEndpoint: byEndpoint.map((e) => ({
+        endpoint: e.endpoint,
+        count: e._count._all,
+      })),
+      recent: recent.map((r) => ({
+        ...r,
+        keyName: keyNameById.get(r.apiKeyId) ?? null,
+      })),
+      keys,
+    };
+  }
 }
 
 export class ApiKeyUsageRepository extends BaseRepository<ApiKeyUsage> {

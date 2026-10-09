@@ -18,6 +18,8 @@ import {
   FaKey,
   FaBook,
   FaShieldAlt,
+  FaChartBar,
+  FaSatelliteDish,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -33,9 +35,11 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: 'Genel Bakış', icon: FaChartLine, exact: true },
+  { href: '/dashboard/usage', label: 'API Kullanımı', icon: FaChartBar },
+  { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: FaSatelliteDish },
   { href: '/dashboard/orders', label: 'Siparişler', icon: FaShoppingCart },
   { href: '/dashboard/products', label: 'Satın Aldıklarım', icon: FaBox },
-  { href: '/dashboard/api-keys', label: 'API Anahtarları', icon: FaKey },
   { href: '/dashboard/billing', label: 'Faturalandırma', icon: FaCreditCard },
   { href: '/dashboard/settings', label: 'Ayarlar', icon: FaUserCog },
   { href: '/docs', label: 'API Dokümantasyon', icon: FaBook },
