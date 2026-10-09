@@ -56,6 +56,7 @@ const Footer = ({ aboutData }: FooterProps) => {
               { href: '/docs/sdk', label: 'SDK' },
               { href: '/docs/hatalar', label: 'Hata kodları' },
               { href: '/docs/rate-limits', label: 'Rate limits' },
+              { href: '/docs/webhooks', label: 'Webhooks' },
               { href: '/araclar', label: 'Araçlar' },
               { href: '/changelog', label: 'Changelog' },
               { href: '/baslangic', label: 'Başlangıç' },

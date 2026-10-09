@@ -8,7 +8,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FaCopy, FaTrash, FaEye, FaSync } from 'react-icons/fa';
+import Link from 'next/link';
+import { FaCopy, FaTrash, FaEye, FaSync, FaEdit } from 'react-icons/fa';
 import { formatDate } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/EmptyState';
 
@@ -163,16 +164,26 @@ export function ApiKeyList({
                 </button>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => handleRevoke(key.id, key.name)}
-              disabled={busyId === key.id}
-              className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
-              aria-label={`${key.name} API anahtarını iptal et`}
-              title="İptal et"
-            >
-              <FaTrash className="w-4 h-4" aria-hidden="true" />
-            </button>
+            <div className="flex items-center gap-1 shrink-0">
+              <Link
+                href={`/dashboard/api-keys/${key.id}`}
+                className="p-2 hover:bg-muted text-foreground rounded transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                aria-label={`${key.name} düzenle`}
+                title="Düzenle"
+              >
+                <FaEdit className="w-4 h-4" aria-hidden="true" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleRevoke(key.id, key.name)}
+                disabled={busyId === key.id}
+                className="p-2 hover:bg-destructive/10 text-destructive rounded transition-colors disabled:opacity-50 min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
+                aria-label={`${key.name} API anahtarını iptal et`}
+                title="İptal et"
+              >
+                <FaTrash className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
