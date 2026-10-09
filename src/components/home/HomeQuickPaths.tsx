@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaBolt, FaStore, FaTools, FaFolderOpen, FaArrowRight } from 'react-icons/fa';
+import { FaBolt, FaStore, FaTools, FaBook, FaArrowRight } from 'react-icons/fa';
 import { useInView } from '@/lib/animations';
 
 const PATHS = [
@@ -14,6 +14,13 @@ const PATHS = [
     accent: 'from-sky-500/20 to-blue-600/10 text-sky-400 border-sky-500/25',
   },
   {
+    href: '/docs',
+    title: 'API Docs & SDK',
+    description: 'OpenAPI, TypeScript SDK, hata kodları ve rate limit sözleşmesi.',
+    icon: FaBook,
+    accent: 'from-violet-500/20 to-indigo-600/10 text-violet-400 border-violet-500/25',
+  },
+  {
     href: '/araclar',
     title: 'Canlı Araçlar',
     description: 'IBAN, TCKN/VKN, KDV ve iş günü araçlarını ücretsiz deneyin.',
@@ -21,18 +28,11 @@ const PATHS = [
     accent: 'from-emerald-500/20 to-teal-600/10 text-emerald-400 border-emerald-500/25',
   },
   {
-    href: '/magaza',
-    title: 'Mağaza',
-    description: 'Aylık plan veya kredi ile API kotanızı hemen açın.',
+    href: '/magaza/abonelikler',
+    title: 'Planlar',
+    description: 'Aylık kota veya kredi — karşılaştırma tablosu ile seç.',
     icon: FaStore,
     accent: 'from-amber-500/20 to-orange-600/10 text-amber-400 border-amber-500/25',
-  },
-  {
-    href: '/projelerim',
-    title: 'Projeler',
-    description: 'Üretimde çalışan ürünler ve teknik detaylar.',
-    icon: FaFolderOpen,
-    accent: 'from-blue-500/20 to-indigo-600/10 text-blue-400 border-blue-500/25',
   },
 ] as const;
 
