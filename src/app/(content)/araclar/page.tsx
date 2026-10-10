@@ -68,6 +68,15 @@ const TOOLS = [
     tag: 'Yeni & e-Fatura',
   },
   {
+    slug: 'yasal-faiz-hesaplama',
+    title: 'TCMB Yasal & Ticari Temerrüt Faizi',
+    description:
+      '3095 s.K. ve TTK m.1530 uyarınca fatura ve alacaklar için Resmi Gazete kademeli faiz oranları dökümü ve gün hesabı.',
+    icon: FaGavel,
+    color: 'from-blue-600 to-cyan-600',
+    tag: 'Yeni & Hukuk & Finans',
+  },
+  {
     slug: 'vergi-dairesi-kodlari',
     title: 'GİB Vergi Dairesi Kodları & Arama',
     description:

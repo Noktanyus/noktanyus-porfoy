@@ -215,3 +215,14 @@ export {
   type MarketplaceFeeResult,
 } from './marketplaceFee';
 
+export {
+  calculateLegalInterest,
+  LEGAL_INTEREST_RATES,
+  COMMERCIAL_DEFAULT_RATES,
+  type InterestType,
+  type InterestRatePeriod,
+  type InterestPeriodBreakdown,
+  type CalculateInterestInput,
+  type CalculateInterestResult,
+} from './legalInterest';
+

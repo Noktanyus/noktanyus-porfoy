@@ -282,6 +282,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/tax-offices',
   },
   {
+    id: 'api:finance:legal-interest',
+    label: 'TCMB Yasal & Ticari Temerrüt Faizi',
+    description: '3095 s.K. yasal faiz ve TTK m.1530 ticari temerrüt faizi kademeli tarihsel hesaplama motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/legal-interest',
+  },
+  {
     id: 'api:finance:to-words',
     label: 'Sayıyı Yazıya Çevirme',
     description: 'Sayısal tutarları Türkçe resmi fatura metnine çevirme (Yalnız ... TL).',

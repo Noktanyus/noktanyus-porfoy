@@ -729,6 +729,54 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/legal-interest': makeTrEndpoint({
+    summary: 'TCMB Yasal & Ticari Temerrüt Faizi Hesaplama (TTK m.1530 & 3095 s.K.)',
+    description:
+      'İki tarih arasındaki gün sayısını hesaplar ve resmi oran değişimlerine göre kademeli (dilimli) yasal faiz veya ticari temerrüt faizi tahakkuk ettirir.',
+    bodySchema: {
+      type: 'object',
+      required: ['principal', 'startDate', 'endDate'],
+      properties: {
+        principal: { type: 'number', minimum: 0, description: 'Anapara tutarı (TL)' },
+        startDate: { type: 'string', format: 'date', description: 'Faiz başlangıç tarihi (YYYY-MM-DD)' },
+        endDate: { type: 'string', format: 'date', description: 'Faiz bitiş tarihi (YYYY-MM-DD)' },
+        interestType: {
+          type: 'string',
+          enum: ['legal', 'commercial_default', 'custom'],
+          default: 'commercial_default',
+          description: 'Faiz türü (legal: 3095 s.K. Yasal, commercial_default: TTK 1530 Ticari Temerrüt, custom: Özel)',
+        },
+        customRate: { type: 'number', minimum: 0, description: 'Özel yıllık faiz oranı (%)' },
+      },
+    },
+    bodyExample: {
+      principal: 100000,
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      interestType: 'commercial_default',
+    },
+    responseExample: {
+      principal: 100000,
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
+      totalDays: 365,
+      interestType: 'commercial_default',
+      interestTypeName: 'Ticari Temerrüt Faizi (TTK m.1530 / TCMB)',
+      totalInterest: 48000,
+      totalPayable: 148000,
+      periods: [
+        {
+          periodStartDate: '2024-01-01',
+          periodEndDate: '2024-12-31',
+          days: 365,
+          annualRate: 48,
+          periodInterest: 48000,
+          legalBasis: 'TCMB Tebliği (R.G. 02.01.2024 - 32417)',
+        },
+      ],
+    },
+  }),
+
   '/api/v1/finance/to-words': makeTrEndpoint({
     summary: 'Para tutarını Türkçe metne çevirme (Çek/senet koruma formatı desteği)',
     description: 'Kuruş cinsinden tutarı Türkçe yazıya dönüştürür. Opsiyonel olarak bankacılık çek/senet güvenlik formatı (#...TL#) üretir.',
