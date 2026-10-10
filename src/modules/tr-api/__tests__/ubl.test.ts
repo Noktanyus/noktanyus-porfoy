@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validateUblXml } from '../ubl';
+import { validateUblXml, parseUblInvoiceSummary, SAMPLE_UBL_XML } from '../ubl';
 import { calculateGrossToNet, calculateNetToGross } from '../extras';
 
 describe('validateUblXml', () => {
@@ -29,6 +29,22 @@ describe('validateUblXml', () => {
     });
     expect(r.ok).toBe(false);
     expect(r.issues.some((i) => i.path.includes('AccountingSupplierParty'))).toBe(true);
+  });
+
+  it('validates SAMPLE_UBL_XML and parses invoice summary', () => {
+    const r = validateUblXml({ xml: SAMPLE_UBL_XML });
+    expect(r.ok).toBe(true);
+    expect(r.invoiceId).toBe('NOK2026000000042');
+    expect(r.profileId).toBe('TICARIFATURA');
+
+    const summary = parseUblInvoiceSummary(SAMPLE_UBL_XML);
+    expect(summary.invoiceId).toBe('NOK2026000000042');
+    expect(summary.supplierVkn).toBe('1234567890');
+    expect(summary.customerVkn).toBe('9876543210');
+    expect(summary.payableAmount).toBe(1200);
+    expect(summary.taxAmount).toBe(200);
+    expect(summary.currency).toBe('TRY');
+    expect(summary.lineCount).toBe(1);
   });
 });
 

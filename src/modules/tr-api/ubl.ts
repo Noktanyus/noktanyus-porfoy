@@ -138,3 +138,149 @@ export function validateUblXml(input: { xml: string }): UblValidationResult {
   const ok = issues.every((i) => i.severity !== 'error');
   return { ok, documentType, profileId, invoiceId, issueDate, issues };
 }
+
+export interface UblInvoiceSummary {
+  invoiceId: string | null;
+  issueDate: string | null;
+  profileId: string | null;
+  invoiceTypeCode: string | null;
+  currency: string | null;
+  supplierName: string | null;
+  supplierVkn: string | null;
+  customerName: string | null;
+  customerVkn: string | null;
+  lineExtensionAmount: number | null;
+  taxAmount: number | null;
+  payableAmount: number | null;
+  lineCount: number;
+}
+
+/**
+ * UBL faturasının temel ticari alanlarını ayrıştırır
+ */
+export function parseUblInvoiceSummary(xml: string): UblInvoiceSummary {
+  const invoiceId = tagText(xml, 'ID');
+  const issueDate = tagText(xml, 'IssueDate');
+  const profileId = tagText(xml, 'ProfileID');
+  const invoiceTypeCode = tagText(xml, 'InvoiceTypeCode');
+  const currency = tagText(xml, 'DocumentCurrencyCode');
+
+  // Supplier & Customer extraction
+  const supplierMatch = xml.match(/<cac:AccountingSupplierParty[\s\S]*?<\/cac:AccountingSupplierParty>/i);
+  const supplierXml = supplierMatch ? supplierMatch[0] : '';
+  const supplierName = tagText(supplierXml, 'RegistrationName') || tagText(supplierXml, 'FamilyName');
+  const supplierVkn = tagText(supplierXml, 'VKN') || tagText(supplierXml, 'TCKN') || tagText(supplierXml, 'ID');
+
+  const customerMatch = xml.match(/<cac:AccountingCustomerParty[\s\S]*?<\/cac:AccountingCustomerParty>/i);
+  const customerXml = customerMatch ? customerMatch[0] : '';
+  const customerName = tagText(customerXml, 'RegistrationName') || tagText(customerXml, 'FamilyName');
+  const customerVkn = tagText(customerXml, 'VKN') || tagText(customerXml, 'TCKN') || tagText(customerXml, 'ID');
+
+  // Totals
+  const parseNum = (str: string | null) => (str ? parseFloat(str.replace(/,/g, '.')) || null : null);
+  const lineExtensionAmount = parseNum(tagText(xml, 'LineExtensionAmount'));
+  const taxAmount = parseNum(tagText(xml, 'TaxAmount'));
+  const payableAmount = parseNum(tagText(xml, 'PayableAmount'));
+  const lineCount = countTags(xml, 'InvoiceLine');
+
+  return {
+    invoiceId,
+    issueDate,
+    profileId,
+    invoiceTypeCode,
+    currency,
+    supplierName,
+    supplierVkn,
+    customerName,
+    customerVkn,
+    lineExtensionAmount,
+    taxAmount,
+    payableAmount,
+    lineCount,
+  };
+}
+
+export const SAMPLE_UBL_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+  xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+  xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:UBLVersionID>2.1</cbc:UBLVersionID>
+  <cbc:CustomizationID>TR1.2</cbc:CustomizationID>
+  <cbc:ProfileID>TICARIFATURA</cbc:ProfileID>
+  <cbc:ID>NOK2026000000042</cbc:ID>
+  <cbc:IssueDate>2026-10-10</cbc:IssueDate>
+  <cbc:InvoiceTypeCode>SATIS</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>TRY</cbc:DocumentCurrencyCode>
+  <cbc:LineCountNumeric>1</cbc:LineCountNumeric>
+  
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="VKN">1234567890</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>Noktanyus Bulut Teknolojileri A.Ş.</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:CitySubdivisionName>Kadıköy</cbc:CitySubdivisionName>
+        <cbc:CityName>İstanbul</cbc:CityName>
+      </cac:PostalAddress>
+      <cac:PartyTaxScheme>
+        <cac:TaxScheme>
+          <cbc:Name>Kadıköy Vergi Dairesi Müdürlüğü</cbc:Name>
+          <cbc:TaxTypeCode listAgencyID="GIB">034262</cbc:TaxTypeCode>
+        </cac:TaxScheme>
+      </cac:PartyTaxScheme>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="VKN">9876543210</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>Örnek Müşteri Yazılım Ltd. Şti.</cbc:Name>
+      </cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:CitySubdivisionName>Çankaya</cbc:CitySubdivisionName>
+        <cbc:CityName>Ankara</cbc:CityName>
+      </cac:PostalAddress>
+    </cac:Party>
+  </cac:AccountingCustomerParty>
+
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="TRY">200.00</cbc:TaxAmount>
+    <cac:TaxSubtotal>
+      <cbc:TaxableAmount currencyID="TRY">1000.00</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="TRY">200.00</cbc:TaxAmount>
+      <cbc:Percent>20</cbc:Percent>
+      <cac:TaxCategory>
+        <cac:TaxScheme>
+          <cbc:Name>KDV</cbc:Name>
+          <cbc:TaxTypeCode>0015</cbc:TaxTypeCode>
+        </cac:TaxScheme>
+      </cac:TaxCategory>
+    </cac:TaxSubtotal>
+  </cac:TaxTotal>
+
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="TRY">1000.00</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="TRY">1000.00</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="TRY">1200.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="TRY">1200.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+
+  <cac:InvoiceLine>
+    <cbc:ID>1</cbc:ID>
+    <cbc:InvoicedQuantity unitCode="C62">1</cbc:InvoicedQuantity>
+    <cbc:LineExtensionAmount currencyID="TRY">1000.00</cbc:LineExtensionAmount>
+    <cac:Item>
+      <cbc:Name>SaaS Bulut API Aboneliği - 1 Yıllık</cbc:Name>
+    </cac:Item>
+    <cac:Price>
+      <cbc:PriceAmount currencyID="TRY">1000.00</cbc:PriceAmount>
+    </cac:Price>
+  </cac:InvoiceLine>
+</Invoice>`;
+

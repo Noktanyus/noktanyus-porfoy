@@ -1,15 +1,17 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
   description:
-    'Online TR IBAN doğrulama, TCMB TR Karekod (FAST) oluşturucu, GİB Vergi Dairesi Kodları, Pazaryeri Komisyon Hesaplama, SMM makbuz hesaplama, TCKN/VKN kontrolü, Kargo Desi hesaplama.',
+    'Online TR IBAN doğrulama, TCMB TR Karekod (FAST) oluşturucu, UBL e-Fatura XML görüntüleyici, GİB Vergi Dairesi Kodları, Pazaryeri Komisyon Hesaplama, SMM makbuz hesaplama, TCKN/VKN kontrolü.',
   keywords: [
     'tr karekod oluşturucu',
+    'ubl fatura görüntüleyici',
+    'e-fatura xml görüntüleyici',
     'pazaryeri komisyon hesaplama',
     'trendyol komisyon hesaplama',
     'vergi dairesi kodları',
@@ -32,7 +34,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
-    description: 'Online TR Karekod FAST, Pazaryeri Komisyon, Vergi Dairesi Kodları, SMM Makbuzu, IBAN, TCKN, Kargo Desi hesaplama araçları. API desteği ile.',
+    description: 'Online TR Karekod FAST, UBL e-Fatura Görüntüleyici, Pazaryeri Komisyon, Vergi Dairesi Kodları, SMM Makbuzu, IBAN, TCKN, Kargo Desi hesaplama araçları. API desteği ile.',
     url: 'https://noktanyus.com/araclar',
   },
 };
@@ -55,6 +57,15 @@ const TOOLS = [
     icon: FaShoppingBag,
     color: 'from-amber-500 to-orange-600',
     tag: 'Yeni & E-Ticaret',
+  },
+  {
+    slug: 'ubl-fatura-goruntuleyici',
+    title: 'UBL e-Fatura XML Görüntüleyici',
+    description:
+      'GİB UBL-TR 2.1 e-Fatura ve e-Arşiv XML dosyalarını tarayıcıda açın, şema ve zorunlu alan doğrulaması yapın, ticari dökümü görselleştirin.',
+    icon: FaFileCode,
+    color: 'from-indigo-500 to-purple-600',
+    tag: 'Yeni & e-Fatura',
   },
   {
     slug: 'vergi-dairesi-kodlari',

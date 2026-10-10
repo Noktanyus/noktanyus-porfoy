@@ -35,7 +35,14 @@ export {
   type WithholdingFraction,
 } from './extras';
 
-export { validateUblXml, type UblValidationResult, type UblValidationIssue } from './ubl';
+export {
+  validateUblXml,
+  parseUblInvoiceSummary,
+  SAMPLE_UBL_XML,
+  type UblValidationResult,
+  type UblValidationIssue,
+  type UblInvoiceSummary,
+} from './ubl';
 
 export { validateEmailMx } from './emailMx';
 
