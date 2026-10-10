@@ -40,6 +40,7 @@ vi.mock('@/lib/logger', () => ({
 }));
 
 import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/email';
 import { newsletterService } from '../service';
 
 describe('NewsletterService', () => {
@@ -128,6 +129,27 @@ describe('NewsletterService', () => {
 
       expect(result.alreadySubscribed).toBe(true);
       expect(prisma.newsletterSubscriber.create).not.toHaveBeenCalled();
+    });
+
+    it('durum/incidents abonesinde kesinti doğrulama e-postası gönderir', async () => {
+      vi.mocked(prisma.newsletterSubscriber.findUnique).mockResolvedValue(null);
+      vi.mocked(prisma.newsletterSubscriber.create).mockResolvedValue({
+        id: 'sub-status',
+        email: 'ops@example.com',
+      } as any);
+
+      await newsletterService.subscribe({
+        email: 'ops@example.com',
+        source: 'durum',
+        categories: ['incidents'],
+      });
+
+      expect(sendEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'ops@example.com',
+          subject: 'Noktanyus — Kesinti bildirimi aboneliği',
+        })
+      );
     });
 
     it('geçersiz email Zod hatası fırlatır', async () => {

@@ -17,7 +17,7 @@ rate-limit görünürlüğü, deprecation/sunset, SSO, agent/MCP yüzeyi.
 1. **SSO (SAML/OIDC)** — B2B enterprise (SendGrid/Twilio)
 2. **Go/TS SDK** — Python sonrası dil çeşitliliği *(minimal dilimler ship)*
 3. **Usage anomaly alerts** — ani spike / sessizlik *(soft uyarılar ship)*
-4. **Public status + incident subscribe** — güven
+4. **Public status + incident subscribe** — güven *(T17: /durum e-posta + rozet/JSON docs ship)*
 5. **Full MCP SDK server** — mevcut MCP-ish tools ötesi
 
 ### Ship edilmiş turlar
@@ -29,6 +29,7 @@ rate-limit görünürlüğü, deprecation/sunset, SSO, agent/MCP yüzeyi.
 - T11: `/mcp.json` + `/api/v1/agent/tools` + `/docs/mcp`
 - T12: webhook failed/DLQ list + Yeniden dene UX
 - T16: deprecation brownout (`API_BROWNOUT_*`, 503 + Retry-After)
+- T17: `/durum` kesinti e-posta abonesi + SVG/JSON/Markdown durum gömme
 
 ### Sonraki
-- T13+: SSO derinleştirme / status email subscribe / Postman header örnekleri
+- T13+: SSO derinleştirme / Postman header örnekleri / status broadcast otomasyonu

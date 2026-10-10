@@ -59,7 +59,7 @@ const LINKS = [
   {
     href: '/durum',
     title: 'Sistem durumu',
-    desc: 'Anlık sağlık + rozet',
+    desc: 'Sağlık, rozet ve kesinti e-postası',
     icon: FaHeartbeat,
   },
   {
@@ -105,9 +105,20 @@ export default async function SupportPage() {
         })}
       </div>
 
-      <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4 text-sm text-muted-foreground">
-        Durum rozeti (SVG):{' '}
-        <code className="text-xs">https://noktanyus.com/api/health/badge</code>
+      <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4 text-sm text-muted-foreground space-y-2">
+        <p>
+          Durum rozeti (SVG):{' '}
+          <code className="text-xs">https://noktanyus.com/api/health/badge</code>
+        </p>
+        <p>
+          JSON sağlık:{' '}
+          <code className="text-xs">https://noktanyus.com/api/health</code>
+          {' · '}
+          <Link href="/durum" className="text-brand-primary hover:underline">
+            /durum
+          </Link>{' '}
+          (kesinti e-posta abonesi)
+        </p>
       </div>
     </div>
   );

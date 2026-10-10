@@ -10,6 +10,10 @@ import { logger } from '@/lib/logger';
 import { sendEmail } from '@/lib/email';
 import { queueService } from '@/lib/queueService';
 import { NotFoundError, ConflictError } from '@/modules/shared/errors';
+import {
+  isStatusIncidentSubscribe,
+  statusVerifyEmailCopy,
+} from '@/lib/statusSubscribe';
 
 export const newsletterService = {
   /**
@@ -69,16 +73,22 @@ export const newsletterService = {
     try {
       const baseUrl = process.env.NEXTAUTH_URL ?? 'http://localhost:3000';
       const verifyUrl = `${baseUrl}/api/newsletter/verify?token=${verifyToken}`;
+      const incident = isStatusIncidentSubscribe({
+        source: validated.source,
+        categories: validated.categories,
+      });
+      const copy = statusVerifyEmailCopy(incident);
+      const greeting = validated.name ? `Merhaba ${validated.name},` : 'Merhaba,';
       await sendEmail({
         to: email,
-        subject: 'Noktanyus Blog - Abonelik Onayı',
+        subject: copy.subject,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <h2 style="color: #0078D4;">Aboneliğinizi Onaylayın</h2>
-            <p>${validated.name ? `Merhaba ${validated.name},` : 'Merhaba,'} Noktanyus blog'una abone olduğunuz için teşekkürler!</p>
+            <h2 style="color: #0078D4;">${copy.heading}</h2>
+            <p>${greeting} ${copy.intro}</p>
             <p>Aboneliğinizi onaylamak için aşağıdaki butona tıklayın:</p>
             <p style="margin: 24px 0;">
-              <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#0078D4;color:white;border-radius:6px;text-decoration:none;font-weight:600;">Aboneliği Onayla</a>
+              <a href="${verifyUrl}" style="display:inline-block;padding:12px 24px;background:#0078D4;color:white;border-radius:6px;text-decoration:none;font-weight:600;">${copy.cta}</a>
             </p>
             <p style="font-size: 13px; color: #666;">Bu email'i beklemediyseniz dikkate almayın.</p>
           </div>

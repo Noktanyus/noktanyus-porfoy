@@ -18,7 +18,13 @@ export const POST = withRateLimit(RateLimits.api, async (req: NextRequest) => {
     const data = SubscribeSchema.parse(body);
 
     const referer = req.headers.get('referer') ?? '';
-    const source = data.source ?? (referer.includes('/blog') ? 'blog' : 'footer');
+    const source =
+      data.source ??
+      (referer.includes('/durum')
+        ? 'durum'
+        : referer.includes('/blog')
+          ? 'blog'
+          : 'footer');
 
     const result = await newsletterService.subscribe({
       ...data,

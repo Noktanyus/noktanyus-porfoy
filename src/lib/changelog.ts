@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-status-incident-subscribe',
+    date: '2026-10-10',
+    title: 'Durum sayfası: kesinti e-posta aboneliği',
+    summary:
+      '/durum üzerinde incident e-posta formu (newsletter + incidents kategorisi, double opt-in); SVG rozet + /api/health JSON ve Markdown gömme belgelendi.',
+    kind: 'feature',
+    href: '/durum',
+  },
+  {
     id: '2026-10-10-deprecation-brownout',
     date: '2026-10-10',
     title: 'Deprecation brownout (503 + Retry-After)',
