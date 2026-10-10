@@ -18,12 +18,20 @@ export const CreateApiKeySchema = z.object({
   environment: z.enum(['live', 'test']).optional(),
 });
 
+const IpEntrySchema = z
+  .string()
+  .min(3)
+  .max(64)
+  .regex(/^[0-9a-fA-F:.\/]+$/, 'Geçersiz IP / CIDR');
+
 export const UpdateApiKeySchema = z.object({
   name: z.string().min(1).max(100).optional(),
   scopes: ApiKeyScopeListSchema.optional(),
   rateLimit: z.number().int().min(1).max(10000).optional(),
   monthlyQuota: z.number().int().min(1).nullable().optional(),
   expiresAt: z.coerce.date().nullable().optional(),
+  /** Boş dizi = kısıt yok */
+  allowedIps: z.array(IpEntrySchema).max(50).optional(),
 });
 
 export const RevokeApiKeySchema = z.object({

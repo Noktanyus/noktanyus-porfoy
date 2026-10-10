@@ -1190,6 +1190,8 @@ model ApiKey {
   // Limits
   rateLimit    Int  @default(60) // requests per minute
   monthlyQuota Int? // null = unlimited
+  /** Boş [] = IP kısıtı yok. Exact IPv4/IPv6 veya CIDR (örn. 10.0.0.0/8). */
+  allowedIps   Json @default("[]")
 
   // Tracking
   lastUsedAt    DateTime?

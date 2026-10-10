@@ -14,6 +14,7 @@ type Initial = {
   scopes: string[];
   rateLimit: number;
   monthlyQuota: number | null;
+  allowedIps: string[];
 };
 
 export function EditApiKeyForm({
@@ -29,6 +30,9 @@ export function EditApiKeyForm({
   const [rateLimit, setRateLimit] = useState(initial.rateLimit);
   const [monthlyQuota, setMonthlyQuota] = useState(
     initial.monthlyQuota != null ? String(initial.monthlyQuota) : ''
+  );
+  const [allowedIpsText, setAllowedIpsText] = useState(
+    (initial.allowedIps ?? []).join('\n')
   );
   const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState<string>('all');
@@ -59,6 +63,11 @@ export function EditApiKeyForm({
           scopes,
           rateLimit,
           monthlyQuota: monthlyQuota ? Number(monthlyQuota) : null,
+          allowedIps: allowedIpsText
+            .split(/[\n,]+/)
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 50),
         }),
       });
       const json = await res.json();
@@ -111,6 +120,20 @@ export function EditApiKeyForm({
             />
           </label>
         </div>
+        <label className="block text-sm font-semibold">
+          IP allowlist (opsiyonel)
+          <textarea
+            value={allowedIpsText}
+            onChange={(e) => setAllowedIpsText(e.target.value)}
+            className="admin-input mt-1 font-mono text-xs min-h-[88px]"
+            placeholder={'Boş = tüm IP\n203.0.113.10\n10.0.0.0/8'}
+            spellCheck={false}
+          />
+          <span className="mt-1 block text-xs font-normal text-muted-foreground">
+            Satır veya virgülle ayır. Exact IPv4/IPv6 veya CIDR. Doluysa eşleşmeyen istekler 403
+            IP_NOT_ALLOWED alır.
+          </span>
+        </label>
       </section>
 
       <section className="glass-card-premium p-5 space-y-4">

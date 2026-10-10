@@ -176,12 +176,17 @@ export const apiKeyService = {
       }
     }
 
+    const allowedIps = Array.isArray(apiKey.allowedIps)
+      ? (apiKey.allowedIps as string[]).filter((x) => typeof x === 'string')
+      : [];
+
     return {
       quotaExceeded: false as const,
       userId: apiKey.userId,
       keyId: apiKey.id,
       scopes: apiKey.scopes as string[],
       rateLimit: apiKey.rateLimit,
+      allowedIps,
     };
   },
 

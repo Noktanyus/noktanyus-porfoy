@@ -22,6 +22,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiKeyService } from '@/modules/api-keys/service';
 import { rateLimiter } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
+import { applyApiVersionHeaders } from '@/lib/apiVersion';
+import { ipAllowed, normalizeClientIp } from '@/lib/ipAllowlist';
 
 export interface ApiKeyContext {
   userId: string;
@@ -129,6 +131,25 @@ export function withApiKey(
       );
     }
 
+    const clientIp = normalizeClientIp(
+      req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip')
+    );
+    const allowlist = Array.isArray((validation as { allowedIps?: string[] }).allowedIps)
+      ? ((validation as { allowedIps: string[] }).allowedIps)
+      : [];
+    if (!ipAllowed(clientIp, allowlist)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: 'IP_NOT_ALLOWED',
+            message: 'Bu API anahtarı için istemci IP adresi izin listesinde değil.',
+          },
+        },
+        { status: 403 }
+      );
+    }
+
     // Rate limit — bucket identity'yi doğrulanmış keyId'ye bağla.
     // Önceki implementasyon `apikey:<rawKey>` kullanıyordu — bu, aynı
     // kullanıcının key rotasyonlarında bucket'ı sıfırlamıyor ve raw token
@@ -223,9 +244,10 @@ export function withApiKey(
         });
     }
 
-    // Rate limit headers
+    // Rate limit + API version headers
     responseObj.headers.set('X-RateLimit-Limit', String(validation.rateLimit));
     responseObj.headers.set('X-RateLimit-Remaining', String(limit.remaining));
+    applyApiVersionHeaders(responseObj.headers, req.nextUrl.pathname);
     return responseObj;
   };
 }

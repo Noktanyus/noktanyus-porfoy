@@ -43,6 +43,9 @@ export default async function EditApiKeyPage({
           scopes: Array.isArray(key.scopes) ? (key.scopes as string[]) : [],
           rateLimit: key.rateLimit,
           monthlyQuota: key.monthlyQuota,
+          allowedIps: Array.isArray(key.allowedIps)
+            ? (key.allowedIps as string[])
+            : [],
         }}
       />
     </div>

@@ -11,6 +11,7 @@ import { webhookService } from '@/modules/webhooks';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import WebhooksPanel, { type WebhookRow } from '@/components/dashboard/WebhooksPanel';
 import { WebhookReplayButton } from '@/components/dashboard/WebhookReplayButton';
+import { WebhookHmacPlayground } from '@/components/dashboard/WebhookHmacPlayground';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -69,6 +70,7 @@ export default async function WebhooksPage() {
         <code className="text-xs">X-Webhook-Delivery-Id</code>. Doğrulama için secret’ı güvenli sakla.
       </p>
       <WebhooksPanel initial={initial} />
+      <WebhookHmacPlayground />
 
       <section className="rounded-2xl border border-border bg-card/50 p-5 space-y-3">
         <h2 className="text-base font-bold">Son teslimatlar</h2>

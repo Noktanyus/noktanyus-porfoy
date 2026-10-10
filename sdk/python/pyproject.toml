@@ -1,0 +1,21 @@
+[project]
+name = "noktanyus"
+version = "0.1.0"
+description = "Official Python client for Noktanyus TR API"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Noktanyus" }]
+dependencies = []
+
+[project.urls]
+Homepage = "https://noktanyus.com"
+Documentation = "https://noktanyus.com/docs/sdk"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["noktanyus*"]

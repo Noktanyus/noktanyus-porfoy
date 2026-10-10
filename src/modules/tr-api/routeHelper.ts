@@ -8,6 +8,7 @@ import type { ZodSchema } from 'zod';
 import { withApiKey, hasScope, type ApiKeyContext } from '@/lib/apiKeyMiddleware';
 import { checkApiQuota } from '@/lib/planGate';
 import { tryDebitApiCredit, refundApiCredit } from '@/lib/apiCredits';
+import { maybeNotifyQuotaThreshold } from '@/lib/quotaAlerts';
 
 export function getRequiredScopeForPath(pathname: string): string {
   const clean = pathname.replace(/^\/api\/v1\//, '').replace(/\/$/, '');
@@ -35,6 +36,8 @@ export function withTrApi<T>(
     }
 
     const quota = await checkApiQuota(ctx.userId);
+    // Soft kota bildirimi — isteği geciktirmez
+    void maybeNotifyQuotaThreshold(ctx.userId, quota);
     if (!quota.allowed) {
       return NextResponse.json(
         { success: false, error: { code: 'QUOTA_EXCEEDED', message: quota.reason } },

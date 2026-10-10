@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'TypeScript SDK — Noktanyus API',
+  title: 'SDK — Noktanyus API (TypeScript & Python)',
   description:
-    'Resmi sıfır-bağımlılık TypeScript/Node SDK: IBAN, kimlik, KDV ve iş günü çağrıları.',
+    'Resmi sıfır-bağımlılık TypeScript/Node ve Python SDK: IBAN, kimlik, KDV ve iş günü çağrıları.',
   alternates: { canonical: '/docs/sdk' },
 };
 
@@ -20,6 +20,23 @@ console.log(iban.valid, iban.bankName);
 
 const id = await client.validateIdentity({ type: 'tckn', value: '10000000146' });
 console.log(id.valid);`;
+
+const PY_INSTALL = `# repodan (stdlib only — pip bağımlılığı yok)
+export PYTHONPATH=sdk/python
+# veya: pip install -e sdk/python
+
+from noktanyus import NoktanyusTrClient, NoktanyusApiError
+
+client = NoktanyusTrClient("ny_live_xxx")`;
+
+const PY_EXAMPLE = `iban = client.validate_iban("TR330006100519786457841326")
+print(iban["valid"], iban.get("bankName"))
+
+try:
+    id_ = client.validate_identity(type="tckn", value="10000000146")
+    print(id_["valid"])
+except NoktanyusApiError as e:
+    print(e.code, e.status_code)`;
 
 export default function SdkDocsPage() {
   return (
@@ -46,11 +63,11 @@ export default function SdkDocsPage() {
             Official client
           </p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            TypeScript / Node SDK
+            TypeScript &amp; Python SDK
           </h1>
           <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-            Zero-dependency istemci. Anahtarını sunucu tarafında tut;{' '}
-            <code className="text-sm">NoktanyusApiError.code</code> ile retry kararını ver.
+            Zero-dependency istemciler. Anahtarını sunucu tarafında tut; typed{' '}
+            <code className="text-sm">code</code> ile retry kararını ver.
           </p>
           <div className="flex flex-wrap gap-3 pt-1">
             <Link
@@ -82,17 +99,31 @@ export default function SdkDocsPage() {
         </section>
 
         <section className="space-y-3 mb-8">
-          <h2 className="text-lg font-bold">İlk çağrılar</h2>
+          <h2 className="text-lg font-bold">TypeScript — ilk çağrılar</h2>
           <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
             {EXAMPLE}
+          </pre>
+        </section>
+
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">Python — kurulum</h2>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {PY_INSTALL}
+          </pre>
+        </section>
+
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">Python — ilk çağrılar</h2>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {PY_EXAMPLE}
           </pre>
         </section>
 
         <section className="rounded-2xl border border-border/80 bg-card/40 p-5 text-sm text-slate-600 dark:text-slate-300 space-y-2">
           <p className="font-semibold text-foreground">Kaynak</p>
           <p>
-            Kod: <code className="text-xs">src/sdk/trApiClient.ts</code> · rehber:{' '}
-            <code className="text-xs">src/sdk/README.md</code>
+            TS: <code className="text-xs">src/sdk/trApiClient.ts</code> · Python:{' '}
+            <code className="text-xs">sdk/python/noktanyus/</code>
           </p>
           <p>
             OpenAPI referansı:{' '}

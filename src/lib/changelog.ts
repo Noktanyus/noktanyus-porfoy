@@ -16,6 +16,60 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-09-ip-allowlist-api-version',
+    date: '2026-10-09',
+    title: 'API key IP allowlist + X-API-Version',
+    summary:
+      'Anahtar başına IP/CIDR allowlist (403 IP_NOT_ALLOWED); tüm TR API yanıtlarında X-API-Version; /docs/versioning.',
+    kind: 'feature',
+    href: '/docs/versioning',
+  },
+  {
+    id: '2026-10-09-billing-projection',
+    date: '2026-10-09',
+    title: 'Usage maliyet tahmini (TRY)',
+    summary:
+      '/dashboard/usage: ay sonu fatura tahmini, kota aşımı × kredi birim fiyatı, plan ücreti özeti.',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
+    id: '2026-10-09-docs-md-agents',
+    date: '2026-10-09',
+    title: 'Agent Markdown API docs (/docs/md)',
+    summary:
+      'OpenAPI’den üretilen text/markdown endpoint index + per-path sayfalar; llms.txt linkleri.',
+    kind: 'docs',
+    href: '/docs/md',
+  },
+  {
+    id: '2026-10-09-webhook-hmac-playground',
+    date: '2026-10-09',
+    title: 'Webhook HMAC doğrulama playground',
+    summary:
+      '/dashboard/webhooks içinde tarayıcıda sha256 HMAC üretimi ve header karşılaştırması (secret sunucuya gitmez).',
+    kind: 'feature',
+    href: '/dashboard/webhooks',
+  },
+  {
+    id: '2026-10-09-quota-soft-alerts',
+    date: '2026-10-09',
+    title: 'Kota soft bildirimleri (%80 / %95)',
+    summary:
+      'TR API isteklerinde günde bir kez in-app kota uyarısı; exhausted durumda mağaza linki.',
+    kind: 'feature',
+    href: '/dashboard/notifications',
+  },
+  {
+    id: '2026-10-09-usage-forecast-python-sdk',
+    date: '2026-10-09',
+    title: 'Usage kota projeksiyonu ve Python SDK',
+    summary:
+      'Dashboard /usage: ay sonu tahmini, kota doluluk ve kredi dayanma süresi; resmi stdlib Python client (sdk/python) + /docs/sdk.',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
     id: '2026-10-09-postman-rotate-hobby',
     date: '2026-10-09',
     title: 'Postman export, API key rotate, Hobby cron düzeltmesi',
