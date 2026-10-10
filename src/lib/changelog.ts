@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-deprecation-brownout',
+    date: '2026-10-10',
+    title: 'Deprecation brownout (503 + Retry-After)',
+    summary:
+      'Deprecated path’lerde (matchDeprecation) opsiyonel brownout: API_BROWNOUT_ENABLED + olasılık (time/random); ENDPOINT_BROWNOUT + Sunset/Link; withApiKey üzerinden.',
+    kind: 'feature',
+    href: '/docs/versioning',
+  },
+  {
     id: '2026-10-10-go-sdk',
     date: '2026-10-10',
     title: 'Go SDK (minimal dilim)',

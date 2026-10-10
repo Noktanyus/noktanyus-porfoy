@@ -27,7 +27,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiKeyService } from '@/modules/api-keys/service';
 import { rateLimiter } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
-import { applyApiVersionHeaders } from '@/lib/apiVersion';
+import {
+  applyApiVersionHeaders,
+  brownoutErrorBody,
+  shouldBrownoutDeprecatedPath,
+} from '@/lib/apiVersion';
 import { ipAllowed, normalizeClientIp } from '@/lib/ipAllowlist';
 
 export interface ApiKeyContext {
@@ -187,6 +191,19 @@ export function withApiKey(
         ),
         requestId
       );
+    }
+
+    // Deprecation brownout (API_BROWNOUT_ENABLED) — Stripe tarzı periyodik 503
+    const brownout = shouldBrownoutDeprecatedPath(req.nextUrl.pathname);
+    if (brownout.brownout) {
+      const brownoutRes = NextResponse.json(brownoutErrorBody(), {
+        status: 503,
+        headers: {
+          'Retry-After': String(brownout.retryAfterSeconds),
+        },
+      });
+      applyApiVersionHeaders(brownoutRes.headers, req.nextUrl.pathname);
+      return attachRequestId(brownoutRes, requestId);
     }
 
     // Rate limit — bucket identity'yi doğrulanmış keyId'ye bağla.

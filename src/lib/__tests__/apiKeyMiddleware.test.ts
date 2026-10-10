@@ -8,7 +8,7 @@
  *     across key rotations).
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextResponse, type NextRequest } from 'next/server';
 import {
   withApiKey,
@@ -40,7 +40,7 @@ vi.mock('@/lib/logger', () => ({
 
 type Handler = (req: NextRequest, ctx: ApiKeyContext) => Promise<NextResponse>;
 
-function makeReq(authHeader: string | null) {
+function makeReq(authHeader: string | null, pathname = '/api/saas/test') {
   const headers = new Map<string, string>();
   if (authHeader) headers.set('authorization', authHeader);
   return {
@@ -51,15 +51,20 @@ function makeReq(authHeader: string | null) {
       },
     },
     method: 'GET',
-    nextUrl: { pathname: '/api/saas/test' },
+    nextUrl: { pathname },
   } as unknown as NextRequest;
 }
 
 describe('apiKeyMiddleware', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
     rateLimiterCheckMock.mockReturnValue({ allowed: true, remaining: 10, resetIn: 45 });
     trackUsageMock.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
   describe('rateLimitResetUnix', () => {
@@ -282,6 +287,60 @@ describe('apiKeyMiddleware', () => {
           durationMs: expect.any(Number),
         })
       );
+    });
+
+    it('returns 503 ENDPOINT_BROWNOUT with Retry-After on deprecated paths when enabled', async () => {
+      vi.stubEnv('API_BROWNOUT_ENABLED', '1');
+      vi.stubEnv('API_BROWNOUT_PROBABILITY', '1');
+      vi.stubEnv('API_BROWNOUT_RETRY_AFTER', '17');
+      vi.stubEnv('API_BROWNOUT_MODE', 'time');
+
+      validateKeyMock.mockResolvedValue({
+        userId: 'u1',
+        keyId: 'k_brown_1',
+        scopes: ['read:monitor'],
+        rateLimit: 60,
+      });
+
+      const handler: Handler = vi.fn(async () =>
+        NextResponse.json({ ok: true })
+      ) as unknown as Handler;
+      const wrapped = withApiKey(handler);
+
+      const res = await wrapped(makeReq('Bearer nokt_test_xx', '/api/v1/ai/bulk'));
+      expect(res.status).toBe(503);
+      expect(res.headers.get('Retry-After')).toBe('17');
+      expect(res.headers.get('Deprecation')).toBe('true');
+      expect(res.headers.get('X-Request-Id')).toBeTruthy();
+      const data = await res.json();
+      expect(data.error.code).toBe('ENDPOINT_BROWNOUT');
+      expect(handler).not.toHaveBeenCalled();
+      expect(rateLimiterCheckMock).not.toHaveBeenCalled();
+    });
+
+    it('does not brownout active TR paths even when brownout env is on', async () => {
+      vi.stubEnv('API_BROWNOUT_ENABLED', '1');
+      vi.stubEnv('API_BROWNOUT_PROBABILITY', '1');
+
+      validateKeyMock.mockResolvedValue({
+        userId: 'u1',
+        keyId: 'k_brown_2',
+        scopes: ['read:monitor'],
+        rateLimit: 60,
+      });
+      rateLimiterCheckMock.mockReturnValue({ allowed: true, remaining: 5, resetIn: 20 });
+
+      const handler: Handler = vi.fn(async () =>
+        NextResponse.json({ ok: true }, { status: 200 })
+      ) as unknown as Handler;
+      const wrapped = withApiKey(handler);
+
+      const res = await wrapped(
+        makeReq('Bearer nokt_test_xx', '/api/v1/validate/iban')
+      );
+      expect(res.status).toBe(200);
+      expect(handler).toHaveBeenCalled();
+      expect(res.headers.get('Retry-After')).toBeNull();
     });
   });
 });

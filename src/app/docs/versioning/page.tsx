@@ -59,6 +59,19 @@ export default function VersioningDocsPage() {
                 eklenir. Aktif TR uçlarında bu başlıklar dönmez.
               </p>
             </li>
+            <li className="rounded-xl border border-border px-4 py-3">
+              <code className="font-mono text-brand-primary">Brownout 503</code>
+              <p className="mt-1">
+                Opsiyonel enforcement: <code className="text-xs">API_BROWNOUT_ENABLED=true</code>{' '}
+                iken deprecated path&apos;lerde olasılıklı{' '}
+                <code className="text-xs">503 ENDPOINT_BROWNOUT</code> +{' '}
+                <code className="text-xs">Retry-After</code>. Olasılık{' '}
+                <code className="text-xs">API_BROWNOUT_PROBABILITY</code> (0–1); mod{' '}
+                <code className="text-xs">time</code> (dakika dilimi) veya{' '}
+                <code className="text-xs">random</code>. Varsayılan kapalı — aktif TR uçlarını
+                etkilemez.
+              </p>
+            </li>
           </ul>
         </section>
 
