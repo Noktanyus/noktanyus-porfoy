@@ -14,8 +14,10 @@ import { computeUsageForecast } from '@/lib/usageForecast';
 import { computeBillingProjection } from '@/lib/billingProjection';
 import { formatLatencyMs } from '@/lib/usageLatency';
 import { formatErrorRatePct } from '@/lib/usageErrors';
+import { evaluateAndNotifyUsageAnomalies } from '@/lib/usageAnomalyAlerts';
 import { formatCurrency } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
+
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -61,6 +63,11 @@ export default async function UsagePage({
         select: { priceCents: true, currency: true, name: true, interval: true },
       })
     : null;
+
+  const usageAnomalies = await evaluateAndNotifyUsageAnomalies(userId, {
+    isPaidPlan: quota.billingSource === 'subscription' && Boolean(planSlug),
+  });
+
 
   const now = new Date();
   const dayOfMonth = now.getUTCDate();
@@ -134,6 +141,21 @@ export default async function UsagePage({
           </Link>
         </div>
       )}
+
+      {usageAnomalies.map((a) => (
+        <div
+          key={a.kind}
+          className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
+            a.level === 'warn'
+              ? 'border-amber-500/40 bg-amber-500/10 text-amber-900 dark:text-amber-100'
+              : 'border-sky-500/40 bg-sky-500/10 text-sky-900 dark:text-sky-100'
+          }`}
+          role="status"
+        >
+          {a.message}
+        </div>
+      ))}
+
 
       <section className="rounded-2xl border border-border bg-card/50 p-5">
         <div className="flex flex-wrap items-end justify-between gap-2 mb-4">

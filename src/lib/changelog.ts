@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-usage-anomaly-alerts',
+    date: '2026-10-10',
+    title: 'Kullanım anomalisi soft uyarıları',
+    summary:
+      'Spike (son saat > 3× baseline medyan) + ücretli planda sessizlik (dün var / bugün yok); /dashboard/usage banner + in-app bildirim (günde 1).',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
     id: '2026-10-10-typescript-sdk',
     date: '2026-10-10',
     title: 'TypeScript / JavaScript SDK (ilk dilim)',
@@ -24,6 +33,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     kind: 'feature',
     href: '/docs/sdk',
   },
+
   {
     id: '2026-10-10-webhook-dlq-retry-ux',
     date: '2026-10-10',
