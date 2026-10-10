@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'SDK — Noktanyus API (TypeScript & Python)',
   description:
-    'Resmi sıfır-bağımlılık TypeScript/Node ve Python SDK: IBAN, kimlik, KDV ve iş günü çağrıları.',
+    'Resmi sıfır-bağımlılık TypeScript/Node ve Python SDK: health, IBAN, kimlik ve daha fazlası.',
   alternates: { canonical: '/docs/sdk' },
 };
 
@@ -20,6 +20,27 @@ console.log(iban.valid, iban.bankName);
 
 const id = await client.validateIdentity({ type: 'tckn', value: '10000000146' });
 console.log(id.valid);`;
+
+const TS_PKG_INSTALL = `# yayınlanabilir paket (native fetch — runtime bağımlılık yok)
+cd sdk/typescript && npm install && npm run build
+# veya: npm install ./sdk/typescript
+
+import { NoktanyusTrClient, NoktanyusApiError } from 'noktanyus';
+
+const client = new NoktanyusTrClient('ny_live_xxx');`;
+
+const TS_PKG_EXAMPLE = `const health = await client.health();
+console.log(health.status);
+
+const iban = await client.validateIban('TR330006100519786457841326');
+console.log(iban.valid, iban.bankName);
+
+try {
+  const id = await client.validateIdentity({ type: 'tckn', value: '10000000146' });
+  console.log(id.valid);
+} catch (e) {
+  if (e instanceof NoktanyusApiError) console.error(e.code, e.statusCode);
+}`;
 
 const PY_INSTALL = `# repodan (stdlib only — pip bağımlılığı yok)
 export PYTHONPATH=sdk/python
@@ -92,16 +113,35 @@ export default function SdkDocsPage() {
         </header>
 
         <section className="space-y-3 mb-8">
-          <h2 className="text-lg font-bold">Kurulum</h2>
+          <h2 className="text-lg font-bold">Kurulum (monorepo)</h2>
           <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
             {INSTALL}
           </pre>
         </section>
 
         <section className="space-y-3 mb-8">
-          <h2 className="text-lg font-bold">TypeScript — ilk çağrılar</h2>
+          <h2 className="text-lg font-bold">TypeScript — monorepo ilk çağrılar</h2>
           <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
             {EXAMPLE}
+          </pre>
+        </section>
+
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">TypeScript paket — kurulum</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Yayınlanabilir slim client:{' '}
+            <code className="text-xs">sdk/typescript/</code> (health + validate; native{' '}
+            <code className="text-xs">fetch</code>).
+          </p>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {TS_PKG_INSTALL}
+          </pre>
+        </section>
+
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">TypeScript paket — ilk çağrılar</h2>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {TS_PKG_EXAMPLE}
           </pre>
         </section>
 
@@ -122,7 +162,8 @@ export default function SdkDocsPage() {
         <section className="rounded-2xl border border-border/80 bg-card/40 p-5 text-sm text-slate-600 dark:text-slate-300 space-y-2">
           <p className="font-semibold text-foreground">Kaynak</p>
           <p>
-            TS: <code className="text-xs">src/sdk/trApiClient.ts</code> · Python:{' '}
+            TS paket: <code className="text-xs">sdk/typescript/</code> · monorepo:{' '}
+            <code className="text-xs">src/sdk/trApiClient.ts</code> · Python:{' '}
             <code className="text-xs">sdk/python/noktanyus/</code>
           </p>
           <p>

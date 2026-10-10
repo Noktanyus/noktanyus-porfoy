@@ -1,0 +1,46 @@
+{
+  "name": "noktanyus",
+  "version": "0.1.0",
+  "description": "Official TypeScript/JavaScript client for Noktanyus TR API (zero runtime deps, native fetch)",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "noktanyus",
+    "turkey",
+    "iban",
+    "tckn",
+    "api",
+    "sdk"
+  ],
+  "license": "MIT",
+  "homepage": "https://noktanyus.com/docs/sdk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/noktanyus/noktanyus-porfoy",
+    "directory": "sdk/typescript"
+  },
+  "bugs": {
+    "url": "https://noktanyus.com/docs"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

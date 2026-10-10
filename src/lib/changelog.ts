@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-typescript-sdk',
+    date: '2026-10-10',
+    title: 'TypeScript / JavaScript SDK (ilk dilim)',
+    summary:
+      'Resmi zero-dep client: sdk/typescript (native fetch); health + validate/iban|identity|phone; x-api-key Python ile aynı; /docs/sdk güncellendi.',
+    kind: 'feature',
+    href: '/docs/sdk',
+  },
+  {
     id: '2026-10-10-webhook-dlq-retry-ux',
     date: '2026-10-10',
     title: 'Webhook başarısız teslimat / DLQ UX',
