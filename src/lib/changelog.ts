@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-request-observability-headers',
+    date: '2026-10-10',
+    title: 'İstek observability yanıt başlıkları',
+    summary:
+      'TR API (withApiKey): X-Request-Id, X-RateLimit-Reset (unix sn), X-Request-Duration (ms); /docs/rate-limits ve /docs/hatalar.',
+    kind: 'feature',
+    href: '/docs/rate-limits',
+  },
+  {
     id: '2026-10-10-usage-latency',
     date: '2026-10-10',
     title: 'Usage latency insights (p50 / p95)',

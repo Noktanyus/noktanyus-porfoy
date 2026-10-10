@@ -235,6 +235,14 @@ const ComponentResponses: Record<string, ResponseObject> = {
         schema: { type: 'integer', example: 0 },
         description: 'Kalan istek hakkı',
       },
+      'X-RateLimit-Reset': {
+        schema: { type: 'integer', example: 1728518400 },
+        description: 'Pencere bitiş unix zaman damgası (saniye)',
+      },
+      'X-Request-Id': {
+        schema: { type: 'string', format: 'uuid' },
+        description: 'İstek korelasyon kimliği',
+      },
     },
     content: {
       'application/json': {
@@ -2264,7 +2272,10 @@ const API_DESCRIPTION = [
   'Her başarılı veya sınıra takılan yanıtta hız limitinizin durumunu gösteren başlıklar iletilir:',
   '- `X-RateLimit-Limit`: Dakika başına izin verilen maksimum istek sayısı.',
   '- `X-RateLimit-Remaining`: Mevcut dakikalık pencerede kalan istek hakkınız.',
+  '- `X-RateLimit-Reset`: Pencerenin biteceği unix zaman damgası (saniye).',
   '- `Retry-After`: 429 yanıtlarında tekrar istek yapmadan önce beklemeniz gereken saniye.',
+  '- `X-Request-Id`: İstek başına UUID (destek / log korelasyonu).',
+  '- `X-Request-Duration`: Handler süresi (milisaniye; işlenmiş yanıtlarda).',
 ].join('\n');
 
 export const OPENAPI_SPEC: Document = {

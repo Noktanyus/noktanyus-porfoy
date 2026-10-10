@@ -52,9 +52,11 @@ export default function VersioningDocsPage() {
             <li className="rounded-xl border border-border px-4 py-3">
               <code className="font-mono text-brand-primary">Deprecation: true</code>
               <p className="mt-1">
-                Uç kullanımdan kaldırılacaksa. İsteğe bağlı{' '}
-                <code className="text-xs">Sunset</code> ve{' '}
-                <code className="text-xs">Link rel=&quot;successor-version&quot;</code>.
+                Yalnızca <code className="text-xs">DEPRECATED_PREFIXES</code> ile eşleşen
+                path&apos;lerde (ör. kaldırılmış <code className="text-xs">/api/v1/ai</code>).
+                Varsa <code className="text-xs">Sunset</code> (HTTP-date) ve{' '}
+                <code className="text-xs">Link: &lt;…&gt;; rel=&quot;successor-version&quot;</code>{' '}
+                eklenir. Aktif TR uçlarında bu başlıklar dönmez.
               </p>
             </li>
           </ul>

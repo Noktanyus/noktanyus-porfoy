@@ -60,7 +60,8 @@ const ERRORS: ErrorRow[] = [
     code: 'RATE_LIMITED',
     title: 'Hız sınırı',
     retryable: true,
-    action: 'Retry-After (sn) kadar bekle; exponential backoff uygula. X-RateLimit-* başlıklarını izle.',
+    action:
+      'Retry-After (sn) kadar bekle; exponential backoff uygula. X-RateLimit-Remaining / X-RateLimit-Reset başlıklarını izle; X-Request-Id ile destek talebi aç.',
     example: `{"success":false,"error":{"code":"RATE_LIMITED","message":"Too many requests"}}`,
   },
   {
@@ -68,7 +69,8 @@ const ERRORS: ErrorRow[] = [
     code: 'INTERNAL_ERROR',
     title: 'Sunucu hatası',
     retryable: true,
-    action: 'Kısa backoff ile 1–2 kez dene; sürerse /durum ve destek kanalını kontrol et.',
+    action:
+      'Kısa backoff ile 1–2 kez dene; sürerse /durum ve destek kanalını kontrol et. Yanıttaki X-Request-Id değerini ilet.',
     example: `{"success":false,"error":{"code":"INTERNAL_ERROR","message":"Unexpected error"}}`,
   },
 ];
@@ -127,9 +129,20 @@ export default function ApiErrorsPage() {
           </div>
         </header>
 
-        <div className="rounded-2xl border border-border/80 bg-card/40 dark:bg-slate-900/40 p-4 sm:p-5 mb-8 text-sm text-slate-600 dark:text-slate-300">
-          <p className="font-semibold text-foreground mb-1">Ortak zarf</p>
-          <pre className="overflow-x-auto font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-200">{`{ "success": false, "error": { "code": "…", "message": "…" } }`}</pre>
+        <div className="rounded-2xl border border-border/80 bg-card/40 dark:bg-slate-900/40 p-4 sm:p-5 mb-8 text-sm text-slate-600 dark:text-slate-300 space-y-3">
+          <div>
+            <p className="font-semibold text-foreground mb-1">Ortak zarf</p>
+            <pre className="overflow-x-auto font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-200">{`{ "success": false, "error": { "code": "…", "message": "…" } }`}</pre>
+          </div>
+          <p>
+            Kimlik doğrulamalı TR API yanıtlarında{' '}
+            <code className="text-xs">X-Request-Id</code> her zaman döner; destek
+            korelasyonu için saklayın. Limit durumu için{' '}
+            <Link href="/docs/rate-limits" className="text-brand-primary hover:underline">
+              /docs/rate-limits
+            </Link>
+            .
+          </p>
         </div>
 
         <ul className="space-y-4">

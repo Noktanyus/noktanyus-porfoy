@@ -10,6 +10,11 @@
  *   - Authorization: Bearer nokt_live_xxx
  *   - X-Api-Key: nokt_live_xxx
  *
+ * Yanıt observability (Twilio/Stripe DX):
+ *   - X-Request-Id — istek başına UUID
+ *   - X-RateLimit-Reset — pencere bitiş unix saniyesi (resetIn'den)
+ *   - X-Request-Duration — handler süresi (ms)
+ *
  * Yapılan kontroller:
  *   1. Key presence
  *   2. Key validation (DB + revoked + expired + quota)
@@ -29,6 +34,27 @@ export interface ApiKeyContext {
   userId: string;
   keyId: string;
   scopes: string[];
+}
+
+/**
+ * Rate limit penceresinin biteceği an (unix saniye).
+ * `resetIn` = rateLimiter'ın döndürdüğü kalan saniye; yoksa 0 → şimdi.
+ */
+export function rateLimitResetUnix(
+  resetInSeconds: number,
+  nowMs: number = Date.now()
+): number {
+  const resetIn = Math.max(0, Math.ceil(Number(resetInSeconds) || 0));
+  return Math.floor(nowMs / 1000) + resetIn;
+}
+
+function newRequestId(): string {
+  return globalThis.crypto.randomUUID();
+}
+
+function attachRequestId(res: NextResponse, requestId: string): NextResponse {
+  res.headers.set('X-Request-Id', requestId);
+  return res;
 }
 
 /**
@@ -83,6 +109,7 @@ export function withApiKey(
   handler: (req: NextRequest, ctx: ApiKeyContext) => Promise<NextResponse>
 ): (req: NextRequest) => Promise<NextResponse> {
   return async (req: NextRequest): Promise<NextResponse> => {
+    const requestId = newRequestId();
     const authHeader = req.headers.get('authorization');
     const apiKeyHeader = req.headers.get('x-api-key');
 
@@ -94,40 +121,49 @@ export function withApiKey(
     }
 
     if (!apiKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: 'UNAUTHORIZED', message: 'API key required' },
-        },
-        { status: 401 }
+      return attachRequestId(
+        NextResponse.json(
+          {
+            success: false,
+            error: { code: 'UNAUTHORIZED', message: 'API key required' },
+          },
+          { status: 401 }
+        ),
+        requestId
       );
     }
 
     // Key validation
     const validation = await apiKeyService.validateKey(apiKey);
     if (!validation) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'INVALID_KEY',
-            message: 'Invalid, revoked, or expired API key',
+      return attachRequestId(
+        NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'INVALID_KEY',
+              message: 'Invalid, revoked, or expired API key',
+            },
           },
-        },
-        { status: 401 }
+          { status: 401 }
+        ),
+        requestId
       );
     }
 
     if ((validation as any).quotaExceeded) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'QUOTA_EXCEEDED',
-            message: 'Monthly quota exceeded. Please upgrade your plan or purchase credits.',
+      return attachRequestId(
+        NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'QUOTA_EXCEEDED',
+              message: 'Monthly quota exceeded. Please upgrade your plan or purchase credits.',
+            },
           },
-        },
-        { status: 402 }
+          { status: 402 }
+        ),
+        requestId
       );
     }
 
@@ -138,15 +174,18 @@ export function withApiKey(
       ? ((validation as { allowedIps: string[] }).allowedIps)
       : [];
     if (!ipAllowed(clientIp, allowlist)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'IP_NOT_ALLOWED',
-            message: 'Bu API anahtarı için istemci IP adresi izin listesinde değil.',
+      return attachRequestId(
+        NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'IP_NOT_ALLOWED',
+              message: 'Bu API anahtarı için istemci IP adresi izin listesinde değil.',
+            },
           },
-        },
-        { status: 403 }
+          { status: 403 }
+        ),
+        requestId
       );
     }
 
@@ -164,22 +203,26 @@ export function withApiKey(
     }));
 
     if (!limit.allowed) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'RATE_LIMITED',
-            message: 'Rate limit exceeded',
+      return attachRequestId(
+        NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: 'RATE_LIMITED',
+              message: 'Rate limit exceeded',
+            },
           },
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(limit.resetIn),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Limit': String(validation.rateLimit),
-          },
-        }
+          {
+            status: 429,
+            headers: {
+              'Retry-After': String(limit.resetIn),
+              'X-RateLimit-Remaining': '0',
+              'X-RateLimit-Limit': String(validation.rateLimit),
+              'X-RateLimit-Reset': String(rateLimitResetUnix(limit.resetIn)),
+            },
+          }
+        ),
+        requestId
       );
     }
 
@@ -194,22 +237,26 @@ export function withApiKey(
       try {
         const recentRequests = await (apiKeyService as any).countRecentUsage(validation.keyId, 60);
         if (recentRequests >= validation.rateLimit) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: {
-                code: 'RATE_LIMITED',
-                message: 'Rate limit exceeded',
+          return attachRequestId(
+            NextResponse.json(
+              {
+                success: false,
+                error: {
+                  code: 'RATE_LIMITED',
+                  message: 'Rate limit exceeded',
+                },
               },
-            },
-            {
-              status: 429,
-              headers: {
-                'Retry-After': '60',
-                'X-RateLimit-Remaining': '0',
-                'X-RateLimit-Limit': String(validation.rateLimit),
-              },
-            }
+              {
+                status: 429,
+                headers: {
+                  'Retry-After': '60',
+                  'X-RateLimit-Remaining': '0',
+                  'X-RateLimit-Limit': String(validation.rateLimit),
+                  'X-RateLimit-Reset': String(rateLimitResetUnix(60)),
+                },
+              }
+            ),
+            requestId
           );
         }
       } catch {
@@ -221,6 +268,7 @@ export function withApiKey(
     const startedAt = Date.now();
     let responseStatus = 200;
     let responseObj: NextResponse;
+    let durationMs = 0;
     try {
       responseObj = await handler(req, validation);
       responseStatus = responseObj.status;
@@ -229,10 +277,11 @@ export function withApiKey(
       logger.error('API key handler error', {
         error: err instanceof Error ? err.message : String(err),
         keyId: validation.keyId,
+        requestId,
       });
       throw err;
     } finally {
-      const durationMs = Math.max(0, Date.now() - startedAt);
+      durationMs = Math.max(0, Date.now() - startedAt);
       // Fire-and-forget usage tracking
       apiKeyService
         .trackUsage(validation.keyId, {
@@ -247,9 +296,12 @@ export function withApiKey(
         });
     }
 
-    // Rate limit + API version headers
+    // Rate limit + observability + API version headers
+    responseObj.headers.set('X-Request-Id', requestId);
+    responseObj.headers.set('X-Request-Duration', String(durationMs));
     responseObj.headers.set('X-RateLimit-Limit', String(validation.rateLimit));
     responseObj.headers.set('X-RateLimit-Remaining', String(limit.remaining));
+    responseObj.headers.set('X-RateLimit-Reset', String(rateLimitResetUnix(limit.resetIn)));
     applyApiVersionHeaders(responseObj.headers, req.nextUrl.pathname);
     return responseObj;
   };

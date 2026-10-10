@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'Rate limits & kota — Noktanyus API',
   description:
-    'Dakikalık rate limit, aylık kota, Retry-After ve X-RateLimit başlıkları; 429 / 402 yanıtları.',
+    'Dakikalık rate limit, aylık kota, Retry-After, X-RateLimit-Reset ve istek observability başlıkları; 429 / 402 yanıtları.',
   alternates: { canonical: '/docs/rate-limits' },
 };
 
@@ -18,8 +18,21 @@ const HEADERS = [
     meaning: 'Pencerede kalan istek hakkı.',
   },
   {
+    name: 'X-RateLimit-Reset',
+    meaning:
+      'Pencerenin biteceği unix zaman damgası (saniye). Hesap: floor(now/1000) + resetIn; resetIn rate limiter kalan saniyesidir.',
+  },
+  {
     name: 'Retry-After',
     meaning: '429 sonrası kaç saniye beklenmeli (saniye cinsinden).',
+  },
+  {
+    name: 'X-Request-Id',
+    meaning: 'İstek başına benzersiz UUID; destek / log korelasyonu için saklayın.',
+  },
+  {
+    name: 'X-Request-Duration',
+    meaning: 'Handler süresinin milisaniye cinsinden ölçümü (başarılı veya işlenmiş yanıtlarda).',
   },
 ];
 

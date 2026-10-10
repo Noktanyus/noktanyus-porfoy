@@ -4,9 +4,17 @@
 
 export const API_VERSION = '2026-10-09';
 
-/** Path prefix → sunset ISO date (opsiyonel). */
+/**
+ * Path prefix → sunset ISO date (opsiyonel) + successor path.
+ * Eşleşen uçlarda Deprecation / Sunset / Link rel="successor-version" basılır.
+ * Aktif TR yüzeyi `/api/v1/*` (AI ürünü kaldırıldı); eski AI prefix'i tarihsel örnek.
+ */
 const DEPRECATED_PREFIXES: Array<{ prefix: string; sunset?: string; successor?: string }> = [
-  // Örnek rezerv: eski AI uçları kaldırıldıktan sonra burada tutulur
+  {
+    prefix: '/api/v1/ai',
+    sunset: 'Wed, 01 Jul 2026 00:00:00 GMT',
+    successor: '/docs/versioning',
+  },
 ];
 
 export function matchDeprecation(pathname: string): {
