@@ -255,5 +255,15 @@ export {
   type YoungEntrepreneurResult,
 } from './youngEntrepreneur';
 
+export {
+  calculateRentIncrease,
+  getTufeRateForPeriod,
+  OFFICIAL_TUFE_RATES,
+  type MonthlyTufeRate,
+  type RentIncreaseInput,
+  type RentIncreaseResult,
+} from './rentIncrease';
+
+
 
 

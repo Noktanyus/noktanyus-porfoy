@@ -352,6 +352,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/young-entrepreneur',
   },
   {
+    id: 'api:finance:rent-increase',
+    label: 'TR Yasal Kira Artış Oranı & TÜFE Tavanı',
+    description: '6098 s. TBK m.344 uyarınca konut ve işyeri kira artış tavanı (12 aylık TÜFE ortalaması) ve işyeri stopaj/KDV hesabı.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/rent-increase',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',

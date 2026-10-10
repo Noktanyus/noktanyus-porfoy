@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -84,6 +84,15 @@ const TOOLS = [
     icon: FaGavel,
     color: 'from-blue-600 to-cyan-600',
     tag: 'Yeni & Hukuk & Finans',
+  },
+  {
+    slug: 'kira-artis-orani-hesaplama',
+    title: 'Yasal Kira Artış Oranı (TÜFE)',
+    description:
+      '6098 s. TBK m.344 uyarınca konut ve işyerleri için resmi TÜİK 12 aylık ortalama TÜFE tavan oranı, yeni kira bedeli ve işyeri stopaj/KDV hesabı.',
+    icon: FaHome,
+    color: 'from-cyan-600 to-blue-700',
+    tag: 'Yeni & Gayrimenkul',
   },
   {
     slug: 'nace-kodu-sorgulama',

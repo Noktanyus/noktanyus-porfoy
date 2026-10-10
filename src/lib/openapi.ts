@@ -1681,6 +1681,44 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/rent-increase': makeTrEndpoint({
+    summary: 'Türkiye Yasal Kira Artış Oranı & TÜFE Tavanı Hesaplama Motoru',
+    description:
+      '6098 Sayılı TBK m.344 uyarınca konut ve çatılı işyerleri için TÜİK 12 aylık ortalama TÜFE tavan oranı ile kira artış bedeli, yeni yasal kira ve işyeri stopaj/KDV dökümü hesabı.',
+    bodySchema: {
+      type: 'object',
+      required: ['currentRent'],
+      properties: {
+        currentRent: { type: 'number', minimum: 1, description: 'Mevcut kira bedeli (TL)' },
+        propertyType: { type: 'string', enum: ['residential', 'commercial'], default: 'residential', description: 'Gayrimenkul türü (konut veya işyeri)' },
+        year: { type: 'integer', minimum: 2020, maximum: 2030, description: 'Sözleşme yenileme yılı' },
+        month: { type: 'integer', minimum: 1, maximum: 12, description: 'Sözleşme yenileme ayı (1-12)' },
+        customTufeRate: { type: 'number', minimum: 0, description: 'Özel kira artış oranı (%)' },
+        commercialTaxMode: { type: 'string', enum: ['none', 'stopaj', 'vat'], default: 'none', description: 'İşyeri vergi modu (%20 stopaj veya %20 KDV)' },
+      },
+    },
+    bodyExample: {
+      currentRent: 20000,
+      propertyType: 'residential',
+      year: 2024,
+      month: 10,
+    },
+    responseExample: {
+      currentRent: 20000,
+      appliedRatePercent: 62.02,
+      increaseAmount: 12404,
+      newRent: 32404,
+      propertyType: 'residential',
+      periodName: 'Ekim 2024',
+      legalBasis: '6098 sayılı TBK m.344 (TÜİK 12 aylık ortalama TÜFE tavanı)',
+      annualComparison: {
+        previousAnnualTotal: 240000,
+        newAnnualTotal: 388848,
+        annualIncreaseDifference: 148848,
+      },
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {
