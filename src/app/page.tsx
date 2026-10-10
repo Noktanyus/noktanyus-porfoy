@@ -157,10 +157,10 @@ export default async function Home() {
           {/* Developer portal: TTFHW — anahtar olmadan dene */}
           <HomeLivePlayground />
 
-          <HomeCodeRecipes />
-
           {/* TR API & Microservices Showcase */}
           <ApiShowcase />
+
+          <HomeCodeRecipes />
 
           <HomeWhatsNew />
 

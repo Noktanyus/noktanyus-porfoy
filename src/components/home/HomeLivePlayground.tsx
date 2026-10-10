@@ -71,10 +71,10 @@ export default function HomeLivePlayground() {
 
   const curl =
     tool === 'iban'
-      ? `curl -X POST https://noktanyus.com/api/v1/validate/iban \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${ibanResult?.normalized || 'TR330006100519786457841326'}'}'`
+      ? `curl -X POST https://noktanyus.com/api/v1/validate/iban \\\n  -H "x-api-key: nok_live_YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"iban":"${ibanResult?.normalized || 'TR330006100519786457841326'}"}'`
       : tool === 'tckn'
-        ? `curl -X POST https://noktanyus.com/api/v1/validate/identity \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"type":"tckn","value":"${tcknResult?.normalized || '10000000146'}'}'`
-        : `curl -X POST https://noktanyus.com/api/v1/validate/identity \\\n  -H "Authorization: Bearer YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"type":"vkn","value":"${vknResult?.normalized || '1000000000'}'}'`;
+        ? `curl -X POST https://noktanyus.com/api/v1/validate/identity \\\n  -H "x-api-key: nok_live_YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"type":"tckn","value":"${tcknResult?.normalized || '10000000146'}"}'`
+        : `curl -X POST https://noktanyus.com/api/v1/validate/identity \\\n  -H "x-api-key: nok_live_YOUR_KEY" \\\n  -H "Content-Type: application/json" \\\n  -d '{"type":"vkn","value":"${vknResult?.normalized || '1000000000'}"}'`;
 
   const toolHref =
     tool === 'iban' ? '/araclar/iban-dogrulama' : '/araclar/tckn-vkn-dogrulama';

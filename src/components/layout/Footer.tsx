@@ -1,5 +1,6 @@
 "use client";
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { About } from '@prisma/client';
 import { NewsletterForm } from '@/components/newsletter/NewsletterForm';
@@ -62,17 +63,26 @@ const Footer = ({ aboutData }: FooterProps) => {
               { href: '/changelog', label: 'Changelog' },
               { href: '/baslangic', label: 'Başlangıç' },
               { href: '/durum', label: 'Durum' },
-              { href: '/llms.txt', label: 'llms.txt' },
+              { href: '/llms.txt', label: 'llms.txt', raw: true },
               { href: '/projelerim', label: 'Projelerim' },
               { href: '/iletisim', label: 'İletişim' },
             ].map((link, i, arr) => (
               <span key={link.href} className="inline-flex items-center gap-x-4">
-                <a
-                  href={link.href}
-                  className="hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
-                >
-                  {link.label}
-                </a>
+                {link.raw ? (
+                  <a
+                    href={link.href}
+                    className="hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className="hover:text-brand-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                  >
+                    {link.label}
+                  </Link>
+                )}
                 {i < arr.length - 1 && (
                   <span aria-hidden="true" className="text-slate-300 dark:text-slate-600">
                     ·

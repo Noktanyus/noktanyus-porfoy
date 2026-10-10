@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FaCopy, FaCheck, FaCode } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
-type Lang = 'curl' | 'node' | 'python';
+type Lang = 'curl' | 'node' | 'python' | 'go';
 
 const RECIPES: Record<
   Lang,
@@ -14,34 +14,46 @@ const RECIPES: Record<
   curl: {
     label: 'cURL',
     code: `curl -sS https://noktanyus.com/api/v1/validate/iban \\
-  -H "Authorization: Bearer nok_live_YOUR_KEY" \\
+  -H "x-api-key: nok_live_YOUR_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"iban":"TR330006100519786457841326"}'`,
   },
   node: {
-    label: 'Node',
-    code: `const res = await fetch('https://noktanyus.com/api/v1/validate/iban', {
-  method: 'POST',
-  headers: {
-    Authorization: 'Bearer nok_live_YOUR_KEY',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({ iban: 'TR330006100519786457841326' }),
-});
-const data = await res.json();
-console.log(data);`,
+    label: 'TypeScript / Node',
+    code: `import { NoktanyusClient } from '@noktanyus/sdk';
+
+const client = new NoktanyusClient({ apiKey: 'nok_live_YOUR_KEY' });
+const res = await client.validateIban('TR330006100519786457841326');
+
+console.log(res.data.bankName); // 'Türkiye Garanti Bankası A.Ş.'`,
   },
   python: {
-    label: 'Python',
-    code: `import requests
+    label: 'Python SDK',
+    code: `from noktanyus import NoktanyusClient
 
-r = requests.post(
-    "https://noktanyus.com/api/v1/validate/iban",
-    headers={"Authorization": "Bearer nok_live_YOUR_KEY"},
-    json={"iban": "TR330006100519786457841326"},
-    timeout=15,
+client = NoktanyusClient(api_key="nok_live_YOUR_KEY")
+res = client.validate_iban("TR330006100519786457841326")
+
+print(res.data.bank_name)  # Türkiye Garanti Bankası A.Ş.`,
+  },
+  go: {
+    label: 'Go SDK',
+    code: `package main
+
+import (
+    "fmt"
+    "log"
+    nok "github.com/noktanyus/noktanyus-porfoy/sdk/go"
 )
-print(r.json())`,
+
+func main() {
+    client := nok.NewClient("nok_live_YOUR_KEY")
+    res, err := client.ValidateIBAN("TR330006100519786457841326")
+    if err != nil {
+        log.Fatal(err)
+    }
+    fmt.Printf("Banka: %s\\n", res.Data.BankName)
+}`,
   },
 };
 
@@ -66,41 +78,40 @@ export default function HomeCodeRecipes() {
 
   return (
     <section className="py-6 sm:py-8" aria-labelledby="code-recipes-title">
-      <div className="rounded-3xl border border-border/80 bg-card/40 dark:bg-slate-900/40 overflow-hidden">
+      <div className="rounded-3xl border border-border/80 bg-card/40 dark:bg-slate-900/40 overflow-hidden shadow-lg backdrop-blur-sm">
         <div className="px-5 sm:px-8 pt-6 sm:pt-8 pb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
               <FaCode className="h-3 w-3" aria-hidden="true" />
-              Çalışan örnek
+              Çoklu Dil & SDK Desteği
             </div>
             <h2
               id="code-recipes-title"
               className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground"
             >
-              İlk isteği kopyala
+              Hızlı Entegrasyon Kodları
             </h2>
             <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-              cURL, Node veya Python — anahtarı yapıştır, çalıştır. Anahtarın yoksa önce
-              kayıt ol veya anahtarsız playground’u dene.
+              cURL, TypeScript, Python veya Go — projenizin diline uygun kodu kopyalayın, anahtarınızı ekleyip hemen çalıştırın.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/baslangic"
-              className="inline-flex min-h-[44px] items-center rounded-xl bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-brand-primary/90"
+              href="/docs/sdk"
+              className="inline-flex min-h-[44px] items-center rounded-xl bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-brand-primary/90 transition-colors shadow-sm"
             >
-              Başlangıç rehberi
+              SDK Kılavuzu
             </Link>
             <Link
-              href="/#canli-playground"
-              className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-brand-primary/40"
+              href="/baslangic"
+              className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-brand-primary/40 transition-colors"
             >
-              Anahtarsız dene
+              5 dk Başlangıç
             </Link>
           </div>
         </div>
 
-        <div className="px-5 sm:px-8 pb-2 flex flex-wrap gap-2" role="tablist" aria-label="Dil">
+        <div className="px-5 sm:px-8 pb-2 flex flex-wrap gap-2" role="tablist" aria-label="Programlama Dili">
           {(Object.keys(RECIPES) as Lang[]).map((key) => (
             <button
               key={key}
@@ -108,10 +119,10 @@ export default function HomeCodeRecipes() {
               role="tab"
               aria-selected={lang === key}
               onClick={() => setLang(key)}
-              className={`min-h-[40px] rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
+              className={`min-h-[40px] rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-all ${
                 lang === key
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted/60 text-foreground hover:bg-muted'
+                  ? 'bg-brand-primary text-white shadow-sm'
+                  : 'bg-muted/60 text-slate-700 dark:text-slate-300 hover:bg-muted hover:text-foreground'
               }`}
             >
               {RECIPES[key].label}
@@ -126,7 +137,7 @@ export default function HomeCodeRecipes() {
           <button
             type="button"
             onClick={() => void copy()}
-            className="absolute top-3 right-3 inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-slate-600 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:border-sky-400/50"
+            className="absolute top-3 right-3 inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-xs font-semibold text-slate-100 hover:border-sky-400/50 transition-colors"
           >
             {copied ? (
               <FaCheck className="h-3.5 w-3.5 text-emerald-400" aria-hidden="true" />

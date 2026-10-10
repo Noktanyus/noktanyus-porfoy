@@ -28,13 +28,17 @@ function initialsFromName(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-/** Hero’da uzun biyografi yerine okunabilir kısa özet. */
-function shortenDescription(text: string, maxChars = 220): string {
+/** Hero’da uzun biyografi yerine okunabilir temiz özet. */
+function shortenDescription(text: string): string {
   const cleaned = text.replace(/\s+/g, ' ').trim();
-  if (cleaned.length <= maxChars) return cleaned;
-  const cut = cleaned.slice(0, maxChars);
+  if (cleaned.length <= 260) return cleaned;
+  const firstPeriod = cleaned.indexOf('. ');
+  if (firstPeriod > 60 && firstPeriod <= 220) {
+    return cleaned.slice(0, firstPeriod + 1);
+  }
+  const cut = cleaned.slice(0, 220);
   const lastSpace = cut.lastIndexOf(' ');
-  return `${(lastSpace > 120 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;
+  return `${cut.slice(0, lastSpace).trimEnd()}…`;
 }
 
 export function AnimatedHero({
@@ -147,9 +151,9 @@ export function AnimatedHero({
               initial={{ opacity: 0, y: 16 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.55, delay: 0.44 }}
-              className="flex flex-wrap gap-3"
+              className="flex flex-wrap items-center gap-3"
             >
-              <Link href="/magaza" className={`${DS.button.primary} px-6 group`}>
+              <Link href="/magaza" className={`${DS.button.primary} px-6 group shadow-lg shadow-brand-primary/20`}>
                 API & Mağaza
                 <FaArrowRight className="transition-transform group-hover:translate-x-1" aria-hidden="true" />
               </Link>
@@ -168,39 +172,18 @@ export function AnimatedHero({
               initial={{ opacity: 0 }}
               animate={inView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.55 }}
-              className="mt-6 flex flex-wrap gap-2"
+              className="flex items-center gap-3 mt-8"
             >
-              <Link
-                href="/docs"
-                className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/50 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:border-brand-primary/40 hover:text-brand-primary transition-colors"
-              >
-                <FaBolt className="h-3 w-3" aria-hidden="true" />
-                API Docs
-              </Link>
-              <Link
-                href="/araclar"
-                className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/50 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:border-brand-primary/40 hover:text-brand-primary transition-colors"
-              >
-                <FaTools className="h-3 w-3" aria-hidden="true" />
-                Canlı Araçlar
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.7, delay: 0.65 }}
-              className="flex gap-3 mt-8"
-            >
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium mr-1">Bağlantılar:</span>
               {githubUrl && (
                 <a
                   href={githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-border text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border/80 bg-background/60 text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
                   aria-label="GitHub"
                 >
-                  <FaGithub className="w-5 h-5" />
+                  <FaGithub className="w-4 h-4" />
                 </a>
               )}
               {linkedinUrl && (
@@ -208,10 +191,10 @@ export function AnimatedHero({
                   href={linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-border text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border/80 bg-background/60 text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
                   aria-label="LinkedIn"
                 >
-                  <FaLinkedin className="w-5 h-5" />
+                  <FaLinkedin className="w-4 h-4" />
                 </a>
               )}
               {instagramUrl && (
@@ -219,10 +202,10 @@ export function AnimatedHero({
                   href={instagramUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-11 h-11 rounded-full border border-border text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
+                  className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border/80 bg-background/60 text-slate-600 dark:text-slate-300 hover:text-brand-primary hover:border-brand-primary/40 transition-colors"
                   aria-label="Instagram"
                 >
-                  <FaInstagram className="w-5 h-5" />
+                  <FaInstagram className="w-4 h-4" />
                 </a>
               )}
             </motion.div>
