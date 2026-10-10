@@ -11,11 +11,18 @@ import {
   attachEndpointLatency,
   type LatencySummary,
 } from '@/lib/usageLatency';
+import {
+  aggregateEndpointErrorRates,
+  errorRateFromCounts,
+  topFailingEndpoints,
+  type EndpointErrorRow,
+} from '@/lib/usageErrors';
 import { BaseRepository } from '../shared/repository';
 import type { ApiKey, ApiKeyUsage } from '@prisma/client';
 
-/** Latency örnekleme üst sınırı (pencere başına) */
+/** Latency / error örnekleme üst sınırı (pencere başına) */
 const LATENCY_SAMPLE_LIMIT = 5000;
+const ERROR_SAMPLE_LIMIT = 5000;
 
 const EMPTY_LATENCY: LatencySummary = {
   sampleCount: 0,
@@ -114,12 +121,14 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
         successCount: 0,
         errorCount: 0,
         successRate: 100,
+        errorRatePct: 0,
         latency: EMPTY_LATENCY,
         byEndpoint: [] as Array<{
           endpoint: string;
           count: number;
           latency: LatencySummary;
         }>,
+        failingEndpoints: [] as EndpointErrorRow[],
         recent: [] as Array<{
           id: string;
           endpoint: string;
@@ -134,64 +143,85 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
       };
     }
 
-    const [total, successCount, byEndpoint, recent, latencyRows] = await Promise.all([
-      prisma.apiKeyUsage.count({
-        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
-      }),
-      prisma.apiKeyUsage.count({
-        where: {
-          apiKeyId: { in: keyIds },
-          timestamp: { gte: since },
-          statusCode: { gte: 200, lt: 400 },
-        },
-      }),
-      prisma.apiKeyUsage.groupBy({
-        by: ['endpoint'],
-        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
-        _count: { _all: true },
-        orderBy: { _count: { endpoint: 'desc' } },
-        take: 12,
-      }),
-      prisma.apiKeyUsage.findMany({
-        where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
-        orderBy: { timestamp: 'desc' },
-        take: 25,
-        select: {
-          id: true,
-          endpoint: true,
-          method: true,
-          statusCode: true,
-          durationMs: true,
-          timestamp: true,
-          apiKeyId: true,
-        },
-      }),
-      prisma.apiKeyUsage.findMany({
-        where: {
-          apiKeyId: { in: keyIds },
-          timestamp: { gte: since },
-          durationMs: { not: null },
-        },
-        orderBy: { timestamp: 'desc' },
-        take: LATENCY_SAMPLE_LIMIT,
-        select: { endpoint: true, durationMs: true },
-      }),
-    ]);
+    const [total, successCount, errorCount, byEndpoint, recent, latencyRows, statusRows] =
+      await Promise.all([
+        prisma.apiKeyUsage.count({
+          where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+        }),
+        prisma.apiKeyUsage.count({
+          where: {
+            apiKeyId: { in: keyIds },
+            timestamp: { gte: since },
+            statusCode: { gte: 200, lt: 400 },
+          },
+        }),
+        // Moesif-style: 4xx + 5xx
+        prisma.apiKeyUsage.count({
+          where: {
+            apiKeyId: { in: keyIds },
+            timestamp: { gte: since },
+            statusCode: { gte: 400 },
+          },
+        }),
+        prisma.apiKeyUsage.groupBy({
+          by: ['endpoint'],
+          where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+          _count: { _all: true },
+          orderBy: { _count: { endpoint: 'desc' } },
+          take: 12,
+        }),
+        prisma.apiKeyUsage.findMany({
+          where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+          orderBy: { timestamp: 'desc' },
+          take: 25,
+          select: {
+            id: true,
+            endpoint: true,
+            method: true,
+            statusCode: true,
+            durationMs: true,
+            timestamp: true,
+            apiKeyId: true,
+          },
+        }),
+        prisma.apiKeyUsage.findMany({
+          where: {
+            apiKeyId: { in: keyIds },
+            timestamp: { gte: since },
+            durationMs: { not: null },
+          },
+          orderBy: { timestamp: 'desc' },
+          take: LATENCY_SAMPLE_LIMIT,
+          select: { endpoint: true, durationMs: true },
+        }),
+        prisma.apiKeyUsage.findMany({
+          where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
+          orderBy: { timestamp: 'desc' },
+          take: ERROR_SAMPLE_LIMIT,
+          select: { endpoint: true, statusCode: true },
+        }),
+      ]);
 
     const keyNameById = new Map(keys.map((k) => [k.id, k.name]));
     const endpointCounts = byEndpoint.map((e) => ({
       endpoint: e.endpoint,
       count: e._count._all,
     }));
+    const errorRatePct = errorRateFromCounts(total, errorCount);
 
     return {
       hours,
       total,
       successCount,
-      errorCount: total - successCount,
+      errorCount,
       successRate: total > 0 ? (successCount / total) * 100 : 100,
+      errorRatePct,
       latency: aggregateLatency(latencyRows.map((r) => r.durationMs)),
       byEndpoint: attachEndpointLatency(endpointCounts, latencyRows),
+      failingEndpoints: topFailingEndpoints(
+        aggregateEndpointErrorRates(statusRows),
+        5
+      ),
       recent: recent.map((r) => ({
         ...r,
         keyName: keyNameById.get(r.apiKeyId) ?? null,

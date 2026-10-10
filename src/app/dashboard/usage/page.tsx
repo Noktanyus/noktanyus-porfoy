@@ -13,6 +13,7 @@ import { getApiCreditBalance } from '@/lib/apiCredits';
 import { computeUsageForecast } from '@/lib/usageForecast';
 import { computeBillingProjection } from '@/lib/billingProjection';
 import { formatLatencyMs } from '@/lib/usageLatency';
+import { formatErrorRatePct } from '@/lib/usageErrors';
 import { formatCurrency } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
 
@@ -267,12 +268,25 @@ export default async function UsagePage({
         </div>
       </section>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {[
-          { label: 'Toplam', value: overview.total },
-          { label: 'Başarılı', value: overview.successCount },
-          { label: 'Hata', value: overview.errorCount },
-          { label: 'Başarı oranı', value: `${overview.successRate.toFixed(1)}%` },
+          { label: 'Toplam', value: overview.total.toLocaleString('tr-TR') },
+          { label: 'Başarılı', value: overview.successCount.toLocaleString('tr-TR') },
+          { label: 'Hata (4xx+5xx)', value: overview.errorCount.toLocaleString('tr-TR') },
+          {
+            label: 'Hata oranı',
+            value: formatErrorRatePct(overview.errorRatePct),
+            tone:
+              overview.errorRatePct >= 10
+                ? 'text-rose-700 dark:text-rose-300'
+                : overview.errorRatePct >= 5
+                  ? 'text-amber-700 dark:text-amber-300'
+                  : undefined,
+          },
+          {
+            label: 'Başarı oranı',
+            value: `%${overview.successRate.toFixed(1)}`,
+          },
         ].map((card) => (
           <div
             key={card.label}
@@ -281,12 +295,59 @@ export default async function UsagePage({
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {card.label}
             </p>
-            <p className="mt-1 text-2xl font-extrabold tabular-nums text-foreground">
+            <p
+              className={`mt-1 text-2xl font-extrabold tabular-nums ${
+                card.tone ?? 'text-foreground'
+              }`}
+            >
               {card.value}
             </p>
           </div>
         ))}
       </div>
+
+      {overview.failingEndpoints.length > 0 && (
+        <section className="rounded-2xl border border-border bg-card/50 p-5">
+          <div className="mb-3">
+            <h2 className="text-base font-bold text-foreground">En çok hata veren endpoint’ler</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Pencere içi 4xx+5xx · hata sayısına göre
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
+                  <th className="py-2 pr-3 font-semibold">Endpoint</th>
+                  <th className="py-2 pr-3 font-semibold tabular-nums">Hata</th>
+                  <th className="py-2 pr-3 font-semibold tabular-nums">İstek</th>
+                  <th className="py-2 font-semibold tabular-nums">Hata oranı</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overview.failingEndpoints.map((row) => (
+                  <tr key={row.endpoint} className="border-b border-border/60">
+                    <td className="py-2.5 pr-3">
+                      <code className="font-mono text-xs sm:text-sm break-all">
+                        {row.endpoint}
+                      </code>
+                    </td>
+                    <td className="py-2.5 pr-3 tabular-nums text-rose-700 dark:text-rose-300 font-semibold">
+                      {row.errorCount.toLocaleString('tr-TR')}
+                    </td>
+                    <td className="py-2.5 pr-3 tabular-nums text-muted-foreground">
+                      {row.total.toLocaleString('tr-TR')}
+                    </td>
+                    <td className="py-2.5 tabular-nums font-semibold">
+                      {formatErrorRatePct(row.errorRatePct)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="rounded-2xl border border-border bg-card/50 p-5">
         <div className="flex flex-wrap items-end justify-between gap-2 mb-4">

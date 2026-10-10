@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-usage-error-rate',
+    date: '2026-10-10',
+    title: 'Usage hata oranı (4xx+5xx)',
+    summary:
+      '/dashboard/usage ve /api/user/usage: pencere bazlı genel hata oranı % + en çok hata veren endpoint’ler (ApiKeyUsage.statusCode).',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
     id: '2026-10-10-request-observability-headers',
     date: '2026-10-10',
     title: 'İstek observability yanıt başlıkları',
