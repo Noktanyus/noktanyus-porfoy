@@ -1,9 +1,7 @@
 name: 🚀 Production Deploy to yunus.tekilons.tr
 
+# Manuel çalıştırma (GitHub UI üzerinden veya yerel script ile)
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
     inputs:
       force_deploy:
