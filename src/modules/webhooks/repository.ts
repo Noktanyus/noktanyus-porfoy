@@ -85,6 +85,30 @@ export class WebhookDeliveryRepository extends BaseRepository<WebhookDelivery> {
     });
   }
 
+  /** Başarısız / retry / DLQ teslimatları (dashboard DLQ UX). */
+  async findFailedDeliveries(userId: string, limit = 30) {
+    return this.prisma.webhookDelivery.findMany({
+      where: {
+        webhook: { userId },
+        status: { in: ['FAILED', 'RETRYING', 'DEAD_LETTER'] },
+      },
+      select: {
+        id: true,
+        event: true,
+        status: true,
+        attempts: true,
+        maxAttempts: true,
+        responseStatus: true,
+        errorMessage: true,
+        nextRetryAt: true,
+        createdAt: true,
+        webhook: { select: { url: true, active: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+    });
+  }
+
   async findByWebhookId(webhookId: string, limit = 50) {
     return this.prisma.webhookDelivery.findMany({
       where: { webhookId },

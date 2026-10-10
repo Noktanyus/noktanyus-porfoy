@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-webhook-dlq-retry-ux',
+    date: '2026-10-10',
+    title: 'Webhook başarısız teslimat / DLQ UX',
+    summary:
+      '/dashboard/webhooks: FAILED/RETRYING/DEAD_LETTER listesi (durum, deneme sayısı, son hata) + Yeniden dene (replay); Türkçe durum etiketleri.',
+    kind: 'feature',
+    href: '/dashboard/webhooks',
+  },
+  {
     id: '2026-10-10-mcp-agent-tools',
     date: '2026-10-10',
     title: 'MCP-ready agent tool yüzeyi',

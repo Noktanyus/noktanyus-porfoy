@@ -14,24 +14,21 @@ rate-limit görünürlüğü, deprecation/sunset, SSO, agent/MCP yüzeyi.
 - Latency p50/p95 (Tur 8), request observability headers (Tur 9)
 
 ### Boşluklar (öncelik sırası)
-1. **Error-rate / 4xx-5xx analytics** — endpoint bazlı hata oranı (Moesif tarzı)
-2. **MCP sunucusu** — OpenAPI → agent tools (Stripe MCP trendi)
-3. **SSO (SAML/OIDC)** — B2B enterprise (SendGrid/Twilio)
-4. **Brownout / deprecation enforcement** — deprecated uçlarda periyodik 503
-5. **Webhook delivery retries UI + DLQ** — operasyonel DX
-6. **Go/TS SDK** — Python sonrası dil çeşitliliği
-7. **Usage anomaly alerts** — ani spike / sessizlik
-8. **Public status + incident subscribe** — güven
+1. **SSO (SAML/OIDC)** — B2B enterprise (SendGrid/Twilio)
+2. **Brownout / deprecation enforcement** — deprecated uçlarda periyodik 503
+3. **Go/TS SDK** — Python sonrası dil çeşitliliği
+4. **Usage anomaly alerts** — ani spike / sessizlik
+5. **Public status + incident subscribe** — güven
+6. **Full MCP SDK server** — mevcut MCP-ish tools ötesi
 
 ### Ship edilmiş turlar
 - T1–T6: forecast, Python SDK, kota alerts, HMAC, /docs/md, IP+version
 - T7: remote deploy verify
 - T8: latency insights
 - T9: X-Request-Id / RateLimit-Reset / Request-Duration
+- T10: error-rate analytics dashboard
+- T11: `/mcp.json` + `/api/v1/agent/tools` + `/docs/mcp`
+- T12: webhook failed/DLQ list + Yeniden dene UX
 
 ### Sonraki
-- T10: error-rate analytics dashboard
-- T11: MCP minimal server veya webhook DLQ
-
-### Ship (T11 slice)
-- Option B: `/mcp.json` + `/api/v1/agent/tools` (OpenAPI → MCP-ish tools) + `/docs/mcp` — tam MCP SDK yok
+- T13: SSO veya brownout enforcement

@@ -19,7 +19,7 @@ export function WebhookReplayButton({ deliveryId }: { deliveryId: string }) {
       });
       const json = await res.json().catch(() => null);
       if (!res.ok || !json?.success) {
-        setError(json?.error?.message ?? 'Replay başarısız');
+        setError(json?.error?.message ?? 'Yeniden deneme başarısız');
         return;
       }
       router.refresh();
@@ -39,7 +39,7 @@ export function WebhookReplayButton({ deliveryId }: { deliveryId: string }) {
         className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-primary hover:underline disabled:opacity-50 min-h-[36px]"
       >
         <FaRedo className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} aria-hidden="true" />
-        {loading ? 'Gönderiliyor…' : 'Yeniden gönder'}
+        {loading ? 'Gönderiliyor…' : 'Yeniden dene'}
       </button>
       {error && (
         <span className="text-[10px] text-rose-600 dark:text-rose-400" role="alert">

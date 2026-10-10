@@ -1,5 +1,5 @@
 /**
- * Dashboard — Webhook yönetimi + test playground
+ * Dashboard — Webhook yönetimi + başarısız teslimat / DLQ UX
  */
 
 import { getServerSession } from 'next-auth';
@@ -7,7 +7,13 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { webhookService } from '@/modules/webhooks';
+import {
+  webhookService,
+  formatDeliveryStatusTr,
+  formatDeliveryAttemptsTr,
+  formatDeliveryLastError,
+  isReplayableDeliveryStatus,
+} from '@/modules/webhooks';
 import { PageHeader } from '@/components/dashboard/PageHeader';
 import WebhooksPanel, { type WebhookRow } from '@/components/dashboard/WebhooksPanel';
 import { WebhookReplayButton } from '@/components/dashboard/WebhookReplayButton';
@@ -21,7 +27,7 @@ export default async function WebhooksPage() {
   if (!session?.user) redirect('/giris?callbackUrl=/dashboard/webhooks');
 
   const userId = (session.user as { id: string }).id;
-  const [raw, recentDeliveries, deadLetters] = await Promise.all([
+  const [raw, recentDeliveries, failedDeliveries] = await Promise.all([
     webhookService.listWebhooks(userId),
     prisma.webhookDelivery.findMany({
       where: { webhook: { userId } },
@@ -32,13 +38,14 @@ export default async function WebhooksPage() {
         event: true,
         status: true,
         attempts: true,
+        maxAttempts: true,
         responseStatus: true,
         errorMessage: true,
         createdAt: true,
         webhook: { select: { url: true } },
       },
     }),
-    webhookService.getDeadLetter(userId),
+    webhookService.getFailedDeliveries(userId, 30),
   ]);
 
   const initial: WebhookRow[] = raw.map((w) => ({
@@ -57,7 +64,7 @@ export default async function WebhooksPage() {
     <div className="space-y-6">
       <PageHeader
         title="Webhooks"
-        description="Olay abonelikleri, HMAC imza ve tek tıkla test teslimatı"
+        description="Olay abonelikleri, HMAC imza ve başarısız teslimatları yeniden deneme"
         actions={
           <Link href="/docs/webhooks" className="admin-btn admin-btn-secondary">
             Webhook docs
@@ -72,6 +79,53 @@ export default async function WebhooksPage() {
       <WebhooksPanel initial={initial} />
       <WebhookHmacPlayground />
 
+      {failedDeliveries.length > 0 && (
+        <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 space-y-3">
+          <h2 className="text-base font-bold text-destructive">
+            Başarısız teslimatlar ({failedDeliveries.length})
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Başarısız, yeniden denenen veya dead-letter kayıtları. Yeniden dene aynı payload ile yeni
+            teslimat oluşturur.
+          </p>
+          <ul className="space-y-2 text-sm">
+            {failedDeliveries.map((d) => (
+              <li
+                key={d.id}
+                className="border border-border rounded-xl px-3 py-2.5 flex flex-wrap items-start justify-between gap-3 bg-card/40"
+              >
+                <div className="min-w-0 space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-xs">{d.event}</span>
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold">
+                      {formatDeliveryStatusTr(d.status)}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {formatDeliveryAttemptsTr(d.attempts, d.maxAttempts)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground font-mono truncate max-w-[min(100%,28rem)]">
+                    {d.webhook.url}
+                  </p>
+                  <p className="text-xs text-rose-700 dark:text-rose-300">
+                    Son hata: {formatDeliveryLastError(d.errorMessage, d.responseStatus)}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {d.createdAt.toLocaleString('tr-TR')}
+                    {d.nextRetryAt
+                      ? ` · sonraki deneme ${d.nextRetryAt.toLocaleString('tr-TR')}`
+                      : ''}
+                  </p>
+                </div>
+                {isReplayableDeliveryStatus(d.status) && d.webhook.active && (
+                  <WebhookReplayButton deliveryId={d.id} />
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="rounded-2xl border border-border bg-card/50 p-5 space-y-3">
         <h2 className="text-base font-bold">Son teslimatlar</h2>
         {recentDeliveries.length === 0 ? (
@@ -80,23 +134,27 @@ export default async function WebhooksPage() {
           <ul className="divide-y divide-border text-sm">
             {recentDeliveries.map((d) => (
               <li key={d.id} className="py-2 flex flex-wrap justify-between gap-2 items-center">
-                <div>
+                <div className="min-w-0">
                   <span className="font-mono text-xs">{d.event}</span>
                   <span className="text-muted-foreground ml-2 text-xs truncate max-w-[200px] inline-block align-bottom">
                     {d.webhook.url}
                   </span>
+                  {isReplayableDeliveryStatus(d.status) && (
+                    <p className="text-[11px] text-rose-700 dark:text-rose-300 mt-0.5">
+                      {formatDeliveryLastError(d.errorMessage, d.responseStatus)}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-xs text-muted-foreground">
-                    {d.status}
+                  <div className="text-xs text-muted-foreground text-right">
+                    {formatDeliveryStatusTr(d.status)}
                     {d.responseStatus != null ? ` · HTTP ${d.responseStatus}` : ''}
-                    {d.attempts > 1 ? ` · ${d.attempts} deneme` : ''}
+                    {' · '}
+                    {formatDeliveryAttemptsTr(d.attempts, d.maxAttempts)}
                     {' · '}
                     {d.createdAt.toLocaleString('tr-TR')}
                   </div>
-                  {(d.status === 'DEAD_LETTER' ||
-                    d.status === 'FAILED' ||
-                    d.status === 'RETRYING') && (
+                  {isReplayableDeliveryStatus(d.status) && (
                     <WebhookReplayButton deliveryId={d.id} />
                   )}
                 </div>
@@ -105,28 +163,6 @@ export default async function WebhooksPage() {
           </ul>
         )}
       </section>
-
-      {deadLetters.length > 0 && (
-        <section className="rounded-2xl border border-destructive/30 bg-destructive/5 p-5 space-y-3">
-          <h2 className="text-base font-bold text-destructive">Dead letter ({deadLetters.length})</h2>
-          <ul className="space-y-2 text-sm">
-            {deadLetters.slice(0, 10).map((d) => (
-              <li
-                key={d.id}
-                className="border border-border rounded-xl px-3 py-2 flex flex-wrap items-center justify-between gap-2"
-              >
-                <div>
-                  <span className="font-mono text-xs">{d.event}</span>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {d.errorMessage ?? 'Max attempts aşıldı'}
-                  </p>
-                </div>
-                <WebhookReplayButton deliveryId={d.id} />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   );
 }

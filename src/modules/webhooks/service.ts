@@ -87,6 +87,10 @@ export const webhookService = {
     return webhookDeliveryRepository.findDeadLetter(userId);
   },
 
+  async getFailedDeliveries(userId: string, limit = 30) {
+    return webhookDeliveryRepository.findFailedDeliveries(userId, limit);
+  },
+
   /**
    * Başarısız / dead-letter teslimatı yeniden gönder (yeni delivery kaydı açar).
    */
