@@ -22,7 +22,7 @@ import {
   SECTOR_RETURN_PRESETS,
   type ReturnLossInput,
   type SectorReturnPreset,
-} from '@/modules/tr-api';
+} from '@/modules/tr-api/returnLoss';
 
 export default function ReturnLossToolClient() {
   const [salePrice, setSalePrice] = useState<number>(450);
