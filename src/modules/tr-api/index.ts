@@ -187,3 +187,13 @@ export {
   type SmmWithholdingFraction,
 } from './smm';
 
+export {
+  searchTaxOffices,
+  getTaxOfficeByCode,
+  listTaxOfficesByProvince,
+  generateUblTaxSchemeSnippet,
+  TAX_OFFICES,
+  type TaxOffice,
+  type SearchTaxOfficesOptions,
+} from './taxOffices';
+

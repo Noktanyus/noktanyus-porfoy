@@ -275,6 +275,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/smm',
   },
   {
+    id: 'api:finance:tax-offices',
+    label: 'GİB Vergi Daireleri & Kodları',
+    description: 'Türkiye geneli vergi dairesi müdürlükleri kodları, il/ilçe bazlı arama ve UBL-TR e-Fatura entegrasyonu.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/tax-offices',
+  },
+  {
     id: 'api:finance:to-words',
     label: 'Sayıyı Yazıya Çevirme',
     description: 'Sayısal tutarları Türkçe resmi fatura metnine çevirme (Yalnız ... TL).',

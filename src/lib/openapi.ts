@@ -699,6 +699,36 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/tax-offices': makeTrEndpoint({
+    summary: 'GİB Vergi Daireleri & Kodları Rehberi',
+    description:
+      'Türkiye genelindeki aktif vergi dairesi müdürlüklerini il, ilçe, kod veya ad ile arar; tekil kod sorgular ve UBL-TR e-Fatura PartyTaxScheme XML parçacığı üretir.',
+    bodySchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Aranacak kelime (örn: kadıköy, beşiktaş, 034262)' },
+        provinceCode: { type: 'string', description: '2 haneli il plaka kodu (örn: 34, 06, 35)' },
+        code: { type: 'string', description: 'Tekil vergi dairesi kodu (örn: 034262)' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 50, description: 'Maksimum kayıt sayısı' },
+      },
+    },
+    bodyExample: { query: 'kadıköy', provinceCode: '34' },
+    responseExample: {
+      totalFound: 2,
+      totalCatalog: 120,
+      results: [
+        {
+          code: '034262',
+          name: 'Kadıköy Vergi Dairesi Müdürlüğü',
+          provinceCode: '34',
+          provinceName: 'İstanbul',
+          district: 'Kadıköy',
+          type: 'vergi_dairesi',
+        },
+      ],
+    },
+  }),
+
   '/api/v1/finance/to-words': makeTrEndpoint({
     summary: 'Para tutarını Türkçe metne çevirme (Çek/senet koruma formatı desteği)',
     description: 'Kuruş cinsinden tutarı Türkçe yazıya dönüştürür. Opsiyonel olarak bankacılık çek/senet güvenlik formatı (#...TL#) üretir.',
