@@ -179,3 +179,11 @@ export {
   type TrQrBuildResult,
   type TrQrParseResult,
 } from './trQr';
+
+export {
+  calculateSmm,
+  type SmmInput,
+  type SmmResult,
+  type SmmWithholdingFraction,
+} from './smm';
+

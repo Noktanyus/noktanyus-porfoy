@@ -268,6 +268,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/tevkifat',
   },
   {
+    id: 'api:finance:smm',
+    label: 'Serbest Meslek Makbuzu (SMM) Motoru',
+    description: 'Brütten nete veya netten brüte stopaj (%20), KDV ve tevkifat dahil kuruş hassasiyetli makbuz hesaplayıcı.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/smm',
+  },
+  {
     id: 'api:finance:to-words',
     label: 'Sayıyı Yazıya Çevirme',
     description: 'Sayısal tutarları Türkçe resmi fatura metnine çevirme (Yalnız ... TL).',

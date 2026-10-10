@@ -671,6 +671,34 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/smm': makeTrEndpoint({
+    summary: 'Serbest Meslek Makbuzu (SMM) Hesaplama',
+    description: 'Brütten nete veya netten brüte stopaj (%20), KDV (%20) ve KDV tevkifatı ile serbest meslek makbuz dökümü ve vergi maliyetlerini hesaplar.',
+    bodySchema: {
+      type: 'object',
+      required: ['amount'],
+      properties: {
+        amount: { type: 'number', minimum: 0, description: 'Hesaplanacak tutar (TL)' },
+        mode: { type: 'string', enum: ['gross', 'net'], default: 'gross', description: 'Girdi modu (gross: Brüt, net: Ele geçen net)' },
+        stopajRate: { type: 'number', default: 20, description: 'Stopaj oranı (%)' },
+        vatRate: { type: 'number', default: 20, description: 'KDV oranı (%)' },
+        withholding: { type: 'string', enum: ['none', '2/10', '3/10', '5/10', '7/10', '9/10', '10/10'], default: 'none', description: 'KDV tevkifat oranı' },
+      },
+    },
+    bodyExample: { amount: 10000, mode: 'gross', stopajRate: 20, vatRate: 20, withholding: '5/10' },
+    responseExample: {
+      grossAmount: 10000,
+      stopajAmount: 2000,
+      netFee: 8000,
+      vatAmount: 2000,
+      withheldVatAmount: 1000,
+      collectedVatAmount: 1000,
+      netReceived: 9000,
+      clientTotalCost: 12000,
+      totalTaxToState: 3000,
+    },
+  }),
+
   '/api/v1/finance/to-words': makeTrEndpoint({
     summary: 'Para tutarını Türkçe metne çevirme (Çek/senet koruma formatı desteği)',
     description: 'Kuruş cinsinden tutarı Türkçe yazıya dönüştürür. Opsiyonel olarak bankacılık çek/senet güvenlik formatı (#...TL#) üretir.',
