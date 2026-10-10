@@ -168,3 +168,14 @@ export {
   type CargoDesiInput,
   type CargoDesiResult,
 } from './cargo';
+
+export {
+  buildTrQrString,
+  parseTrQrString,
+  generateTrQrSvg,
+  generateTrQrDataUrl,
+  calculateCrc16Ccitt,
+  type TrQrInput,
+  type TrQrBuildResult,
+  type TrQrParseResult,
+} from './trQr';

@@ -1,14 +1,16 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
   description:
-    'Online TR IBAN doğrulama, TCKN/VKN kontrolü, Kargo Desi hesaplama, KDV ve tevkifat hesaplama, Türkiye iş günü hesaplama araçları. Hızlı, ücretsiz ve API destekli.',
+    'Online TR IBAN doğrulama, TCMB TR Karekod (FAST) oluşturucu, TCKN/VKN kontrolü, Kargo Desi hesaplama, KDV ve tevkifat hesaplama araçları. Hızlı, ücretsiz ve API destekli.',
   keywords: [
+    'tr karekod oluşturucu',
+    'fast karekod',
     'iban doğrulama',
     'kargo desi hesaplama',
     'kargo takip no sorgulama',
@@ -25,12 +27,21 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
-    description: 'Online TR IBAN, TCKN, Kargo Desi, KDV Tevkifat ve İş Günü hesaplama araçları. API desteği ile.',
+    description: 'Online TR Karekod FAST, IBAN, TCKN, Kargo Desi, KDV Tevkifat ve İş Günü hesaplama araçları. API desteği ile.',
     url: 'https://noktanyus.com/araclar',
   },
 };
 
 const TOOLS = [
+  {
+    slug: 'tr-karekod-olusturucu',
+    title: 'TCMB TR Karekod (FAST / Havale)',
+    description:
+      'TCMB ve BKM standartlarında banka mobil uygulamalarıyla (İşCep, Garanti, Ziraat vb.) taranabilir FAST IBAN karekodu oluşturun veya taranmış karekodu çözümleyin.',
+    icon: FaQrcode,
+    color: 'from-emerald-500 to-teal-600',
+    tag: 'Yeni & Fintek',
+  },
   {
     slug: 'kargo-desi-hesaplama',
     title: 'Kargo Desi & Takip No Tespiti',

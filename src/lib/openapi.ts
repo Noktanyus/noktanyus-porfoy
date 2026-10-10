@@ -438,6 +438,68 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/pay/tr-qr/generate': makeTrEndpoint({
+    summary: 'TCMB TR Karekod (FAST / EMVCo) Üretici',
+    description:
+      'TCMB ve BKM standartlarında FAST IBAN, tutar, alıcı adı ve referans no içeren resmi TR Karekod string, SVG ve PNG data URL üretir.',
+    bodySchema: {
+      type: 'object',
+      required: ['iban', 'payeeName'],
+      properties: {
+        iban: { type: 'string', description: 'TR ile başlayan 26 haneli alıcı IBAN' },
+        payeeName: { type: 'string', minLength: 2, maxLength: 70, description: 'Alıcı Adı / Ticari Ünvan' },
+        amount: { type: 'number', description: 'Opsiyonel tutar (TL cinsinden, örn: 150.00)' },
+        reference: { type: 'string', description: 'Sipariş No veya Fatura No' },
+        city: { type: 'string', description: 'Şehir adı (Varsayılan: ISTANBUL)' },
+        format: { type: 'string', enum: ['all', 'svg', 'dataUrl', 'payload'], description: 'Dönüş formatı' },
+      },
+    },
+    bodyExample: {
+      iban: 'TR330006100519786457841326',
+      payeeName: 'Noktanyus Teknoloji',
+      amount: 150.0,
+      reference: 'SIP-10492',
+    },
+    responseExample: {
+      valid: true,
+      type: 'dynamic',
+      payload: '00020101021226460016tr.gov.tcmb.fast0126TR3300061005197864578413265204000053039495406150.005802TR5919NOKTANYUS TEKNOLOJI6008ISTANBUL62150511SIP-104926304ABCD',
+      crc: 'ABCD',
+      normalizedIban: 'TR330006100519786457841326',
+      amount: '150.00',
+      payeeName: 'NOKTANYUS TEKNOLOJI',
+      svg: '<svg ...></svg>',
+      dataUrl: 'data:image/png;base64,...',
+    },
+  }),
+
+  '/api/v1/pay/tr-qr/parse': makeTrEndpoint({
+    summary: 'TCMB TR Karekod Çözümleyici & Doğrulayıcı',
+    description:
+      'Herhangi bir TR Karekod / EMVCo metnini çözer, CRC-16 doğrular; FAST IBAN, alıcı adı, tutar, para birimi ve sipariş referansını ayıklar.',
+    bodySchema: {
+      type: 'object',
+      required: ['payload'],
+      properties: {
+        payload: { type: 'string', description: 'Karekottan okunan ham EMVCo metni' },
+      },
+    },
+    bodyExample: {
+      payload: '00020101021226460016tr.gov.tcmb.fast0126TR3300061005197864578413265204000053039495406150.005802TR5919NOKTANYUS TEKNOLOJI6008ISTANBUL62150511SIP-104926304ABCD',
+    },
+    responseExample: {
+      valid: true,
+      type: 'dynamic',
+      iban: 'TR330006100519786457841326',
+      ibanValid: true,
+      payeeName: 'NOKTANYUS TEKNOLOJI',
+      amount: 150.0,
+      currency: 'TRY',
+      reference: 'SIP-10492',
+      crcValid: true,
+    },
+  }),
+
   '/api/v1/text/normalize': makeTrEndpoint({
     summary: 'Türkçe metin normalizasyonu',
     description: 'NFC, büyük/küçük harf (tr-TR) veya ASCII slug üretimi.',

@@ -189,6 +189,20 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/pay/qr',
   },
   {
+    id: 'api:pay:tr-qr:generate',
+    label: 'TCMB TR Karekod Üretici (EMVCo FAST)',
+    description: 'TCMB ve BKM standartlarında FAST IBAN, tutar, alıcı ve sipariş no içeren TR Karekod string, vektör SVG ve PNG data URL üretir.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/pay/tr-qr/generate',
+  },
+  {
+    id: 'api:pay:tr-qr:parse',
+    label: 'TR Karekod Çözümleyici & Doğrulayıcı',
+    description: 'Herhangi bir TR Karekod string verisini çözer, CRC-16 doğrular; IBAN, alıcı adı, tutar ve referansı ayrıştırır.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/pay/tr-qr/parse',
+  },
+  {
     id: 'api:validate:auto',
     label: 'Otomatik Tip Doğrulama',
     description: 'TCKN/VKN/IBAN/telefon/plaka vb. tip tahmini ve doğrulama.',
