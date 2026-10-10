@@ -32,3 +32,6 @@ rate-limit görünürlüğü, deprecation/sunset, SSO, agent/MCP yüzeyi.
 ### Sonraki
 - T10: error-rate analytics dashboard
 - T11: MCP minimal server veya webhook DLQ
+
+### Ship (T11 slice)
+- Option B: `/mcp.json` + `/api/v1/agent/tools` (OpenAPI → MCP-ish tools) + `/docs/mcp` — tam MCP SDK yok

@@ -62,7 +62,7 @@ export function buildOpenApiIndexMarkdown(baseUrl = 'https://noktanyus.com'): st
     '',
     `Base: \`${baseUrl}/api/v1\` · Auth: \`x-api-key\` veya \`Authorization: Bearer\``,
     '',
-    `HTML docs: ${baseUrl}/docs · OpenAPI JSON: ${baseUrl}/openapi.json · llms.txt: ${baseUrl}/llms.txt`,
+    `HTML docs: ${baseUrl}/docs · OpenAPI JSON: ${baseUrl}/openapi.json · llms.txt: ${baseUrl}/llms.txt · MCP: ${baseUrl}/docs/mcp · tools: ${baseUrl}/api/v1/agent/tools`,
     '',
     '## Endpoints',
     '',

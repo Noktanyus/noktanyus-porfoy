@@ -1,0 +1,63 @@
+{
+  "name": "noktanyus",
+  "version": "1.0.0",
+  "description": "Noktanyus TR yardımcı API — agent/MCP keşif yüzeyi (tam MCP SDK sunucusu değil; tool tanımları HTTP ile).",
+  "homepage": "https://noktanyus.com/docs/mcp",
+  "protocol": "noktanyus.agent-tools/1",
+  "tools_url": "https://noktanyus.com/api/v1/agent/tools",
+  "safe_tools_url": "https://noktanyus.com/api/v1/agent/tools?safe=1",
+  "auth": {
+    "type": "api_key",
+    "header": "x-api-key",
+    "alternate": "Authorization: Bearer <NOKTANYUS_API_KEY>",
+    "dashboard": "https://noktanyus.com/dashboard/api-keys"
+  },
+  "base_url": "https://noktanyus.com",
+  "resources": [
+    {
+      "name": "llms.txt",
+      "uri": "https://noktanyus.com/llms.txt",
+      "mimeType": "text/plain"
+    },
+    {
+      "name": "openapi",
+      "uri": "https://noktanyus.com/openapi.json",
+      "mimeType": "application/json"
+    },
+    {
+      "name": "docs_md",
+      "uri": "https://noktanyus.com/docs/md",
+      "mimeType": "text/markdown"
+    },
+    {
+      "name": "docs_html",
+      "uri": "https://noktanyus.com/docs",
+      "mimeType": "text/html"
+    }
+  ],
+  "safe_tools": [
+    {
+      "name": "get_health",
+      "method": "GET",
+      "path": "/api/health",
+      "auth": "none"
+    },
+    {
+      "name": "list_api_docs",
+      "method": "GET",
+      "path": "/docs/md",
+      "auth": "none"
+    },
+    {
+      "name": "get_llms_txt",
+      "method": "GET",
+      "path": "/llms.txt",
+      "auth": "none"
+    }
+  ],
+  "notes": [
+    "Cursor/Claude gibi hostlar tools_url yanıtındaki name + inputSchema alanlarını MCP tools/list gibi kullanabilir.",
+    "tools/call karşılığı: tool.http.method + tool.http.path üzerinde REST çağrısı (api_key ise x-api-key).",
+    "Yazma/ücretli TR uçları kota düşer; önce ?safe=1 veya get_health ile keşfedin."
+  ]
+}

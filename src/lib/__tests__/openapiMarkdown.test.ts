@@ -16,6 +16,7 @@ describe('openapiMarkdown', () => {
     const md = buildOpenApiIndexMarkdown();
     expect(md).toContain('# Noktanyus API');
     expect(md).toContain('/docs/md/');
+    expect(md).toContain('/api/v1/agent/tools');
   });
 
   it('builds per-endpoint markdown', () => {

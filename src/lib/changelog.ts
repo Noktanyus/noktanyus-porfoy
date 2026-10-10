@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-mcp-agent-tools',
+    date: '2026-10-10',
+    title: 'MCP-ready agent tool yüzeyi',
+    summary:
+      'Statik /mcp.json + GET /api/v1/agent/tools (OpenAPI’den MCP-uyumlu name/inputSchema); güvenli get_health / list_api_docs; /docs/mcp.',
+    kind: 'feature',
+    href: '/docs/mcp',
+  },
+  {
     id: '2026-10-10-usage-error-rate',
     date: '2026-10-10',
     title: 'Usage hata oranı (4xx+5xx)',
