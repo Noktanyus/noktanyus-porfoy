@@ -338,6 +338,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/commerce/marketplace-fee',
   },
   {
+    id: 'api:commerce:return-loss',
+    label: 'TR E-Ticaret İade Zararı & Kârlılık Motoru',
+    description: 'Pazaryeri ve e-ticaret satışlarında iade kaynaklı kargo, amortisman zararı ve başa baş iade limiti hesaplama.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/commerce/return-loss',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',

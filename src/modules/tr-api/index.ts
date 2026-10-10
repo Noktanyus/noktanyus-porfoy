@@ -235,3 +235,12 @@ export {
   type SearchNaceOptions,
 } from './nace';
 
+export {
+  calculateReturnLoss,
+  SECTOR_RETURN_PRESETS,
+  type ReturnLossInput,
+  type ReturnLossResult,
+  type SectorReturnPreset,
+} from './returnLoss';
+
+

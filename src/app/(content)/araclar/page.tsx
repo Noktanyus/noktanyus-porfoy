@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -56,6 +56,15 @@ const TOOLS = [
       'Trendyol, Hepsiburada, Amazon TR ve N11 kategori komisyon oranları, kargo baremleri, KDV ve e-ticaret stopajı kesintileri ile net kâr ve ROI hesaplayıcı.',
     icon: FaShoppingBag,
     color: 'from-amber-500 to-orange-600',
+    tag: 'Yeni & E-Ticaret',
+  },
+  {
+    slug: 'e-ticaret-iade-zarari-hesaplama',
+    title: 'E-Ticaret İade Zararı & Kârlılık',
+    description:
+      'İade oranı, gidiş-dönüş kargo, ambalaj kaybı ve ürün amortisman oranıyla sipariş başına efektif kârınızı ve başa baş (break-even) sınırınızı hesaplayın.',
+    icon: FaUndoAlt,
+    color: 'from-rose-500 to-red-600',
     tag: 'Yeni & E-Ticaret',
   },
   {
