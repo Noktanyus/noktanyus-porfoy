@@ -9,8 +9,9 @@
 
 set -euo pipefail
 
-# Node.js PATH kontrolü
+# Node.js PATH ve bellek limiti kontrolü (Next.js 260+ route build OOM önlemi)
 export PATH="$HOME/.local/node/bin:$PATH"
+export NODE_OPTIONS="--max-old-space-size=4096"
 
 echo "========================================================"
 echo "🚀 Noktanyus Production Deployment Başlıyor: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -35,8 +36,8 @@ fi
 # 2. Git güncellemelerini çek
 echo "📥 Git güncellemeleri çekiliyor (branch: master)..."
 git fetch origin master
-git checkout master
-git pull --ff-only origin master
+git checkout -f master
+git reset --hard origin/master
 COMMIT_HASH=$(git rev-parse --short HEAD)
 echo "✅ En son commit: $COMMIT_HASH"
 
