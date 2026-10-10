@@ -317,6 +317,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/commerce/stripe-split',
   },
   {
+    id: 'api:commerce:marketplace-fee',
+    label: 'TR Pazaryeri Komisyon & Net Kâr Motoru',
+    description: 'Trendyol, Hepsiburada, Amazon TR ve N11 için kategori komisyonu, desi kargo ve net kâr hesaplayıcı.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/commerce/marketplace-fee',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',

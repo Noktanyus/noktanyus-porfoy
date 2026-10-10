@@ -197,3 +197,14 @@ export {
   type SearchTaxOfficesOptions,
 } from './taxOffices';
 
+export {
+  calculateMarketplaceFee,
+  estimatePlatformCargoCost,
+  PLATFORMS,
+  MARKETPLACE_CATEGORIES,
+  type MarketplacePlatform,
+  type MarketplaceCategory,
+  type MarketplaceFeeInput,
+  type MarketplaceFeeResult,
+} from './marketplaceFee';
+

@@ -1449,6 +1449,52 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/commerce/marketplace-fee': makeTrEndpoint({
+    summary: 'Türkiye Pazaryeri Komisyon & Net Kâr Hesaplama (Trendyol, Hepsiburada, Amazon, N11)',
+    description:
+      'Pazaryeri kategori komisyon oranları, platform kargo barem maliyetleri, hizmet bedelleri, KDV ve tevkifat stopajı ile ürün başına net kâr, kâr marjı ve ROI dökümü.',
+    bodySchema: {
+      type: 'object',
+      required: ['salePrice'],
+      properties: {
+        platform: { type: 'string', enum: ['trendyol', 'hepsiburada', 'amazon_tr', 'n11'], default: 'trendyol' },
+        salePrice: { type: 'number', minimum: 0, description: 'Satış fiyatı (TL, KDV dahil)' },
+        purchasePrice: { type: 'number', minimum: 0, default: 0, description: 'Ürün alış/maliyet fiyatı (TL)' },
+        categoryId: { type: 'string', description: 'Kategori kimliği (örn: giyim_moda, elektronik_cihaz)' },
+        customCommissionRate: { type: 'number', minimum: 0, maximum: 100, description: 'Özel komisyon oranı (%)' },
+        cargoDesi: { type: 'number', minimum: 0, description: 'Kargo paket desisi' },
+        cargoCost: { type: 'number', minimum: 0, description: 'Özel kargo maliyeti (TL)' },
+        serviceFee: { type: 'number', minimum: 0, description: 'Platform hizmet bedeli (TL)' },
+        packagingCost: { type: 'number', minimum: 0, description: 'Ambalaj / paketleme maliyeti (TL)' },
+        applyWithholding: { type: 'boolean', default: false, description: '%1 e-ticaret stopajı uygulansın mı?' },
+      },
+    },
+    bodyExample: {
+      platform: 'trendyol',
+      salePrice: 500,
+      purchasePrice: 200,
+      categoryId: 'giyim_moda',
+      cargoDesi: 2,
+    },
+    responseExample: {
+      platform: 'trendyol',
+      platformName: 'Trendyol',
+      salePrice: 500,
+      purchasePrice: 200,
+      commissionRate: 21,
+      commissionAmount: 105,
+      commissionVat: 21,
+      totalCommissionWithVat: 126,
+      serviceFee: 8.49,
+      cargoCost: 49,
+      packagingCost: 0,
+      netProfit: 116.51,
+      profitMarginPercent: 23.3,
+      roiPercent: 58.26,
+      isProfitable: true,
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {

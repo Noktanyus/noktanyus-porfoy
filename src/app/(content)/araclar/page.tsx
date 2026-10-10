@@ -1,15 +1,17 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
   description:
-    'Online TR IBAN doğrulama, TCMB TR Karekod (FAST) oluşturucu, GİB Vergi Dairesi Kodları, SMM makbuz hesaplama, TCKN/VKN kontrolü, Kargo Desi hesaplama, KDV ve tevkifat araçları.',
+    'Online TR IBAN doğrulama, TCMB TR Karekod (FAST) oluşturucu, GİB Vergi Dairesi Kodları, Pazaryeri Komisyon Hesaplama, SMM makbuz hesaplama, TCKN/VKN kontrolü, Kargo Desi hesaplama.',
   keywords: [
     'tr karekod oluşturucu',
+    'pazaryeri komisyon hesaplama',
+    'trendyol komisyon hesaplama',
     'vergi dairesi kodları',
     'fast karekod',
     'smm hesaplama',
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
-    description: 'Online TR Karekod FAST, Vergi Dairesi Kodları, SMM Makbuzu, IBAN, TCKN, Kargo Desi, KDV Tevkifat hesaplama araçları. API desteği ile.',
+    description: 'Online TR Karekod FAST, Pazaryeri Komisyon, Vergi Dairesi Kodları, SMM Makbuzu, IBAN, TCKN, Kargo Desi hesaplama araçları. API desteği ile.',
     url: 'https://noktanyus.com/araclar',
   },
 };
@@ -44,6 +46,15 @@ const TOOLS = [
     icon: FaQrcode,
     color: 'from-emerald-500 to-teal-600',
     tag: 'Yeni & Fintek',
+  },
+  {
+    slug: 'pazaryeri-komisyon-hesaplama',
+    title: 'Pazaryeri Komisyon & Net Kâr',
+    description:
+      'Trendyol, Hepsiburada, Amazon TR ve N11 kategori komisyon oranları, kargo baremleri, KDV ve e-ticaret stopajı kesintileri ile net kâr ve ROI hesaplayıcı.',
+    icon: FaShoppingBag,
+    color: 'from-amber-500 to-orange-600',
+    tag: 'Yeni & E-Ticaret',
   },
   {
     slug: 'vergi-dairesi-kodlari',

@@ -52,6 +52,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/araclar/iban-dogrulama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE_URL}/araclar/tckn-vkn-dogrulama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE_URL}/araclar/kargo-desi-hesaplama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE_URL}/araclar/pazaryeri-komisyon-hesaplama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE_URL}/araclar/kdv-tevkifat-hesaplama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE_URL}/araclar/is-gunu-hesaplama`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: `${BASE_URL}/iletisim`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
