@@ -1,0 +1,136 @@
+name: 🚀 Production Deploy to yunus.tekilons.tr
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deploy skipping pre-checks'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: production-deployment
+  cancel-in-progress: false
+
+jobs:
+  pre-flight:
+    name: 🔍 Pre-flight Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install --legacy-peer-deps --no-audit
+
+      - name: 🔍 TypeScript & Lint Checks
+        if: ${{ !inputs.force_deploy }}
+        run: |
+          npm run type-check
+          npm run lint
+
+  deploy:
+    name: 🚢 Deploy to yunus.tekilons.tr
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install cloudflared (Cloudflare Access Support)
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+          rm cloudflared.deb
+          cloudflared --version
+
+      - name: 🔐 Configure SSH & Cloudflare Access
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          SSH_USER: ${{ secrets.SSH_USER || 'yunus' }}
+          SSH_HOST: ${{ secrets.SSH_HOST || 'yunus.tekilons.tr' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '~/noktanyus-porfoy' }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          
+          # SSH Private Key yaz
+          if [ -n "$SSH_PRIVATE_KEY" ]; then
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+          else
+            echo "::warning::SSH_PRIVATE_KEY secret is not set. Deployment may require key auth."
+          fi
+
+          # Cloudflare Access veya Doğrudan SSH Yapılandırması
+          if [ -n "$CF_ACCESS_CLIENT_ID" ] && [ -n "$CF_ACCESS_CLIENT_SECRET" ]; then
+            echo "Configuring SSH with Cloudflare Access Service Token..."
+            cat > ~/.ssh/config << EOF
+          Host $SSH_HOST
+              HostName $SSH_HOST
+              User $SSH_USER
+              IdentityFile ~/.ssh/id_rsa
+              StrictHostKeyChecking no
+              ProxyCommand cloudflared access ssh --hostname %h --service-token-id $CF_ACCESS_CLIENT_ID --service-token-secret $CF_ACCESS_CLIENT_SECRET
+          EOF
+          else
+            echo "Configuring standard SSH (Direct connection)..."
+            cat > ~/.ssh/config << EOF
+          Host $SSH_HOST
+              HostName $SSH_HOST
+              User $SSH_USER
+              IdentityFile ~/.ssh/id_rsa
+              StrictHostKeyChecking no
+          EOF
+          fi
+          chmod 600 ~/.ssh/config
+
+      - name: 🚀 Execute Remote Deployment Script
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST || 'yunus.tekilons.tr' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || '~/noktanyus-porfoy' }}
+        run: |
+          echo "Connecting to $SSH_HOST to trigger deploy..."
+          ssh -o ConnectTimeout=30 -o ServerAliveInterval=15 $SSH_HOST << 'EOF'
+            set -e
+            # Hedef dizini kontrol et
+            TARGET_DIR="${DEPLOY_PATH:-$HOME/noktanyus-porfoy}"
+            if [ ! -d "$TARGET_DIR" ]; then
+              if [ -d "$HOME/noktanyus" ]; then
+                TARGET_DIR="$HOME/noktanyus"
+              elif [ -d "/var/www/noktanyus-porfoy" ]; then
+                TARGET_DIR="/var/www/noktanyus-porfoy"
+              else
+                echo "Directory $TARGET_DIR not found, searching for repo..."
+                TARGET_DIR=$(find $HOME -maxdepth 2 -name "noktanyus-porfoy" 2>/dev/null | head -n 1)
+              fi
+            fi
+
+            echo "Target directory: $TARGET_DIR"
+            cd "$TARGET_DIR"
+
+            # Deploy scriptini çalıştırabilir yap ve yürüt
+            chmod +x scripts/deploy-production.sh 2>/dev/null || true
+            bash scripts/deploy-production.sh
+          EOF
+
+      - name: 📊 Deployment Summary
+        if: always()
+        run: |
+          echo "## 🚀 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Host**: ${{ secrets.SSH_HOST || 'yunus.tekilons.tr' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ${{ job.status == 'success' && '✅ SUCCESS' || '❌ FAILED' }}" >> $GITHUB_STEP_SUMMARY

@@ -33,8 +33,8 @@ const PRESETS = [
 
 export function ApiPlaygroundClient({ suggestedKeyPrefix }: { suggestedKeyPrefix?: string }) {
   const [apiKey, setApiKey] = useState('');
-  const [path, setPath] = useState(PRESETS[0].path);
-  const [body, setBody] = useState(PRESETS[0].body);
+  const [path, setPath] = useState<string>(PRESETS[0].path);
+  const [body, setBody] = useState<string>(PRESETS[0].body);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string>('');
 

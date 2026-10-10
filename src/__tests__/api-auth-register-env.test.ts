@@ -58,6 +58,7 @@ describe('POST /api/auth/register — reserved ADMIN_EMAIL handling', () => {
     const req = makeReq({
       name: 'Imposter',
       email: 'admin@example.com', // vitest.setup.ts default ADMIN_EMAIL
+      phone: '05321234567',
       password: 'StrongPass123',
       planSlug: 'starter',
       acceptTerms: true,
