@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-usage-latency',
+    date: '2026-10-10',
+    title: 'Usage latency insights (p50 / p95)',
+    summary:
+      'ApiKeyUsage.durationMs kaydı; /dashboard/usage ve /api/user/usage üzerinde genel + endpoint bazlı p50/p95/ort. gecikme.',
+    kind: 'feature',
+    href: '/dashboard/usage',
+  },
+  {
     id: '2026-10-09-ip-allowlist-api-version',
     date: '2026-10-09',
     title: 'API key IP allowlist + X-API-Version',

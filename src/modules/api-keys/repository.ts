@@ -6,8 +6,23 @@
  */
 
 import { prisma } from '@/lib/prisma';
+import {
+  aggregateLatency,
+  attachEndpointLatency,
+  type LatencySummary,
+} from '@/lib/usageLatency';
 import { BaseRepository } from '../shared/repository';
 import type { ApiKey, ApiKeyUsage } from '@prisma/client';
+
+/** Latency örnekleme üst sınırı (pencere başına) */
+const LATENCY_SAMPLE_LIMIT = 5000;
+
+const EMPTY_LATENCY: LatencySummary = {
+  sampleCount: 0,
+  avgMs: null,
+  p50Ms: null,
+  p95Ms: null,
+};
 
 export class ApiKeyRepository extends BaseRepository<ApiKey> {
   protected get model() {
@@ -99,12 +114,18 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
         successCount: 0,
         errorCount: 0,
         successRate: 100,
-        byEndpoint: [] as { endpoint: string; count: number }[],
+        latency: EMPTY_LATENCY,
+        byEndpoint: [] as Array<{
+          endpoint: string;
+          count: number;
+          latency: LatencySummary;
+        }>,
         recent: [] as Array<{
           id: string;
           endpoint: string;
           method: string;
           statusCode: number;
+          durationMs: number | null;
           timestamp: Date;
           apiKeyId: string;
           keyName: string | null;
@@ -113,7 +134,7 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
       };
     }
 
-    const [total, successCount, byEndpoint, recent] = await Promise.all([
+    const [total, successCount, byEndpoint, recent, latencyRows] = await Promise.all([
       prisma.apiKeyUsage.count({
         where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
       }),
@@ -140,13 +161,28 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
           endpoint: true,
           method: true,
           statusCode: true,
+          durationMs: true,
           timestamp: true,
           apiKeyId: true,
         },
       }),
+      prisma.apiKeyUsage.findMany({
+        where: {
+          apiKeyId: { in: keyIds },
+          timestamp: { gte: since },
+          durationMs: { not: null },
+        },
+        orderBy: { timestamp: 'desc' },
+        take: LATENCY_SAMPLE_LIMIT,
+        select: { endpoint: true, durationMs: true },
+      }),
     ]);
 
     const keyNameById = new Map(keys.map((k) => [k.id, k.name]));
+    const endpointCounts = byEndpoint.map((e) => ({
+      endpoint: e.endpoint,
+      count: e._count._all,
+    }));
 
     return {
       hours,
@@ -154,10 +190,8 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
       successCount,
       errorCount: total - successCount,
       successRate: total > 0 ? (successCount / total) * 100 : 100,
-      byEndpoint: byEndpoint.map((e) => ({
-        endpoint: e.endpoint,
-        count: e._count._all,
-      })),
+      latency: aggregateLatency(latencyRows.map((r) => r.durationMs)),
+      byEndpoint: attachEndpointLatency(endpointCounts, latencyRows),
       recent: recent.map((r) => ({
         ...r,
         keyName: keyNameById.get(r.apiKeyId) ?? null,

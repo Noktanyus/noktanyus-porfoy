@@ -12,6 +12,7 @@ import { checkApiQuota, getCurrentMonthUsage, getUserPlan } from '@/lib/planGate
 import { getApiCreditBalance } from '@/lib/apiCredits';
 import { computeUsageForecast } from '@/lib/usageForecast';
 import { computeBillingProjection } from '@/lib/billingProjection';
+import { formatLatencyMs } from '@/lib/usageLatency';
 import { formatCurrency } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
 
@@ -288,6 +289,40 @@ export default async function UsagePage({
       </div>
 
       <section className="rounded-2xl border border-border bg-card/50 p-5">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
+          <div>
+            <h2 className="text-base font-bold text-foreground">Gecikme (latency)</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Handler süresi · p50 / p95 · örnek{' '}
+              {overview.latency.sampleCount.toLocaleString('tr-TR')}
+              {overview.latency.sampleCount === 0
+                ? ' (yeni isteklere süre yazılmaya başlandı)'
+                : ''}
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'p50', value: formatLatencyMs(overview.latency.p50Ms) },
+            { label: 'p95', value: formatLatencyMs(overview.latency.p95Ms) },
+            { label: 'Ort.', value: formatLatencyMs(overview.latency.avgMs) },
+          ].map((card) => (
+            <div
+              key={card.label}
+              className="rounded-xl border border-border/80 bg-background/40 px-3 py-3"
+            >
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                {card.label}
+              </p>
+              <p className="mt-1 text-xl font-extrabold tabular-nums text-foreground">
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card/50 p-5">
         <h2 className="text-base font-bold text-foreground mb-3">Endpoint dağılımı</h2>
         {overview.byEndpoint.length === 0 ? (
           <p className="text-sm text-muted-foreground">
@@ -298,27 +333,51 @@ export default async function UsagePage({
             rehberinden at.
           </p>
         ) : (
-          <ul className="space-y-2">
-            {overview.byEndpoint.map((row) => {
-              const pct = overview.total > 0 ? (row.count / overview.total) * 100 : 0;
-              return (
-                <li key={row.endpoint}>
-                  <div className="flex items-center justify-between gap-3 text-sm mb-1">
-                    <code className="font-mono text-xs sm:text-sm truncate">{row.endpoint}</code>
-                    <span className="tabular-nums text-muted-foreground shrink-0">
-                      {row.count}
-                    </span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-brand-primary"
-                      style={{ width: `${Math.max(pct, 2)}%` }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
+                  <th className="py-2 pr-3 font-semibold">Endpoint</th>
+                  <th className="py-2 pr-3 font-semibold tabular-nums">İstek</th>
+                  <th className="py-2 pr-3 font-semibold tabular-nums">p50</th>
+                  <th className="py-2 pr-3 font-semibold tabular-nums">p95</th>
+                  <th className="py-2 font-semibold tabular-nums">Ort.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {overview.byEndpoint.map((row) => {
+                  const pct = overview.total > 0 ? (row.count / overview.total) * 100 : 0;
+                  return (
+                    <tr key={row.endpoint} className="border-b border-border/60">
+                      <td className="py-2.5 pr-3 align-top">
+                        <code className="font-mono text-xs sm:text-sm break-all">
+                          {row.endpoint}
+                        </code>
+                        <div className="mt-1.5 h-1.5 max-w-[220px] rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-brand-primary"
+                            style={{ width: `${Math.max(pct, 2)}%` }}
+                          />
+                        </div>
+                      </td>
+                      <td className="py-2.5 pr-3 tabular-nums text-muted-foreground align-top">
+                        {row.count}
+                      </td>
+                      <td className="py-2.5 pr-3 tabular-nums align-top">
+                        {formatLatencyMs(row.latency.p50Ms)}
+                      </td>
+                      <td className="py-2.5 pr-3 tabular-nums align-top">
+                        {formatLatencyMs(row.latency.p95Ms)}
+                      </td>
+                      <td className="py-2.5 tabular-nums align-top">
+                        {formatLatencyMs(row.latency.avgMs)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
@@ -335,6 +394,7 @@ export default async function UsagePage({
                   <th className="py-2 pr-3 font-semibold">Metod</th>
                   <th className="py-2 pr-3 font-semibold">Endpoint</th>
                   <th className="py-2 pr-3 font-semibold">Durum</th>
+                  <th className="py-2 pr-3 font-semibold">Süre</th>
                   <th className="py-2 font-semibold">Anahtar</th>
                 </tr>
               </thead>
@@ -350,6 +410,9 @@ export default async function UsagePage({
                     </td>
                     <td className={`py-2.5 pr-3 font-semibold tabular-nums ${statusTone(r.statusCode)}`}>
                       {r.statusCode}
+                    </td>
+                    <td className="py-2.5 pr-3 tabular-nums text-muted-foreground">
+                      {formatLatencyMs(r.durationMs)}
                     </td>
                     <td className="py-2.5 text-muted-foreground">{r.keyName ?? '—'}</td>
                   </tr>

@@ -26,13 +26,14 @@ export async function GET(req: NextRequest) {
     const hours = Number.isFinite(hoursParam) ? hoursParam : 168;
     const overview = await apiKeyService.getUserUsageOverview(userId, hours);
 
-    const header = 'timestamp,method,endpoint,statusCode,apiKeyId,keyName';
+    const header = 'timestamp,method,endpoint,statusCode,durationMs,apiKeyId,keyName';
     const lines = overview.recent.map((r) =>
       [
         r.timestamp.toISOString(),
         r.method,
         r.endpoint,
         String(r.statusCode),
+        r.durationMs != null ? String(r.durationMs) : '',
         r.apiKeyId,
         r.keyName ?? '',
       ]

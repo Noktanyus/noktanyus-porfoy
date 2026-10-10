@@ -218,6 +218,7 @@ export function withApiKey(
     }
 
     // Execute handler — usage tracking sonucu bekleyip response status'unu al
+    const startedAt = Date.now();
     let responseStatus = 200;
     let responseObj: NextResponse;
     try {
@@ -231,6 +232,7 @@ export function withApiKey(
       });
       throw err;
     } finally {
+      const durationMs = Math.max(0, Date.now() - startedAt);
       // Fire-and-forget usage tracking
       apiKeyService
         .trackUsage(validation.keyId, {
@@ -238,6 +240,7 @@ export function withApiKey(
           method: req.method,
           statusCode: responseStatus,
           ipAddress: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
+          durationMs,
         })
         .catch(() => {
           // zaten log'lanıyor

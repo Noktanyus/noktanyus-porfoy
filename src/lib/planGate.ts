@@ -189,8 +189,15 @@ export async function consumeApiQuota(input: {
   method: string;
   statusCode: number;
   ipAddress?: string | null;
+  durationMs?: number | null;
 }): Promise<void> {
   try {
+    const durationMs =
+      typeof input.durationMs === 'number' &&
+      Number.isFinite(input.durationMs) &&
+      input.durationMs >= 0
+        ? Math.round(input.durationMs)
+        : null;
     await prisma.apiKeyUsage.create({
       data: {
         apiKeyId: input.apiKeyId,
@@ -198,6 +205,7 @@ export async function consumeApiQuota(input: {
         method: input.method,
         statusCode: input.statusCode,
         ipAddress: input.ipAddress ?? null,
+        durationMs,
       },
     });
   } catch (error) {

@@ -208,11 +208,26 @@ export const apiKeyService = {
       method: string;
       statusCode: number;
       ipAddress?: string;
+      /** Handler süresi (ms); opsiyonel — eski çağrılar null bırakır */
+      durationMs?: number;
     }
   ) {
     try {
+      const durationMs =
+        typeof data.durationMs === 'number' &&
+        Number.isFinite(data.durationMs) &&
+        data.durationMs >= 0
+          ? Math.round(data.durationMs)
+          : undefined;
       await prisma.apiKeyUsage.create({
-        data: { apiKeyId, ...data },
+        data: {
+          apiKeyId,
+          endpoint: data.endpoint,
+          method: data.method,
+          statusCode: data.statusCode,
+          ipAddress: data.ipAddress,
+          ...(durationMs != null ? { durationMs } : {}),
+        },
       });
       await prisma.apiKey.update({
         where: { id: apiKeyId },

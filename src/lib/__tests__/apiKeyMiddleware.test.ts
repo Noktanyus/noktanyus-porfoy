@@ -211,7 +211,11 @@ describe('apiKeyMiddleware', () => {
 
       expect(trackUsageMock).toHaveBeenCalledWith(
         'k_track_1',
-        expect.objectContaining({ statusCode: 201, endpoint: '/api/saas/test' })
+        expect.objectContaining({
+          statusCode: 201,
+          endpoint: '/api/saas/test',
+          durationMs: expect.any(Number),
+        })
       );
     });
   });

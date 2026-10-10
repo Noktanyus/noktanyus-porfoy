@@ -1223,6 +1223,8 @@ model ApiKeyUsage {
   method     String // "GET", "POST"
   statusCode Int // 200, 401, 429
   ipAddress  String?
+  /** Handler süresi (ms). Eski kayıtlarda null olabilir. */
+  durationMs Int?
   timestamp  DateTime @default(now())
 
   @@index([apiKeyId, timestamp])
