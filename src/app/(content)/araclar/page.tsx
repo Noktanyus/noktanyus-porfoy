@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -93,6 +93,15 @@ const TOOLS = [
     icon: FaShieldAlt,
     color: 'from-emerald-600 to-teal-700',
     tag: 'Yeni & Şirket Kuruluşu',
+  },
+  {
+    slug: 'genc-girisimci-istisnasi-hesaplama',
+    title: 'Genç Girişimci İstisnası & Bağkur',
+    description:
+      '193 s. GVK mük. 20/A uyarınca 3 yıllık gelir vergisi istisnası (230.000 TL / 330.000 TL) ve 1 yıllık SGK Bağkur desteği ile cebinizde kalan net tasarrufu hesaplayın.',
+    icon: FaUserGraduate,
+    color: 'from-violet-600 to-indigo-700',
+    tag: 'Yeni & Teşvikler',
   },
   {
     slug: 'vergi-dairesi-kodlari',

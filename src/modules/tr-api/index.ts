@@ -243,4 +243,17 @@ export {
   type SectorReturnPreset,
 } from './returnLoss';
 
+export {
+  calculateYoungEntrepreneurBenefit,
+  calculateProgressiveTax,
+  TAX_BRACKETS_2024,
+  TAX_BRACKETS_2025,
+  OFFICIAL_EXEMPTIONS,
+  DEFAULT_MONTHLY_BAGKUR_2024,
+  DEFAULT_MONTHLY_BAGKUR_2025,
+  type YoungEntrepreneurInput,
+  type YoungEntrepreneurResult,
+} from './youngEntrepreneur';
+
+
 

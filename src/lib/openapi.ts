@@ -1636,6 +1636,51 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/young-entrepreneur': makeTrEndpoint({
+    summary: 'Türkiye Genç Girişimci İstisnası & Bağkur Desteği Hesaplama Motoru',
+    description:
+      '193 Sayılı GVK mükerrer m.20/A ve 5510 s.K. m.81/k uyarınca 18-29 yaş arası şahıs şirketi kurucuları için 3 yıllık gelir vergisi istisnası (230.000 TL / 330.000 TL) ve 1 yıllık SGK Bağkur prim muafiyeti hesaplaması.',
+    bodySchema: {
+      type: 'object',
+      required: ['annualRevenue', 'annualExpenses'],
+      properties: {
+        annualRevenue: { type: 'number', minimum: 0, description: 'Yıllık brüt ciro / hasılat (TL, KDV hariç)' },
+        annualExpenses: { type: 'number', minimum: 0, description: 'Yıllık işletme giderleri (TL, KDV hariç)' },
+        year: { type: 'integer', enum: [2024, 2025], default: 2024, description: 'Vergilendirme yılı' },
+        customExemptionLimit: { type: 'number', minimum: 0, description: 'Özel vergi istisnası tutarı (TL)' },
+        customMonthlyBagkur: { type: 'number', minimum: 0, description: 'Özel aylık Bağkur prim tutarı (TL)' },
+        includeBagkurSupport: { type: 'boolean', default: true, description: '1 yıllık Bağkur prim desteği dahil edilsin mi?' },
+      },
+    },
+    bodyExample: {
+      annualRevenue: 500000,
+      annualExpenses: 150000,
+      year: 2024,
+      includeBagkurSupport: true,
+    },
+    responseExample: {
+      annualGrossProfit: 350000,
+      appliedExemptionAmount: 230000,
+      taxableIncomeWithIncentive: 120000,
+      standardIncomeTax: 72900,
+      incentivizedIncomeTax: 18500,
+      taxSavings: 54400,
+      bagkurSavings: 82810.32,
+      totalAnnualBenefit: 137210.32,
+      standardNetIncome: 194289.68,
+      incentivizedNetIncome: 331500,
+      effectiveTaxRateWithIncentive: 5.29,
+      effectiveTaxRateStandard: 20.83,
+      monthlyAverageNetIncome: 27625,
+      monthlyAverageSavings: 11434.19,
+      evaluation: {
+        title: 'Maksimum İstisna Kullanıldı: 230.000 TL İndirim',
+        description: 'İstisna tavanının (%100) tamamı kullanıldı. Tavanı aşan 120.000 TL matrah üzerinden indirimli vergi hesaplanmıştır.',
+        exemptionUsagePercent: 100,
+      },
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {

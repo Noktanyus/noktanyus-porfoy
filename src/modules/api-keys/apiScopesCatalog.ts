@@ -345,6 +345,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/commerce/return-loss',
   },
   {
+    id: 'api:finance:young-entrepreneur',
+    label: 'TR Genç Girişimci İstisnası & Bağkur Teşviki',
+    description: '193 s. GVK mük. 20/A ve SGK 5510 m.81/k uyarınca 3 yıllık vergi istisnası ve Bağkur desteği hesaplama motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/young-entrepreneur',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',
