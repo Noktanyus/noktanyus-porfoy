@@ -9,6 +9,9 @@
 
 set -euo pipefail
 
+# Node.js PATH kontrolü
+export PATH="$HOME/.local/node/bin:$PATH"
+
 echo "========================================================"
 echo "🚀 Noktanyus Production Deployment Başlıyor: $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================================"
@@ -102,7 +105,18 @@ elif [ "$DEPLOY_MODE" = "standalone" ]; then
     echo "🔄 systemd servisi yeniden başlatılıyor..."
     sudo systemctl restart noktanyus
   else
-    echo "⚠️ PM2 veya systemd bulunamadı. Lütfen background process yöneticinizi kontrol edin."
+    echo "🔄 Standalone background daemon (noktanyus-app.pid) yeniden başlatılıyor..."
+    APP_PID=$(cat "$HOME/noktanyus-app.pid" 2>/dev/null || pgrep -f "next-server" || echo "")
+    if [ -n "$APP_PID" ]; then
+      echo "Eski süreç ($APP_PID) sonlandırılıyor..."
+      kill -9 $APP_PID 2>/dev/null || true
+      sleep 2
+    fi
+    echo "🚀 Yeni Next.js servisi başlatılıyor..."
+    nohup npm run start > "$HOME/noktanyus-app.log" 2>&1 &
+    NEW_PID=$!
+    echo "$NEW_PID" > "$HOME/noktanyus-app.pid"
+    echo "✅ Yeni servis başlatıldı (PID: $NEW_PID)"
   fi
 fi
 
