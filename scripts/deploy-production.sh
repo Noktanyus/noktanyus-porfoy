@@ -107,12 +107,12 @@ elif [ "$DEPLOY_MODE" = "standalone" ]; then
     sudo systemctl restart noktanyus
   else
     echo "🔄 Standalone background daemon (noktanyus-app.pid) yeniden başlatılıyor..."
-    APP_PID=$(cat "$HOME/noktanyus-app.pid" 2>/dev/null || pgrep -f "next-server" || echo "")
-    if [ -n "$APP_PID" ]; then
-      echo "Eski süreç ($APP_PID) sonlandırılıyor..."
-      kill -9 $APP_PID 2>/dev/null || true
-      sleep 2
-    fi
+    # 3000 portunu tutan tüm süreçleri ve next-server süreçlerini temizle
+    fuser -k 3000/tcp 2>/dev/null || true
+    pkill -9 -f "next-server" 2>/dev/null || true
+    pkill -9 -f "next start" 2>/dev/null || true
+    sleep 2
+
     echo "🚀 Yeni Next.js servisi başlatılıyor..."
     nohup npm run start > "$HOME/noktanyus-app.log" 2>&1 &
     NEW_PID=$!

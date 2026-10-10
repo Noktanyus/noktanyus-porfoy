@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaBolt, FaStore, FaTools, FaBook, FaArrowRight } from 'react-icons/fa';
-import { useInView } from '@/lib/animations';
 
 const PATHS = [
   {
@@ -37,11 +36,8 @@ const PATHS = [
 ] as const;
 
 export default function HomeQuickPaths() {
-  const { ref, inView } = useInView<HTMLElement>({ threshold: 0.12 });
-
   return (
     <section
-      ref={ref}
       className="py-4 sm:py-6"
       aria-labelledby="home-quick-paths-title"
     >
@@ -67,7 +63,8 @@ export default function HomeQuickPaths() {
             <motion.div
               key={path.href}
               initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.45, delay: 0.08 * index, ease: 'easeOut' }}
             >
               <Link

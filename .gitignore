@@ -17,6 +17,7 @@
 /playwright/.cache
 .playwright-mcp/
 e2e/visual.spec.ts-snapshots/
+scratch_screenshots/
 
 # Next.js & Build Output
 /.next/
