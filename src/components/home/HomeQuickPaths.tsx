@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { FaBolt, FaStore, FaTools, FaBook, FaArrowRight } from 'react-icons/fa';
 
 const PATHS = [
@@ -57,16 +56,10 @@ export default function HomeQuickPaths() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-        {PATHS.map((path, index) => {
+        {PATHS.map((path) => {
           const Icon = path.icon;
           return (
-            <motion.div
-              key={path.href}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.05 }}
-              transition={{ duration: 0.45, delay: 0.08 * index, ease: 'easeOut' }}
-            >
+            <div key={path.href}>
               <Link
                 href={path.href}
                 className="group relative flex h-full flex-col rounded-2xl border border-border/80 bg-card/70 dark:bg-slate-900/50 p-5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary/40 hover:shadow-lg hover:shadow-brand-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -91,7 +84,7 @@ export default function HomeQuickPaths() {
                   />
                 </span>
               </Link>
-            </motion.div>
+            </div>
           );
         })}
       </div>
