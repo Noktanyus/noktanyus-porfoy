@@ -698,6 +698,20 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'logistics',
     endpoint: 'POST /api/v1/validate/awb',
   },
+  {
+    id: 'api:cargo:detect',
+    label: 'Türkiye Kargo & Taşıyıcı Tespiti',
+    description: 'Takip numarasından Türk kargo firmasını (Yurtiçi, Aras, MNG, PTT, TEX vb.) otomatik tespit eder ve takip bağlantısı üretir.',
+    category: 'logistics',
+    endpoint: 'POST /api/v1/cargo/detect',
+  },
+  {
+    id: 'api:cargo:desi',
+    label: 'Türkiye Kargo Desi & Ağırlık Motoru',
+    description: 'En, boy, yükseklik ve ağırlıktan Türkiye standartlarında (3000 bölenli) Desi ve ücrete esas ağırlık hesaplar.',
+    category: 'logistics',
+    endpoint: 'POST /api/v1/cargo/desi',
+  },
 
   // ─── Ağ, Web & Geliştirici Standartları ───
   {

@@ -72,19 +72,20 @@ const ENDPOINTS: ShowcaseEndpoint[] = [
     name: 'KDV & Tevkifat',
     category: 'Muhasebe',
     icon: FaCalculator,
-    path: '/api/v1/tax/calculate',
-    request: `curl -X POST "https://noktanyus.com/api/v1/tax/calculate" \\
+    path: '/api/v1/finance/tevkifat',
+    request: `curl -X POST "https://noktanyus.com/api/v1/finance/tevkifat" \\
   -H "x-api-key: nok_live_YOUR_KEY" \\
   -H "Content-Type: application/json" \\
-  -d '{"amount":10000,"kdvRate":20,"withholdingRate":"5/10"}'`,
+  -d '{"amountCents":1000000,"vatRate":20,"mode":"net","withholding":"5/10"}'`,
     response: `{
   "success": true,
   "data": {
-    "baseAmount": 10000.00,
-    "kdvAmount": 2000.00,
-    "withholdingAmount": 1000.00,
-    "payableKdv": 1000.00,
-    "totalWithKdv": 12000.00
+    "netCents": 1000000,
+    "vatCents": 200000,
+    "grossCents": 1200000,
+    "buyerWithholdingCents": 100000,
+    "sellerPaidVatCents": 100000,
+    "sellerTotalCents": 1100000
   }
 }`,
   },

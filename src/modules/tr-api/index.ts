@@ -157,3 +157,14 @@ export {
   autoValidateTr,
   crc16CcittFalse,
 } from './builders';
+
+export {
+  detectCargoCarrier,
+  calculateCargoDesi,
+  buildCargoTrackingUrl,
+  TURKISH_CARRIERS,
+  type CargoCarrierInfo,
+  type CarrierDetectionResult,
+  type CargoDesiInput,
+  type CargoDesiResult,
+} from './cargo';

@@ -1,15 +1,17 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
 export const metadata: Metadata = {
   title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
   description:
-    'Online TR IBAN doğrulama, TCKN/VKN kontrolü, KDV ve tevkifat hesaplama, Türkiye iş günü hesaplama araçları. Hızlı, ücretsiz ve API destekli.',
+    'Online TR IBAN doğrulama, TCKN/VKN kontrolü, Kargo Desi hesaplama, KDV ve tevkifat hesaplama, Türkiye iş günü hesaplama araçları. Hızlı, ücretsiz ve API destekli.',
   keywords: [
     'iban doğrulama',
+    'kargo desi hesaplama',
+    'kargo takip no sorgulama',
     'tckn doğrulama',
     'vkn doğrulama',
     'kdv hesaplama',
@@ -23,12 +25,21 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Ücretsiz Geliştirici ve E-Ticaret Araçları | Noktanyus',
-    description: 'Online TR IBAN, TCKN, KDV Tevkifat ve İş Günü hesaplama araçları. API desteği ile.',
+    description: 'Online TR IBAN, TCKN, Kargo Desi, KDV Tevkifat ve İş Günü hesaplama araçları. API desteği ile.',
     url: 'https://noktanyus.com/araclar',
   },
 };
 
 const TOOLS = [
+  {
+    slug: 'kargo-desi-hesaplama',
+    title: 'Kargo Desi & Takip No Tespiti',
+    description:
+      'Türkiye standartlarında (bölücü 3000) hacimsel desi ve ücrete esas ağırlık hesaplayıcı. 9 büyük Türk kargo firması için otomatik takip no ve barkod tespiti.',
+    icon: FaTruck,
+    color: 'from-amber-500 to-rose-600',
+    tag: 'Yeni & E-Ticaret',
+  },
   {
     slug: 'iban-dogrulama',
     title: 'TR IBAN Doğrulama & Banka Bulucu',

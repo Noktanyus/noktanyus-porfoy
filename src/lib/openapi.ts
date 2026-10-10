@@ -1278,6 +1278,57 @@ const paths: PathsObject = {
     responseExample: { valid: true, airlineCode: '020', serial: '1234567', checkDigit: 5 },
   }),
 
+  '/api/v1/cargo/detect': makeTrEndpoint({
+    summary: 'Türkiye Kargo ve Taşıyıcı Tespiti (Yurtiçi, Aras, MNG, PTT, TEX vb.)',
+    description: 'Takip numarasından kargo firmasını otomatik tespit eder ve doğrudan müşteri takip bağlantısını oluşturur.',
+    bodySchema: {
+      type: 'object',
+      required: ['trackingNumber'],
+      properties: { trackingNumber: { type: 'string', minLength: 3, maxLength: 40 } },
+    },
+    bodyExample: { trackingNumber: 'TEX1234567890' },
+    responseExample: {
+      detected: true,
+      trackingNumber: 'TEX1234567890',
+      normalized: 'TEX1234567890',
+      primaryCarrier: {
+        code: 'trendyol_express',
+        name: 'Trendyol Express',
+        shortName: 'TEX',
+        trackingUrl: 'https://kargotakip.trendyol.com/?trackingNumber=TEX1234567890',
+        confidence: 'high',
+      },
+      candidates: [],
+    },
+  }),
+
+  '/api/v1/cargo/desi': makeTrEndpoint({
+    summary: 'Türkiye Kargo Desi ve Ücrete Esas Ağırlık Hesaplama',
+    description: 'En, boy ve yükseklik ölçülerinden Türkiye standartlarında (3000 bölenli) Desi ve ağırlık bazlı fiyatlandırma matrahını hesaplar.',
+    bodySchema: {
+      type: 'object',
+      required: ['widthCm', 'lengthCm', 'heightCm'],
+      properties: {
+        widthCm: { type: 'number', minimum: 0.1 },
+        lengthCm: { type: 'number', minimum: 0.1 },
+        heightCm: { type: 'number', minimum: 0.1 },
+        weightKg: { type: 'number', minimum: 0 },
+        divisor: { type: 'number', enum: [3000, 5000] },
+      },
+    },
+    bodyExample: { widthCm: 30, lengthCm: 20, heightCm: 10, weightKg: 1.5 },
+    responseExample: {
+      volumeCm3: 6000,
+      desi: 2,
+      divisorUsed: 3000,
+      weightKg: 1.5,
+      chargeableWeightKg: 2,
+      pricingBasis: 'desi',
+      sizeCategory: 'Miço (Küçük Paket)',
+      sizeCategoryKey: 'mico',
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {
