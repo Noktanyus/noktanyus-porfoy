@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'SDK — Noktanyus API (TypeScript & Python)',
+  title: 'SDK — Noktanyus API (TypeScript, Python & Go)',
   description:
-    'Resmi sıfır-bağımlılık TypeScript/Node ve Python SDK: health, IBAN, kimlik ve daha fazlası.',
+    'Resmi sıfır-bağımlılık TypeScript/Node, Python ve Go SDK: health, IBAN, kimlik ve daha fazlası.',
   alternates: { canonical: '/docs/sdk' },
 };
 
@@ -59,6 +59,22 @@ try:
 except NoktanyusApiError as e:
     print(e.code, e.status_code)`;
 
+const GO_INSTALL = `# repodan (stdlib only — net/http)
+cd sdk/go && go build ./...
+# veya: go get github.com/Noktanyus/noktanyus-porfoy/sdk/go
+
+import "github.com/Noktanyus/noktanyus-porfoy/sdk/go"
+
+client := noktanyus.NewClient("ny_live_xxx")`;
+
+const GO_EXAMPLE = `health, err := client.Health()
+if err != nil { /* *noktanyus.APIError */ }
+fmt.Println(health.Status)
+
+iban, err := client.ValidateIBAN("TR330006100519786457841326")
+if err != nil { /* handle */ }
+fmt.Println(iban.Valid, iban.BankName)`;
+
 export default function SdkDocsPage() {
   return (
     <div className="relative bg-blob-decoration min-h-[70vh]">
@@ -84,7 +100,7 @@ export default function SdkDocsPage() {
             Official client
           </p>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            TypeScript &amp; Python SDK
+            TypeScript, Python &amp; Go SDK
           </h1>
           <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed">
             Zero-dependency istemciler. Anahtarını sunucu tarafında tut; typed{' '}
@@ -159,12 +175,32 @@ export default function SdkDocsPage() {
           </pre>
         </section>
 
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">Go — kurulum</h2>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Minimal dilim:{' '}
+            <code className="text-xs">sdk/go/</code> (health + validate/iban; yalnızca{' '}
+            <code className="text-xs">net/http</code>).
+          </p>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {GO_INSTALL}
+          </pre>
+        </section>
+
+        <section className="space-y-3 mb-8">
+          <h2 className="text-lg font-bold">Go — ilk çağrılar</h2>
+          <pre className="overflow-x-auto rounded-2xl bg-slate-950 text-slate-100 p-4 text-[12px] sm:text-sm font-mono leading-relaxed">
+            {GO_EXAMPLE}
+          </pre>
+        </section>
+
         <section className="rounded-2xl border border-border/80 bg-card/40 p-5 text-sm text-slate-600 dark:text-slate-300 space-y-2">
           <p className="font-semibold text-foreground">Kaynak</p>
           <p>
             TS paket: <code className="text-xs">sdk/typescript/</code> · monorepo:{' '}
             <code className="text-xs">src/sdk/trApiClient.ts</code> · Python:{' '}
-            <code className="text-xs">sdk/python/noktanyus/</code>
+            <code className="text-xs">sdk/python/noktanyus/</code> · Go:{' '}
+            <code className="text-xs">sdk/go/</code>
           </p>
           <p>
             OpenAPI referansı:{' '}

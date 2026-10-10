@@ -16,6 +16,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    id: '2026-10-10-go-sdk',
+    date: '2026-10-10',
+    title: 'Go SDK (minimal dilim)',
+    summary:
+      'Resmi zero-dep client: sdk/go (net/http); NewClient + Health + ValidateIBAN; x-api-key TS/Python ile aynı; /docs/sdk güncellendi.',
+    kind: 'feature',
+    href: '/docs/sdk',
+  },
+  {
     id: '2026-10-10-usage-anomaly-alerts',
     date: '2026-10-10',
     title: 'Kullanım anomalisi soft uyarıları',

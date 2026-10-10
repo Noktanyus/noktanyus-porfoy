@@ -13,7 +13,7 @@
 - [Agent tool kataloğu](https://noktanyus.com/api/v1/agent/tools)
 - [Örnek: IBAN endpoint .md](https://noktanyus.com/docs/md/api/v1/validate/iban)
 - [API hata kodları](https://noktanyus.com/docs/hatalar)
-- [TypeScript & Python SDK](https://noktanyus.com/docs/sdk) — `sdk/typescript` (native fetch) + `sdk/python` (stdlib)
+- [TypeScript, Python & Go SDK](https://noktanyus.com/docs/sdk) — `sdk/typescript` (native fetch) + `sdk/python` (stdlib) + `sdk/go` (net/http)
 - [Rate limits](https://noktanyus.com/docs/rate-limits)
 - [API versiyonlama](https://noktanyus.com/docs/versioning)
 - [Webhooks docs](https://noktanyus.com/docs/webhooks)
