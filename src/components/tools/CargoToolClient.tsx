@@ -121,41 +121,41 @@ export default function CargoToolClient() {
         </header>
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2 sm:gap-4 overflow-x-auto pb-1">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2 sm:gap-4 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             type="button"
             onClick={() => setActiveTab('desi')}
-            className={`py-3 px-4 font-semibold text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 ${
+            className={`py-3 px-3.5 sm:px-4 font-semibold text-xs sm:text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'desi'
                 ? 'border-brand-primary text-brand-primary bg-brand-primary/5'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <FaCalculator className="w-4 h-4" />
+            <FaCalculator className="w-4 h-4 shrink-0" />
             <span>Desi & Ağırlık Hesapla</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('detect')}
-            className={`py-3 px-4 font-semibold text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 ${
+            className={`py-3 px-3.5 sm:px-4 font-semibold text-xs sm:text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'detect'
                 ? 'border-brand-primary text-brand-primary bg-brand-primary/5'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <FaBarcode className="w-4 h-4" />
+            <FaBarcode className="w-4 h-4 shrink-0" />
             <span>Takip No & Firma Tespiti</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('carriers')}
-            className={`py-3 px-4 font-semibold text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 ${
+            className={`py-3 px-3.5 sm:px-4 font-semibold text-xs sm:text-sm rounded-t-xl transition-all border-b-2 flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeTab === 'carriers'
                 ? 'border-brand-primary text-brand-primary bg-brand-primary/5'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <FaTruck className="w-4 h-4" />
+            <FaTruck className="w-4 h-4 shrink-0" />
             <span>9 Kargo Firması Rehberi</span>
           </button>
         </div>
