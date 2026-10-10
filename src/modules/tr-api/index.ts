@@ -226,3 +226,12 @@ export {
   type CalculateInterestResult,
 } from './legalInterest';
 
+export {
+  searchNace,
+  getNaceByCode,
+  NACE_CATALOG,
+  type DangerLevel,
+  type NaceItem,
+  type SearchNaceOptions,
+} from './nace';
+

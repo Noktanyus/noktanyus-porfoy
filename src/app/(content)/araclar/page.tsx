@@ -77,6 +77,15 @@ const TOOLS = [
     tag: 'Yeni & Hukuk & Finans',
   },
   {
+    slug: 'nace-kodu-sorgulama',
+    title: 'NACE Kodu & İSG Tehlike Sınıfı',
+    description:
+      '6 haneli NACE faaliyet kodu sorgulama, kelime bazlı arama ve 6331 sayılı Kanun resmi İSG tehlike sınıfı ve OSGB yükümlülük rehberi.',
+    icon: FaShieldAlt,
+    color: 'from-emerald-600 to-teal-700',
+    tag: 'Yeni & Şirket Kuruluşu',
+  },
+  {
     slug: 'vergi-dairesi-kodlari',
     title: 'GİB Vergi Dairesi Kodları & Arama',
     description:

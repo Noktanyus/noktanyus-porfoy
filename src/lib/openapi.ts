@@ -623,6 +623,38 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/business/nace': makeTrEndpoint({
+    summary: 'Türkiye NACE Faaliyet Kodu & İSG Tehlike Sınıfı Rehberi',
+    description:
+      '6 haneli NACE kodları, faaliyet açıklamaları, sektör grupları ve 6331 sayılı Kanun uyarınca İSG tehlike sınıfı (Az Tehlikeli, Tehlikeli, Çok Tehlikeli) sorgulama ve fuzzy arama servisi.',
+    bodySchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Aranacak faaliyet kelimesi (örn: yazılım, e-ticaret, kargo)' },
+        code: { type: 'string', description: 'Tekil 6 haneli NACE kodu (örn: 62.01.01 veya 620101)' },
+        dangerLevel: { type: 'string', enum: ['az_tehlikeli', 'tehlikeli', 'cok_tehlikeli'], description: 'Tehlike sınıfı filtresi' },
+        sector: { type: 'string', description: 'Sektör filtresi' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 50 },
+      },
+    },
+    bodyExample: { query: 'yazılım' },
+    responseExample: {
+      totalFound: 4,
+      totalCatalog: 25,
+      results: [
+        {
+          code: '62.01.01',
+          rawCode: '620101',
+          name: 'Bilgisayar programlama faaliyetleri',
+          sector: 'Bilgi ve İletişim / Yazılım',
+          dangerLevel: 'az_tehlikeli',
+          dangerLevelName: 'Az Tehlikeli',
+          osgbObligation: '50 ve üzeri çalışanda İSG uzmanı zorunlu.',
+        },
+      ],
+    },
+  }),
+
   // ─── 2. Finans, Vergi, Fatura ve Kıdem Tazminatı ────────────────────────
   '/api/v1/finance/kdv': makeTrEndpoint({
     summary: 'KDV hesaplama (Netten brüte veya brütten nete kuruş hassasiyetinde)',

@@ -251,6 +251,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'tr_official',
     endpoint: 'POST /api/v1/validate/postal',
   },
+  {
+    id: 'api:business:nace',
+    label: 'Türkiye NACE Kodu & İSG Tehlike Sınıfı',
+    description: '6 haneli NACE faaliyet kodu sorgulama, kelime bazlı arama ve resmi İSG tehlike sınıfı tespiti.',
+    category: 'tr_official',
+    endpoint: 'POST /api/v1/business/nace',
+  },
 
   // ─── Finans, Vergi & Muhasebe ───
   {
