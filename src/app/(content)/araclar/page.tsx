@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -75,6 +75,15 @@ const TOOLS = [
     icon: FaPlaneDeparture,
     color: 'from-blue-600 to-indigo-700',
     tag: 'Yeni & E-İhracat',
+  },
+  {
+    slug: 'gumruk-vergisi-hesaplama',
+    title: 'Gümrük Vergisi & 30 € Sınırı',
+    description:
+      'Ağustos 2024 kararnamesi uyarınca Temu, AliExpress ve yurt dışı siparişlerde 30 € muafiyet tavanı, AB (%30), Çin (%60), ÖTV IV (%20) ve kapıda teslim maliyet motoru.',
+    icon: FaGlobeAmericas,
+    color: 'from-amber-500 to-rose-600',
+    tag: 'Yeni & E-Ticaret',
   },
   {
     slug: 'ubl-fatura-goruntuleyici',

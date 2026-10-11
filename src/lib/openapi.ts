@@ -1790,6 +1790,57 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/commerce/customs-tax': makeTrEndpoint({
+    summary: 'Türkiye Yurt Dışı Alışveriş Bireysel Gümrük Vergisi (30 € Sınırı)',
+    description:
+      '06 Ağustos 2024 tarihli 32624 s. Resmi Gazete Cumhurbaşkanı Kararı (8787) uyarınca 30 Avro bireysel hızlı kargo muafiyet tavanı denetimi, AB (%30) / Çin (%60) gümrük vergisi, ÖTV IV (%20), gümrük sunum harcı ve toplam kapıda teslim maliyeti hesaplama motoru.',
+    bodySchema: {
+      type: 'object',
+      required: ['productPrice'],
+      properties: {
+        productPrice: { type: 'number', minimum: 0, description: 'Ürün bedeli' },
+        currency: { type: 'string', enum: ['EUR', 'USD', 'TRY'], default: 'EUR', description: 'Para birimi' },
+        origin: { type: 'string', enum: ['EU', 'NON_EU'], default: 'NON_EU', description: 'Menşe / Çıkış Ülkesi (EU: Avrupa Birliği, NON_EU: Çin/ABD vb.)' },
+        includeShippingInCustomsValue: { type: 'boolean', default: false, description: 'Kargo ücreti gümrük matrahına dahil mi?' },
+        shippingFee: { type: 'number', minimum: 0, default: 0, description: 'Kargo bedeli' },
+        isSpecialConsumptionTaxApplied: { type: 'boolean', default: false, description: 'ÖTV IV Sayılı Liste (kulaklık, hoparlör vb. +%20) uygulansın mı?' },
+        eurExchangeRate: { type: 'number', minimum: 0, description: 'Özel EUR/TRY kuru' },
+        usdToEurRate: { type: 'number', minimum: 0, description: 'Özel USD/EUR paritesi' },
+      },
+    },
+    bodyExample: {
+      productPrice: 25,
+      currency: 'EUR',
+      origin: 'NON_EU',
+      isSpecialConsumptionTaxApplied: false,
+    },
+    responseExample: {
+      productPrice: 25,
+      currency: 'EUR',
+      productPriceEur: 25,
+      customsValueEur: 25,
+      isExceeding30EurLimit: false,
+      status: 'SIMPLIFIED_CUSTOMS',
+      statusMessageTr: 'Paket bedeli (25 €), 30 Avro yasal sınırının altındadır. Basitleştirilmiş usulde Çin/Diğer (%60) maktu vergi ve harçlar ödenerek kapınıza teslim edilir.',
+      dutyRatePercent: 60,
+      dutyAmountEur: 15,
+      dutyAmountTry: 577.5,
+      sctRatePercent: 0,
+      sctAmountEur: 0,
+      sctAmountTry: 0,
+      presentationFeeTry: 40,
+      stampTaxTry: 8.5,
+      totalTaxPayableTry: 626,
+      totalLandedCostTry: 1588.5,
+      effectiveTaxRatioPercent: 65,
+      legalBasis: {
+        decreeDate: '2024-08-06',
+        decreeNo: '32624 Sayılı Resmi Gazete (Karar Sayısı: 8787)',
+        summary: 'Yurt dışı hızlı kargo siparişlerinde muafiyet tavanı 30 Avro’ya indirilmiş; vergi oranları AB için %30’a, diğer ülkeler için %60’a yükseltilmiştir.',
+      },
+    },
+  }),
+
   '/api/v1/finance/young-entrepreneur': makeTrEndpoint({
     summary: 'Türkiye Genç Girişimci İstisnası & Bağkur Desteği Hesaplama Motoru',
     description:

@@ -352,6 +352,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/commerce/micro-export-etgb',
   },
   {
+    id: 'api:commerce:customs-tax',
+    label: 'TR Yurt Dışı Alışveriş & Bireysel Gümrük Vergisi (30 € Sınırı)',
+    description: 'Ağustos 2024 kararnamesi uyarınca 30 € muafiyet tavanı, AB (%30), Çin/Diğer (%60), ÖTV IV (%20) ve gümrük sunum harçları hesaplama motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/commerce/customs-tax',
+  },
+  {
     id: 'api:finance:young-entrepreneur',
     label: 'TR Genç Girişimci İstisnası & Bağkur Teşviki',
     description: '193 s. GVK mük. 20/A ve SGK 5510 m.81/k uyarınca 3 yıllık vergi istisnası ve Bağkur desteği hesaplama motoru.',
