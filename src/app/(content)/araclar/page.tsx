@@ -86,6 +86,15 @@ const TOOLS = [
     tag: 'Yeni & E-Ticaret',
   },
   {
+    slug: 'kargo-fiyat-hesaplama',
+    title: 'Kargo Fiyat & Barem Karşılaştırma',
+    description:
+      'Yurtiçi, Aras, MNG, Sürat, PTT, TEX ve HepsiJet için koli ebatları ve ağırlıktan matrah desisi, akaryakıt payı, KDV ve en ucuz kargo hesaplama motoru.',
+    icon: FaTruck,
+    color: 'from-amber-500 to-yellow-600',
+    tag: 'Yeni & Kargo & Lojistik',
+  },
+  {
     slug: 'ubl-fatura-goruntuleyici',
     title: 'UBL e-Fatura XML Görüntüleyici',
     description:

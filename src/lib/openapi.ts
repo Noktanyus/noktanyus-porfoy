@@ -1734,6 +1734,73 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/shipping/rate-comparison': makeTrEndpoint({
+    summary: 'Türkiye Çoklu Taşıyıcı Kargo Barem & Fiyat Karşılaştırma',
+    description:
+      'Türkiye popüler kargo taşıyıcıları (Yurtiçi, Aras, MNG, Sürat, PTT, TEX, HepsiJet, Kolay Gelsin) için desi/ağırlık matrahı, barem kategorisi, akaryakıt payı (AKP), mesafe çarpanı ve KDV dahil fiyat dökümü ve en ucuz taşıyıcı optimizasyonu.',
+    bodySchema: {
+      type: 'object',
+      properties: {
+        dimensions: {
+          type: 'object',
+          properties: {
+            widthCm: { type: 'number', minimum: 0 },
+            lengthCm: { type: 'number', minimum: 0 },
+            heightCm: { type: 'number', minimum: 0 },
+          },
+        },
+        customVolumetricDesi: { type: 'number', minimum: 0, description: 'Hacimsel desi' },
+        actualWeightKg: { type: 'number', minimum: 0, description: 'Fiili ağırlık (kg)' },
+        distance: { type: 'string', enum: ['intracity', 'nearby', 'intercity'], default: 'nearby', description: 'Taşıma mesafesi' },
+        cashOnDelivery: { type: 'boolean', default: false, description: 'Kapıda ödeme hizmeti eklensin mi?' },
+      },
+    },
+    bodyExample: {
+      dimensions: { widthCm: 30, lengthCm: 20, heightCm: 15 },
+      actualWeightKg: 2.5,
+      distance: 'nearby',
+      cashOnDelivery: false,
+    },
+    responseExample: {
+      chargeableDesi: 3,
+      volumetricDesi: 3,
+      actualWeightKg: 2.5,
+      matchedTier: '3-5 Desi',
+      distance: 'nearby',
+      distanceMultiplier: 1.0,
+      quotes: [
+        {
+          carrierId: 'trendyol_express',
+          carrierName: 'Trendyol Express (TEX)',
+          isMarketplaceIntegrated: true,
+          baseFare: 64,
+          fuelSurchargeAmount: 0,
+          cashOnDeliveryFee: 0,
+          subtotalExclVat: 64,
+          vatAmount: 12.8,
+          totalEstimatedPriceInclVat: 76.8,
+          isCheapest: true,
+        },
+        {
+          carrierId: 'ptt',
+          carrierName: 'PTT Kargo',
+          isMarketplaceIntegrated: false,
+          baseFare: 69,
+          fuelSurchargeAmount: 2.07,
+          cashOnDeliveryFee: 0,
+          subtotalExclVat: 71.07,
+          vatAmount: 14.21,
+          totalEstimatedPriceInclVat: 85.28,
+          isCheapest: false,
+        },
+      ],
+      cheapestCarrier: { carrierId: 'trendyol_express', carrierName: 'Trendyol Express (TEX)', totalPrice: 76.8 },
+      averageMarketPrice: 94.5,
+      maxSavingsAmount: 31.2,
+      recommendation: '3 matrah desisi için en uygun maliyetli taşıyıcı Trendyol Express (TEX)...',
+    },
+  }),
+
   '/api/v1/commerce/marketplace-fee': makeTrEndpoint({
     summary: 'Türkiye Pazaryeri Komisyon & Net Kâr Hesaplama (Trendyol, Hepsiburada, Amazon, N11)',
     description:

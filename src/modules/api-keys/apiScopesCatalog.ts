@@ -838,6 +838,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'logistics',
     endpoint: 'POST /api/v1/cargo/desi',
   },
+  {
+    id: 'api:shipping:rate-comparison',
+    label: 'Çoklu Taşıyıcı Kargo Barem & Fiyat Karşılaştırma',
+    description: 'Yurtiçi, Aras, MNG, Sürat, PTT, TEX, HepsiJet kargo baremleri, akaryakıt payı (AKP), mesafe çarpanı ve KDV dahil fiyat karşılaştırma motoru.',
+    category: 'logistics',
+    endpoint: 'POST /api/v1/shipping/rate-comparison',
+  },
 
   // ─── Ağ, Web & Geliştirici Standartları ───
   {

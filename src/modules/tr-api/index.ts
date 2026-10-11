@@ -341,3 +341,16 @@ export {
   type SeveranceCapPeriod,
 } from './severancePay';
 
+export {
+  calculateVolumetricDesi,
+  getDesiTierCategory,
+  compareShippingRates,
+  CARRIER_RATES,
+  type CarrierTierRate,
+  type ShippingDistance,
+  type ShippingTierInput,
+  type CalculatedCarrierQuote,
+  type ShippingTierResult,
+} from './shippingTierComparison';
+
+
