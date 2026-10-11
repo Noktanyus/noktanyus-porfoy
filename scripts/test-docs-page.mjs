@@ -21,7 +21,7 @@ async function testDocs() {
   const endpointCards = await page.$$('code');
   console.log('Code elements count:', endpointCards.length);
 
-  const ibanElement = await page.$('text=/api/v1/validate/iban');
+  const ibanElement = await page.$('text="/api/v1/validate/iban"');
   console.log('IBAN endpoint visible:', !!ibanElement);
 
   const requestHeaders = await page.textContent('body');
