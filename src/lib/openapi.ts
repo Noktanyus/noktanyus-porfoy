@@ -1038,6 +1038,46 @@ const paths: PathsObject = {
     responseExample: { ok: true, documentType: 'Invoice', issues: [] },
   }),
 
+  '/api/v1/invoice/e-archive-rules': makeTrEndpoint({
+    summary: 'GİB e-Arşiv Fatura Limiti & KDV İstisna Kodları Rehberi',
+    description:
+      '509 Sıra No’lu VUK Genel Tebliği uyarınca fatura tutarına ve alıcı türüne göre e-Arşiv düzenleme zorunluluğu sorgulama (5.000 TL vergi mükellefi / 3.000 TL nihai tüketici) ve UBL-TR KDV istisna/muafiyet kodları arama servisi.',
+    bodySchema: {
+      type: 'object',
+      properties: {
+        totalAmountIncludingVat: { type: 'number', minimum: 0, description: 'Fatura toplam tutarı (KDV dahil, TL)' },
+        recipientType: { type: 'string', enum: ['taxpayer', 'consumer'], default: 'taxpayer', description: 'Alıcı türü (vergi mükellefi veya nihai tüketici)' },
+        sameDayPreviousInvoicesTotal: { type: 'number', minimum: 0, default: 0, description: 'Aynı gün aynı kişiye kesilen diğer faturalar toplamı (TL)' },
+        searchExemptionQuery: { type: 'string', description: 'Aranacak istisna kodu veya kelime (örn: ihracat, 301, teknokent)' },
+        exemptionCategory: { type: 'string', enum: ['all', 'tam_istisna', 'kismi_istisna', 'diger'], default: 'all' },
+      },
+    },
+    bodyExample: {
+      totalAmountIncludingVat: 6500,
+      recipientType: 'taxpayer',
+      searchExemptionQuery: 'ihracat',
+    },
+    responseExample: {
+      thresholds: { taxpayerLimit: 5000, consumerLimit: 3000 },
+      evaluation: {
+        evaluatedTotalAmount: 6500,
+        thresholdLimit: 5000,
+        isEArchiveMandatory: true,
+        remainingLimit: 0,
+        recommendedInvoiceType: 'e_archive_portal',
+        legalNotice: {
+          status: 'mandatory',
+          title: 'GİB e-Arşiv Fatura Düzenlenmesi Zorunludur! (5.000 TL Limiti Aşıldı)',
+          description: 'Vergiler dahil 6.500 TL tutar vergi mükellefleri için 5.000 TL yasal tavanı aşmıştır.',
+          penaltyWarning: 'VUK m.353 uyarınca faturanın kağıt kesilmesi halinde %10 özel usulsüzlük cezası kesilir.',
+        },
+      },
+      exemptionCodes: [
+        { code: '301', title: 'Mal İhracatı', legalArticle: 'KDVK m.11/1-a', category: 'tam_istisna', ublCode: '301' },
+      ],
+    },
+  }),
+
   '/api/v1/invoice/pdf': {
     post: {
       tags: ['TR API'],

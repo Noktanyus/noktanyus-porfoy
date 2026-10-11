@@ -425,6 +425,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'invoice',
     endpoint: 'POST /api/v1/invoice/ubl-validate',
   },
+  {
+    id: 'api:invoice:e-archive-rules',
+    label: 'GİB e-Arşiv Limiti & KDV İstisna Kodları',
+    description: '509 s. VUK Genel Tebliği uyarınca e-Arşiv fatura zorunluluk limiti (5.000 / 3.000 TL) ve resmi KDV muafiyet kodları kataloğu.',
+    category: 'invoice',
+    endpoint: 'POST /api/v1/invoice/e-archive-rules',
+  },
 
   // ─── Resmi Takvim, Süreler & Tatiller ───
   {

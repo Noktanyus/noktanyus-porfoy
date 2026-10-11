@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -74,6 +74,15 @@ const TOOLS = [
       'GİB UBL-TR 2.1 e-Fatura ve e-Arşiv XML dosyalarını tarayıcıda açın, şema ve zorunlu alan doğrulaması yapın, ticari dökümü görselleştirin.',
     icon: FaFileCode,
     color: 'from-indigo-500 to-purple-600',
+    tag: 'Yeni & e-Fatura',
+  },
+  {
+    slug: 'e-arsiv-fatura-limiti-sorgulama',
+    title: 'e-Arşiv Fatura Limiti & KDV İstisnası',
+    description:
+      '509 s. VUK uyarınca 5.000 TL / 3.000 TL e-Arşiv fatura zorunluluk limiti sorgulama ve resmi UBL-TR KDV istisna / muafiyet kodları rehberi.',
+    icon: FaFileInvoice,
+    color: 'from-indigo-600 to-purple-700',
     tag: 'Yeni & e-Fatura',
   },
   {

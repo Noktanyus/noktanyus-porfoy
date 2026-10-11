@@ -272,6 +272,17 @@ export {
   type MonthlyGarnishmentPlanItem,
 } from './salaryGarnishment';
 
+export {
+  checkEArchiveRequirement,
+  searchVatExemptionCodes,
+  OFFICIAL_THRESHOLDS,
+  VAT_EXEMPTION_CODES,
+  type EArchiveThresholdInput,
+  type EArchiveThresholdResult,
+  type VatExemptionCode,
+} from './eArchiveRules';
+
+
 
 
 
