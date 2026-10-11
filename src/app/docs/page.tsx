@@ -3,20 +3,8 @@
  */
 
 import type { Metadata } from 'next';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
-
-const RedocMount = dynamic(() => import('@/components/docs/RedocMount'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex min-h-[400px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-        <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-        API referansı yükleniyor…
-      </div>
-    </div>
-  ),
-});
+import { DocsViewer } from '@/components/docs/DocsViewer';
 
 export const metadata: Metadata = {
   title: 'TR API Referansı — Noktanyus',
@@ -272,15 +260,7 @@ export default function DocsPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
-            Endpoint referansı
-          </h2>
-          <span className="text-xs text-slate-500 dark:text-slate-400">
-            Spec: OpenAPI 3.1.0 · etiket: TR API
-          </span>
-        </div>
-        <RedocMount />
+        <DocsViewer />
       </section>
     </main>
   );

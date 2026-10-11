@@ -15,7 +15,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-const REDOC_CDN = 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js';
+const LOCAL_REDOC_SCRIPT = '/vendor/redoc.standalone.js';
+const CDN_REDOC_SCRIPT = 'https://cdn.redocly.com/redoc/latest/bundles/redoc.standalone.js';
 
 interface RedocGlobal {
   init: (
@@ -32,25 +33,40 @@ declare global {
   }
 }
 
-function loadRedocScript(): Promise<RedocGlobal> {
-  if (typeof window === 'undefined') return Promise.reject(new Error('SSR'));
-  if (window.Redoc) return Promise.resolve(window.Redoc);
-
+function loadScript(src: string): Promise<RedocGlobal> {
   return new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${REDOC_CDN}"]`);
+    if (typeof window === 'undefined') return reject(new Error('SSR'));
+    if (window.Redoc) return resolve(window.Redoc);
+
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
     if (existing) {
+      if (window.Redoc) return resolve(window.Redoc);
       existing.addEventListener('load', () => resolve(window.Redoc!));
-      existing.addEventListener('error', reject);
+      existing.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)));
       return;
     }
+
     const script = document.createElement('script');
-    script.src = REDOC_CDN;
+    script.src = src;
     script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.onload = () => resolve(window.Redoc!);
-    script.onerror = () => reject(new Error('Failed to load Redoc CDN bundle'));
+    script.onload = () => {
+      if (window.Redoc) resolve(window.Redoc);
+      else reject(new Error('Redoc global not initialized'));
+    };
+    script.onerror = () => reject(new Error(`Failed to load ${src}`));
     document.head.appendChild(script);
   });
+}
+
+async function loadRedocScript(): Promise<RedocGlobal> {
+  if (typeof window === 'undefined') return Promise.reject(new Error('SSR'));
+  if (window.Redoc) return window.Redoc;
+
+  try {
+    return await loadScript(LOCAL_REDOC_SCRIPT);
+  } catch {
+    return await loadScript(CDN_REDOC_SCRIPT);
+  }
 }
 
 export default function RedocMount() {
@@ -68,9 +84,22 @@ export default function RedocMount() {
 
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+        // Spec verisini direkt JSON olarak alarak Redoc içi ek ağ çağrısı hatalarını önle
+        let specData: string | object = '/api/openapi';
+        try {
+          const specRes = await fetch('/api/openapi');
+          if (specRes.ok) {
+            specData = await specRes.json();
+          }
+        } catch {
+          // fallback URL
+        }
+
+        if (cancelled || !container) return;
+
         // Redoc.init signature: (spec, options, element, callback)
         Redoc.init(
-          '/api/openapi',
+          specData,
           {
             scrollYOffset: 0,
             hideDownloadButton: false,

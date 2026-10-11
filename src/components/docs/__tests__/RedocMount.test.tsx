@@ -45,7 +45,7 @@ describe('RedocMount', () => {
       expect(screen.getByText('API referansı yüklenemedi')).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Failed to load Redoc CDN bundle/)).toBeInTheDocument();
+    expect(screen.getByText(/Failed to load/)).toBeInTheDocument();
     document.head.appendChild = originalAppendChild;
   });
 });
