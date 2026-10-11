@@ -847,6 +847,53 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/legal/enforcement-cost': makeTrEndpoint({
+    summary: 'Türkiye İcra Takibi Açılış Harç ve Masraf Motoru',
+    description:
+      '2004 s. İcra ve İflas Kanunu ve 492 s. Harçlar Kanunu (1) sayılı Tarife uyarınca ilamlı ve ilamsız icra takiplerinde başvurma harcı, binde 5 peşin harç, vekalet harcı, baro pulu ve tebligat giderleri döküm motoru.',
+    bodySchema: {
+      type: 'object',
+      required: ['claimAmount'],
+      properties: {
+        claimAmount: { type: 'number', minimum: 1, description: 'Asıl alacak tutarı (TL)' },
+        enforcementType: {
+          type: 'string',
+          enum: ['without_judgment', 'with_judgment'],
+          default: 'without_judgment',
+          description: 'Takip türü (without_judgment: İlamsız, with_judgment: İlamlı)',
+        },
+        hasAttorney: { type: 'boolean', default: true, description: 'Avukat aracılığıyla mı açılıyor?' },
+        debtorCount: { type: 'integer', minimum: 1, default: 1, description: 'Borçlu sayısı' },
+        noticeType: { type: 'string', enum: ['postal', 'electronic'], default: 'postal', description: 'Tebligat türü' },
+        customApplicationFee: { type: 'number', minimum: 0, description: 'Özel başvurma harcı (TL)' },
+      },
+    },
+    bodyExample: {
+      claimAmount: 100000,
+      enforcementType: 'without_judgment',
+      hasAttorney: true,
+      debtorCount: 1,
+      noticeType: 'postal',
+    },
+    responseExample: {
+      claimAmount: 100000,
+      enforcementType: 'without_judgment',
+      enforcementTypeName: 'İlamsız İcra Takibi (Örnek No: 7)',
+      hasAttorney: true,
+      debtorCount: 1,
+      noticeType: 'postal',
+      advanceFee: 500,
+      applicationFee: 427.6,
+      powerOfAttorneyFee: 60.8,
+      barStampFee: 96,
+      noticeTotalFee: 200,
+      fileExpense: 35,
+      totalOpeningCost: 1319.4,
+      totalClaimWithCost: 101319.4,
+      legalSummary: '100.000,00 TL tutarındaki alacak için açılışta peşin yatırılması gereken toplam harç ve masraf 1.319,40 TL...',
+    },
+  }),
+
   '/api/v1/finance/to-words': makeTrEndpoint({
     summary: 'Para tutarını Türkçe metne çevirme (Çek/senet koruma formatı desteği)',
     description: 'Kuruş cinsinden tutarı Türkçe yazıya dönüştürür. Opsiyonel olarak bankacılık çek/senet güvenlik formatı (#...TL#) üretir.',

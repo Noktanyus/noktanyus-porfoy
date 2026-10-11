@@ -303,6 +303,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/tax/late-interest',
   },
   {
+    id: 'api:legal:enforcement-cost',
+    label: 'Türkiye İcra Takibi Açılış Harç ve Masraf Motoru',
+    description: 'İcra ve İflas Kanunu ve Harçlar Kanunu (1) sayılı Tarife uyarınca ilamlı ve ilamsız icra takiplerinde başvurma harcı, binde 5 peşin harç, vekalet harcı, baro pulu ve tebligat giderleri döküm motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/legal/enforcement-cost',
+  },
+  {
     id: 'api:finance:to-words',
     label: 'Sayıyı Yazıya Çevirme',
     description: 'Sayısal tutarları Türkçe resmi fatura metnine çevirme (Yalnız ... TL).',

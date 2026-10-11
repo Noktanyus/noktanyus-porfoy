@@ -122,6 +122,15 @@ const TOOLS = [
     tag: 'Yeni & Hukuk & Finans',
   },
   {
+    slug: 'icra-masrafi-hesaplama',
+    title: 'İcra Takibi Açılış Harç ve Masrafı',
+    description:
+      'İcra ve İflas Kanunu ve Harçlar Kanunu (1) sayılı Tarife uyarınca ilamlı ve ilamsız icra takiplerinde başvurma harcı, binde 5 peşin harç, vekalet harcı ve tebligat giderleri motoru.',
+    icon: FaGavel,
+    color: 'from-blue-700 to-indigo-800',
+    tag: 'Yeni & Hukuk & İcra',
+  },
+  {
     slug: 'vergi-gecikme-zammi-hesaplama',
     title: 'Vergi Gecikme Zammı & Tecil Faizi',
     description:

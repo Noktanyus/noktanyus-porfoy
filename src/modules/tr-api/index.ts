@@ -364,5 +364,17 @@ export {
   type TaxLateInterestResult,
 } from './taxLateInterest';
 
+export {
+  calculateEnforcementCost,
+  OFFICIAL_ENFORCEMENT_FEES_2024,
+  type EnforcementCostInput,
+  type EnforcementCostResult,
+  type EnforcementFeeConstants,
+  type EnforcementType,
+  type NoticeType,
+  type FeeItemBreakdown,
+} from './enforcementCost';
+
+
 
 
