@@ -444,6 +444,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/sgk-incentive',
   },
+  {
+    id: 'api:labor:severance-pay',
+    label: '4857 Kıdem, İhbar Tazminatı & İzin Motoru',
+    description: '4857 sayılı İş Kanunu ve 1475 sayılı Kanun m.14 uyarınca giydirilmiş brüt ücret, Hazine kıdem tavanı, damga vergisi, ihbar önelleri ve net tazminat hakediş dökümü.',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/severance-pay',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {

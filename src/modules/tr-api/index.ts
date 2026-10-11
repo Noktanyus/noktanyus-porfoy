@@ -325,3 +325,19 @@ export {
   type YearlyProgressionItem,
   type InflationCalculatorResult,
 } from './inflationPurchasingPower';
+
+export {
+  calculateSeverancePay,
+  calculateServiceDuration,
+  getSeveranceCapForDate,
+  getNoticeWeeks,
+  OFFICIAL_SEVERANCE_CAPS,
+  type SeverancePayInput,
+  type ServiceDuration,
+  type SeverancePayBreakdown,
+  type NoticePayBreakdown,
+  type UnusedLeaveBreakdown,
+  type SeverancePayResult,
+  type SeveranceCapPeriod,
+} from './severancePay';
+
