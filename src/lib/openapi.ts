@@ -967,6 +967,61 @@ const paths: PathsObject = {
     responseExample: { monthlyGrossCents: 4900000, computedNetCents: 3501200, iterations: 18 },
   }),
 
+  '/api/v1/labor/salary-garnishment': makeTrEndpoint({
+    summary: 'Türkiye Maaş Haczi Kesinti Oranı, Nafaka Önceliği & İcra Sıra Cetveli Motoru',
+    description:
+      '2004 Sayılı İİK m.83 uyarınca net maaştan 1/4 yasal haciz kesintisi, öncelikli cari nafaka alacakları düşümü, ikramiye haczi ve çoklu icra dosyası sıra cetveli simülasyonu.',
+    bodySchema: {
+      type: 'object',
+      required: ['monthlyNetSalary'],
+      properties: {
+        monthlyNetSalary: { type: 'number', minimum: 1, description: 'Aylık net maaş (TL)' },
+        monthlyAlimonyAmount: { type: 'number', minimum: 0, default: 0, description: 'Aylık cari nafaka borcu (TL)' },
+        customGarnishmentPercent: { type: 'number', minimum: 1, maximum: 100, description: 'Borçlunun özel muvafakat kesinti oranı (%)' },
+        additionalBonusNet: { type: 'number', minimum: 0, default: 0, description: 'Aylık net ikramiye/prim (TL)' },
+        bonusGarnishmentPercent: { type: 'number', minimum: 0, maximum: 100, default: 25, description: 'İkramiye kesinti oranı (%)' },
+        files: {
+          type: 'array',
+          description: 'İcra takip dosyaları listesi (tebliğ sırasına göre)',
+          items: {
+            type: 'object',
+            required: ['fileId', 'remainingDebt'],
+            properties: {
+              fileId: { type: 'string', description: 'İcra dairesi / dosya no' },
+              remainingDebt: { type: 'number', minimum: 0, description: 'Kalan toplam dosya borcu (TL)' },
+            },
+          },
+        },
+      },
+    },
+    bodyExample: {
+      monthlyNetSalary: 35000,
+      monthlyAlimonyAmount: 5000,
+      files: [
+        { fileId: 'İstanbul 4. İcra 2024/100', remainingDebt: 15000 },
+        { fileId: 'Ankara 2. İcra 2024/200', remainingDebt: 20000 },
+      ],
+    },
+    responseExample: {
+      monthlyNetSalary: 35000,
+      alimonyDeduction: 5000,
+      attachableBaseSalary: 30000,
+      salaryGarnishmentAmount: 7500,
+      appliedSalaryGarnishmentRatePercent: 25,
+      bonusGarnishmentAmount: 0,
+      totalMonthlyDeduction: 12500,
+      employeeRemainingNetTakeHome: 22500,
+      queueProjection: {
+        totalDebtAllFiles: 35000,
+        estimatedMonthsToClearAll: 5,
+        filesSummary: [
+          { fileId: 'İstanbul 4. İcra 2024/100', debt: 15000, estimatedMonths: 2, orderNumber: 1, status: 'active' },
+          { fileId: 'Ankara 2. İcra 2024/200', debt: 20000, estimatedMonths: 3, orderNumber: 2, status: 'waiting' },
+        ],
+      },
+    },
+  }),
+
   '/api/v1/invoice/ubl-validate': makeTrEndpoint({
     summary: 'UBL-TR XML yapısal doğrulama',
     description: 'Invoice kökü, ProfileID, taraflar, LegalMonetaryTotal ve InvoiceLine kontrolü. XSD/GİB imza doğrulamaz.',

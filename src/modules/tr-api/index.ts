@@ -264,6 +264,15 @@ export {
   type RentIncreaseResult,
 } from './rentIncrease';
 
+export {
+  calculateSalaryGarnishment,
+  type GarnishmentFile,
+  type SalaryGarnishmentInput,
+  type SalaryGarnishmentResult,
+  type MonthlyGarnishmentPlanItem,
+} from './salaryGarnishment';
+
+
 
 
 

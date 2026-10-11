@@ -203,6 +203,15 @@ const TOOLS = [
     tag: 'İnsan Kaynakları',
   },
   {
+    slug: 'maas-haczi-hesaplama',
+    title: 'Maaş Haczi & İcra Sıra Cetveli',
+    description:
+      '2004 s. İİK m.83 uyarınca net maaştan 1/4 yasal haciz kesintisi, öncelikli nafaka düşümü ve birden fazla icra dosyası için sıra cetveli simülasyonu.',
+    icon: FaGavel,
+    color: 'from-rose-600 to-red-700',
+    tag: 'Yeni & Bordro & Hukuk',
+  },
+  {
     slug: 'sayiyi-yaziya',
     title: 'Sayıyı Yazıya Çevir',
     description:

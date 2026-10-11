@@ -402,6 +402,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/net-to-gross',
   },
+  {
+    id: 'api:labor:salary-garnishment',
+    label: 'Maaş Haczi & İcra Sıra Cetveli',
+    description: '2004 s. İİK m.83 uyarınca 1/4 maaş haczi kesintisi, öncelikli nafaka ve çoklu icra dosyası sıra cetveli motoru.',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/salary-garnishment',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {
