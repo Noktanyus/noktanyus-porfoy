@@ -1873,6 +1873,63 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/check-discount': makeTrEndpoint({
+    summary: 'Türkiye Çek & Senet Reeskont Faiz & Ortalama Vade Motoru',
+    description:
+      '213 sayılı VUK m.281 & m.285 uyarınca iç iskonto ve dış iskonto formülü, TCMB resmi reeskont/avans faiz oranları, çoklu çek portföyü ağırlıklı ortalama vadesi ve Tekdüzen Hesap Planı (122/652 veya 322/642) yevmiye kayıtları simülasyonu.',
+    bodySchema: {
+      type: 'object',
+      required: ['items'],
+      properties: {
+        valuationDate: { type: 'string', format: 'date', description: 'Değerleme / bilanço tarihi (YYYY-AA-GG)' },
+        rateOption: { type: 'string', enum: ['discount', 'advance', 'custom'], default: 'discount', description: 'Faiz türü' },
+        customAnnualRate: { type: 'number', minimum: 0, description: 'Özel yıllık faiz oranı (%)' },
+        method: { type: 'string', enum: ['internal', 'external'], default: 'internal', description: 'İskonto yöntemi (internal: VUK iç iskonto, external: dış iskonto)' },
+        items: {
+          type: 'array',
+          description: 'Çek ve senet listesi',
+          items: {
+            type: 'object',
+            required: ['nominalAmount', 'dueDate'],
+            properties: {
+              id: { type: 'string' },
+              description: { type: 'string', description: 'Evrak açıklaması / keşideci' },
+              nominalAmount: { type: 'number', minimum: 0, description: 'Senedin nominal tutarı (TL)' },
+              dueDate: { type: 'string', format: 'date', description: 'Vade tarihi (YYYY-AA-GG)' },
+              itemType: { type: 'string', enum: ['receivable', 'payable'], default: 'receivable', description: 'Alacak senedi veya borç senedi' },
+            },
+          },
+        },
+      },
+    },
+    bodyExample: {
+      valuationDate: '2024-01-01',
+      rateOption: 'discount',
+      method: 'internal',
+      items: [
+        { description: 'Müşteri Çeki 1', nominalAmount: 100000, dueDate: '2024-03-31', itemType: 'receivable' },
+        { description: 'Müşteri Çeki 2', nominalAmount: 200000, dueDate: '2024-04-30', itemType: 'receivable' },
+      ],
+    },
+    responseExample: {
+      valuationDate: '2024-01-01',
+      appliedAnnualRate: 48.75,
+      rateTypeDescription: 'TCMB 2024 Güncel - Reeskont İskonto Oranı (%48.75)',
+      method: 'internal',
+      methodName: 'İç İskonto (213 s. VUK Zorunlu Yöntem)',
+      totalNominalAmount: 300000,
+      totalDiscountAmount: 37402.15,
+      totalNetPresentValue: 262597.85,
+      weightedAverageDays: 110,
+      weightedAverageDueDate: '2024-04-20',
+      itemCount: 2,
+      accountingEntries: [
+        { accountCode: '652', accountName: 'Reeskont Faiz Giderleri', debit: 37402.15, credit: 0 },
+        { accountCode: '122', accountName: 'Alacak Senetleri Reeskontu (-)', debit: 0, credit: 37402.15 },
+      ],
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {

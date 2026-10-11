@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -102,6 +102,15 @@ const TOOLS = [
     icon: FaGavel,
     color: 'from-blue-600 to-cyan-600',
     tag: 'Yeni & Hukuk & Finans',
+  },
+  {
+    slug: 'cek-senet-reeskont-hesaplama',
+    title: 'Çek & Senet Reeskont Faiz & Vade',
+    description:
+      '213 s. VUK m.281/285 ve 238 nolu Tebliğ uyarınca iç iskonto / dış iskonto formülü ile reeskont faizi, portföy ağırlıklı ortalama vadesi ve THP yevmiye kaydı dökümü.',
+    icon: FaMoneyCheckAlt,
+    color: 'from-indigo-600 to-blue-700',
+    tag: 'Yeni & Muhasebe & Finans',
   },
   {
     slug: 'kira-artis-orani-hesaplama',

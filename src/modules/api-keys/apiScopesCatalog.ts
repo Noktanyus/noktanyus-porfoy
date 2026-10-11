@@ -366,6 +366,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/rent-increase',
   },
   {
+    id: 'api:finance:check-discount',
+    label: 'TR Çek & Senet Reeskont Faiz & Ortalama Vade Motoru',
+    description: '213 s. VUK m.281/285 uyarınca iç iskonto ve dış iskonto formülü, TCMB resmi reeskont faiz oranları, portföy ortalama vadesi ve muhasebe yevmiye kaydı dökümü.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/check-discount',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',
