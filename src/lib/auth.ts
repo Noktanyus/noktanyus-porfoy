@@ -154,28 +154,33 @@ const providers: NextAuthOptions["providers"] = [
   }),
 ];
 
-// Google OAuth - env tanimliysa ekle
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      // Ayni email ile birden fazla provider'a kayit olan kullanicinin
-      // tek hesapta birlestirilmesine izin verir (OAuth spec uyumu).
-      allowDangerousEmailAccountLinking: true,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          // Google email_verified=true ise DB'de de onaylı say
-          emailVerified: profile.email_verified ? new Date() : null,
-        };
-      },
-    })
-  );
-}
+// Google OAuth - birincil sosyal kimlik sağlayıcı
+const googleClientId =
+  process.env.GOOGLE_CLIENT_ID ||
+  "noktanyus-placeholder.apps.googleusercontent.com";
+const googleClientSecret =
+  process.env.GOOGLE_CLIENT_SECRET ||
+  "noktanyus-placeholder-secret";
+
+providers.push(
+  GoogleProvider({
+    clientId: googleClientId,
+    clientSecret: googleClientSecret,
+    // Ayni email ile birden fazla provider'a kayit olan kullanicinin
+    // tek hesapta birlestirilmesine izin verir (OAuth spec uyumu).
+    allowDangerousEmailAccountLinking: true,
+    profile(profile) {
+      return {
+        id: profile.sub,
+        name: profile.name,
+        email: profile.email,
+        image: profile.picture,
+        // Google email_verified=true ise DB'de de onaylı say
+        emailVerified: profile.email_verified ? new Date() : null,
+      };
+    },
+  })
+);
 
 // GitHub OAuth - env tanimliysa ekle
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {

@@ -6,10 +6,8 @@
 export type SocialProviderId = 'google' | 'github';
 
 export function getEnabledSocialProviders(): SocialProviderId[] {
-  const list: SocialProviderId[] = [];
-  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    list.push('google');
-  }
+  // Google, platformun birincil sosyal kimlik sağlayıcısı olarak her zaman etkindir.
+  const list: SocialProviderId[] = ['google'];
   if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     list.push('github');
   }
@@ -17,5 +15,16 @@ export function getEnabledSocialProviders(): SocialProviderId[] {
 }
 
 export function isGoogleAuthEnabled(): boolean {
-  return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  return true;
+}
+
+export function isGoogleConfigured(): boolean {
+  const id = process.env.GOOGLE_CLIENT_ID;
+  const secret = process.env.GOOGLE_CLIENT_SECRET;
+  return Boolean(
+    id &&
+    secret &&
+    !id.includes('placeholder') &&
+    !id.includes('demo')
+  );
 }

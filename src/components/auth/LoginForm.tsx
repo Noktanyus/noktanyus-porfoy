@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
@@ -14,13 +14,14 @@ import { AuthDivider, SocialAuthButtons } from '@/components/auth/SocialAuthButt
 import type { SocialProviderId } from '@/lib/authProviders';
 
 export function LoginForm({
-  socialProviders = [],
+  socialProviders = ['google'],
 }: {
   socialProviders?: SocialProviderId[];
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const urlError = searchParams.get('error');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +29,22 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const firstInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (urlError) {
+      if (urlError === 'OAuthSignin' || urlError === 'OAuthCallback') {
+        setError('Google ile giriş sırasında bir sorun oluştu. Lütfen tekrar deneyin veya e-posta ile giriş yapın.');
+      } else if (urlError === 'OAuthAccountNotLinked') {
+        setError('Bu e-posta adresi başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın.');
+      } else if (urlError === 'Callback') {
+        setError('Kimlik doğrulama geri çağrısında hata oluştu.');
+      } else if (urlError === 'AccessDenied') {
+        setError('Google hesabı erişimi reddedildi.');
+      } else {
+        setError(`Kimlik doğrulama hatası (${urlError}).`);
+      }
+    }
+  }, [urlError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

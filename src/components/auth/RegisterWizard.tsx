@@ -9,7 +9,7 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -342,12 +342,13 @@ function VerificationStep({ email }: { email: string }) {
 }
 
 export function RegisterWizard({
-  socialProviders = [],
+  socialProviders = ['google'],
 }: {
   socialProviders?: SocialProviderId[];
 }) {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const urlError = searchParams.get("error");
 
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
@@ -360,6 +361,20 @@ export function RegisterWizard({
     confirmPassword: "",
     acceptTerms: false,
   });
+
+  useEffect(() => {
+    if (urlError) {
+      if (urlError === 'OAuthSignin' || urlError === 'OAuthCallback') {
+        setAccountError('Google ile kayıt başlatılırken bir sorun oluştu. Lütfen tekrar deneyin veya aşağıdaki formla devam edin.');
+      } else if (urlError === 'OAuthAccountNotLinked') {
+        setAccountError('Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapın.');
+      } else if (urlError === 'AccessDenied') {
+        setAccountError('Google hesabı erişimi reddedildi.');
+      } else {
+        setAccountError(`Kimlik doğrulama hatası (${urlError}).`);
+      }
+    }
+  }, [urlError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
