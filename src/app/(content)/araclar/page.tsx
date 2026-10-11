@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas, FaPiggyBank } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas, FaPiggyBank, FaChartLine } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -156,6 +156,15 @@ const TOOLS = [
     icon: FaPiggyBank,
     color: 'from-emerald-600 to-teal-700',
     tag: 'Yeni & İK & Bordro',
+  },
+  {
+    slug: 'enflasyon-alim-gucu-hesaplama',
+    title: 'TÜİK TÜFE Enflasyon & Alım Gücü',
+    description:
+      'Resmi TÜİK 2003=100 Tüketici Fiyat Endeksi serisi ile geçmiş bir tutarın bugünkü alım gücü eşdeğeri, kümülatif enflasyon, yıllık bileşik artış ve reel erime oranı.',
+    icon: FaChartLine,
+    color: 'from-amber-600 to-rose-700',
+    tag: 'Yeni & Finans & Ekonomi',
   },
   {
     slug: 'vergi-dairesi-kodlari',

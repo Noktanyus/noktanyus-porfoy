@@ -380,6 +380,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/check-discount',
   },
   {
+    id: 'api:finance:inflation-purchasing-power',
+    label: 'TÜİK TÜFE Tarihi Enflasyon & Alım Gücü Motoru',
+    description: 'TÜİK 2003=100 Tüketici Fiyat Endeksi serisi ile geçmiş bir tutarın günümüz alım gücü eşdeğeri, kümülatif enflasyon, yıllık bileşik artış ve reel erime oranı.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/finance/inflation-purchasing-power',
+  },
+  {
     id: 'api:convert:unit',
     label: 'Birim Dönüştürücü',
     description: 'Uzunluk, ağırlık, alan ve hacim birimleri arası metrik/emperyal dönüşüm.',

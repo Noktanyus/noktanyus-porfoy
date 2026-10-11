@@ -2027,6 +2027,44 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/finance/inflation-purchasing-power': makeTrEndpoint({
+    summary: 'TÜİK TÜFE Tarihi Enflasyon & Paranın Alım Gücü Motoru',
+    description:
+      'Türkiye İstatistik Kurumu (TÜİK) 2003=100 Tüketici Fiyat Endeksi serisi kullanılarak geçmiş bir tarihteki paranın bugünkü alım gücü eşdeğeri, kümülatif enflasyon, fiyat artış katsayısı, reel erime oranı ve yıllık bileşik artış (CAGR) dökümü.',
+    bodySchema: {
+      type: 'object',
+      required: ['initialAmount', 'startYear', 'targetYear'],
+      properties: {
+        initialAmount: { type: 'number', minimum: 0, description: 'Başlangıçtaki para tutarı (TL)' },
+        startYear: { type: 'integer', minimum: 2003, maximum: 2050, description: 'Başlangıç yılı (örn: 2015)' },
+        startMonth: { type: 'integer', minimum: 1, maximum: 12, description: 'Başlangıç ayı (1-12, opsiyonel)' },
+        targetYear: { type: 'integer', minimum: 2003, maximum: 2050, description: 'Hedef / bugünkü yıl (örn: 2024)' },
+        targetMonth: { type: 'integer', minimum: 1, maximum: 12, description: 'Hedef / bugünkü ay (1-12, opsiyonel)' },
+        customStartIndex: { type: 'number', minimum: 0, description: 'Özel başlangıç TÜFE endeksi (isteğe bağlı)' },
+        customTargetIndex: { type: 'number', minimum: 0, description: 'Özel hedef TÜFE endeksi (isteğe bağlı)' },
+      },
+    },
+    bodyExample: {
+      initialAmount: 100000,
+      startYear: 2015,
+      startMonth: 12,
+      targetYear: 2024,
+      targetMonth: 12,
+    },
+    responseExample: {
+      initialAmount: 100000,
+      startPeriod: { year: 2015, month: 12, label: 'Aralık 2015', cpiIndex: 269.54 },
+      targetPeriod: { year: 2024, month: 12, label: 'Aralık 2024', cpiIndex: 2684.55 },
+      adjustedAmount: 995974.62,
+      cumulativeInflationRatePercent: 895.97,
+      multiplier: 9.96,
+      purchasingPowerLossPercent: 89.96,
+      realValueOfOneLira: 0.1004,
+      annualCompoundRatePercent: 29.11,
+      summary: 'Aralık 2015 dönemindeki 100.000,00 TL, resmi TÜİK 2003=100 TÜFE endeksine göre Aralık 2024 döneminde 995.974,62 TL alım gücüne denktir.',
+    },
+  }),
+
   '/api/v1/validate/imo': makeTrEndpoint({
     summary: 'Gemi IMO numarası doğrulama (International Maritime Organization)',
     bodySchema: {

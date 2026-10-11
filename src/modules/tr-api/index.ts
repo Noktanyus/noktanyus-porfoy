@@ -316,8 +316,12 @@ export {
   type SgkIncentiveResult,
 } from './sgkIncentive';
 
-
-
-
-
-
+export {
+  calculateInflationPurchasingPower,
+  findCpiIndex,
+  TUIK_HISTORICAL_CPI_TABLE,
+  type MonthlyCpiEntry,
+  type InflationCalculatorInput,
+  type YearlyProgressionItem,
+  type InflationCalculatorResult,
+} from './inflationPurchasingPower';
