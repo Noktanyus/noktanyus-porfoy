@@ -430,6 +430,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     category: 'labor',
     endpoint: 'POST /api/v1/labor/salary-garnishment',
   },
+  {
+    id: 'api:labor:sgk-incentive',
+    label: 'SGK %5 Puan Teşviki & İşveren Maliyeti',
+    description: '5510 s.K. m.81/ı 5 puanlık Hazine prim indirimi (%20.5 → %15.5), asgari ücret desteği (700 TL/ay) ve işveren toplam maliyeti hesaplama motoru.',
+    category: 'labor',
+    endpoint: 'POST /api/v1/labor/sgk-incentive',
+  },
 
   // ─── Fatura & Belge Üretimi ───
   {

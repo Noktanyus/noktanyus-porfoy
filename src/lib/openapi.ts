@@ -1022,6 +1022,52 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/labor/sgk-incentive': makeTrEndpoint({
+    summary: 'Türkiye SGK %5 Puan Hazine Teşviki & İşveren Maliyeti Motoru',
+    description:
+      '5510 sayılı Kanun m.81/ı uyarınca özel sektör işveren hissesinden 5 puanlık indirim (%20.5 → %15.5), kişi başı 700 TL asgari ücret prim desteği, SGK tavan/taban sınırları ve toplam işveren bordro tasarrufu hesaplama servisi.',
+    bodySchema: {
+      type: 'object',
+      required: ['grossSalaryPerEmployee'],
+      properties: {
+        grossSalaryPerEmployee: { type: 'number', minimum: 1, description: 'Çalışan başına aylık brüt ücret (TL)' },
+        employeeCount: { type: 'integer', minimum: 1, default: 1, description: 'Toplam çalışan sayısı' },
+        apply5PointsDiscount: { type: 'boolean', default: true, description: '5510 m.81/ı 5 puan indirimi uygulansın mı?' },
+        applyMinimumWageSupport: { type: 'boolean', default: true, description: 'Kişi başı 700 TL asgari ücret desteği uygulansın mı?' },
+        customMonthlySupportPerEmployee: { type: 'number', minimum: 0, description: 'Özel aylık asgari ücret desteği tutarı (TL)' },
+      },
+    },
+    bodyExample: {
+      grossSalaryPerEmployee: 35000,
+      employeeCount: 5,
+      apply5PointsDiscount: true,
+      applyMinimumWageSupport: true,
+    },
+    responseExample: {
+      employeeCount: 5,
+      grossSalaryPerEmployee: 35000,
+      totalGrossPayroll: 175000,
+      sgkBaseAmountPerEmployee: 35000,
+      totalSgkBasePayroll: 175000,
+      standardEmployerSgkRatePercent: 20.5,
+      appliedEmployerSgkRatePercent: 15.5,
+      standardEmployerSgkCost: 35875,
+      appliedEmployerSgkCost: 27125,
+      fivePointsSavingsPerMonth: 8750,
+      employerUnemploymentCost: 3500,
+      minimumWageSupportTotal: 3500,
+      standardTotalEmployerCost: 214375,
+      incentivizedTotalEmployerCost: 202125,
+      monthlyNetSavingsTotal: 12250,
+      annualNetSavingsTotal: 147000,
+      savingsRatioPercent: 5.7,
+      employeeDeductions: {
+        sgkEmployeeDeduction: 4900,
+        unemploymentEmployeeDeduction: 350,
+      },
+    },
+  }),
+
   '/api/v1/invoice/ubl-validate': makeTrEndpoint({
     summary: 'UBL-TR XML yapısal doğrulama',
     description: 'Invoice kökü, ProfileID, taraflar, LegalMonetaryTotal ve InvoiceLine kontrolü. XSD/GİB imza doğrulamaz.',

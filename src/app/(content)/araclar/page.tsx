@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas, FaPiggyBank } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -147,6 +147,15 @@ const TOOLS = [
     icon: FaUserGraduate,
     color: 'from-violet-600 to-indigo-700',
     tag: 'Yeni & Teşvikler',
+  },
+  {
+    slug: 'sgk-tesvik-hesaplama',
+    title: 'SGK %5 Puan Teşviki & İşveren Maliyeti',
+    description:
+      '5510 s.K. m.81/ı 5 puanlık Hazine prim indirimi (%20.5 → %15.5), 700 TL asgari ücret desteği ve şirket bordro tasarrufu motoru.',
+    icon: FaPiggyBank,
+    color: 'from-emerald-600 to-teal-700',
+    tag: 'Yeni & İK & Bordro',
   },
   {
     slug: 'vergi-dairesi-kodlari',

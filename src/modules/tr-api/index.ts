@@ -309,6 +309,13 @@ export {
   type CustomsTaxResult,
 } from './customsTax';
 
+export {
+  calculateSgkIncentive,
+  SGK_OFFICIAL_CONSTANTS,
+  type SgkIncentiveInput,
+  type SgkIncentiveResult,
+} from './sgkIncentive';
+
 
 
 
