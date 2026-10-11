@@ -282,6 +282,15 @@ export {
   type VatExemptionCode,
 } from './eArchiveRules';
 
+export {
+  evaluateMicroExport,
+  ETGB_LIMITS,
+  AUTHORIZED_ETGB_CARRIERS,
+  type MicroExportInput,
+  type MicroExportEvaluation,
+  type AuthorizedCarrier,
+} from './microExportEtgb';
+
 
 
 

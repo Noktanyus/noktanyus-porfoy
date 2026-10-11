@@ -345,6 +345,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/commerce/return-loss',
   },
   {
+    id: 'api:commerce:micro-export-etgb',
+    label: 'TR E-İhracat / Mikro İhracat (ETGB) & KDV İadesi',
+    description: '300 kg / 15.000 € mikro ihracat uygunluğu, 301 KDV istisnası, nakden KDV iadesi ve GVK 89/16 %50 kazanç indirimi motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/commerce/micro-export-etgb',
+  },
+  {
     id: 'api:finance:young-entrepreneur',
     label: 'TR Genç Girişimci İstisnası & Bağkur Teşviki',
     description: '193 s. GVK mük. 20/A ve SGK 5510 m.81/k uyarınca 3 yıllık vergi istisnası ve Bağkur desteği hesaplama motoru.',

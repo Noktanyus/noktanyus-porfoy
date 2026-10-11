@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -66,6 +66,15 @@ const TOOLS = [
     icon: FaUndoAlt,
     color: 'from-rose-500 to-red-600',
     tag: 'Yeni & E-Ticaret',
+  },
+  {
+    slug: 'mikro-ihracat-etgb-hesaplama',
+    title: 'Mikro İhracat (ETGB) & KDV İadesi',
+    description:
+      '300 kg ve 15.000 € mikro ihracat (ETGB) limit kontrolü, 301 KDV istisnası, yüklenilen KDV iadesi ve GVK m.89/16 %50 kazanç indirimi simülatörü.',
+    icon: FaPlaneDeparture,
+    color: 'from-blue-600 to-indigo-700',
+    tag: 'Yeni & E-İhracat',
   },
   {
     slug: 'ubl-fatura-goruntuleyici',

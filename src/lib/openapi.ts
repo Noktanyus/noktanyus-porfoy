@@ -1731,6 +1731,65 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/commerce/micro-export-etgb': makeTrEndpoint({
+    summary: 'Türkiye E-İhracat / Mikro İhracat (ETGB) & KDV İadesi Motoru',
+    description:
+      '4458 sayılı Gümrük Kanunu ve Hızlı Kargo Tebliği uyarınca 300 kg ve 15.000 € mikro ihracat (ETGB) uygunluğu, 3065 s. KDVK m.11/1-a (Kod 301) sıfır KDV istisnası, yüklenilen KDV iadesi ve GVK m.89/16 %50 kazanç indirimi simülasyonu.',
+    bodySchema: {
+      type: 'object',
+      required: ['weightKg', 'invoiceAmount'],
+      properties: {
+        weightKg: { type: 'number', minimum: 0, description: 'Paket brüt ağırlığı (kg)' },
+        invoiceAmount: { type: 'number', minimum: 0, description: 'Fatura tutarı' },
+        currency: { type: 'string', enum: ['EUR', 'USD', 'TRY', 'GBP'], default: 'EUR', description: 'Fatura para birimi' },
+        eurExchangeRate: { type: 'number', minimum: 0, description: 'Özel EUR/TRY kuru' },
+        usdToEurRate: { type: 'number', minimum: 0, description: 'Özel USD/EUR paritesi' },
+        costOfGoodsSold: { type: 'number', minimum: 0, default: 0, description: 'İhraç edilen malın tedarik/imalat maliyeti' },
+        costVatRate: { type: 'integer', enum: [0, 1, 10, 20], default: 20, description: 'Tedarik KDV oranı (%)' },
+        estimatedProfitMarginPercent: { type: 'number', minimum: 0, maximum: 100, default: 25, description: 'Tahmini kâr marjı (%)' },
+        qualifiesForGvk89Exemption: { type: 'boolean', default: false, description: 'GVK m.89/16 %50 ihracat kazanç istisnası uygulansın mı?' },
+      },
+    },
+    bodyExample: {
+      weightKg: 25,
+      invoiceAmount: 2500,
+      currency: 'EUR',
+      costOfGoodsSold: 1500,
+      costVatRate: 20,
+      qualifiesForGvk89Exemption: true,
+    },
+    responseExample: {
+      isEligible: true,
+      status: 'MICRO_EXPORT_ETGB',
+      statusMessageTr: 'Gönderiniz 25 kg ve 2.500 € değeri ile ETGB (Mikro İhracat) kapsamındadır.',
+      weightKg: 25,
+      weightLimitKg: 300,
+      isWeightValid: true,
+      invoiceAmount: 2500,
+      currency: 'EUR',
+      amountInEur: 2500,
+      eurLimit: 15000,
+      isAmountValid: true,
+      vatExemptionCode: '301',
+      vatExemptionName: '3065 s. KDV K. m.11/1-a - Mal İhracatı',
+      potentialVatRefund: {
+        eligible: true,
+        costOfGoodsSold: 1500,
+        costVatRate: 20,
+        estimatedRefundAmount: 300,
+        currency: 'EUR',
+        explanationTr: 'Tedarik ettiğiniz malın KDV\'si (%20) karşılığı yaklaşık 300 EUR tutarında yüklenilen KDV iadesi talep edebilirsiniz.',
+      },
+      incomeTaxIncentiveGvk89: {
+        applied: true,
+        estimatedProfit: 625,
+        exemptProfitAmount: 312.5,
+        taxableProfitAmount: 312.5,
+        explanationTr: 'GVK mük. 89/1-16 kapsamında mikro ihracat kazancınızın %50\'si (312,50 EUR) gelir vergisi matrahınızdan indirilir.',
+      },
+    },
+  }),
+
   '/api/v1/finance/young-entrepreneur': makeTrEndpoint({
     summary: 'Türkiye Genç Girişimci İstisnası & Bağkur Desteği Hesaplama Motoru',
     description:
