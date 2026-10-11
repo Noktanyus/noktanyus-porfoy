@@ -296,6 +296,13 @@ export const API_SCOPES_CATALOG: ApiScopeItem[] = [
     endpoint: 'POST /api/v1/finance/legal-interest',
   },
   {
+    id: 'api:tax:late-interest',
+    label: '6183 Kamu & Vergi Gecikme Zammı ve Tecil Faizi',
+    description: '6183 sayılı AATUHK m.51 uyarınca vadesi geçmiş vergi ve kamu borçları için aylık/günlük gecikme zammı ve m.48 tecil faizi taksitlendirme motoru.',
+    category: 'finance',
+    endpoint: 'POST /api/v1/tax/late-interest',
+  },
+  {
     id: 'api:finance:to-words',
     label: 'Sayıyı Yazıya Çevirme',
     description: 'Sayısal tutarları Türkçe resmi fatura metnine çevirme (Yalnız ... TL).',

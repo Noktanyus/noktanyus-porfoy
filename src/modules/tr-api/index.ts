@@ -353,4 +353,16 @@ export {
   type ShippingTierResult,
 } from './shippingTierComparison';
 
+export {
+  calculateTaxLateInterest,
+  getLateFeeRateForDate,
+  OFFICIAL_LATE_FEE_RATES,
+  OFFICIAL_ANNUAL_POSTPONEMENT_RATE,
+  type LateFeeRatePeriod,
+  type TaxLateInterestInput,
+  type InstallmentPlanItem,
+  type TaxLateInterestResult,
+} from './taxLateInterest';
+
+
 

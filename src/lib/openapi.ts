@@ -809,6 +809,44 @@ const paths: PathsObject = {
     },
   }),
 
+  '/api/v1/tax/late-interest': makeTrEndpoint({
+    summary: '6183 Sayılı Kanun Vergi Gecikme Zammı ve Tecil Faizi Motoru',
+    description:
+      '6183 sayılı AATUHK m.51 uyarınca vadesinde ödenmeyen kamu borçları için aylık/günlük gecikme zammı ve m.48 uyarınca yıllık %48 tecil faizli taksit planı simülasyonu.',
+    bodySchema: {
+      type: 'object',
+      required: ['principalAmount', 'dueDate', 'paymentDate'],
+      properties: {
+        principalAmount: { type: 'number', minimum: 1, description: 'Vergi / Kamu borcu asıl tutarı (TL)' },
+        dueDate: { type: 'string', format: 'date', description: 'Vade tarihi (YYYY-AA-GG)' },
+        paymentDate: { type: 'string', format: 'date', description: 'Ödeme / hesaplama tarihi (YYYY-AA-GG)' },
+        customMonthlyRatePercent: { type: 'number', minimum: 0, description: 'Özel aylık gecikme zammı oranı (%)' },
+        calculateInstallments: { type: 'boolean', default: false, description: 'Tecil ve taksitlendirme planı hesaplansın mı?' },
+        installmentCount: { type: 'integer', minimum: 2, maximum: 36, default: 12, description: 'Taksit sayısı (2-36 ay)' },
+      },
+    },
+    bodyExample: {
+      principalAmount: 50000,
+      dueDate: '2024-03-31',
+      paymentDate: '2024-06-30',
+      calculateInstallments: false,
+    },
+    responseExample: {
+      principalAmount: 50000,
+      dueDate: '2024-03-31',
+      paymentDate: '2024-06-30',
+      totalDaysOverdue: 91,
+      fullMonths: 3,
+      fractionDays: 0,
+      appliedMonthlyRatePercent: 4.5,
+      dailyRatePercent: 0.15,
+      decreeBasis: '21.05.2024 tarihli 8484 sayılı CB Kararı',
+      lateFeeAmount: 6750,
+      totalAmountDue: 56750,
+      summaryText: '50.000,00 TL tutarındaki kamu alacağı için 91 günlük gecikme süresinde 6.750,00 TL gecikme zammı tahakkuk etmiştir.',
+    },
+  }),
+
   '/api/v1/finance/to-words': makeTrEndpoint({
     summary: 'Para tutarını Türkçe metne çevirme (Çek/senet koruma formatı desteği)',
     description: 'Kuruş cinsinden tutarı Türkçe yazıya dönüştürür. Opsiyonel olarak bankacılık çek/senet güvenlik formatı (#...TL#) üretir.',

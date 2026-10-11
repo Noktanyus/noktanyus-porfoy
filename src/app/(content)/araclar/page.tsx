@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas, FaPiggyBank, FaChartLine, FaUserTie } from 'react-icons/fa';
+import { FaCheckCircle, FaCalculator, FaCalendarAlt, FaIdCard, FaCode, FaBolt, FaShieldAlt, FaUserClock, FaClock, FaBalanceScale, FaLanguage, FaGavel, FaEnvelope, FaTruck, FaQrcode, FaFileInvoiceDollar, FaBuilding, FaShoppingBag, FaFileCode, FaUndoAlt, FaUserGraduate, FaHome, FaFileInvoice, FaPlaneDeparture, FaMoneyCheckAlt, FaGlobeAmericas, FaPiggyBank, FaChartLine, FaUserTie, FaUniversity } from 'react-icons/fa';
 import { WELCOME_CREDITS, formatWelcomeCredits } from '@/lib/apiCredits';
 import RecentToolsStrip from '@/components/tools/RecentToolsStrip';
 
@@ -120,6 +120,15 @@ const TOOLS = [
     icon: FaGavel,
     color: 'from-blue-600 to-cyan-600',
     tag: 'Yeni & Hukuk & Finans',
+  },
+  {
+    slug: 'vergi-gecikme-zammi-hesaplama',
+    title: 'Vergi Gecikme Zammı & Tecil Faizi',
+    description:
+      '6183 sayılı AATUHK m.51 uyarınca vadesi geçmiş kamu borçları için aylık/günlük gecikme zammı ve m.48 tecil faizli taksit planı simülasyonu.',
+    icon: FaUniversity,
+    color: 'from-rose-600 to-red-700',
+    tag: 'Yeni & Vergi & Kamu',
   },
   {
     slug: 'cek-senet-reeskont-hesaplama',
