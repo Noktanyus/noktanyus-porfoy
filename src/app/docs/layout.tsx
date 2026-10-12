@@ -7,7 +7,7 @@ export default function DocsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 pt-16 sm:pt-20">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 pt-20 sm:pt-24">
       <DocsNav />
       {children}
     </div>

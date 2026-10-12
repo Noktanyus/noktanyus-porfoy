@@ -20,7 +20,6 @@ export const MOBILE_NAV_LINKS = [
   { href: '/magaza', label: 'Mağaza' },
   { href: '/docs', label: 'API Docs' },
   { href: '/araclar', label: 'Araçlar' },
-  { href: '/changelog', label: 'Changelog' },
   { href: '/projelerim', label: 'Projelerim' },
   { href: '/blog', label: 'Blog' },
   { href: '/iletisim', label: 'İletişim' },
@@ -139,9 +138,10 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               )}
               <button
                 type="button"
-                onClick={() => {
+                onClick={async () => {
                   onClose();
-                  signOut({ callbackUrl: '/' });
+                  await signOut({ redirect: false });
+                  window.location.href = '/';
                 }}
                 className="w-full text-left text-rose-600 dark:text-rose-400 rounded-xl px-4 py-4 text-lg font-medium min-h-[44px] hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2"
               >

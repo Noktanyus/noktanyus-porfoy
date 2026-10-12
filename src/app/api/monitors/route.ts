@@ -11,6 +11,7 @@ import { prisma } from '@/lib/prisma';
 import { ok, created, withErrorHandling } from '@/lib/apiResponse';
 import { UnauthorizedError, ValidationError, ConflictError } from '@/modules/shared/errors';
 import { webhookService } from '@/modules/webhooks';
+import { runSingleMonitorCheck } from '@/modules/monitors/runner';
 
 export const dynamic = 'force-dynamic';
 
@@ -110,6 +111,9 @@ export async function POST(req: NextRequest) {
       { monitorId: monitor.id, name: monitor.name, url: monitor.url },
       userId
     );
+
+    // İlk kontrolü hemen arka planda çalıştır (kullanıcı cron beklemesin)
+    void runSingleMonitorCheck(monitor.id);
 
     return created({ monitor });
   });

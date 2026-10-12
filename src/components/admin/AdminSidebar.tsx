@@ -80,10 +80,11 @@ const AdminSidebar = ({ isMobileMenuOpen = false, setIsMobileMenuOpen }: AdminSi
   /* ===========================================================
    * Aksiyonlar
    * =========================================================== */
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (window.confirm("Yönetim panelinden çıkmak istediğinize emin misiniz?")) {
       toast.success("Çıkış yapılıyor, yönlendiriliyorsunuz...");
-      signOut({ callbackUrl: "/" });
+      await signOut({ redirect: false });
+      window.location.href = "/";
     }
   };
 

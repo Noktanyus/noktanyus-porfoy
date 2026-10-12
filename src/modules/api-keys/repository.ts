@@ -173,7 +173,7 @@ export class ApiKeyRepository extends BaseRepository<ApiKey> {
         prisma.apiKeyUsage.findMany({
           where: { apiKeyId: { in: keyIds }, timestamp: { gte: since } },
           orderBy: { timestamp: 'desc' },
-          take: 25,
+          take: 50,
           select: {
             id: true,
             endpoint: true,

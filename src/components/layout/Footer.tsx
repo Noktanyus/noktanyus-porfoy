@@ -60,7 +60,6 @@ const Footer = ({ aboutData }: FooterProps) => {
               { href: '/docs/webhooks', label: 'Webhooks' },
               { href: '/docs/mcp', label: 'MCP' },
               { href: '/araclar', label: 'Araçlar' },
-              { href: '/changelog', label: 'Changelog' },
               { href: '/baslangic', label: 'Başlangıç' },
               { href: '/durum', label: 'Durum' },
               { href: '/llms.txt', label: 'llms.txt', raw: true },

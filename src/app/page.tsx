@@ -15,7 +15,6 @@ import HomeQuickPaths from "@/components/home/HomeQuickPaths";
 import HomeTrustStrip from "@/components/home/HomeTrustStrip";
 import HomeLivePlayground from "@/components/home/HomeLivePlayground";
 import HomeCodeRecipes from "@/components/home/HomeCodeRecipes";
-import HomeWhatsNew from "@/components/home/HomeWhatsNew";
 import { ErrorDisplay } from "@/components/ui/ErrorDisplay";
 import {
   JsonLd,
@@ -161,8 +160,6 @@ export default async function Home() {
           <ApiShowcase />
 
           <HomeCodeRecipes />
-
-          <HomeWhatsNew />
 
           {/* Featured Projects */}
           <FeaturedProjects projects={featuredProjects} />

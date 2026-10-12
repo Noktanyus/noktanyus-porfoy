@@ -17,6 +17,7 @@ import { formatErrorRatePct } from '@/lib/usageErrors';
 import { evaluateAndNotifyUsageAnomalies } from '@/lib/usageAnomalyAlerts';
 import { formatCurrency } from '@/lib/utils';
 import { prisma } from '@/lib/prisma';
+import { RecentUsageTable } from '@/components/dashboard/RecentUsageTable';
 
 
 export const dynamic = 'force-dynamic';
@@ -464,47 +465,7 @@ export default async function UsagePage({
         )}
       </section>
 
-      <section className="rounded-2xl border border-border bg-card/50 p-5">
-        <h2 className="text-base font-bold text-foreground mb-3">Son istekler</h2>
-        {overview.recent.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Kayıt yok.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground border-b border-border">
-                  <th className="py-2 pr-3 font-semibold">Zaman</th>
-                  <th className="py-2 pr-3 font-semibold">Metod</th>
-                  <th className="py-2 pr-3 font-semibold">Endpoint</th>
-                  <th className="py-2 pr-3 font-semibold">Durum</th>
-                  <th className="py-2 pr-3 font-semibold">Süre</th>
-                  <th className="py-2 font-semibold">Anahtar</th>
-                </tr>
-              </thead>
-              <tbody>
-                {overview.recent.map((r) => (
-                  <tr key={r.id} className="border-b border-border/60">
-                    <td className="py-2.5 pr-3 whitespace-nowrap text-muted-foreground">
-                      {r.timestamp.toLocaleString('tr-TR')}
-                    </td>
-                    <td className="py-2.5 pr-3 font-mono text-xs">{r.method}</td>
-                    <td className="py-2.5 pr-3 font-mono text-xs max-w-[220px] truncate">
-                      {r.endpoint}
-                    </td>
-                    <td className={`py-2.5 pr-3 font-semibold tabular-nums ${statusTone(r.statusCode)}`}>
-                      {r.statusCode}
-                    </td>
-                    <td className="py-2.5 pr-3 tabular-nums text-muted-foreground">
-                      {formatLatencyMs(r.durationMs)}
-                    </td>
-                    <td className="py-2.5 text-muted-foreground">{r.keyName ?? '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
+      <RecentUsageTable items={overview.recent} />
 
       {overview.keys.length > 0 && (
         <section className="rounded-2xl border border-border bg-card/50 p-5">

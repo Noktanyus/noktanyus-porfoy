@@ -448,7 +448,6 @@ const QUICK_LINKS = [
   { href: '/docs/hatalar', label: 'Hata kodları' },
   { href: '/araclar', label: 'Canlı Araçlar' },
   { href: '/magaza', label: 'Mağaza' },
-  { href: '/changelog', label: 'Changelog' },
   { href: '/durum', label: 'Sistem durumu' },
   { href: '/#canli-playground', label: 'IBAN Playground' },
 ] as const;

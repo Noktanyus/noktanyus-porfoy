@@ -104,6 +104,76 @@ export async function runPostCheckoutSideEffects(orderId: string): Promise<PostC
     outcomes
   );
 
+  await step(
+    'loyalty-points',
+    async () => {
+      let userId = order.userId;
+      if (!userId && order.customerEmail) {
+        const user = await prisma.user.findUnique({
+          where: { email: order.customerEmail.toLowerCase().trim() },
+          select: { id: true },
+        });
+        if (user) userId = user.id;
+      }
+
+      if (!userId || order.totalCents <= 0) {
+        return;
+      }
+
+      // Her 1 TL için 1 sadakat puanı (100 cent = 1 TL = 1 puan)
+      const earnedPoints = Math.max(1, Math.floor(order.totalCents / 100));
+
+      // Idempotency: Bu sipariş için daha önce puan eklenmiş mi kontrol et
+      const existingTx = await prisma.loyaltyTransaction.findFirst({
+        where: { reference: order.id, type: 'earn' },
+      });
+      if (existingTx) return;
+
+      let account = await prisma.loyaltyAccount.findUnique({ where: { userId } });
+      if (!account) {
+        account = await prisma.loyaltyAccount.create({ data: { userId } });
+      }
+
+      const newPoints = account.points + earnedPoints;
+      const newLifetime = account.lifetimePoints + earnedPoints;
+
+      let newTier = 'bronze';
+      if (newLifetime >= 5000) newTier = 'platinum';
+      else if (newLifetime >= 2000) newTier = 'gold';
+      else if (newLifetime >= 500) newTier = 'silver';
+
+      await prisma.$transaction([
+        prisma.loyaltyAccount.update({
+          where: { id: account.id },
+          data: {
+            points: newPoints,
+            lifetimePoints: newLifetime,
+            tier: newTier,
+          },
+        }),
+        prisma.loyaltyTransaction.create({
+          data: {
+            accountId: account.id,
+            type: 'earn',
+            points: earnedPoints,
+            balance: newPoints,
+            reason: `#${order.orderNumber} siparişinden kazanılan puan`,
+            reference: order.id,
+          },
+        }),
+      ]);
+
+      logger.info('[postCheckout] Sadakat puanı eklendi', {
+        orderId: order.id,
+        userId,
+        earnedPoints,
+        newPoints,
+        tier: newTier,
+      });
+    },
+    outcomes
+  );
+
   const failedSteps = outcomes.filter((o) => !o.ok).map((o) => o.step);
 
   if (failedSteps.length) {

@@ -97,7 +97,8 @@ export function SettingsOverview({ user }: { user: User }) {
       if (!data.success) throw new Error(data.error?.message ?? 'Hesap silinemedi');
       toast.success('Hesap silindi');
       // Cookie temizle + yönlendir
-      await signOut({ callbackUrl: '/' });
+      await signOut({ redirect: false });
+      window.location.href = '/';
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Bir hata oluştu');
       setLoading(false);

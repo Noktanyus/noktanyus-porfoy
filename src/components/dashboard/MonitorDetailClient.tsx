@@ -19,6 +19,7 @@ import {
   FaPlay,
   FaTrash,
   FaExternalLinkAlt,
+  FaSync,
 } from 'react-icons/fa';
 
 interface Monitor {
@@ -105,6 +106,23 @@ export function MonitorDetailClient({
     }
   };
 
+  const handleCheckNow = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch(`/api/monitors/${monitor.id}/check`, { method: 'POST' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error?.message ?? 'Kontrol başarısız');
+      const isUp = data.data?.result?.isUp ?? data.result?.isUp;
+      const ms = data.data?.result?.responseMs ?? data.result?.responseMs;
+      toast.success(isUp ? `Kontrol başarılı (${ms}ms)` : 'Monitör yanıt vermedi');
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Hata');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!confirm('Monitörü silmek istediğinize emin misiniz?')) return;
     setBusy(true);
@@ -168,6 +186,15 @@ export function MonitorDetailClient({
                 Public Page
               </Link>
             )}
+            <button
+              onClick={handleCheckNow}
+              disabled={busy}
+              className="admin-btn admin-btn-secondary"
+              title="Şimdi Kontrol Et"
+            >
+              <FaSync className={`w-3 h-3 ${busy ? 'animate-spin' : ''}`} />
+              Şimdi Kontrol Et
+            </button>
             <button
               onClick={handleTogglePause}
               disabled={busy}

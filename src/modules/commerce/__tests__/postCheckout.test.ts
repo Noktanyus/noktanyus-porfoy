@@ -5,7 +5,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
-  prisma: { order: { findUnique: vi.fn() } },
+  prisma: {
+    order: { findUnique: vi.fn() },
+    user: { findUnique: vi.fn() },
+    loyaltyAccount: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
+    loyaltyTransaction: { findFirst: vi.fn(), create: vi.fn() },
+    $transaction: vi.fn(async (ops: any) => Promise.all(ops)),
+  },
 }));
 
 vi.mock('@/lib/logger', () => ({
@@ -30,7 +36,7 @@ import { webhookService } from '@/modules/webhooks';
 import { notificationService } from '@/modules/notifications';
 import { runPostCheckoutSideEffects } from '../postCheckout';
 
-const ALL_STEPS = ['receipt-email', 'webhook-dispatch', 'notification'];
+const ALL_STEPS = ['receipt-email', 'webhook-dispatch', 'notification', 'loyalty-points'];
 
 function makeOrder(overrides: Record<string, unknown> = {}) {
   return {
@@ -58,6 +64,14 @@ describe('runPostCheckoutSideEffects', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(prisma.order.findUnique).mockResolvedValue(makeOrder() as any);
+    vi.mocked(prisma.loyaltyTransaction.findFirst).mockResolvedValue(null);
+    vi.mocked(prisma.loyaltyAccount.findUnique).mockResolvedValue({
+      id: 'acc_1',
+      userId: 'user_1',
+      points: 0,
+      lifetimePoints: 0,
+      tier: 'bronze',
+    } as any);
   });
 
   it('çekirdek adımları çalıştırır', async () => {
@@ -100,6 +114,7 @@ describe('runPostCheckoutSideEffects', () => {
     expect(result.outcomes.filter((o) => o.ok).map((o) => o.step)).toEqual([
       'webhook-dispatch',
       'notification',
+      'loyalty-points',
     ]);
   });
 });

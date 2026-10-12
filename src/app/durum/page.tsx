@@ -157,17 +157,12 @@ export default function DurumPage() {
         </section>
 
         <p className="mt-8 text-sm text-slate-500 dark:text-slate-400">
-          RSS:{' '}
-          <a href="/feeds/changelog" className="text-brand-primary hover:underline">
-            Changelog feed
-          </a>
-          {' · '}
-          <Link href="/changelog" className="text-brand-primary hover:underline">
-            Changelog
+          <Link href="/baslangic" className="text-brand-primary hover:underline">
+            Başlangıç rehberi
           </Link>
           {' · '}
-          <Link href="/baslangic" className="text-brand-primary hover:underline">
-            Başlangıç
+          <Link href="/docs" className="text-brand-primary hover:underline">
+            API Dokümantasyonu
           </Link>
         </p>
       </div>

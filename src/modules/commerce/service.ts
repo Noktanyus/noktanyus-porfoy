@@ -589,10 +589,22 @@ export const commerceService = {
     const order = await orderRepository.findByStripeSession(session.id);
     if (!order || order.status === 'PAID') return;
 
+    let currentUserId = (order as { userId?: string | null }).userId;
+    if (!currentUserId && order.customerEmail) {
+      const user = await prisma.user.findUnique({
+        where: { email: order.customerEmail.toLowerCase().trim() },
+        select: { id: true },
+      });
+      if (user) {
+        currentUserId = user.id;
+      }
+    }
+
     await orderRepository.update(order.id, {
       status: 'PAID',
       stripePaymentIntent: session.payment_intent,
       deliveredAt: new Date(),
+      ...(currentUserId ? { userId: currentUserId } : {}),
     });
 
     const meta = (order as { metadata?: unknown }).metadata as {

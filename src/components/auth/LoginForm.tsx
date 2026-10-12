@@ -11,6 +11,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { FormSubmitButton } from '@/components/ui/FormSubmitButton';
 import { postLoginRedirect } from '@/lib/appRole';
 import { AuthDivider, SocialAuthButtons } from '@/components/auth/SocialAuthButtons';
+import CloudflareTurnstile from '@/components/CloudflareTurnstile';
 import type { SocialProviderId } from '@/lib/authProviders';
 
 export function LoginForm({
@@ -25,6 +26,7 @@ export function LoginForm({
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -65,9 +67,34 @@ export function LoginForm({
       return;
     }
 
+    const hasTurnstileKey = Boolean(
+      process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY ||
+      process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+    );
+
+    if (hasTurnstileKey && !turnstileToken) {
+      setError('Lütfen güvenlik doğrulamasını tamamlayın.');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      if (hasTurnstileKey && turnstileToken) {
+        const verifyRes = await fetch('/api/verify-turnstile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken }),
+        });
+        const verifyData = await verifyRes.json();
+        if (!verifyData.success) {
+          setError('Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.');
+          setTurnstileToken('');
+          setLoading(false);
+          return;
+        }
+      }
+
       const result = await signIn('credentials', {
         email,
         password,
@@ -179,6 +206,17 @@ export function LoginForm({
             aria-describedby={error ? 'login-error' : undefined}
             placeholder="••••••••"
             autoComplete="current-password"
+          />
+        </div>
+
+        <div className="py-1 flex justify-center">
+          <CloudflareTurnstile
+            onVerify={(token) => {
+              setTurnstileToken(token);
+              setError(null);
+            }}
+            onError={() => setTurnstileToken('')}
+            onExpire={() => setTurnstileToken('')}
           />
         </div>
 

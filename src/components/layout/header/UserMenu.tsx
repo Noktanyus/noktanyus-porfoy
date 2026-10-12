@@ -127,9 +127,10 @@ export function UserMenu() {
           )}
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               setOpen(false);
-              signOut({ callbackUrl: '/' });
+              await signOut({ redirect: false });
+              window.location.href = '/';
             }}
             role="menuitem"
             className="w-full flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 min-h-[44px]"

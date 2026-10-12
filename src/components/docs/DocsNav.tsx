@@ -72,7 +72,7 @@ export function DocsNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Dokümantasyon navigasyonu" className="border-b border-slate-200/80 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/80 sticky top-16 sm:top-20 z-40 transition-colors">
+    <nav aria-label="Dokümantasyon navigasyonu" className="border-b border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900/95 shadow-sm relative z-20 transition-colors">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4 py-2.5">
           {/* Sekmeler — Yatay kaydırılabilir */}
