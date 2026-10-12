@@ -1,265 +1,99 @@
 /**
- * @file /docs — TR yardımcı API dokümantasyonu (Redoc + Try-it örnekleri)
+ * @file /docs — TR Yardımcı API Referansı & Dokümantasyon Merkezi
  */
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DocsViewer } from '@/components/docs/DocsViewer';
+import { FaKey, FaBolt, FaCheckCircle, FaSlidersH } from 'react-icons/fa';
 
 export const metadata: Metadata = {
   title: 'TR API Referansı — Noktanyus',
   description:
-    'TR yardımcı API: doğrulama, finans, takvim, coğrafya. x-api-key ile çağırın; abonelik kotası veya ön ödemeli kredi.',
-  keywords: ['TR API', 'OpenAPI', 'IBAN', 'VKN', 'PayTR', 'API key', 'Redoc'],
+    'Türkiye yardımcı API servisleri: doğrulama, finans, bordro, fatura, takvim ve coğrafya uçları. İstek formatları, başarılı/hatalı yanıtlar ve SDK örnekleri.',
+  keywords: ['TR API', 'OpenAPI', 'IBAN', 'VKN', 'TCKN', 'Bordro API', 'API referansı', 'Redoc'],
   robots: { index: true, follow: true },
   alternates: { canonical: '/docs' },
   openGraph: {
     title: 'TR API Referansı — Noktanyus',
-    description: 'Validate · finance · calendar · geo — x-api-key ile.',
+    description: 'Doğrulama, Finans, Takvim, Bordro ve Coğrafya REST API referansı.',
     type: 'website',
   },
 };
 
-const CODE_SAMPLES = [
-  {
-    id: 'curl',
-    label: 'cURL',
-    endpoint: 'POST /api/v1/validate/iban',
-    code: `curl -X POST https://noktanyus.com/api/v1/validate/iban \\
-  -H "Content-Type: application/json" \\
-  -H "x-api-key: YOUR_API_KEY" \\
-  -d '{"iban":"TR330006100519786457841326"}'`,
-  },
-  {
-    id: 'js',
-    label: 'JavaScript',
-    endpoint: 'POST /api/v1/validate/iban',
-    code: `const res = await fetch('https://noktanyus.com/api/v1/validate/iban', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-api-key': process.env.NOKTANYUS_API_KEY,
-  },
-  body: JSON.stringify({ iban: 'TR330006100519786457841326' }),
-});
-const { success, data } = await res.json();`,
-  },
-  {
-    id: 'py',
-    label: 'Python',
-    endpoint: 'POST /api/v1/validate/iban',
-    code: `import os, requests
-
-resp = requests.post(
-    'https://noktanyus.com/api/v1/validate/iban',
-    headers={'x-api-key': os.environ['NOKTANYUS_API_KEY']},
-    json={'iban': 'TR330006100519786457841326'},
-    timeout=10,
-)
-resp.raise_for_status()
-print(resp.json())`,
-  },
-];
-
 export default function DocsPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
-      <section className="border-b border-slate-200 bg-white/60 backdrop-blur dark:border-slate-800 dark:bg-slate-950/60">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-              <Link href="/" className="hover:text-slate-900 dark:hover:text-slate-100">
-                Ana sayfa
-              </Link>
-              <span aria-hidden="true">/</span>
-              <span>Dokümantasyon</span>
-            </div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
-              Noktanyus API
-            </p>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-              TR yardımcı API
-            </h1>
-            <p className="mt-2 max-w-2xl text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-              Doğrulama, finans, takvim ve coğrafya uçları. Kimlik:{' '}
-              <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">
-                x-api-key
-              </code>
-              . Kota abonelikten veya ön ödemeli krediden düşer.
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-              <Link
-                href="/dashboard/api-keys"
-                className="inline-flex items-center justify-center gap-2 min-h-[44px] rounded-xl bg-brand-primary px-4 py-2 font-semibold text-white shadow-sm shadow-brand-primary/25 transition hover:bg-brand-primary/90"
-              >
-                API anahtarı oluştur
-              </Link>
-              <Link
-                href="/magaza/abonelikler"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Aylık planlar
-              </Link>
-              <Link
-                href="/magaza/krediler"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Kredi yükle
-              </Link>
-              <Link
-                href="/docs/hatalar"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Hata kodları
-              </Link>
-              <Link
-                href="/docs/sdk"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                TypeScript SDK
-              </Link>
-              <Link
-                href="/docs/rate-limits"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Rate limits
-              </Link>
-              <Link
-                href="/docs/webhooks"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Webhooks
-              </Link>
-              <Link
-                href="/docs/labor"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                İş Kanunu API
-              </Link>
-              <Link
-                href="/docs/catalog"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                API kataloğu
-              </Link>
-              <Link
-                href="/docs/mcp"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                MCP / Agent
-              </Link>
-              <a
-                href="/api/openapi"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                openapi.json
-              </a>
-              <a
-                href="/api/openapi/postman"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-                download
-              >
-                Postman collection
-              </a>
-              <a
-                href="#quick-start"
-                className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-medium text-slate-700 shadow-sm transition hover:border-blue-500 hover:text-blue-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300"
-              >
-                Try it
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="quick-start" className="border-b border-slate-200 dark:border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
-            Try it — IBAN doğrula
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-            Aşağıdaki örnekleri kopyalayıp kendi anahtarınızla çalıştırın. Header:{' '}
-            <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">
-              x-api-key
-            </code>
-            . Kota yoksa yanıt{' '}
-            <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">
-              402
-            </code>{' '}
-            olur.
-          </p>
-
-          <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
-            {CODE_SAMPLES.map((sample) => (
-              <div
-                key={sample.id}
-                className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
-              >
-                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2 dark:border-slate-800 dark:bg-slate-900">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    {sample.label}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
-                    {sample.endpoint}
-                  </span>
-                </div>
-                <pre className="overflow-x-auto p-4 text-xs leading-relaxed text-slate-800 dark:text-slate-200">
-                  <code>{sample.code}</code>
-                </pre>
+    <main className="pb-16">
+      {/* Hero / Başlık Bölümü */}
+      <section className="border-b border-slate-200/80 bg-white/60 dark:border-slate-800/80 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-brand-primary/10 text-brand-primary text-xs font-bold tracking-wide uppercase mb-3">
+                <FaBolt className="text-[10px]" />
+                <span>Resmi Geliştirici Dokümantasyonu</span>
               </div>
-            ))}
+              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
+                TR Yardımcı API Referansı
+              </h1>
+              <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                130+ uç nokta ile Türkiye iş dünyası standartlarını tek bir API altında birleştirin:{' '}
+                <strong className="text-slate-900 dark:text-white font-semibold">
+                  TCKN/VKN, IBAN, KDV &amp; Tevkifat, Kıdem &amp; Bordro, E-Arşiv &amp; UBL, Kargo Desi
+                </strong>{' '}
+                ve daha fazlası.
+              </p>
+            </div>
+
+            {/* Hızlı Başlangıç Özet Kartı */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950 md:w-80 shrink-0">
+              <div className="flex items-center justify-between pb-2 mb-3 border-b border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  Hızlı Başlangıç
+                </span>
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              </div>
+              <ol className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 font-bold text-[10px]">
+                    1
+                  </span>
+                  <div>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">API Key Al:</span>{' '}
+                    <Link href="/dashboard/api-keys" className="text-brand-primary hover:underline font-medium">
+                      Dashboard
+                    </Link>{' '}
+                    üzerinden oluştur.
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 font-bold text-[10px]">
+                    2
+                  </span>
+                  <div>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">Header Ekle:</span>{' '}
+                    <code className="rounded bg-slate-100 px-1 py-0.5 text-[11px] font-mono dark:bg-slate-800">
+                      x-api-key: ny_live_...
+                    </code>
+                  </div>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 font-bold text-[10px]">
+                    3
+                  </span>
+                  <div>
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">İstek Gönder:</span>{' '}
+                    Tüm uç noktalar standart JSON yanıtı döner.
+                  </div>
+                </li>
+              </ol>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="border-b border-slate-200 dark:border-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-50">
-            Kimlik doğrulama
-          </h2>
-          <ol className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-            {[
-              {
-                n: 1,
-                title: 'Anahtar al',
-                desc: '/dashboard/api-keys üzerinden bir anahtar oluşturun.',
-              },
-              {
-                n: 2,
-                title: 'Plan veya kredi',
-                desc: 'Aylık kota için abonelik; kullandığın kadar için kredi yükle.',
-              },
-              {
-                n: 3,
-                title: 'Header gönder',
-                desc: 'Her istekte x-api-key: <anahtar> ekleyin.',
-              },
-              {
-                n: 4,
-                title: 'Çağır',
-                desc: 'POST /api/v1/validate/*, finance, calendar, geo…',
-              },
-            ].map((step) => (
-              <li
-                key={step.n}
-                className="relative rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950"
-              >
-                <span className="absolute -top-3 left-4 inline-flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
-                  {step.n}
-                </span>
-                <h3 className="mt-1 text-sm font-semibold text-slate-900 dark:text-slate-50">
-                  {step.title}
-                </h3>
-                <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{step.desc}</p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* Ana Dokümantasyon Gezgini & Redoc Görüntüleyici */}
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <DocsViewer />
       </section>
     </main>

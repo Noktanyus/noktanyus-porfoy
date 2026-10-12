@@ -1,14 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { FaExclamationTriangle, FaShieldAlt, FaRedo, FaCheck } from 'react-icons/fa';
 
 export const metadata: Metadata = {
-  title: 'API hata kodları — Noktanyus',
+  title: 'API Hata Kodları & Hata Sözleşmesi — Noktanyus',
   description:
-    'Noktanyus API HTTP durumları, makine okunabilir error.code değerleri, retry önerileri ve sonraki adımlar.',
+    'Noktanyus API HTTP durumları, makine okunabilir error.code değerleri, retry önerileri ve hata sözleşmesi.',
   alternates: { canonical: '/docs/hatalar' },
   openGraph: {
-    title: 'API hata kodları — Noktanyus',
-    description: 'VALIDASYON, kota, rate limit ve auth hata sözleşmesi.',
+    title: 'API Hata Kodları — Noktanyus',
+    description: 'VALIDATION, kota, rate limit ve auth hata sözleşmesi.',
     url: 'https://noktanyus.com/docs/hatalar',
   },
 };
@@ -26,159 +27,209 @@ const ERRORS: ErrorRow[] = [
   {
     http: 400,
     code: 'VALIDATION',
-    title: 'Doğrulama hatası',
+    title: 'Doğrulama Hatası (Validation)',
     retryable: false,
-    action: 'İstek gövdesini OpenAPI şemasına göre düzelt; fieldErrors alanlarını oku.',
-    example: `{"success":false,"error":{"code":"VALIDATION","message":{"fieldErrors":{"iban":["Zorunlu"]}}}}`,
+    action: 'İstek gövdesini OpenAPI şemasına göre düzeltin. Zorunlu alanların eksik veya veri tipinin geçersiz olduğunu belirtir.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'VALIDATION',
+          message: 'Gerekli alanlar eksik veya format hatalı.',
+          details: { iban: 'Geçersiz IBAN kontrol hanesi.' },
+        },
+      },
+      null,
+      2
+    ),
   },
   {
     http: 401,
     code: 'UNAUTHORIZED',
-    title: 'Anahtar yok / geçersiz',
+    title: 'Yetkilendirme Hatası (Unauthorized)',
     retryable: false,
-    action: 'Authorization: Bearer nok_live_… veya x-api-key başlığını ekle; Dashboard → API Keys.',
-    example: `{"success":false,"error":{"code":"UNAUTHORIZED","message":"API key required…"}}`,
+    action: 'x-api-key veya Authorization: Bearer başlığı eksik. Dashboard → API Keys üzerinden oluşturduğunuz anahtarı ekleyin.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'x-api-key başlığı eksik veya geçersiz.',
+        },
+      },
+      null,
+      2
+    ),
   },
   {
     http: 401,
     code: 'INVALID_KEY',
-    title: 'Anahtar reddedildi',
+    title: 'Geçersiz veya İptal Edilmiş Anahtar',
     retryable: false,
-    action: 'Anahtarın iptal/süresi dolmuş olabilir; yeni anahtar oluştur.',
-    example: `{"success":false,"error":{"code":"INVALID_KEY","message":"Invalid API key"}}`,
+    action: 'API anahtarının süresi dolmuş veya iptal edilmiş olabilir. Dashboard üzerinden yeni bir anahtar oluşturun.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'INVALID_KEY',
+          message: 'Belirtilen API anahtarı geçersiz veya süresi dolmuş.',
+        },
+      },
+      null,
+      2
+    ),
   },
   {
     http: 402,
     code: 'QUOTA_EXCEEDED',
-    title: 'Kota veya kredi bitti',
+    title: 'Kota veya Kredi Bitti (Payment Required)',
     retryable: false,
-    action: 'Plan yükselt veya /magaza/krediler üzerinden kredi yükle; sonra isteği tekrarla.',
-    example: `{"success":false,"error":{"code":"QUOTA_EXCEEDED","message":"Aylık istek kotanız dolmuştur…"}}`,
+    action: 'Aylık abonelik kotanız veya ön ödemeli kredi bakiyeniz tükendi. Mağaza üzerinden paket yükseltin veya kredi yükleyin.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'QUOTA_EXCEEDED',
+          message: 'Aylık istek kotası doldu veya bakiye yetersiz.',
+        },
+      },
+      null,
+      2
+    ),
   },
   {
     http: 429,
     code: 'RATE_LIMITED',
-    title: 'Hız sınırı',
+    title: 'Hız Sınırı Aşıldı (Too Many Requests)',
     retryable: true,
-    action:
-      'Retry-After (sn) kadar bekle; exponential backoff uygula. X-RateLimit-Remaining / X-RateLimit-Reset başlıklarını izle; X-Request-Id ile destek talebi aç.',
-    example: `{"success":false,"error":{"code":"RATE_LIMITED","message":"Too many requests"}}`,
+    action: 'Dakika başına izin verilen istek sayısı aşıldı. Yanıttaki Retry-After süresi kadar bekleyin ve üstel geri çekilme (exponential backoff) uygulayın.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'RATE_LIMITED',
+          message: 'Dakika başına istek limiti aşıldı. Lütfen bekleyin.',
+          retryAfter: 12,
+        },
+      },
+      null,
+      2
+    ),
   },
   {
     http: 500,
     code: 'INTERNAL_ERROR',
-    title: 'Sunucu hatası',
+    title: 'Sunucu Hatası (Internal Error)',
     retryable: true,
-    action:
-      'Kısa backoff ile 1–2 kez dene; sürerse /durum ve destek kanalını kontrol et. Yanıttaki X-Request-Id değerini ilet.',
-    example: `{"success":false,"error":{"code":"INTERNAL_ERROR","message":"Unexpected error"}}`,
+    action: 'Kısa bir bekleme sonrasında isteği 1-2 kez tekrarlayın. Sorun devam ederse yanıttaki X-Request-Id değeriyle destek talebi açın.',
+    example: JSON.stringify(
+      {
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Beklenmeyen sunucu hatası meydana geldi.',
+          requestId: 'req_8f1a3e2b9c0d',
+        },
+      },
+      null,
+      2
+    ),
   },
 ];
 
 export default function ApiErrorsPage() {
   return (
-    <div className="relative bg-blob-decoration min-h-[70vh]">
-      <div className="container-responsive py-10 sm:py-14 relative z-10 max-w-4xl">
-        <nav className="text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
-          <Link href="/" className="hover:text-brand-primary">
-            Ana sayfa
-          </Link>
-          <span aria-hidden="true" className="mx-2">
-            /
-          </span>
-          <Link href="/docs" className="hover:text-brand-primary">
-            Docs
-          </Link>
-          <span aria-hidden="true" className="mx-2">
-            /
-          </span>
-          <span>Hata kodları</span>
-        </nav>
-
-        <header className="mb-10 space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-primary">
-            Error contract
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
-            API hata kodları
-          </h1>
-          <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
-            Her hata için sabit <code className="text-sm">error.code</code>, HTTP durumu, retry
-            uygunluğu ve ne yapman gerektiği. Agent / SDK entegrasyonlarında mesaj metnine değil
-            koda güven.
-          </p>
-          <div className="flex flex-wrap gap-3 pt-1">
-            <Link
-              href="/docs"
-              className="inline-flex min-h-[44px] items-center rounded-xl bg-brand-primary px-4 py-2 text-sm font-semibold text-white hover:bg-brand-primary/90"
-            >
-              OpenAPI Docs
-            </Link>
-            <Link
-              href="/baslangic"
-              className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-brand-primary/40"
-            >
-              Başlangıç
-            </Link>
-            <Link
-              href="/durum"
-              className="inline-flex min-h-[44px] items-center rounded-xl border border-border px-4 py-2 text-sm font-semibold hover:border-brand-primary/40"
-            >
-              Sistem durumu
-            </Link>
-          </div>
-        </header>
-
-        <div className="rounded-2xl border border-border/80 bg-card/40 dark:bg-slate-900/40 p-4 sm:p-5 mb-8 text-sm text-slate-600 dark:text-slate-300 space-y-3">
-          <div>
-            <p className="font-semibold text-foreground mb-1">Ortak zarf</p>
-            <pre className="overflow-x-auto font-mono text-xs sm:text-sm text-slate-700 dark:text-slate-200">{`{ "success": false, "error": { "code": "…", "message": "…" } }`}</pre>
-          </div>
-          <p>
-            Kimlik doğrulamalı TR API yanıtlarında{' '}
-            <code className="text-xs">X-Request-Id</code> her zaman döner; destek
-            korelasyonu için saklayın. Limit durumu için{' '}
-            <Link href="/docs/rate-limits" className="text-brand-primary hover:underline">
-              /docs/rate-limits
-            </Link>
-            .
-          </p>
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Başlık */}
+      <header className="mb-8 space-y-3">
+        <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold tracking-wide uppercase">
+          <FaExclamationTriangle className="text-[10px]" />
+          <span>Hata Standartları &amp; Sözleşme</span>
         </div>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+          API Hata Kodları &amp; Sözleşmesi
+        </h1>
+        <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
+          Noktanyus API, hata durumlarında tahmin edilebilir HTTP durum kodları ve makine tarafından okunabilir{' '}
+          <code className="text-sm font-mono text-brand-primary font-semibold">error.code</code> değerleri döner.
+          Entegrasyonlarınızda metin kontrolü yerine sabit hata kodlarına göre akış kurun.
+        </p>
+      </header>
 
-        <ul className="space-y-4">
-          {ERRORS.map((row) => (
-            <li
-              key={`${row.http}-${row.code}`}
-              id={row.code.toLowerCase()}
-              className="rounded-2xl border border-border/80 bg-card/50 dark:bg-slate-900/40 p-5 sm:p-6"
-            >
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="inline-flex rounded-lg bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 px-2.5 py-1 text-xs font-bold font-mono">
+      {/* Standart Zarf Kutusu */}
+      <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+          <FaShieldAlt className="text-brand-primary" />
+          <span>Standart Hata Zarfı (Response Envelope)</span>
+        </h2>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+          Tüm hata yanıtları <code className="font-mono">success: false</code> içerir ve{' '}
+          <code className="font-mono">error</code> nesnesi altında toplanır. Yanıt başlıklarında yer alan{' '}
+          <code className="font-mono">X-Request-Id</code> değeri hata izleme ve destek için saklanmalıdır.
+        </p>
+        <pre className="overflow-x-auto rounded-xl bg-slate-950 p-3.5 text-xs font-mono text-slate-200">
+{`{
+  "success": false,
+  "error": {
+    "code": "VALIDATION | UNAUTHORIZED | QUOTA_EXCEEDED | RATE_LIMITED | INTERNAL_ERROR",
+    "message": "Açıklayıcı Türkçe hata mesajı",
+    "details": { ... } // Varsa alan bazlı detaylar
+  }
+}`}
+        </pre>
+      </div>
+
+      {/* Hata Kodları Listesi */}
+      <div className="space-y-4">
+        {ERRORS.map((row) => (
+          <article
+            key={`${row.http}-${row.code}`}
+            id={row.code.toLowerCase()}
+            className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-mono font-bold text-white dark:bg-slate-100 dark:text-slate-900">
                   HTTP {row.http}
                 </span>
-                <span className="inline-flex rounded-lg border border-brand-primary/40 bg-brand-primary/10 px-2.5 py-1 text-xs font-bold font-mono text-brand-primary">
+                <span className="inline-flex rounded-lg border border-brand-primary/30 bg-brand-primary/10 px-2.5 py-1 text-xs font-mono font-bold text-brand-primary">
                   {row.code}
                 </span>
-                <span
-                  className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${
-                    row.retryable
-                      ? 'bg-amber-500/15 text-amber-800 dark:text-amber-200'
-                      : 'bg-slate-500/15 text-slate-700 dark:text-slate-300'
-                  }`}
-                >
-                  {row.retryable ? 'Retryable' : 'Fix request'}
-                </span>
               </div>
-              <h2 className="text-lg font-bold text-foreground mb-2">{row.title}</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
-                {row.action}
-              </p>
-              <pre className="overflow-x-auto rounded-xl bg-slate-950 text-slate-200 p-3 text-[11px] sm:text-xs font-mono leading-relaxed">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${
+                  row.retryable
+                    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                }`}
+              >
+                {row.retryable ? (
+                  <>
+                    <FaRedo className="text-[9px]" />
+                    <span>Yeniden Denenebilir (Retryable)</span>
+                  </>
+                ) : (
+                  <>
+                    <FaCheck className="text-[9px]" />
+                    <span>İsteği Düzeltin (Fix Request)</span>
+                  </>
+                )}
+              </span>
+            </div>
+
+            <h3 className="text-base font-bold text-slate-900 dark:text-white mb-2">{row.title}</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">{row.action}</p>
+
+            <div className="rounded-xl bg-slate-950 p-3.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block mb-1">
+                Örnek JSON Yanıtı
+              </span>
+              <pre className="overflow-x-auto text-xs font-mono text-emerald-400 leading-relaxed">
                 {row.example}
               </pre>
-            </li>
-          ))}
-        </ul>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );

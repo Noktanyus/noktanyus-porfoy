@@ -159,11 +159,11 @@ export default function SeveranceToolClient() {
             {copied ? 'Kopyalandı' : 'cURL kopyala'}
           </button>
           <Link
-            href="/docs/labor"
+            href="/docs?kategori=labor"
             className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-3 text-sm font-semibold min-h-[48px] hover:border-brand-primary/40"
           >
             <FaCode className="w-3.5 h-3.5" />
-            Labor API docs
+            İş Hukuku API
           </Link>
         </div>
       </div>

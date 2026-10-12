@@ -78,6 +78,28 @@ export function ApiExplorer() {
   useEffect(() => {
     let cancelled = false;
 
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const catParam = (urlParams.get('kategori') || urlParams.get('cat') || '').toLowerCase();
+      if (catParam === 'labor' || catParam === 'is-hukuku' || catParam === 'is_hukuku') {
+        setSelectedCategory('İş Hukuku & SGK');
+      } else if (catParam === 'validate' || catParam === 'dogrulama') {
+        setSelectedCategory('Doğrulama & Kimlik');
+      } else if (catParam === 'finance' || catParam === 'finans') {
+        setSelectedCategory('Finans & Vergi');
+      } else if (catParam === 'invoice' || catParam === 'fatura') {
+        setSelectedCategory('Fatura & e-Dönüşüm');
+      } else if (catParam === 'calendar' || catParam === 'takvim') {
+        setSelectedCategory('Takvim & Hukuk');
+      } else if (catParam === 'cargo' || catParam === 'kargo') {
+        setSelectedCategory('Kargo & Lojistik');
+      } else if (catParam === 'commerce' || catParam === 'eticaret') {
+        setSelectedCategory('E-Ticaret & Gümrük');
+      } else if (catParam === 'geo' || catParam === 'cografya') {
+        setSelectedCategory('Coğrafya & Araçlar');
+      }
+    }
+
     async function loadSpec() {
       try {
         const res = await fetch('/api/openapi');
