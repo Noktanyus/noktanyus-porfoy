@@ -327,14 +327,14 @@ export default function TrQrToolClient() {
               </div>
 
               {/* cURL API banner */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <span className="text-xs text-slate-500">
                   REST API: <code className="font-mono text-brand-primary">POST /api/v1/pay/tr-qr/generate</code>
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyCurl}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors self-start sm:self-auto"
                 >
                   {copiedCurl ? <FaCheck className="text-emerald-500" /> : <FaCopy />}
                   <span>{copiedCurl ? 'cURL Kopyalandı' : 'cURL Kopyala'}</span>

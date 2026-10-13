@@ -124,7 +124,7 @@ export default async function HakkimdaPage() {
               <h2 className="text-3xl font-bold mb-8 text-light-text dark:text-dark-text">
                 Kariyer Yolculuğum
               </h2>
-              <div className="relative border-l-3 border-brand-primary/20 dark:border-brand-primary/30 ml-5">
+              <div className="relative border-l-2 border-brand-primary/20 dark:border-brand-primary/30 ml-5">
                 {experiences.map((exp, index) => (
                   <div key={exp.id} className="relative pl-12 pb-12 last:pb-0">
                     <div className="absolute -left-[1.45rem] top-0 flex items-center justify-center w-12 h-12 bg-white/80 dark:bg-gray-900/60 backdrop-blur-sm rounded-full border-4 border-brand-primary/30">

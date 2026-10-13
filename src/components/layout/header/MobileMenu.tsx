@@ -150,13 +150,22 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               </button>
             </>
           ) : (
-            <Link
-              href="/giris"
-              onClick={onClose}
-              className="text-slate-700 dark:text-slate-300 rounded-xl px-4 py-4 text-lg font-medium min-h-[44px] flex items-center hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors border-t border-slate-200 dark:border-slate-700 mt-2 pt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-            >
-              Giriş Yap
-            </Link>
+            <div className="border-t border-slate-200 dark:border-slate-700 mt-2 pt-4 grid grid-cols-2 gap-2">
+              <Link
+                href="/giris"
+                onClick={onClose}
+                className="text-slate-700 dark:text-slate-300 rounded-xl px-4 py-3 text-base font-semibold min-h-[44px] flex items-center justify-center hover:bg-brand-primary/10 hover:text-brand-primary transition-colors border border-slate-200 dark:border-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                Giriş Yap
+              </Link>
+              <Link
+                href="/kayit"
+                onClick={onClose}
+                className="bg-brand-primary hover:bg-brand-primary-hover text-white rounded-xl px-4 py-3 text-base font-semibold min-h-[44px] flex items-center justify-center transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                Kayıt Ol
+              </Link>
+            </div>
           )}
         </nav>
       </div>

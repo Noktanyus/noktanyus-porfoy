@@ -315,14 +315,14 @@ export default function CargoToolClient() {
               )}
 
               {/* cURL Copy */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <span className="text-xs text-slate-500">
                   Bu hesaplamayı API üzerinden e-ticaret sitenize bağlayın: <code className="font-mono text-brand-primary">POST /api/v1/cargo/desi</code>
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyDesiCurl}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-colors self-start sm:self-auto"
                 >
                   {copiedDesiCurl ? <FaCheck className="text-emerald-500" /> : <FaCopy />}
                   <span>{copiedDesiCurl ? 'cURL Kopyalandı' : 'cURL Kopyala'}</span>
@@ -442,7 +442,7 @@ export default function CargoToolClient() {
               )}
 
               {/* cURL Copy */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <span className="text-xs text-slate-500">
                   Otomatik tespit API'si: <code className="font-mono text-brand-primary">POST /api/v1/cargo/detect</code>
                 </span>
@@ -450,7 +450,7 @@ export default function CargoToolClient() {
                   type="button"
                   onClick={handleCopyDetectCurl}
                   disabled={!cleanTrackingInput}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 disabled:opacity-40 transition-colors self-start sm:self-auto"
                 >
                   {copiedDetectCurl ? <FaCheck className="text-emerald-500" /> : <FaCopy />}
                   <span>{copiedDetectCurl ? 'cURL Kopyalandı' : 'cURL Kopyala'}</span>

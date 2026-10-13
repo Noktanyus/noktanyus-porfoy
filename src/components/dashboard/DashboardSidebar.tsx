@@ -5,6 +5,7 @@
  * Sipariş, ürün, API anahtarı, fatura, ayarlar.
  */
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -32,6 +33,7 @@ import {
   FaInbox,
   FaShareAlt,
   FaLifeRing,
+  FaChevronDown,
 } from 'react-icons/fa';
 import type { IconType } from 'react-icons';
 import { NotificationBell } from '@/components/dashboard/NotificationBell';
@@ -75,16 +77,25 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === 'admin';
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const activeItem =
+    NAV_ITEMS.find((item) =>
+      item.exact
+        ? pathname === item.href
+        : pathname === item.href || pathname.startsWith(item.href + '/')
+    ) ?? NAV_ITEMS[0];
+  const ActiveIcon = activeItem.icon;
 
   return (
     <aside
       className={cn(
-        'w-full lg:w-64 p-5 lg:sticky lg:top-24 self-start',
+        'w-full lg:w-64 p-4 sm:p-5 lg:sticky lg:top-24 self-start',
         'bg-card text-card-foreground border border-border rounded-2xl shadow-sm',
       )}
       aria-label="Dashboard gezinme menüsü"
     >
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-5">
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
@@ -94,8 +105,34 @@ export function DashboardSidebar() {
         </Link>
         <NotificationBell />
       </div>
-      <h2 className="text-lg font-semibold mb-4">Hesabım</h2>
-      <nav aria-label="Dashboard" className="space-y-1">
+
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-lg font-semibold">Hesabım</h2>
+          <p className="text-xs text-muted-foreground lg:hidden flex items-center gap-1.5 mt-0.5">
+            <ActiveIcon className="w-3.5 h-3.5 text-primary" />
+            <span className="font-medium text-foreground">{activeItem.label}</span>
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border text-xs font-semibold bg-muted/60 hover:bg-muted text-foreground transition-colors min-h-[38px]"
+          aria-expanded={mobileOpen}
+          aria-label={mobileOpen ? 'Menüyü gizle' : 'Menüyü aç'}
+        >
+          <span>{mobileOpen ? 'Menüyü Gizle' : 'Menü'}</span>
+          <FaChevronDown
+            className={cn('w-3 h-3 transition-transform duration-200', mobileOpen && 'rotate-180')}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+
+      <nav
+        aria-label="Dashboard"
+        className={cn('space-y-1 transition-all', !mobileOpen && 'hidden lg:block')}
+      >
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = item.exact
@@ -105,6 +142,7 @@ export function DashboardSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileOpen(false)}
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm min-h-[44px] transition-colors',
@@ -122,6 +160,7 @@ export function DashboardSidebar() {
         {isAdmin && (
           <Link
             href="/admin"
+            onClick={() => setMobileOpen(false)}
             className={cn(
               'flex items-center gap-3 px-3 py-2 rounded-lg text-sm min-h-[44px] transition-colors mt-2',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card',
