@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useInView } from '@/lib/animations';
 import Link from 'next/link';
 import { FaGithub, FaLinkedin, FaInstagram, FaArrowRight, FaBolt, FaTools } from 'react-icons/fa';
 import { DS } from '@/lib/design-system';
@@ -51,14 +50,12 @@ export function AnimatedHero({
   instagramUrl,
   profileImage = '/images/profile.webp',
 }: HeroProps) {
-  const { ref, inView } = useInView<HTMLDivElement>({ threshold: 0.12 });
   const initials = initialsFromName(name);
   const shortDescription = shortenDescription(description);
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <section
-      ref={ref}
       className="relative min-h-[min(88vh,820px)] flex items-center overflow-x-clip pt-4 sm:pt-6"
       aria-label={`${name} - Hero`}
     >
@@ -95,14 +92,14 @@ export function AnimatedHero({
       <div className="container-responsive relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 28 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: 'easeOut' }}
           className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-16 items-center"
         >
           <div>
             <motion.div
               initial={{ opacity: 0, y: 12 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="flex flex-wrap items-center gap-2 mb-4"
             >
@@ -120,7 +117,7 @@ export function AnimatedHero({
 
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.18 }}
               className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-3 leading-[1.05] tracking-tight text-foreground"
             >
@@ -131,7 +128,7 @@ export function AnimatedHero({
 
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, delay: 0.28 }}
               className="text-xl sm:text-2xl text-slate-700 dark:text-slate-200 mb-5 font-semibold"
             >
@@ -140,7 +137,7 @@ export function AnimatedHero({
 
             <motion.p
               initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.7, delay: 0.36 }}
               className="text-base sm:text-[1.05rem] text-slate-600 dark:text-slate-300 mb-8 max-w-xl leading-relaxed"
             >
@@ -149,7 +146,7 @@ export function AnimatedHero({
 
             <motion.div
               initial={{ opacity: 0, y: 16 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.44 }}
               className="flex flex-wrap items-center gap-3"
             >
@@ -170,7 +167,7 @@ export function AnimatedHero({
 
             <motion.div
               initial={{ opacity: 0 }}
-              animate={inView ? { opacity: 1 } : {}}
+              animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.55 }}
               className="flex items-center gap-3 mt-8"
             >
@@ -213,7 +210,7 @@ export function AnimatedHero({
 
           <motion.div
             initial={{ opacity: 0, scale: 0.92 }}
-            animate={inView ? { opacity: 1, scale: 1 } : {}}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.3, ease: 'easeOut' }}
             className="relative mx-auto w-full max-w-[300px] sm:max-w-sm"
           >

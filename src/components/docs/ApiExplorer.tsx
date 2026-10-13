@@ -426,7 +426,7 @@ export function ApiExplorer() {
                   >
                     {ep.method}
                   </span>
-                  <code className="font-mono text-sm font-bold text-slate-900 dark:text-slate-100 sm:text-base">
+                  <code className="font-mono text-sm font-bold text-slate-900 dark:text-slate-100 sm:text-base break-all">
                     {ep.path}
                   </code>
                   <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300 font-medium">
