@@ -235,17 +235,18 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://mc.yandex.ru https://www.youtube.com https://youtube.com https://cdn.redocly.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://mc.yandex.ru https://www.youtube.com https://youtube.com https://cdn.redocly.com https://www.paytr.com https://*.paytr.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https: http:",
               "media-src 'self' https: http:",
-              "frame-src 'self' https://www.youtube.com https://youtube.com https://challenges.cloudflare.com",
-              "connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://mc.yandex.ru https://cdn.redocly.com",
+              "frame-src 'self' https://www.youtube.com https://youtube.com https://challenges.cloudflare.com https://www.paytr.com https://*.paytr.com",
+              "connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://mc.yandex.ru https://cdn.redocly.com https://www.paytr.com https://*.paytr.com",
               "worker-src 'self' blob: https://cdn.redocly.com",
+              "child-src 'self' blob: https://cdn.redocly.com https://www.paytr.com https://*.paytr.com",
               "object-src 'none'",
               "base-uri 'self'",
-              "form-action 'self'",
+              "form-action 'self' https://accounts.google.com https://github.com https://www.paytr.com https://challenges.cloudflare.com",
               "frame-ancestors 'none'",
               "upgrade-insecure-requests"
             ].join('; ')

@@ -64,7 +64,7 @@ export function AnimatedHero({
     >
       {/* Full-bleed ambient plane */}
       <div
-        className="absolute inset-0 -z-10 pointer-events-none overflow-hidden [mask-image:linear-gradient(to_bottom,black_55%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_55%,transparent_100%)]"
+        className="absolute inset-0 -z-10 pointer-events-none overflow-hidden [mask-image:linear-gradient(to_bottom,black_35%,transparent_95%)] [-webkit-mask-image:linear-gradient(to_bottom,black_35%,transparent_95%)]"
         aria-hidden="true"
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_70%_10%,oklch(var(--primary)/0.22),transparent_70%)]" />
@@ -81,14 +81,14 @@ export function AnimatedHero({
           transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-0 left-1/3 w-96 h-96 rounded-full bg-cyan-400/12 blur-3xl"
+          className="absolute bottom-6 left-1/3 w-96 h-96 rounded-full bg-cyan-400/10 blur-3xl"
           animate={{ x: [0, 18, 0], y: [0, 24, 0] }}
           transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut' }}
         />
       </div>
 
       <div
-        className="absolute inset-x-0 -bottom-1 h-40 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none -z-10"
+        className="absolute inset-x-0 -bottom-1 h-64 sm:h-80 bg-gradient-to-b from-transparent via-background/70 to-background pointer-events-none -z-10"
         aria-hidden="true"
       />
 
