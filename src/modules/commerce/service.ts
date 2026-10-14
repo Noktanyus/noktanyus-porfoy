@@ -61,6 +61,35 @@ interface OrderWithItems {
   [k: string]: unknown;
 }
 
+function resolveItemUnitPrice(
+  product: { priceCents: number; requirements?: unknown },
+  item: { tierDays?: number; tierLabel?: string }
+): number {
+  const reqObj =
+    product.requirements &&
+    typeof product.requirements === 'object' &&
+    !Array.isArray(product.requirements)
+      ? (product.requirements as Record<string, unknown>)
+      : null;
+
+  const tiers = Array.isArray(reqObj?.pricingTiers)
+    ? (reqObj.pricingTiers as Array<{ days?: number; label?: string; priceCents?: number }>)
+    : [];
+
+  if (tiers.length > 0) {
+    const matched = tiers.find(
+      (t) =>
+        (typeof item.tierDays === 'number' && t.days === item.tierDays) ||
+        (Boolean(item.tierLabel) && t.label === item.tierLabel)
+    );
+    if (matched && typeof matched.priceCents === 'number' && matched.priceCents >= 0) {
+      return matched.priceCents;
+    }
+  }
+
+  return product.priceCents;
+}
+
 export const commerceService = {
   // --- Products ---
   async listProducts(opts?: { skip?: number; take?: number; category?: string }) {
@@ -107,7 +136,13 @@ export const commerceService = {
       throw new ValidationError('Bazı ürünler artık mevcut değil');
     }
 
-    const subtotal = items.reduce((sum, i) => sum + i.priceCents * i.quantity, 0);
+    // Fiyat manipülasyonunu engellemek için birim fiyatı DB'den hesapla ve doğrula
+    const subtotal = items.reduce((sum, i) => {
+      const product = validProducts.find((p) => p.id === i.productId)!;
+      const unitPrice = resolveItemUnitPrice(product, i);
+      i.priceCents = unitPrice;
+      return sum + unitPrice * i.quantity;
+    }, 0);
 
     let discountCents = 0;
     let couponId: string | undefined;
@@ -131,9 +166,78 @@ export const commerceService = {
     const customerPhone = options?.customerPhone?.trim() || '05000000000';
     const customerIp = options?.customerIp?.trim() || '127.0.0.1';
 
+    // %100 Kupon / 0 TL Sipariş — PayTR 0 tutar kabul etmediğinden doğrudan sipariş onaylanır
+    if (totalCents === 0) {
+      const orderNumber = await orderRepository.generateOrderNumber();
+      const freeSessionId = `free_${orderNumber.replace(/[^a-zA-Z0-9]/g, '')}_${Date.now()}`;
+      const order = await prisma.order.create({
+        data: {
+          orderNumber,
+          customerEmail,
+          customerName,
+          stripeSessionId: freeSessionId,
+          status: 'PENDING',
+          subtotalCents: subtotal,
+          discountCents,
+          totalCents: 0,
+          currency: 'try',
+          ...(couponId ? { couponId } : {}),
+          metadata: {
+            provider: 'free_coupon',
+            itemsWithTiers: items.map((i) => ({
+              productId: i.productId,
+              tierDays: i.tierDays,
+              tierLabel: i.tierLabel,
+            })),
+          },
+          items: {
+            create: items.map((item) => {
+              const product = validProducts.find((p) => p.id === item.productId)!;
+              const titleWithTier = item.tierLabel
+                ? `${product.title} (${item.tierLabel})`
+                : product.title;
+              return {
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPriceCents: item.priceCents,
+                totalCents: 0,
+                productTitle: titleWithTier,
+                productSlug: product.slug,
+              };
+            }),
+          },
+        },
+      });
+
+      if (couponId) {
+        try {
+          await couponService.redeem(couponId, customerEmail, order.id, discountCents);
+        } catch (err) {
+          logger.warn('[coupon] 0 TL checkout redeem failed', { err });
+        }
+      }
+
+      await this.handleCheckoutCompleted({
+        id: freeSessionId,
+        payment_intent: `free_${orderNumber}`,
+      });
+
+      return {
+        provider: 'paytr' as PaymentProvider,
+        url: `/odeme/basarili?session_id=${order.stripeSessionId}&order=${order.orderNumber}&free=1`,
+        sessionId: order.stripeSessionId,
+        orderNumber,
+      };
+    }
+
     // --- PayTR iFrame API (TR birincil) ---
     if (provider === 'paytr') {
       if (!isPaytrConfigured()) {
+        if (process.env.NODE_ENV === 'production') {
+          throw new ValidationError(
+            'Ödeme altyapısı şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyiniz.'
+          );
+        }
         logger.warn('[PayTR] Yapılandırılmamış — mock checkout');
         const orderNumber = await orderRepository.generateOrderNumber();
         const order = await prisma.order.create({
@@ -296,6 +400,11 @@ export const commerceService = {
       const orderNumber = await orderRepository.generateOrderNumber();
 
       if (!isPaytrConfigured()) {
+        if (process.env.NODE_ENV === 'production') {
+          throw new ValidationError(
+            'Ödeme altyapısı şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyiniz.'
+          );
+        }
         logger.warn('[PayTR] Abonelik mock — yapılandırılmamış');
         const order = await prisma.order.create({
           data: {
@@ -415,6 +524,11 @@ export const commerceService = {
 
     if (provider === 'paytr') {
       if (!isPaytrConfigured()) {
+        if (process.env.NODE_ENV === 'production') {
+          throw new ValidationError(
+            'Ödeme altyapısı şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyiniz.'
+          );
+        }
         logger.warn('[PayTR] Kredi top-up mock — yapılandırılmamış');
         const order = await prisma.order.create({
           data: {
@@ -597,6 +711,27 @@ export const commerceService = {
       });
       if (user) {
         currentUserId = user.id;
+      }
+    }
+
+    // Concurrency guard: Yalnızca henüz PAID olmayan sipariş atomik olarak PAID yapılır
+    if (typeof (prisma.order as unknown as { updateMany?: unknown }).updateMany === 'function') {
+      const updated = await prisma.order.updateMany({
+        where: {
+          id: order.id,
+          status: { not: 'PAID' },
+        },
+        data: {
+          status: 'PAID',
+          stripePaymentIntent: session.payment_intent,
+          deliveredAt: new Date(),
+          ...(currentUserId ? { userId: currentUserId } : {}),
+        },
+      });
+
+      if (updated.count === 0) {
+        logger.info('Order already marked PAID by concurrent worker', { orderId: order.id });
+        return;
       }
     }
 

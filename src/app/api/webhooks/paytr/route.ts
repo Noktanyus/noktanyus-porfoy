@@ -29,12 +29,31 @@ async function parseBody(req: NextRequest): Promise<Record<string, string>> {
       Object.entries(json).map(([k, v]) => [k, String(v ?? '')])
     );
   }
-  const form = await req.formData();
-  const out: Record<string, string> = {};
-  form.forEach((value, key) => {
-    out[key] = String(value);
-  });
-  return out;
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    const text = await req.text();
+    const params = new URLSearchParams(text);
+    const out: Record<string, string> = {};
+    params.forEach((value, key) => {
+      out[key] = String(value);
+    });
+    return out;
+  }
+  try {
+    const form = await req.formData();
+    const out: Record<string, string> = {};
+    form.forEach((value, key) => {
+      out[key] = String(value);
+    });
+    return out;
+  } catch {
+    const text = await req.text();
+    const params = new URLSearchParams(text);
+    const out: Record<string, string> = {};
+    params.forEach((value, key) => {
+      out[key] = String(value);
+    });
+    return out;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -73,25 +92,31 @@ export async function POST(req: NextRequest) {
     }
 
     if (verified.status === 'success') {
-      const totalFromPaytr = Number(verified.totalAmount);
-      // PayTR total_amount kuruş cinsinden gelebilir
-      if (Number.isFinite(totalFromPaytr) && totalFromPaytr > 0) {
-        const asCents =
-          totalFromPaytr >= order.totalCents * 0.5
-            ? Math.round(totalFromPaytr)
-            : Math.round(totalFromPaytr * 100);
-        if (asCents !== order.totalCents) {
-          await prisma.order.update({
-            where: { id: order.id },
-            data: {
-              totalCents: asCents,
-              metadata: {
-                ...((order.metadata as object) ?? {}),
-                paytrTotalAmount: verified.totalAmount,
-              },
-            },
-          });
-        }
+      const totalFromPaytr = Math.round(Number(verified.totalAmount));
+      // PayTR total_amount kuruş cinsinden gönderilir ve order.totalCents ile tam eşleşmelidir
+      if (!Number.isFinite(totalFromPaytr) || totalFromPaytr !== order.totalCents) {
+        logger.error('[PayTR] Güvenlik: Callback tutar uyuşmazlığı tespit edildi!', {
+          orderId: order.id,
+          merchantOid: verified.merchantOid,
+          expectedTotalCents: order.totalCents,
+          paytrTotalAmount: verified.totalAmount,
+        });
+        await prisma.order.update({
+          where: { id: order.id },
+          data: {
+            status: 'CANCELED',
+            notes: [
+              order.notes,
+              `Güvenlik Uyarısı: Tutar uyuşmazlığı. Beklenen: ${order.totalCents} kuruş, PayTR gelen: ${verified.totalAmount} kuruş.`,
+            ]
+              .filter(Boolean)
+              .join(' | '),
+          },
+        });
+        return new NextResponse('PAYTR notification failed: amount mismatch', {
+          status: 400,
+          headers: { 'Content-Type': 'text/plain' },
+        });
       }
 
       await commerceService.handleCheckoutCompleted({

@@ -9,6 +9,7 @@ import { isPaytrConfigured } from '@/lib/paytr';
 import { orderRepository } from '@/modules/commerce/repository';
 import { paytrService } from '@/modules/commerce/paytrService';
 import { logger } from '@/lib/logger';
+import { ValidationError } from '@/modules/shared/errors';
 import { TIP_PRESETS_TRY } from '@/lib/tipPresets';
 
 export { TIP_PRESETS_TRY };
@@ -37,6 +38,11 @@ export const tipService = {
     const orderNumber = await orderRepository.generateOrderNumber();
 
     if (!isPaytrConfigured()) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new ValidationError(
+          'Ödeme altyapısı şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyiniz.'
+        );
+      }
       logger.warn('[tip] PayTR yok — mock tip checkout');
       const order = await prisma.order.create({
         data: {

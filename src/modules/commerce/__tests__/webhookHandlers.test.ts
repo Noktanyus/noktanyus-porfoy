@@ -14,7 +14,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     digitalProduct: { findMany: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn() },
     plan: { findMany: vi.fn(), findUnique: vi.fn() },
-    order: { create: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
+    order: { create: vi.fn(), findUnique: vi.fn(), findFirst: vi.fn(), update: vi.fn(), updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
     customer: { findUnique: vi.fn(), create: vi.fn(), update: vi.fn() },
     license: { create: vi.fn(), findUnique: vi.fn() },
     subscription: { upsert: vi.fn(), update: vi.fn(), findUnique: vi.fn() },

@@ -123,6 +123,9 @@ export const refundService = {
     }
 
     // --- PayTR Mock İade (Development / Test) ---
+    if (process.env.NODE_ENV === 'production') {
+      throw new ValidationError('Ödeme altyapısı yapılandırılmamış, canlı ortamda mock iade yapılamaz.');
+    }
     const refundId = `paytr_mock_refund_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
     await prisma.order.update({

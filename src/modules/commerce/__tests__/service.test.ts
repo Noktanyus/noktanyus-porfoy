@@ -103,4 +103,67 @@ describe('commerceService', () => {
     expect(result.sessionId).toMatch(/^paytr_mock_/);
     expect(result.url).toContain('/odeme/basarili');
   });
+
+  it('createProductCheckout overrides manipulated client priceCents with DB product price', async () => {
+    const paytr = await import('@/lib/paytr');
+    vi.spyOn(paytr, 'isPaytrConfigured').mockReturnValue(false);
+    const { commerceService } = await import('../service');
+    const { prisma } = await import('@/lib/prisma');
+
+    const fakeProduct = {
+      id: 'p_expensive',
+      slug: 'expensive-product',
+      title: 'Expensive Product',
+      shortDescription: 'Expensive product description',
+      thumbnail: null,
+      priceCents: 50000, // 500 TL
+    };
+
+    (prisma.digitalProduct.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(fakeProduct);
+    let createdOrderData: any = null;
+    (prisma.order.create as ReturnType<typeof vi.fn>).mockImplementation(async ({ data }) => {
+      createdOrderData = data;
+      return { id: 'order_safe', ...data };
+    });
+
+    // Client sends priceCents: 1 (1 kuruş) trying to tamper
+    await commerceService.createProductCheckout(
+      [{ productId: 'p_expensive', quantity: 1, priceCents: 1 }],
+      'attacker@example.com'
+    );
+
+    expect(createdOrderData).not.toBeNull();
+    // Subtotal and totalCents MUST be 50000 (from DB), NOT 1
+    expect(createdOrderData.subtotalCents).toBe(50000);
+    expect(createdOrderData.totalCents).toBe(50000);
+  });
+
+  it('throws ValidationError in production if PayTR is unconfigured', async () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+    try {
+      const paytr = await import('@/lib/paytr');
+      vi.spyOn(paytr, 'isPaytrConfigured').mockReturnValue(false);
+      const { commerceService } = await import('../service');
+      const { prisma } = await import('@/lib/prisma');
+
+      (prisma.digitalProduct.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
+        id: 'p1',
+        slug: 'p1',
+        title: 'P1',
+        shortDescription: 'desc',
+        thumbnail: null,
+        priceCents: 1000,
+      });
+
+      await expect(
+        commerceService.createProductCheckout(
+          [{ productId: 'p1', quantity: 1, priceCents: 1000 }],
+          'user@example.com'
+        )
+      ).rejects.toThrow('Ödeme altyapısı şu anda kullanılamıyor');
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+    }
+  });
 });
